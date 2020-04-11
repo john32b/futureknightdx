@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<haxedef name="DYN_ASSETS" if="debug"/>
+	<!--<haxedef name="TROPHIES"/>-->
+	<!--<haxedef name="FLASHONLINE"/>-->
+	<!--<haxedef name="GAMEJOLT"/> <set name="GAMEJOLT"/>-->
+	
+	<!-- APPLICATION SETTINGS -->
+	<app title="FutureKnightRemake" package="com.johndimi.fknight" file="FutureKnightRemake" main="Main" version="1.3" company="JohnDimi" />
+	<!--<app preloader="NoPreloader" unless="FLASHONLINE"/>-->
+	<window width="640" height="480" fps="40" background="#000000" hardware="true" vsync="true" />
+	
+	<set name="BUILD_DIR" value="a:\fktest\" />
+	
+	<haxelib name="flixel"/>
+	<haxelib name="djFL"/>	<!-- in development -->
+	
+	<include path="C:/home/code/HT/djFlixel/source/" />	
+	<source path="C:/Mega/projects/djA/" />
+	
+	<source path="source" />
+	
+	<assets path="assets" include="*.ini|*.json|*.ttf|*.tmx"/>
+	<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
+	<assets path="assets/music" type="music" rename="mus"/>
+	<!--<assets path="assets2/sounds" type="sound" rename="snd"/>-->
+	
+	<haxedef name="webgl" if="html5"/>
+	<haxedef name="FLX_NO_GAMEPAD"/>
+	
+	<!--<haxeflag name="--connect 6000"/>-->
+	<haxeflag name="-dce" value="std"/>
+	
+	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
+	
+</project>
