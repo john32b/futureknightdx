@@ -52,7 +52,6 @@ class Reg
 		en_bounce:180
 	};
 	
-	
 	static var LEVELS = [
 		'assets/maps/_debug.tmx',
 		'assets/maps/_debug2.tmx',
@@ -63,11 +62,14 @@ class Reg
 
 	static var COLORIZER:AssetColorizer;
 	
+	
+	static var _dtimes:Int = 0;
+	
 	// --
 	// -- This is going to be called right before FLXGAME being created
 	public static function init()
 	{
-		trace(" -- Reg init");
+		trace(" == Reg init");
 		D.assets.DYN_FILES = [PATH_JSON, PATH_INI];	// Reload on F12
 		D.assets.onAssetLoad = onAssetLoad;	
 		D.snd.ROOT_SND = "snd/";
@@ -85,7 +87,11 @@ class Reg
 		trace(" -- Reg Dynamic Asset Load");
 		INI = new ConfigFile(D.assets.files.get(PATH_INI));
 		JSON = Json.parse(D.assets.files.get(PATH_JSON));
-		//PH = INI.getObj('reg_ph', PH);
+		
+		if (++_dtimes == 1)
+		{
+			D.snd.addMetadataNode(JSON.soundFiles);
+		}
 	}//---------------------------------------------------;
 
 	

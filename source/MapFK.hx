@@ -121,7 +121,7 @@ class MapFK extends TilemapGeneric
 			
 		layers[1].loadMapFromArray(T.getLayer(LAYER_PLATFORM), T.mapW, T.mapH,
 			Reg.COLORIZER.getBitmap((MAP_TYPE * 2) + 1, 0),
-			T.tileW, T.tileH, null, 1, 1, 1);
+			T.tileW, T.tileH, null, 1, 2, 1);
 			
 		_setTileProperties();	// <- Declare tile collision properties
 		

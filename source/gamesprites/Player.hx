@@ -25,10 +25,13 @@ package gamesprites;
 
 import djA.Fsm;
 import djA.types.SimpleCoords;
+
 import djFlixel.D;
+
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
+import flixel.system.FlxSound;
 import flixel.tile.FlxTile;
 
 
@@ -61,12 +64,14 @@ class Player extends FlxSprite
 	inline static var SLIDE_MOUNT_PIXELS_Y_ON = 4;	// Offset when mounting the slide
 	inline static var SLIDE_MOUNT_PIXELS_Y_OFF = 8;	// Offset to check when getting off
 	
+	inline static var SOUND_sndTick_WALK = 0.2857;	// This is ANIMATION FRAMES (1/FPS) * TOTAL_FRAMES
+	inline static var SOUND_sndTick_CLIMB = 0.30;
+	
 	// Keys states
 	var _pressingUp:Bool;
 	var _pressingDown:Bool;
 	var _pressingLeft:Bool;
 	var _pressingRight:Bool;
-	var _pressingFire:Bool;
 	
 	// All these are autocalculated on creation
 	var MAX_FALLSPEED:Int;			// autoset, based on PLAYER_JUMP_STRENGTH
@@ -76,13 +81,9 @@ class Player extends FlxSprite
 	var AIR_NUDGE_SPEED_LESS:Int;	// Air movement if walked jumped, autoset from PLAYER_SPEED
 
 	// -- Animation/state vars
-	public var isOnFloor(default, null):Bool;
 	public var isCrouching(default, null):Bool;
 	public var isWalking(default, null):Bool;
 	public var isFalling(default, null):Bool;
-	public var isSliding(default, null):Bool;
-	public var isClimbing(default, null):Bool;
-	
 	
 	// -- States
 	
@@ -92,6 +93,22 @@ class Player extends FlxSprite
 	var _verticalJump:Bool;			// Slower left-right movement on the air if vertical jump
 	var _specialTileY:Int;			// Either TOP LADDER TILE, or SLIDE FREE TILE
 	var _break_after:Bool;			// Useful to keep track whether I need to exit an update function sometimes
+	var _sndTemp:FlxSound;			// Keeps some sounds that I need to stop manually
+	var _sndTick:Float;				// Used in WALK,CLIMB to make a sound at an interval.
+	var _stopwall:Int;				// Used in WALK, not walking into walls
+	
+	var snd =  {
+		walk:"pl_walk",		// ok
+		jump:"pl_jump2",	// ok
+		climb:"pl_climb",	// ok
+		slide:"pl_slide",	// ok
+		land:"pl_land",		// ok
+		step:"pl_step",		// ok
+		die:"pl_die",
+		hurt:"pl_hurt",
+		shoot:"p_shoot",
+	}
+	
 	
 	public function new() 
 	{
@@ -137,11 +154,23 @@ class Player extends FlxSprite
 		fsm.addState(PlayerState.ONFLOOR , state_onfloor_enter, state_onfloor_update, state_onfloor_exit);
 		fsm.addState(PlayerState.ONAIR   , state_onair_enter, state_onair_update);
 		fsm.addState(PlayerState.ONLADDER, null, state_onladder_update);
-		fsm.addState(PlayerState.ONSLIDE, null , state_onslide_update);
+		fsm.addState(PlayerState.ONSLIDE, state_onslide_enter , state_onslide_update, state_onslide_exit);
 		
 	}//---------------------------------------------------;
-	
 
+	
+	function state_onslide_enter()
+	{
+		_sndTemp = D.snd.play(snd.slide, 0.7);
+		animation.play('slide');
+	}//---------------------------------------------------;
+	
+	function state_onslide_exit()
+	{
+		if (_sndTemp != null) {
+			_sndTemp.fadeOut(0.05, 0);	// The sound will be auto-destroyed by default
+		}
+	}//---------------------------------------------------;
 	
 	function state_onslide_update()
 	{
@@ -156,10 +185,19 @@ class Player extends FlxSprite
 		}
 	}//---------------------------------------------------;
 	
+
+	
 	function state_onladder_update()
 	{
+		if (_sndTick >= SOUND_sndTick_CLIMB)
+		{
+			_sndTick = 0;
+			D.snd.play(snd.climb);
+		}
+		
 		if (_pressingUp)
 		{
+			_sndTick += FlxG.elapsed;
 			// DEV: No need to check for free tile,I already know where the ladder ends
 			if(y < _specialTileY - height + LADDER_MOUNT_PIXELS + 3)
 			{
@@ -180,14 +218,7 @@ class Player extends FlxSprite
 				
 		}else if (_pressingDown)
 		{
-			// :: -- (old 2015 code note) --
-			// TODO: Different thresholds to drop
-			// 1. Ladder reaches a platform, small threshold
-			// 2. Ladder ends on air, larger threshold
-			// -- (end note)
-			
-			// :: OK but currently it works ok, with just one threshold
-			
+			_sndTick += FlxG.elapsed;
 			if ( !Game.map.tileIsType(Game.map.getTileP(x + 2, y + height + 4), LADDER) || 
 				D.ctrl.pressed(A) )
 			{
@@ -207,6 +238,7 @@ class Player extends FlxSprite
 		}
 		else
 		{
+			_sndTick = SOUND_sndTick_CLIMB * 0.75;
 			velocity.y = 0;
 			animation.pause();
 		}
@@ -219,23 +251,29 @@ class Player extends FlxSprite
 			animation.play("fall");
 			isFalling = true;
 		}else{
-			animation.play("jump");
+			// animation.play("jump"); // NO. Because sometimes I want to keep the walk animation
 			isFalling = false;
+			_sndTemp = D.snd.play(snd.jump);
 		}
 	}//---------------------------------------------------;
 	
 	
 	function state_onair_update()
 	{
-		
-		// DEV: This will trigger all tile-callbacks, including TRIGGER_SLIDE
-		//		- this has caused some headaches
-		//	  : Collide Check NEEDS to be before anything else here for it to work
+		// NOTE : Collide Check NEEDS to be before anything else here for it to work
+		// DEV  : This will trigger all tile-callbacks, including TRIGGER_SLIDE
 		FlxG.collide(this, Game.map.layers[1]);
-		if (_break_after) return;	// This fixes the slide problem
+		if (_break_after) return;	// This fixes the slide problem 
+		
+		if (justTouched(FlxObject.CEILING))
+		{
+			D.snd.play("pl_ceil", 0.6);
+			if (_sndTemp != null){
+				_sndTemp.stop();
+			}
+		}
 		
 		// :: UPDATE
-	
 		if (velocity.y >= 0) // Going DOWN
 		{
 			if (!isFalling)
@@ -251,18 +289,18 @@ class Player extends FlxSprite
 				//steppedOnHazzard = false;	// LATER
 				//_lastWallBlockedDir = 0;	// LATER
 				fsm.goto(ONFLOOR);
+				D.snd.play(snd.land, 0.8);
 				return;
-				/// <SOUND> land
 			}
+			
 		}else{ 
 			
 			// :: Check for button release to reduce jump velocity
-			// :: HARD_CODED
 			if ( !D.ctrl.pressed(A) && velocity.y >=-200 && velocity.y <= -100)
 			{
 				velocity.y = -80;
 				// DEV: Should I parameterize all these??
-			}
+			}			
 		}
 		
 		// :: INPUT
@@ -286,7 +324,6 @@ class Player extends FlxSprite
 			}
 		}
 		
-		
 		// :: Check for ladder mount
 		if (_pressingUp)
 		{
@@ -298,8 +335,10 @@ class Player extends FlxSprite
 	
 	function state_onfloor_enter()
 	{
+		_sndTick = SOUND_sndTick_WALK * 0.8;	// Don't wait a fill TICK to make the sound
 		isFalling = false;
 		animation.play("idle");
+		_stopwall = -1;
 	}//---------------------------------------------------;
 		
 	
@@ -310,9 +349,9 @@ class Player extends FlxSprite
 	}//---------------------------------------------------;
 	
 	
+	
 	function state_onfloor_update()
 	{
-		
 		// DEV: This will trigger all tile-callbacks, including TRIGGER_SLIDE
 		//		- this has caused some headaches
 		//	  : Collide Check NEEDS to be before anything else here for it to work
@@ -323,62 +362,45 @@ class Player extends FlxSprite
 		if (!isTouching(FlxObject.FLOOR)) // Was the player walked off a platform?
 		{
 			_verticalJump = true;
+			velocity.x = 0;	// drop flat
 			fsm.goto(ONAIR);
 			return;
-		}
-		else
+			
+		}else if (justTouched(FlxObject.WALL))
 		{
-			// (This comment is copied from the older 2015 release) ::
-			// BUG :
-			// Sometimes when the player touches the floor hr jitters.
-			// player.y is a real number (10.0000001)
-			// NOTE:
-			// This seems to be present in framerates larger than 40.
-			// I am running with a 40 framerate right now
-			// y = Std.int(y); or Math.round?
+			_stopwall = facing;	// At this face I just hit a wall in this cycle
+			_walk_stop_cycle();
+		}
+		
+		if (_sndTick >= SOUND_sndTick_WALK)
+		{
+			_sndTick = 0;
+			D.snd.play(snd.step);
 		}
 		
 		// :: INPUT : Ordering is important
-		
 		if (_pressingRight)
 		{
-			if (isCrouching) standUp();
 			facing = FlxObject.RIGHT;
 			velocity.x = Reg.PH.pl_speed;
-			
-			// start walk animation ONLY if it is not up against a wall
-			isWalking = true;
-			animation.play("walk"); // Restart animation
-			
+			_walk_start_req();
 		}
 		else if (_pressingLeft)
 		{
-			if (isCrouching) standUp();
 			facing = FlxObject.LEFT;
 			velocity.x = -Reg.PH.pl_speed;
-			// start walk animation ONLY if it is not up against a wall
-			isWalking = true;
-			animation.play("walk"); // Restart animation
+			_walk_start_req();
 		}
 		else
 		{
 			// : NO DIRECTION IS HELD
-			
-			if (isWalking)
+			if (isWalking) 
 			{
-				velocity.x = 0;
-				isWalking = false;
-				// : Finish the walk animation then go to idle
-				animation.callback = (a, b, c)->{
-					if (b == _walkLastFrame) {
-						animation.callback = null;	// Dev. need to null, doesn't reset on new anims
-						animation.play("idle");
-					}
-				};
+				_walk_stop_cycle();
 			}
 		}
 		
-		// :: Break the else
+		// DEV: No break here. Check A, UP, DOWN separately
 		
 		if (D.ctrl.justPressed(A))
 		{
@@ -392,6 +414,7 @@ class Player extends FlxSprite
 				_verticalJump = false; // Keep the walk animation going in the jump state
 			}else{
 				_verticalJump = true;
+				animation.play("jump");
 			}
 			
 			fsm.goto(ONAIR);
@@ -461,26 +484,42 @@ class Player extends FlxSprite
 	{
 		// :: Position ::
 		_snapToFloor(X, Y);
-		last.x = x; last.y = y;
 		
 		// Reset physics with a stop,start
 		physics_stop();
 		physics_start();
 		
-		input_reset();
+		_pressingDown = _pressingLeft = _pressingRight = _pressingUp = false;
 		
 		// --
 		_break_after = false;
 		isCrouching = false;
 		isWalking = false;
-		isOnFloor = true;	// Not Needed
-		isFalling = false;	// Does not matter, gets inited before use
-		isSliding = false;	// Not needed
-		isClimbing = false; // Not needed
+		isFalling = false;	// Init here does not matter, gets inited before use.
 		
 		fsm.goto(ONFLOOR);
 	}//---------------------------------------------------;
 	
+	
+	
+	// Called when climbing or sliding
+	function physics_stop()
+	{
+		velocity.set(0, 0);
+		acceleration.y = 0;
+		touching = 0;
+		wasTouching = 0;
+		solid = false;
+	}//---------------------------------------------------;
+	
+		// --
+	// Resume state to normal
+	function physics_start()
+	{
+		acceleration.y = Reg.PH.gravity;
+		solid = true;
+		//idleTimer = 0;
+	}//---------------------------------------------------;
 	
 	function crouch()
 	{
@@ -508,7 +547,7 @@ class Player extends FlxSprite
 		animation.play("idle");
 	}//---------------------------------------------------;
 	
-	
+
 	
 	/** Check current position for ladder UP . Return if it mounted a ladder*/
 	function ladder_checkUp():Bool
@@ -517,8 +556,7 @@ class Player extends FlxSprite
 		var tile = Game.map.layers[1].getTile(tc.x, tc.y);
 		if (Game.map.tileIsType(tile, LADDER) || Game.map.tileIsType(tile, LADDER_TOP))
 		{
-			x = (Std.int(x / 32) * 32) + (32 - width) / 2;
-			last.x = x;
+			last.x = x = (Std.int(x / 32) * 32) + (32 - width) / 2;
 			// Search for a ladder TOP.
 			#if debug var _t = 0; #end
 			while (!Game.map.tileIsType(Game.map.layers[1].getTile(tc.x, tc.y), LADDER_TOP)) {
@@ -529,6 +567,7 @@ class Player extends FlxSprite
 			}
 			_specialTileY = tc.y * 8;
 			physics_stop();
+			_sndTick = SOUND_sndTick_CLIMB * 0.75;
 			fsm.goto(ONLADDER);
 			return true;
 		}
@@ -550,6 +589,7 @@ class Player extends FlxSprite
 			last.y = y;
 			animation.play("mount");
 			physics_stop();
+			_sndTick = SOUND_sndTick_CLIMB * 0.75;
 			fsm.goto(ONLADDER);
 			return true;
 		}
@@ -557,15 +597,15 @@ class Player extends FlxSprite
 	}//---------------------------------------------------;
 	
 	
-		
 	
 	/**
-	   =Called externally - from <MapFK.hx>
+	   == Called externally  (from <MapFK.hx>)
 	   When the player collides with a SLIDE tile at any side, so I need to check
 	   
 	   == WARNING== This Function takes place inside a `Flxg.collision` check 
 	   so the function stack is inside an 'onair_update' or 'onfloor_update' here !!
 	   
+	   == DEV == 2015 version it could end slide on a floor tile, this cannot
 	**/
 	public function event_slide_tile(tile:FlxTile, tileDir:Int)
 	{	
@@ -586,8 +626,6 @@ class Player extends FlxSprite
 		// Snap player to tile
 		x = (tx * 8);
 		y = (ty * 8) - height + SLIDE_MOUNT_PIXELS_Y_ON;
-		last.x = x;
-		last.y = y;
 		
 		var t = 0;
 		do{
@@ -598,53 +636,64 @@ class Player extends FlxSprite
 		
 		_specialTileY = ty * 8;	// This is the free TILE, not the last tile
 		
-		/// NOTE: 2015 version it could end slide on a floor tile, this cannot
-		
 		_break_after = true;	// Fix function stack 
 		physics_stop();
 		velocity.set(xdir * SLIDE_SPEED, SLIDE_SPEED);
 		facing = tileDir;
-		animation.play("slide");
 		fsm.goto(ONSLIDE);
 	}//---------------------------------------------------;
+
 	
+	
+	// - USED IN <state_onfloor_update>
+	// - Stop walking and end current walk cycle
+	function _walk_stop_cycle()
+	{
+		isWalking = false;
+		velocity.x = 0;
+		_sndTick = SOUND_sndTick_WALK * 0.8;	// Don't wait a full tick to make the sound.
+		// : Finish the walk animation then go to idle
+		animation.callback = (a, b, c)->{
+			if (b == _walkLastFrame) {
+				animation.callback = null;	// Dev. need to null, doesn't reset on new anims
+				animation.play("idle");
+			}
+		};
+	}//---------------------------------------------------;
+	
+	// - USED IN <state_onfloor_update>
+	// - Request to start walking. Checks if already against a wall
+	function _walk_start_req()
+	{
+		if (_stopwall == facing) {
+			return;
+		}
+		if (!isWalking) {
+			if (isCrouching) standUp();
+			_stopwall = -1;
+			isWalking = true;
+			animation.callback = null;
+			animation.play("walk");
+		}
+		
+		// Continue walking
+		_sndTick += FlxG.elapsed;
+	}//---------------------------------------------------;
+	
+	
+		
 	// -- Code BORROWED from <MapSprite.hx>
 	// X,Y are world coordinates
 	function _snapToFloor(X:Float, Y:Float)
 	{
 		var SP_TILE = new SimpleCoords(Std.int(X / 32) * 4 , Std.int(Y / 32) * 4);
-		x = Std.int((SP_TILE.x * 8) + ((32 - width) / 2));
+		last.x = x = Std.int((SP_TILE.x * 8) + ((32 - width) / 2));
 		var floory = Game.map.getFloor(SP_TILE.x + 1, SP_TILE.y + 1);
 		if (floory >= 0) {
-			y = (floory * 8) - Std.int(height);
+			last.y = y = (floory * 8) - Std.int(height);
 		}else{
 			throw "Player can`t land on floor";
 		}
-	}//---------------------------------------------------;
-	
-	
-	// Called when climbing or sliding
-	function physics_stop()
-	{
-		velocity.set(0, 0);
-		acceleration.y = 0;
-		touching = 0;
-		wasTouching = 0;
-		solid = false;
-	}//---------------------------------------------------;
-	
-		// --
-	// Resume state to normal
-	function physics_start()
-	{
-		acceleration.y = Reg.PH.gravity;
-		solid = true;
-		//idleTimer = 0;
-	}//---------------------------------------------------;
-	
-	function input_reset()
-	{
-		_pressingDown = _pressingFire = _pressingLeft = _pressingRight = _pressingUp = false;
 	}//---------------------------------------------------;
 	
 }

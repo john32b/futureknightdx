@@ -6,9 +6,8 @@ import openfl.display.Sprite;
 
 class Main extends Sprite
 {
-	var startState = StateTest;
-	//var startState = StateAmstrad;
-	//var startState = StateTitle;
+	inline static var FPS = 40;
+	inline static var START_STATE = StateTest;
 	
 	public function new() 
 	{
@@ -25,7 +24,7 @@ class Main extends Sprite
 		
 		// :: Start the game after loading the dynamic assets (they were defined in Reg.init)
 		D.assets.reload( ()->{	
-			addChild(new FlxGame(320, 240, startState, 2, 40, 40, true));
+			addChild(new FlxGame(320, 240, START_STATE, 2, FPS, FPS, true));
 		});
 		
 	}//---------------------------------------------------;

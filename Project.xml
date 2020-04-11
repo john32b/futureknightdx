@@ -9,7 +9,7 @@
 	<!-- APPLICATION SETTINGS -->
 	<app title="FutureKnightRemake" package="com.johndimi.fknight" file="FutureKnightRemake" main="Main" version="1.3" company="JohnDimi" />
 	<!--<app preloader="NoPreloader" unless="FLASHONLINE"/>-->
-	<window width="640" height="480" fps="40" background="#000000" hardware="true" vsync="true" />
+	<window width="640" height="480" fps="60" background="#000000" hardware="true" vsync="true" />
 	
 	<set name="BUILD_DIR" value="a:\fktest\" />
 	
@@ -24,13 +24,15 @@
 	<assets path="assets" include="*.ini|*.json|*.ttf|*.tmx"/>
 	<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
 	<assets path="assets/music" type="music" rename="mus"/>
-	<!--<assets path="assets2/sounds" type="sound" rename="snd"/>-->
+	<assets path="assets/sounds" type="sound" include="*.mp3" rename="snd"/>
 	
 	<haxedef name="webgl" if="html5"/>
 	<haxedef name="FLX_NO_GAMEPAD"/>
 	
-	<!--<haxeflag name="--connect 6000"/>-->
+	<!-- NOTE I am putting connect to the HAXEDEVELOP project settings -->	
+	<!--<haxeflag name="--connect 6000"/>-->	
 	<haxeflag name="-dce" value="std"/>
+	<!--<haxeflag name="--times" />-->
 	
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 	
