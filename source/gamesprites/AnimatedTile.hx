@@ -60,8 +60,10 @@ class AnimatedTile extends MapSprite
 			case 4:
 				anim = "_HAZARD";
 				type = AnimTileType.HAZARD;
-				offset.set(0, 16);
-				setSize(32, 8);
+				// Dev: I am making the hazard tile a bit taller to allow tighter collisions 
+				// when walking into it from the sides.
+				offset.set(0, 15);
+				setSize(32, 9);	// 8 pixels is GFX, 1 pixels empty to the top.
 				set_spawn_origin(1);
 			case _:
 				anim = "_DECO_" + gid;

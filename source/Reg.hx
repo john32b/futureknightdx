@@ -2,9 +2,9 @@ package;
 
 import djA.ConfigFile;
 import djFlixel.D;
-import flixel.FlxG;
 import flixel.FlxSprite;
 import haxe.Json;
+
 
 /**
  * Various Parameters

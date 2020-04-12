@@ -6,8 +6,6 @@
 
 
 package;
-import flixel.FlxObject;
-import flixel.tile.FlxTilemap;
 
 enum FG_TILE_TYPE {
 	//	SOLID; ; Not needed, all tiles in FG layer are declared as SOLID by default, unless overriden
@@ -16,7 +14,7 @@ enum FG_TILE_TYPE {
 	SLIDE_RIGHT;
 	LADDER;
 	LADDER_TOP;
-	HAZARD;
+	HAZARDTILE;
 }
 
 
@@ -46,7 +44,7 @@ class MapTiles
 			SOFT => [21, 4],
 			LADDER_TOP => [26, 2],
 			LADDER => [28, 2],
-			HAZARD => [30, 1]
+			HAZARDTILE => [30, 1]
 		],
 		
 		// TYPE (1) : FOREST
@@ -56,7 +54,7 @@ class MapTiles
 			SLIDE_RIGHT => [1, 1],
 			LADDER => [1, 1],
 			LADDER_TOP => [1, 1],
-			HAZARD => [-1]	// no hazard tiles there
+			HAZARDTILE => [-1]	// no hazard tiles there
 		]
 		// TYPE (2) : CASTLE
 	];
@@ -67,12 +65,11 @@ class MapTiles
 	// These apply for all MAP_TYPES
 	// :: "tiletype" => [start_index, ?range]
 	public static var EDITOR_ENTITY(default, null):Map < EDITOR_TILE, Array<Int> > = [
-		ENEMY => [1,32],
-		PLAYER => [33, 1],
-		ANIM => [34, 6],
-		HAZARD => [37,1],
-		ITEM => [49, 12]
-		
+		ENEMY => [1,23],
+		PLAYER => [25, 1],
+		ANIM => [26, 6],
+		HAZARD => [29,1],	// Declare it again
+		ITEM => [34, 12]
 	];
 	
 

@@ -7,7 +7,7 @@ import openfl.display.Sprite;
 class Main extends Sprite
 {
 	inline static var FPS = 40;
-	inline static var START_STATE = StateTest;
+	inline static var START_STATE = StatePlay;
 	
 	public function new() 
 	{

@@ -1,13 +1,18 @@
+/**
+ Game related logic and vars
+ ========================
+ 
+ - Quick access pointers to some game components
+ 
+*/
+
+
+
 package;
-import djFlixel.D;
-import flixel.FlxG;
-import flixel.FlxSprite;
+
 import gamesprites.Player;
 
-/**
- * Game related logic and vars
- * ...
- */
+
 class Game 
 {
 	public static function init()
@@ -20,6 +25,9 @@ class Game
 	
 	// Pointer
 	public static var player:Player;
+	
+	// Pointer
+	public static var roomspr:RoomSprites;
 	
 	
 	

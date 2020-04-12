@@ -68,10 +68,14 @@ class StateTest extends FlxState
 					}
 					
 				case scrollStart:
+					for (e in ROOMSPR) e.active = false;
+					player.active = false;
 					ROOMSPR.stashSave();
 					
 				case scrollEnd:
 					ROOMSPR.stashKill();
+					for (e in ROOMSPR) e.active = true;
+					player.active = true;
 			}
 		};
 		

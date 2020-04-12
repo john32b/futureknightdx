@@ -80,12 +80,12 @@ class Enemy_AI
 	// -- Call on update, will move towards the player
 	function chase_x()
 	{
-		if (e.x < FlxG.mouse.x - 1)
+		if (e.x < Game.player.x - 1)
 		{
 			e.velocity.x = Reg.PH.en_speed;
 			e.facing = FlxObject.RIGHT;
 		}else
-		if (e.x > FlxG.mouse.x + 1)
+		if (e.x > Game.player.x + 1)
 		{
 			e.velocity.x = -Reg.PH.en_speed;
 			e.facing = FlxObject.LEFT;
@@ -97,11 +97,11 @@ class Enemy_AI
 	
 	function chase_y()
 	{
-		if (e.y < FlxG.mouse.y - 1)
+		if (e.y < Game.player.y - 1)
 		{
 			e.velocity.y = Reg.PH.en_speed;
 		}else
-		if (e.y > FlxG.mouse.y + 1)
+		if (e.y > Game.player.y + 1)
 		{
 			e.velocity.y = -Reg.PH.en_speed;
 		}
@@ -206,7 +206,7 @@ class AI_Chase extends Enemy_AI
 **/
 class AI_Bounce extends Enemy_AI
 {
-	
+	// Count
 	static inline var GFX_BOUNCE_RESTORE_TIME = 0.16;
 	
 	var frames:Array<Int>;

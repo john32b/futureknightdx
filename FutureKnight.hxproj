@@ -24,17 +24,15 @@
     <class path="C:\home\code\HT\djFlixel\source" />
     <class path="C:\Mega\projects\djA" />
     <class path="source" />
-    <class path="a:\fktest\flash" />
-    <class path="a:\fktest\flash\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="flixel=4.6.3&#xA;lime=7.6.3&#xA;hscript=2.3.0&#xA;djFL=0.1.0&#xA;openfl=8.9.5&#xA;DYN_ASSETS&#xA;native-trace&#xA;next&#xA;FLX_NO_GAMEPAD&#xA;tools=7.6.3&#xA;flash-use-stage&#xA;no-compilation&#xA;openfl-flash&#xA;FLX_NO_TOUCH&#xA;fdb&#xA;openfl-disable-handle-error&#xA;DJFLX_VER=0.4.0-DEV&#xA;web" />
+    <option directives="flixel=4.6.3&#xA;lime=7.6.3&#xA;hscript=2.3.0&#xA;djFL=0.1.0&#xA;openfl=8.9.5&#xA;DYN_ASSETS&#xA;next&#xA;FLX_NO_GAMEPAD&#xA;tools=7.6.3&#xA;no-compilation&#xA;openfl-flash&#xA;FLX_NO_TOUCH&#xA;openfl-disable-handle-error&#xA;DJFLX_VER=0.4.0-DEV&#xA;web" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="--macro lime._internal.macros.DefineMacro.run()&#xA;--macro openfl._internal.macros.ExtraParams.include()&#xA;--macro flixel.system.macros.FlxDefines.run()&#xA;-dce std&#xA;--flash-strict &#xA;-swf-lib obj/assets.swf&#xA;-swf-version 20&#xA;-debug " />
+    <option additional="--macro lime._internal.macros.DefineMacro.run()&#xA;--macro openfl._internal.macros.ExtraParams.include()&#xA;--macro flixel.system.macros.FlxDefines.run()&#xA;-dce std&#xA;-swf-version 20&#xA;--no-output " />
   </build>
   <!-- haxelib libraries -->
   <haxelib>
@@ -49,7 +47,7 @@
     <hidden path="obj" />
   </hiddenPaths>
   <!-- Executed before build -->
-  <preBuildCommand>"$(CompilerPath)/haxelib" run lime build "$(OutputFile)" $(TargetBuild) -$(BuildConfig) -Dfdb --connect 6000 </preBuildCommand>
+  <preBuildCommand>"$(CompilerPath)/haxelib" run lime build "$(OutputFile)" $(TargetBuild) -$(BuildConfig) -Dfdb --connect 6000</preBuildCommand>
   <!-- Executed after build -->
   <postBuildCommand alwaysRun="False" />
   <!-- Other project options -->

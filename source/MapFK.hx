@@ -1,14 +1,38 @@
+/**
+	FUTURE KNIGHT MAP OBJECT
+	========================
+	
+	
+	- Loads and Creates the TileMap
+	- Handles camera scrolling
+	- Reads room entities and pushes them to user for creation
+	- Follows Player (from Game.player global) and scrolls rooms
+	- Offers some tile checks functions to be used from Sprites
+	
+	
+	DEBUG:
+	========
+	
+	- Press (SHIFT + DIRECTION) to scroll to new rooms
+	- Press (SHIFT + MOUSE) to position player
+	
+	
+**/
+
+
 package;
 
 import MapTiles.FG_TILE_TYPE;
 import MapTiles.EDITOR_TILE;
-import gamesprites.Player;
+
 import tools.TilemapGeneric;
+import gamesprites.Player;
 
 import djA.types.SimpleCoords;
-import djFlixel.D;
-import djFlixel.core.Dcontrols;
 import djfl.util.TiledMap.TiledObject;
+import djFlixel.D;
+import djFlixel.core.Dcontrols.DButton;
+
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -16,8 +40,6 @@ import flixel.tile.FlxTilemap;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.tweens.misc.VarTween;
-import flash.display.BitmapData;
-
 
 
 enum MapEvent 
@@ -113,7 +135,7 @@ class MapFK extends TilemapGeneric
 		MAP_TYPE = T.properties.TYPE;
 		MAP_NAME = T.properties.NAME;
 		
-		// _scanProcessTiles();	// <- Convert FG tiles to Entity Objects (For easier map making?)
+		 _scanProcessTiles();	// <- Read FG tiles
 
 		layers[0].loadMapFromArray(T.getLayer(LAYER_BG), T.mapW, T.mapH,
 			Reg.COLORIZER.getBitmap((MAP_TYPE * 2), 0),
@@ -173,6 +195,7 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 	
 	
+	
 	/**
 	   Move camera to the room position containing a (X,Y) coords
 	**/
@@ -198,7 +221,7 @@ class MapFK extends TilemapGeneric
 	   Scroll camera to RELATIVE ROOM COORDINATES
 	   (1,0) will move 1 to the right. (0,-1) will move one above
 	**/
-	public function camera_move_rel(x:Int = 0, y:Int = 0)
+	public function camera_move_rel(x:Int = 0, y:Int = 0):Bool
 	{
 		if (roomcurrent_set(roomCurrent.x + x, roomCurrent.y + y))
 		{
@@ -214,9 +237,10 @@ class MapFK extends TilemapGeneric
 				ease:CAMERA_EASE,
 				onComplete:_on_camera_tween_end
 			});
+			return true;
 		}
+		return false;
 	}//---------------------------------------------------;
-	
 	
 	
 	
@@ -224,6 +248,23 @@ class MapFK extends TilemapGeneric
 	{
 		tweenCamera = null;
 		onEvent(MapEvent.scrollEnd);
+		
+		#if debug
+			// Place player
+			if (!Game.player.alive)
+			{
+				for (tx in 0...ROOM_TILE_WIDTH)
+				for (ty in 0...ROOM_TILE_HEIGHT)
+				{
+					if (getCol(roomCornerTile.x + tx, roomCornerTile.y + ty) == 0)
+					{
+						Game.player.spawn((roomCornerTile.x + tx) * TILE_SIZE, (roomCornerTile.y + ty) * TILE_SIZE);
+						return;
+					}
+				}
+			}
+		#end
+		
 		// DEV:
 		// User responsible to freeeze/unfreeze, kill/reapawn
 	}//---------------------------------------------------;
@@ -234,7 +275,6 @@ class MapFK extends TilemapGeneric
 	// Mainly used for translating "HAZARD" fg tiles to Entities so that they can be pushed as entities to user
 	// I can skip this and make all hazards live in editor only?
 	@:dce
-	/// NOT USED FOR NOW. JUST PUT HAZARDS MANUALLY IN ENTITIES
 	function _scanProcessTiles()
 	{
 		// :: SPECIAL OCCASION
@@ -242,8 +282,10 @@ class MapFK extends TilemapGeneric
 		//  - This is done for easier map designing?
 		//  - IMPORTANT Requires hazard tiles to be in x4 groups
 		var data = T.getLayer(LAYER_PLATFORM);
-		var hazardIndex = MapTiles.TILE_COL[MAP_TYPE][FG_TILE_TYPE.HAZARD][0];
-		for (i in 0...data.length) {
+		var hazardIndex = MapTiles.TILE_COL[MAP_TYPE][HAZARDTILE][0];
+		var i = 0;
+		while (i < data.length)
+		{
 			if (data[i] == hazardIndex) {
 				// Create a new TiledObject, put it along the others
 				var coords = serialToTileCoords(i);
@@ -251,7 +293,7 @@ class MapFK extends TilemapGeneric
 					x:coords.x * T.tileW,
 					y:coords.y * T.tileH,
 					id:hazardIndex,	// This does not matter right now. So I am putting whatever
-					gid:MapTiles.EDITOR_ENTITY[EDITOR_TILE.HAZARD][0]
+					gid:MapTiles.EDITOR_ENTITY[HAZARD][0]
 				});
 				// Delete the actual tiles
 				// DEV: This is fine since the map is read left to right
@@ -260,6 +302,7 @@ class MapFK extends TilemapGeneric
 				data[i+2] = 0;
 				data[i+3] = 0;
 			}
+			i += 4;
 		}
 	}//---------------------------------------------------;
 	
@@ -294,6 +337,7 @@ class MapFK extends TilemapGeneric
 		m.setTileProperties(C[LADDER_TOP][0], FlxObject.CEILING, null, null, C[LADDER_TOP][1]);
 		m.setTileProperties(C[SLIDE_LEFT][0], FlxObject.ANY, _tilecol_slide_left, null, C[SLIDE_LEFT][1]);
 		m.setTileProperties(C[SLIDE_RIGHT][0], FlxObject.ANY, _tilecol_slide_right, null, C[SLIDE_RIGHT][1]);
+		//m.setTileProperties(C[HAZARDTILE][0], FlxObject.NONE, _tilecol_hazard, null, C[HAZARDTILE][1]);
 	}//---------------------------------------------------;
 	
 	
@@ -318,25 +362,29 @@ class MapFK extends TilemapGeneric
 	override public function update(elapsed:Float):Void 
 	{
 		super.update(elapsed);
+	
+		// The camera is currently scrolling.
+		if (tweenCamera != null) return;
 		
-		/// DEBUG KEYS:
-		if (D.ctrl.pressed(DButton.LB)) {
-			if (D.ctrl.justPressed(DButton.LEFT))
-			{
-				camera_move_rel( -1, 0);
-			}else if (D.ctrl.justPressed(DButton.RIGHT))
-			{
-				camera_move_rel( 1, 0);
-			}
-			if (D.ctrl.justPressed(DButton.UP))
-			{
-				camera_move_rel( 0, -1);
-			}else if (D.ctrl.justPressed(DButton.DOWN))
-			{
-				camera_move_rel( 0, 1);
-			}
-			return;
+		#if debug
+			_update_debug();
+			if (!Game.player.alive) return;	// Do not track player for debug purposes
+		#end
+		
+		// HARD_CODED Padding
+		if (Game.player.x + 4 > roomCornerPixel.x + ROOM_WIDTH){
+			camera_move_rel(1, 0);
+		}else
+		if (Game.player.x + 4 < roomCornerPixel.x){
+			camera_move_rel( -1, 0);
+		}else
+		if (Game.player.y + 8 > roomCornerPixel.y + ROOM_HEIGHT){
+			camera_move_rel(0, 1);
+		}else
+		if (Game.player.y + 8 < roomCornerPixel.y){
+			camera_move_rel(0, -1);
 		}
+		
 	}//---------------------------------------------------;
 	
 	
@@ -414,5 +462,43 @@ class MapFK extends TilemapGeneric
 	{
 		return layers[COLLISION_LAYER].getTile(Std.int(X / T.tileW), Std.int(Y / T.tileH));
 	}//---------------------------------------------------;
+	
+	
+	
+	
+	#if debug
+	
+	function _update_debug()
+	{
+		// Click somewhere to put player there
+		
+		if (FlxG.keys.pressed.SHIFT)
+		{
+			//Game.player._teleport(FlxG.mouse.x, FlxG.mouse.y);
+			if (FlxG.mouse.justPressed)
+			{
+				Game.player.spawn(FlxG.mouse.x, FlxG.mouse.y);
+				return;
+			}
+			
+			var vec = {x:0, y:0};
+			
+			if (D.ctrl.justPressed(DButton.LEFT)) {
+				vec.x = -1;
+			}else if (D.ctrl.justPressed(DButton.RIGHT)) {
+				vec.x = 1;
+			}else if (D.ctrl.justPressed(DButton.UP)) {
+				vec.y = -1;
+			}else if (D.ctrl.justPressed(DButton.DOWN)) {
+				vec.y = 1;
+			}
+			if (camera_move_rel(vec.x, vec.y)){
+				Game.player.alive = false; // Skip auto-positioning in update()
+			}
+		}
+		
+	}//---------------------------------------------------;
+		
+	#end
 	
 }// --

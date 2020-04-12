@@ -46,13 +46,12 @@ enum PlayerState
 
 class Player extends FlxSprite
 {
-	inline static var PLAYER_IDLE_TIME_ANIMATION = 6.0;		// at how many seconds to idle anim
+	inline static var PLAYER_IDLE_TIME_ANIMATION = 6.0;		// At how many seconds to idle anim
 	
-	// Graphic Tile Size
-	inline static var TW = 28;
+	inline static var TW = 28;			// Graphic Tile Size
 	inline static var TH = 26;
-	// Bounding box
-	inline static var BOUND_W = 8;
+
+	inline static var BOUND_W = 8; 		// Bounding box
 	inline static var BOUND_H = 22;
 	inline static var BOUND_OFF_X = 11;
 	inline static var BOUND_OFF_Y = 4;
@@ -77,26 +76,26 @@ class Player extends FlxSprite
 	var MAX_FALLSPEED:Int;			// autoset, based on PLAYER_JUMP_STRENGTH
 	var CLIMB_SPEED:Int;			// autoset, based on PLAYER_SPEED
 	var SLIDE_SPEED:Int;			// autoset, based on PLAYER_SPEED
-	var AIR_NUDGE_SPEED:Int;		// Air movement if on air vertical, autoset from PLAYER_SPEED
-	var AIR_NUDGE_SPEED_LESS:Int;	// Air movement if walked jumped, autoset from PLAYER_SPEED
+	var AIR_NUDGE_SPEED_0:Int;		// Air movement if on air vertical, autoset from PLAYER_SPEED
+	var AIR_NUDGE_SPEED_1:Int;		// Air movement if walked jumped, autoset from PLAYER_SPEED
 
-	// -- Animation/state vars
-	public var isCrouching(default, null):Bool;
-	public var isWalking(default, null):Bool;
-	public var isFalling(default, null):Bool;
-	
-	// -- States
-	
+	// -- Animation and States
+	var isFalling:Bool;
+	var isWalking:Bool;
+	var isCrouching:Bool;
 	var fsm:Fsm;
 	
+	// -- Helpers
 	var _walkLastFrame = 0;			// The last walk frame index
 	var _verticalJump:Bool;			// Slower left-right movement on the air if vertical jump
 	var _specialTileY:Int;			// Either TOP LADDER TILE, or SLIDE FREE TILE
-	var _break_after:Bool;			// Useful to keep track whether I need to exit an update function sometimes
+	var _hack_break:Bool;			// Useful to keep track whether I need to exit an update function sometimes
 	var _sndTemp:FlxSound;			// Keeps some sounds that I need to stop manually
 	var _sndTick:Float;				// Used in WALK,CLIMB to make a sound at an interval.
-	var _stopwall:Int;				// Used in WALK, not walking into walls
+	var _walkBlockDir:Int;			// Used for not walking into walls. Last direction that was blocked when walking
+	var _jumpForceFull:Bool;		// Force a full jump, with no reduce height check (Used in hazards)
 	
+	// - Sounds
 	var snd =  {
 		walk:"pl_walk",		// ok
 		jump:"pl_jump2",	// ok
@@ -110,6 +109,7 @@ class Player extends FlxSprite
 	}
 	
 	
+	
 	public function new() 
 	{
 		super();
@@ -119,8 +119,8 @@ class Player extends FlxSprite
 		MAX_FALLSPEED = Reg.PH.pl_jump + 50;
 		CLIMB_SPEED = Math.ceil(Reg.PH.pl_speed * 0.8 );
 		SLIDE_SPEED = Math.ceil(Reg.PH.pl_speed * 1.1 );
-		AIR_NUDGE_SPEED = Math.ceil(Reg.PH.pl_speed / 8);
-		AIR_NUDGE_SPEED_LESS = Math.ceil(AIR_NUDGE_SPEED / 3);
+		AIR_NUDGE_SPEED_0 = Math.ceil(Reg.PH.pl_speed / 8);
+		AIR_NUDGE_SPEED_1 = Math.ceil(AIR_NUDGE_SPEED_0 / 3);
 		
 		maxVelocity.y = MAX_FALLSPEED;
 		maxVelocity.x = Reg.PH.pl_speed;
@@ -180,12 +180,9 @@ class Player extends FlxSprite
 			physics_start();
 			velocity.x = 0;
 			_verticalJump = true;
-			_break_after = false;
 			fsm.goto(ONAIR);
 		}
 	}//---------------------------------------------------;
-	
-
 	
 	function state_onladder_update()
 	{
@@ -253,7 +250,6 @@ class Player extends FlxSprite
 		}else{
 			// animation.play("jump"); // NO. Because sometimes I want to keep the walk animation
 			isFalling = false;
-			_sndTemp = D.snd.play(snd.jump);
 		}
 	}//---------------------------------------------------;
 	
@@ -263,7 +259,12 @@ class Player extends FlxSprite
 		// NOTE : Collide Check NEEDS to be before anything else here for it to work
 		// DEV  : This will trigger all tile-callbacks, including TRIGGER_SLIDE
 		FlxG.collide(this, Game.map.layers[1]);
-		if (_break_after) return;	// This fixes the slide problem 
+		//FlxG.overlap(this, Game.roomspr.gr_anim, event_anim_tile);
+		
+		if (_hack_break) { // (exit if some collide/overlap functions occur)
+			_hack_break = false;
+			return;
+		}
 		
 		if (justTouched(FlxObject.CEILING))
 		{
@@ -296,7 +297,7 @@ class Player extends FlxSprite
 		}else{ 
 			
 			// :: Check for button release to reduce jump velocity
-			if ( !D.ctrl.pressed(A) && velocity.y >=-200 && velocity.y <= -100)
+			if ( !_jumpForceFull && !D.ctrl.pressed(A) && velocity.y >=-200 && velocity.y <= -100)
 			{
 				velocity.y = -80;
 				// DEV: Should I parameterize all these??
@@ -307,20 +308,20 @@ class Player extends FlxSprite
 		if (_pressingRight)
 		{
 			if (_verticalJump) {
-				velocity.x = AIR_NUDGE_SPEED;
+				velocity.x = AIR_NUDGE_SPEED_0;	// NOTE: Speed is not appended
 			}
 			else {
-				velocity.x += AIR_NUDGE_SPEED_LESS;
+				velocity.x += AIR_NUDGE_SPEED_1;
 			}
 			
 		}else
 		if (_pressingLeft)
 		{
 			if (_verticalJump) {
-				velocity.x =- AIR_NUDGE_SPEED;
+				velocity.x =- AIR_NUDGE_SPEED_0;	// NOTE: Speed is not appended
 			}
 			else {
-				velocity.x -= AIR_NUDGE_SPEED_LESS;
+				velocity.x -= AIR_NUDGE_SPEED_1;
 			}
 		}
 		
@@ -338,7 +339,8 @@ class Player extends FlxSprite
 		_sndTick = SOUND_sndTick_WALK * 0.8;	// Don't wait a fill TICK to make the sound
 		isFalling = false;
 		animation.play("idle");
-		_stopwall = -1;
+		_walkBlockDir = -1;
+		_jumpForceFull = false;
 	}//---------------------------------------------------;
 		
 	
@@ -353,10 +355,14 @@ class Player extends FlxSprite
 	function state_onfloor_update()
 	{
 		// DEV: This will trigger all tile-callbacks, including TRIGGER_SLIDE
-		//		- this has caused some headaches
 		//	  : Collide Check NEEDS to be before anything else here for it to work
 		FlxG.collide(this, Game.map.layers[1]);
-		if (_break_after) return;	// This fixes the slide problem
+		//FlxG.overlap(this, Game.roomspr.gr_anim, event_anim_tile);
+		
+		if (_hack_break) { // (exit if some collide/overlap functions occur)
+			_hack_break = false;
+			return;	
+		}
 		
 		// :: UPDATE
 		if (!isTouching(FlxObject.FLOOR)) // Was the player walked off a platform?
@@ -368,7 +374,7 @@ class Player extends FlxSprite
 			
 		}else if (justTouched(FlxObject.WALL))
 		{
-			_stopwall = facing;	// At this face I just hit a wall in this cycle
+			_walkBlockDir = facing;	// At this face I just hit a wall in this cycle
 			_walk_stop_cycle();
 		}
 		
@@ -417,6 +423,7 @@ class Player extends FlxSprite
 				animation.play("jump");
 			}
 			
+			_sndTemp = D.snd.play(snd.jump);
 			fsm.goto(ONAIR);
 			return;	// <- prevent the update portion to be called later in this function;
 			
@@ -482,6 +489,8 @@ class Player extends FlxSprite
 	**/
 	public function spawn(X:Float, Y:Float)
 	{
+		alive = true;
+		
 		// :: Position ::
 		_snapToFloor(X, Y);
 		
@@ -492,7 +501,7 @@ class Player extends FlxSprite
 		_pressingDown = _pressingLeft = _pressingRight = _pressingUp = false;
 		
 		// --
-		_break_after = false;
+		_hack_break = false;
 		isCrouching = false;
 		isWalking = false;
 		isFalling = false;	// Init here does not matter, gets inited before use.
@@ -548,8 +557,7 @@ class Player extends FlxSprite
 	}//---------------------------------------------------;
 	
 
-	
-	/** Check current position for ladder UP . Return if it mounted a ladder*/
+	// Check current position for ladder UP . Return if it mounted a ladder
 	function ladder_checkUp():Bool
 	{
 		var tc = Game.map.getTileCoordsFromP(x + 4, y + height - 2);
@@ -567,6 +575,7 @@ class Player extends FlxSprite
 			}
 			_specialTileY = tc.y * 8;
 			physics_stop();
+			animation.play("climb");
 			_sndTick = SOUND_sndTick_CLIMB * 0.75;
 			fsm.goto(ONLADDER);
 			return true;
@@ -574,7 +583,7 @@ class Player extends FlxSprite
 		return false;
 	}//---------------------------------------------------;
 	
-	/** Check current position for ladder DOWN . Return if it mounted a ladder */
+	// Check current position for ladder DOWN . Return if it mounted a ladder
 	function ladder_checkDown():Bool
 	{
 		// The playeris 8 pixels wide, so a tile length, check + 4 to get the middle point of X
@@ -587,8 +596,8 @@ class Player extends FlxSprite
 			y += LADDER_SNAP_Y;	// Order lock. After (_specialTileY set)
 			last.x = x;
 			last.y = y;
-			animation.play("mount");
 			physics_stop();
+			animation.play("mount");
 			_sndTick = SOUND_sndTick_CLIMB * 0.75;
 			fsm.goto(ONLADDER);
 			return true;
@@ -597,14 +606,40 @@ class Player extends FlxSprite
 	}//---------------------------------------------------;
 	
 	
+	/**
+	   == Overlap Check Handler with Animated Tiles ==
+	**/
+	public function event_anim_tile(A:Player, B:AnimatedTile)
+	{
+		switch(B.type)
+		{
+			case HAZARD:
+				// Can't hit a hazard on the way up / Don't hit same hazard more than once
+				if (velocity.y < 0) return;	
+				D.snd.play(snd.hurt);
+				velocity.y = -Reg.PH.pl_jump;
+				touching = 0;
+				_jumpForceFull = true;
+				_verticalJump = false;	// Help player escape if falls from above
+				
+				// When 
+				if (_pressingLeft) velocity.x = -Reg.PH.pl_speed; else
+				if (_pressingRight) velocity.x = Reg.PH.pl_speed;
+				
+				fsm.goto(ONAIR);
+				
+			case _:
+				
+			
+		}
+	
+	}//---------------------------------------------------;
 	
 	/**
 	   == Called externally  (from <MapFK.hx>)
 	   When the player collides with a SLIDE tile at any side, so I need to check
-	   
 	   == WARNING== This Function takes place inside a `Flxg.collision` check 
 	   so the function stack is inside an 'onair_update' or 'onfloor_update' here !!
-	   
 	   == DEV == 2015 version it could end slide on a floor tile, this cannot
 	**/
 	public function event_slide_tile(tile:FlxTile, tileDir:Int)
@@ -636,14 +671,13 @@ class Player extends FlxSprite
 		
 		_specialTileY = ty * 8;	// This is the free TILE, not the last tile
 		
-		_break_after = true;	// Fix function stack 
+		_hack_break = true;	// Fix function stack 
 		physics_stop();
 		velocity.set(xdir * SLIDE_SPEED, SLIDE_SPEED);
 		facing = tileDir;
 		fsm.goto(ONSLIDE);
 	}//---------------------------------------------------;
 
-	
 	
 	// - USED IN <state_onfloor_update>
 	// - Stop walking and end current walk cycle
@@ -665,12 +699,12 @@ class Player extends FlxSprite
 	// - Request to start walking. Checks if already against a wall
 	function _walk_start_req()
 	{
-		if (_stopwall == facing) {
+		if (_walkBlockDir == facing) {
 			return;
 		}
 		if (!isWalking) {
 			if (isCrouching) standUp();
-			_stopwall = -1;
+			_walkBlockDir = -1;
 			isWalking = true;
 			animation.callback = null;
 			animation.play("walk");
@@ -679,7 +713,6 @@ class Player extends FlxSprite
 		// Continue walking
 		_sndTick += FlxG.elapsed;
 	}//---------------------------------------------------;
-	
 	
 		
 	// -- Code BORROWED from <MapSprite.hx>
@@ -692,8 +725,9 @@ class Player extends FlxSprite
 		if (floory >= 0) {
 			last.y = y = (floory * 8) - Std.int(height);
 		}else{
-			throw "Player can`t land on floor";
+			trace("Warning: Can't find a floor. Dropping");
+			last.y = y = Y;
 		}
 	}//---------------------------------------------------;
 	
-}
+}// --
