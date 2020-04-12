@@ -60,7 +60,9 @@ class StatePlay extends FlxState
 	function _overlap_player_roomgroup(a:Player, b:MapSprite)
 	{
 		if (Std.is(b, Enemy)){
-
+			if (!b.alive) return;
+			var en:Enemy = cast b;
+			b.hurt(100);
 		}
 		else if (Std.is(b, Item)){
 			
@@ -76,10 +78,10 @@ class StatePlay extends FlxState
 	{
 		switch(ev) 
 		{
-			case loadMap: // Map has just loaded. Tilemap Created, Entities and Tiles Processed
-				
+			case loadMap: 
+				// Map has just loaded. Tilemap Created, Entities and Tiles Processed
 				ROOMSPR.reset();
-				
+		
 				if (map.PLAYER_SPAWN != null) 
 				{
 					var sp = map.PLAYER_SPAWN;
@@ -94,12 +96,14 @@ class StatePlay extends FlxState
 				
 			case roomEntities(b): 
 				// These entities are to be set in the current room
-				for (en in b) 
+				// DEV: I don't need to get player. ROOMSPR will ignore it
+				for (en in b)  
 				{
-					// DEV: I don't need to get player
 					ROOMSPR.spawn(en);
 				}
 				
+				
+			// This is called before the new room entities are pushed
 			case scrollStart:
 				for (e in ROOMSPR) e.active = false;
 				player.active = false;

@@ -76,8 +76,12 @@ class RoomSprites extends FlxGroup
 	
 	public function stashSave()
 	{
-		for (I in sg) for (i in I) { 
-			if (i.alive) stash.push(i);
+		for (I in sg) for (i in I) {
+			// DEV: I need to check for (exists) because else it will also put in the killed sprites
+			// 		and the new ones when they get created, they would be already in the stash
+			//		and would be destroyed on stashkill()
+			//      -- I am logging this because I has an issue --
+			if (i.exists) stash.push(i);
 		}
 	}//---------------------------------------------------;
 	

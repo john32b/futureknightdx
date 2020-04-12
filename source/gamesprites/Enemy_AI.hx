@@ -18,8 +18,10 @@
 			distance:Int			; Move by this much tiles, goes through walls
 			platform_bound:Bool		; Place on the nearest platform and bound to it
 			-no param-				; Move until hits wall or room end
+			
 		move_y
 			distance:Int			; Move by this much tiles, goes through walls
+			same_x:Bool				; Spawn to player X pixel
 			-no param				; Move until hits wall or room end
 			
 		bounce						; Bounces and follows player
@@ -27,15 +29,14 @@
 		
 		chase						; chase the player and bump into him
 		
-		turret
-		
+		turret						;
+
 		big_chase					; 
 		
-		big_bounce
+		big_bounce					;
 		
 	
 **/
-
 
 
 package gamesprites;
@@ -55,12 +56,12 @@ class Enemy_AI
 	public function new(E:Enemy) 
 	{
 		e = E;
-		enter();
+		e.set_spawn_origin(0);
 	}//---------------------------------------------------;	
 	// --
+	// - This is called everytime it is respawned
 	public function enter()
 	{
-		e.set_spawn_origin(0);
 		e.facing = FlxObject.RIGHT;
 	}//---------------------------------------------------;
 	// --
@@ -109,7 +110,6 @@ class Enemy_AI
 			e.velocity.y = 0;
 	}//---------------------------------------------------;
 	
-	
 	// From TILED MAP enemy type to an AI
 	public static function getAI(type:String, E:Enemy):Enemy_AI
 	{
@@ -126,8 +126,8 @@ class Enemy_AI
 		}
 	}//---------------------------------------------------;
 	
-	
-}//-
+}//--
+
 
 
 /**
@@ -140,6 +140,8 @@ class AI_Turret extends Enemy_AI
 		// count time and shoot a bullet
 	}
 }
+
+
 
 
 /**
@@ -161,6 +163,8 @@ class AI_BigChase extends Enemy_AI
 }
 
 
+
+
 /**
    Big Enemy - Bounce right-left
 **/
@@ -168,6 +172,7 @@ class AI_BigBounce extends Enemy_AI
 {
 	
 }
+
 
 
 
@@ -199,6 +204,9 @@ class AI_Chase extends Enemy_AI
 
 
 
+
+
+
 /**
 	- Will check each frame for collision against floor (when falling)
 	- Put it in rooms where there are no holes in the ground or it could fall
@@ -224,7 +232,6 @@ class AI_Bounce extends Enemy_AI
 	
 	override public function update(elapsed:Float) 
 	{
-		
 		// DEV: This also works, but I feel that it is overkill for a simple check?
 		//if (e.velocity.y > 0) {
 			//if (FlxG.collide(e, Game.map.layers[1])) {
@@ -277,55 +284,53 @@ class AI_Move_X extends Enemy_AI
 {
 	var v0:Float;
 	var v1:Float;
+	var initV:Float;
 	
-	override public function enter() 
+	public function new(E:Enemy)
 	{
-		// Default values 
+		super(E);
 		var O = DataT.copyFields(e.O.prop, {
 			platform_bound:false,
 			distance:0			
 		});
 		
-		super.enter();
+		initV = Reg.PH.en_speed;
 		
-		e.velocity.x = Reg.PH.en_speed;	// This is enemy default base speed
-		
-		if (O.platform_bound)
-		{
+		if (O.platform_bound) {
 			var floorY = e.set_spawn_origin(1);
 			var B = Game.map.get2RayCast(e.SPAWN_TILE.x, floorY, true, FlxObject.NONE);
 			v0 = B.v0 * 8;
 			v1 = (B.v1 * 8) - e.width;
 		}else
-		if (O.distance != 0)
-		{
+		if (O.distance != 0) {
 			// Fixed amount of tiles. Going through walls, also check for negative distance
 			v0 = e.SPAWN_POS.x;	// It is going to be spawned here
 			if (O.distance < 0) {
 				v1 = v0;
 				v0 = v1 + (O.distance * 8);
-				e.velocity.x = -e.velocity.x;
-				e.facing = FlxObject.LEFT;
+				initV =- initV;
 			}else{
 				v1 = v0 + (O.distance * 8);
 			}
-			
 			/// Don't check for borders, trust the editor values
-			
 		}else{
 			// Move until end of room or collides
 			var B = Game.map.get2RayCast(e.SPAWN_TILE.x , e.SPAWN_TILE.y + 1, true, FlxObject.ANY);
 			v0 = B.v0 * 8;
 			v1 = (B.v1 * 8) - e.width;
 		}
-		
+	}//---------------------------------------------------;
+	
+	override public function enter() 
+	{
+		e.velocity.x = initV;
+		e.facing = initV > 0?FlxObject.RIGHT:FlxObject.LEFT;
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 
 	{
-		if (e.x > v1 || e.x < v0)
-		{
-			turnAround();
+		if (e.x > v1 || e.x < v0) {
+			turnAround();   
 			e.velocity.x = -e.velocity.x;
 		}
 	}//---------------------------------------------------;
@@ -336,59 +341,86 @@ class AI_Move_X extends Enemy_AI
 
 
 
+
 /**
 	- Loop through 2 points in the Y axis
 	- Pre-sets a start and end point
+	- `same_x` flag, will spawn same X but Furthest Away Y
 **/
 @:access(gamesprites.Enemy)
 class AI_Move_Y extends Enemy_AI
 {
 	var v0:Float;
 	var v1:Float;
+	var initV:Float;
+	var sameX:Bool;
 	
-	override public function enter() 
+	public function new(E:Enemy)
 	{
-		super.enter();
+		super(E);
 		
-		// Default values 
+		// Default values
 		var O = DataT.copyFields(e.O.prop, {
-			distance:0
+			distance:0,
+			same_x:false
 		});
 		
-		e.velocity.y = Reg.PH.en_speed;	// This is enemy default base speed
+		initV = Reg.PH.en_speed;	// This is enemy default base speed
+		sameX = O.same_x;
 		
-		if (O.distance != 0)
+		// sameX Flag means it will be a ghost enemy, full Y area movement
+		if (sameX)
+		{
+			v0 = Std.int(E.O.y / Game.map.ROOM_HEIGHT) * Game.map.ROOM_HEIGHT + 8;
+			v1 = v0 + Game.map.ROOM_HEIGHT - E.height - 16;
+			return;
+		}
+		
+		if (O.distance != 0) 
 		{
 			v0 = e.SPAWN_POS.y;	// It is going to be spawned here
-			if (O.distance < 0) {
+			if (O.distance < 0) {	// Negative distance only works if no sameX defined
 				v1 = v0;
 				v0 = v1 + (O.distance * 8);
-				e.velocity.y = -e.velocity.y;
-				e.facing = FlxObject.LEFT;
+				initV = -initV;
 			}else{
 				v1 = v0 + (O.distance * 8);
 			}
-			
-			/// Don't check for borders, trust the editor values
-			
 		}else{
+			
 			// HACK (Special Occasion)
 			// Check if overlapping some tile and move it a bit out of the way to snap
 			if (Game.map.layers[1].getTile(e.SPAWN_TILE.x, e.SPAWN_TILE.y) > 0) {
 				e.SPAWN_POS.y += 8;
-				
 			}
 			var B = Game.map.get2RayCast(e.SPAWN_TILE.x + 1 , e.SPAWN_TILE.y + 1, false, 1);
 			v0 = B.v0 * 8;
 			v1 = (B.v1 * 8) - e.width;
 		}
+	}//---------------------------------------------------;
+	
+	override public function enter() 
+	{
+		// Spawn at the opposite side of player Y
+		if (sameX) {
+			e.x = Game.player.x + (Game.player.width - e.width) / 2;
+			if (Game.player.y < Game.map.roomCornerPixel.y + (Game.map.ROOM_HEIGHT / 2) - Game.player.height / 2){
+				e.y = v1;
+				e.velocity.y = -initV;
+			}else{
+				e.y = v0;
+				e.velocity.y = initV;
+			}
+		}else{
+			e.velocity.y = initV;
+		}
 		
+		e.facing = initV > 0?FlxObject.RIGHT:FlxObject.LEFT;
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 
 	{
-		if (e.y > v1 || e.y < v0)
-		{
+		if (e.y > v1 || e.y < v0) {
 			turnAround();
 			e.velocity.y = -e.velocity.y;
 		}

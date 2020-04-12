@@ -9,6 +9,7 @@
  
 package gamesprites;
 
+import djFlixel.D;
 import djfl.util.TiledMap.TiledObject;
 import flixel.FlxSprite;
 import gamesprites.Enemy_AI;
@@ -20,7 +21,10 @@ class Enemy extends MapSprite
 	static inline var ANIM_FPS = 8;
 	static inline var ANIM_FRAMES = 2; // Every enemy has 2 frames. In the future I could change it to 3 or 4
 	
+	static var SPAWNTIME = 3;
+	
 	var ai:Enemy_AI;
+	var _spawnTime:Float;
 	
 	// --
 	public function new() 
@@ -29,10 +33,22 @@ class Enemy extends MapSprite
 		TW = TH = 24;
 	}//---------------------------------------------------;
 	
+	
 	override public function update(elapsed:Float):Void 
 	{
 		super.update(elapsed);
-		ai.update(elapsed);
+		
+		if (alive)
+		{
+			ai.update(elapsed);
+		}else
+		{
+			_spawnTime+= elapsed;
+			if ( _spawnTime >= SPAWNTIME)
+			{
+				respawn();
+			}
+		}
 	}//---------------------------------------------------;
 
 	/**
@@ -50,7 +66,7 @@ class Enemy extends MapSprite
 		
 		// DEV: Previous animations are automatically destroyed upon <loadGraphic>
 		animation.add('main', [((gid - 1) * ANIM_FRAMES), ((gid - 1) * ANIM_FRAMES) + 1], ANIM_FPS);
-		animation.play('main', true);
+		animation.add('kill', [18, 19, 20, 21], 12, false);
 		
 		// :: Graphics Fix for some enemies
 		switch(gid)
@@ -69,5 +85,34 @@ class Enemy extends MapSprite
 		
 		respawn();
 	}//---------------------------------------------------;
+	
+	override function respawn() 
+	{
+		trace("RESPAWN", O.id);
+		super.respawn();
+		animation.play('main', true);
+		ai.enter();
+	}//---------------------------------------------------;
+	
+	
+	override public function hurt(Damage:Float):Void 
+	{
+		softKill();
+	}//---------------------------------------------------;
+	
+	public function softKill()
+	{
+		trace("Start Counting timer");
+		alive = false;
+		_spawnTime = 0;
+		D.snd.play("en_die");
+		animation.play('kill');
+		animation.finishCallback = (s)->{
+			visible = false;
+			trace("Animation End");
+		}
+	}//---------------------------------------------------;
+	
+	
 	
 }// --

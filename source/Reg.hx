@@ -53,17 +53,18 @@ class Reg
 	};
 	
 	static var LEVELS = [
+		'assets/maps/level_01.tmx',
 		'assets/maps/_debug.tmx',
-		'assets/maps/_debug2.tmx',
 	];
 	
 	
 	// :: OBJECTS ::
-
 	static var COLORIZER:AssetColorizer;
 	
 	
+	// Asset loaded times
 	static var _dtimes:Int = 0;
+	
 	
 	// --
 	// -- This is going to be called right before FLXGAME being created
@@ -78,6 +79,7 @@ class Reg
 		
 		// -- Game things: might be moved:
 		COLORIZER = new AssetColorizer();
+		
 	}//---------------------------------------------------;
 	
 	// Whenever D.assets gets reloaded, I need to reparse the data into the objects
