@@ -1,29 +1,35 @@
+/**
+	
+	FUTURE KNIGHT ITEM
+	===================
+	
+	== Graphics:
+		Size = 20x20 
+		Total = 12
+
+**/
+
 package gamesprites;
 import djFlixel.D;
 import djfl.util.TiledMap.TiledObject;
 import flixel.FlxSprite;
 
-/**
- * ...
- */
 class Item extends MapSprite
 {
 
 	public function new() 
 	{
 		super();
-		TW = TH = 20;
-		loadGraphic(Reg.IM.items, true, 20, 20);
-		
+		Reg.IM.loadGraphic(this, 'items');
 	}//---------------------------------------------------;
 	
 	
 	override public function spawn(o:TiledObject, gid:Int):Void 
 	{
 		super.spawn(o, gid);
-		animation.frameIndex = Std.random(5);
-		set_spawn_origin(1);
-		respawn();
+		animation.frameIndex = gid - 1;
+		spawn_origin_set(1);
+		spawn_origin_move();
 	}//---------------------------------------------------;
 	
 }

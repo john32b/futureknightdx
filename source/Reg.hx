@@ -18,14 +18,8 @@ class Reg
 	// How long to wait on each screen on the banners
 	static inline var BANNER_DELAY:Float = 12;
 	
-	// :: Images in Assets
-	//    Rest of assets in "AssetColorizer"
-	static var IM = {
-		overlay_scr : "im/monitor_overlay.png",
-		anim_tile : "im/tiles_anim.png",
-		items : "im/items_20px.png",
-		player : "im/anim_player.png" 
-	}
+	// :: Image Asset Manager
+	static var IM:ImageAssets;
 	
 	// :: Sounds
 	static var musicVers = ["music_c64", "music_cpc"];
@@ -38,33 +32,30 @@ class Reg
 	// :: External Parameters parsed objects
 	static var INI:ConfigFile;
 	static var JSON:Dynamic;
-	
-	
-	// PHYSICS Related Variables
+
+	// Parameters for entities
 	// -- Enemies, Playser, World
 	// :: Other not physic parameters can be found as statics at each class so look over there also
 	// :: Player - jump cut off variables are hard coded in <player.state_onair_update()>
-	static var PH = {
+	static var P = {
 		gravity:410,
 		pl_speed:70,
 		pl_jump:220,
 		en_speed:30,
-		en_bounce:180
+		en_bounce:180,
+		en_chase_dist: 3 * 32,
+		en_spawn_time: 3
 	};
 	
 	static var LEVELS = [
-		'assets/maps/level_01.tmx',
 		'assets/maps/_debug.tmx',
+		'assets/maps/level_01.tmx',
 	];
 	
-	
-	// :: OBJECTS ::
-	static var COLORIZER:AssetColorizer;
-	
+
 	
 	// Asset loaded times
 	static var _dtimes:Int = 0;
-	
 	
 	// --
 	// -- This is going to be called right before FLXGAME being created
@@ -78,7 +69,7 @@ class Reg
 		D.ui.initIcons([8, 12]);
 		
 		// -- Game things: might be moved:
-		COLORIZER = new AssetColorizer();
+		IM = new ImageAssets();
 		
 	}//---------------------------------------------------;
 	
@@ -100,12 +91,11 @@ class Reg
 	/** This is to be overlayed on top of every state */
 	static function get_overlayScreen():FlxSprite
 	{
-		var a = new FlxSprite(0, 0, IM.overlay_scr);
+		var a = new FlxSprite(0, 0, IM.STATIC.overlay_scr);
 			a.scrollFactor.set(0, 0);
 			a.active = false;
 			return a;
 	}//---------------------------------------------------;
-	
 	
 	// TODO:
 	public static function checkProtection():Bool

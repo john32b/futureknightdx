@@ -25,6 +25,7 @@ package gamesprites;
 
 import djA.Fsm;
 import djA.types.SimpleCoords;
+import flixel.effects.FlxFlicker;
 
 import djFlixel.D;
 
@@ -37,7 +38,7 @@ import flixel.tile.FlxTile;
 
 enum PlayerState
 {
-	ONFLOOR;	// walking standing
+	ONFLOOR;
 	ONAIR;
 	ONLADDER;
 	ONSLIDE;
@@ -48,9 +49,6 @@ enum PlayerState
 class Player extends FlxSprite
 {
 	inline static var PLAYER_IDLE_TIME_ANIMATION = 6.0;		// At how many seconds to idle anim
-	
-	inline static var TW = 28;			// Graphic Tile Size
-	inline static var TH = 26;
 
 	inline static var BOUND_W = 8; 		// Bounding box 
 	inline static var BOUND_H = 22;
@@ -69,6 +67,8 @@ class Player extends FlxSprite
 	inline static var FALL_DAMAGE_TIME = 3;			// Stun for 3 seconds
 	inline static var FALL_DAMAGE_HP = 200;			// Lose this much HP on fall damage
 	
+	// Precalculated to avoid width/2 all the time
+	public var halfWidth:Int;
 
 	// Keys states
 	var _pressingUp:Bool;
@@ -122,17 +122,17 @@ class Player extends FlxSprite
 		
 		// Auto set physics based on WALK SPEED and JUMP_STR
 		// Physics, and speed parameters
-		MAX_FALLSPEED = Reg.PH.pl_jump + 56;
-		CLIMB_SPEED = Math.ceil(Reg.PH.pl_speed * 0.8 );
-		SLIDE_SPEED = Math.ceil(Reg.PH.pl_speed * 1.1 );
-		AIR_NUDGE_SPEED_0 = Math.ceil(Reg.PH.pl_speed / 8);
+		MAX_FALLSPEED = Reg.P.pl_jump + 56;
+		CLIMB_SPEED = Math.ceil(Reg.P.pl_speed * 0.8 );
+		SLIDE_SPEED = Math.ceil(Reg.P.pl_speed * 1.1 );
+		AIR_NUDGE_SPEED_0 = Math.ceil(Reg.P.pl_speed / 8);
 		AIR_NUDGE_SPEED_1 = Math.ceil(AIR_NUDGE_SPEED_0 / 3);
 		
 		maxVelocity.y = MAX_FALLSPEED;
-		maxVelocity.x = Reg.PH.pl_speed;
+		maxVelocity.x = Reg.P.pl_speed;
 		
 		// Graphics
-		loadGraphic(Reg.IM.player, true, TW, TH);
+		Reg.IM.loadGraphic(this,'player');
 		setFacingFlip(FlxObject .LEFT, false, false);
 		setFacingFlip(FlxObject.RIGHT, true, false);
 		
@@ -155,6 +155,8 @@ class Player extends FlxSprite
 		// Bounding Box
 		setSize(BOUND_W, BOUND_H);
 		offset.set(BOUND_OFF_X, BOUND_OFF_Y);
+		
+		halfWidth = Std.int(width / 2);
 		
 		// --
 		fsm = new Fsm();
@@ -428,13 +430,13 @@ class Player extends FlxSprite
 		if (_pressingRight)
 		{
 			facing = FlxObject.RIGHT;
-			velocity.x = Reg.PH.pl_speed;
+			velocity.x = Reg.P.pl_speed;
 			_walk_start_req();
 		}
 		else if (_pressingLeft)
 		{
 			facing = FlxObject.LEFT;
-			velocity.x = -Reg.PH.pl_speed;
+			velocity.x = -Reg.P.pl_speed;
 			_walk_start_req();
 		}
 		else
@@ -452,7 +454,7 @@ class Player extends FlxSprite
 		
 		if (D.ctrl.justPressed(A))
 		{
-			velocity.y = -Reg.PH.pl_jump;
+			velocity.y = -Reg.P.pl_jump;
 			touching = 0;
 		
 			if (isCrouching) standUp();
@@ -566,7 +568,7 @@ class Player extends FlxSprite
 	// Resume state to normal
 	function physics_start()
 	{
-		acceleration.y = Reg.PH.gravity;
+		acceleration.y = Reg.P.gravity;
 	}//---------------------------------------------------;
 	
 	function crouch()
@@ -657,7 +659,8 @@ class Player extends FlxSprite
 				// Can't hit a hazard on the way up / Don't hit same hazard more than once
 				if (velocity.y < 0) return;	
 				D.snd.play(snd.hurt);
-				velocity.y = -Reg.PH.pl_jump;
+				FlxFlicker.flicker(this, 0.5);
+				velocity.y = -Reg.P.pl_jump;
 				touching = 0;
 				_jumpForceFull = true;
 				_verticalJump = false;	// Help player escape if falls from above

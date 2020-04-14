@@ -8,8 +8,7 @@
 	
 	NOTES:
 	--------------
-		- All chases are HALF the ENEMY_BASE_SPEED by default
-	
+		- Parameter in REG object
 	
 	AI TYPES:
 	--------------
@@ -26,7 +25,6 @@
 			
 		bounce						; Bounces and follows player
 		
-		
 		chase						; chase the player and bump into him
 		
 		turret						;
@@ -42,7 +40,8 @@
 package gamesprites;
 
 import djA.DataT;
-import djfl.util.TiledMap.TiledObject;
+import djA.types.SimpleVector;
+
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.animation.FlxAnimation;
@@ -50,22 +49,30 @@ import flixel.math.FlxAngle;
 
 @:access(gamesprites.Enemy)
 class Enemy_AI 
-{
+{	
+	static inline var CHASE_CORRECTION = 2;
+	
 	var e:Enemy;
+	var startVel:SimpleVector;
 	
 	public function new(E:Enemy) 
 	{
 		e = E;
-		e.set_spawn_origin(0);
+		startVel = new SimpleVector(0, 0);
 	}//---------------------------------------------------;	
 	// --
 	// - This is called everytime it is respawned
-	public function enter()
+	public function respawn()
 	{
-		e.facing = FlxObject.RIGHT;
+		e.velocity.set(startVel.x, startVel.y);
+		e.facing = e.velocity.y > 0?FlxObject.RIGHT:FlxObject.LEFT;
+		e.spawn_origin_move();
 	}//---------------------------------------------------;
 	// --
 	public function update(elapsed:Float)
+	{
+	}//---------------------------------------------------;
+	public function softkill()
 	{
 	}//---------------------------------------------------;
 	// --
@@ -78,17 +85,17 @@ class Enemy_AI
 		}
 	}//---------------------------------------------------;
 	
-	// -- Call on update, will move towards the player
+	// Set velocity X to follow player
 	function chase_x()
 	{
-		if (e.x < Game.player.x - 1)
+		if (e.x + e.halfWidth < Game.player.x + Game.player.halfWidth - CHASE_CORRECTION)
 		{
-			e.velocity.x = Reg.PH.en_speed;
+			e.velocity.x = Reg.P.en_speed;
 			e.facing = FlxObject.RIGHT;
 		}else
-		if (e.x > Game.player.x + 1)
+		if (e.x + e.halfWidth > Game.player.x + Game.player.halfWidth + CHASE_CORRECTION )
 		{
-			e.velocity.x = -Reg.PH.en_speed;
+			e.velocity.x = -Reg.P.en_speed;
 			e.facing = FlxObject.LEFT;
 		}
 		else
@@ -96,15 +103,16 @@ class Enemy_AI
 		
 	}//---------------------------------------------------;
 	
+	// Set velocity Y to follow player
 	function chase_y()
 	{
 		if (e.y < Game.player.y - 1)
 		{
-			e.velocity.y = Reg.PH.en_speed;
+			e.velocity.y = Reg.P.en_speed;
 		}else
 		if (e.y > Game.player.y + 1)
 		{
-			e.velocity.y = -Reg.PH.en_speed;
+			e.velocity.y = -Reg.P.en_speed;
 		}
 		else
 			e.velocity.y = 0;
@@ -158,9 +166,13 @@ class AI_BigChase extends Enemy_AI
 	
 	override public function update(elapsed:Float) 
 	{
-		chase_x();
-	}
-}
+		// Move only if close to player:
+		if (Math.abs(e.x - Game.player.x) <= Reg.P.en_chase_dist)
+			chase_x();
+	}//---------------------------------------------------;
+	
+	
+}// --
 
 
 
@@ -170,9 +182,7 @@ class AI_BigChase extends Enemy_AI
 **/
 class AI_BigBounce extends Enemy_AI
 {
-	
 }
-
 
 
 
@@ -180,10 +190,8 @@ class AI_BigBounce extends Enemy_AI
 	- Go through blocks
 	- Chase the player and bump into hi,
 **/
-	
 class AI_Chase extends Enemy_AI
 {
-
 	override public function update(elapsed:Float) 
 	{
 		// :: ORIGINAL CPC WAY
@@ -192,8 +200,8 @@ class AI_Chase extends Enemy_AI
 		
 		// :: ANGLE WAY
 		//var r1 = FlxAngle.angleBetweenPoint(e, FlxG.mouse.getPosition());
-		//e.velocity.x = Reg.PH.en_speed * Math.cos(r1);
-		//e.velocity.y = Reg.PH.en_speed * Math.sin(r1);
+		//e.velocity.x = Reg.P.en_speed * Math.cos(r1);
+		//e.velocity.y = Reg.P.en_speed * Math.sin(r1);
 		//if (e.velocity.x > 0)
 			//e.facing  = FlxObject.RIGHT;
 		//else
@@ -220,27 +228,26 @@ class AI_Bounce extends Enemy_AI
 	var frames:Array<Int>;
 	var t:Float = 0;
 	
-	override public function enter() 
+	public function new(E:Enemy)
 	{
-		super.enter();
-		e.velocity.y = Reg.PH.en_speed;
-		e.acceleration.y = Reg.PH.gravity;
-		e.animation.stop();
+		super(E);
+		e.acceleration.y = Reg.P.gravity;
+		startVel.y = Reg.P.en_speed;
 		frames = e.animation.getByName("main").frames;
+	}//---------------------------------------------------;
+	
+	override public function respawn() 
+	{
+		super.respawn();
+		e.animation.stop();
 		e.animation.frameIndex = frames[0];
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 
 	{
-		// DEV: This also works, but I feel that it is overkill for a simple check?
-		//if (e.velocity.y > 0) {
-			//if (FlxG.collide(e, Game.map.layers[1])) {
-				//e.velocity.y = -220;
-			//}
-		//}
-		
-		// DEV: This way I am checking manually:
-		//		 This is faster then creating a quadtree at every frame
+		// DEV: I could check against map.layer[1] but it is an overkill
+		//      But here I am checking the florr tiles manually
+		//		This is faster then creating a quadtree at every frame
 		if (e.velocity.y > 0)
 		{
 			var ty = Std.int((e.y + e.height) / 8);
@@ -248,15 +255,17 @@ class AI_Bounce extends Enemy_AI
 			if( Game.map.getCol(tx, ty) > 0 ||
 				Game.map.getCol(tx + 1, ty) > 0)
 			{
-				e.velocity.y = - Reg.PH.en_bounce;
-				// It went through the floor, bring it back where it was
-				e.x = e.last.x;
-				e.y = e.last.y;
-				
-				t = GFX_BOUNCE_RESTORE_TIME;
+				e.velocity.y = - Reg.P.en_bounce;
+				e.last.y = e.y = (ty * 8) - e.height; // Lock y to the floor, because it went through it
+				t = GFX_BOUNCE_RESTORE_TIME; // set timer
 				e.animation.frameIndex = frames[1];
 			}
 		}else{
+			
+			// Check for ceiling. (Rare but can cauase bugs)
+			if (e.y < Game.map.roomCornerPixel.y){
+				e.velocity.y = 0;
+			}
 			
 			// When going up, countdown to a short time then restore the bouncing frame to 0
 			if (t > 0) {
@@ -268,7 +277,8 @@ class AI_Bounce extends Enemy_AI
 		
 		chase_x();
 	}//---------------------------------------------------;
-}
+	
+}// --
 
 
 
@@ -284,20 +294,20 @@ class AI_Move_X extends Enemy_AI
 {
 	var v0:Float;
 	var v1:Float;
-	var initV:Float;
 	
 	public function new(E:Enemy)
 	{
 		super(E);
+		
 		var O = DataT.copyFields(e.O.prop, {
 			platform_bound:false,
 			distance:0			
 		});
 		
-		initV = Reg.PH.en_speed;
+		startVel.x = Reg.P.en_speed;
 		
 		if (O.platform_bound) {
-			var floorY = e.set_spawn_origin(1);
+			var floorY = e.spawn_origin_set(1);
 			var B = Game.map.get2RayCast(e.SPAWN_TILE.x, floorY, true, FlxObject.NONE);
 			v0 = B.v0 * 8;
 			v1 = (B.v1 * 8) - e.width;
@@ -308,7 +318,7 @@ class AI_Move_X extends Enemy_AI
 			if (O.distance < 0) {
 				v1 = v0;
 				v0 = v1 + (O.distance * 8);
-				initV =- initV;
+				startVel.x = -startVel.x;
 			}else{
 				v1 = v0 + (O.distance * 8);
 			}
@@ -319,12 +329,13 @@ class AI_Move_X extends Enemy_AI
 			v0 = B.v0 * 8;
 			v1 = (B.v1 * 8) - e.width;
 		}
+		
+		super.respawn();
 	}//---------------------------------------------------;
 	
-	override public function enter() 
+	override public function respawn() 
 	{
-		e.velocity.x = initV;
-		e.facing = initV > 0?FlxObject.RIGHT:FlxObject.LEFT;
+		// Override and do nothing
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 
@@ -365,12 +376,13 @@ class AI_Move_Y extends Enemy_AI
 			same_x:false
 		});
 		
-		initV = Reg.PH.en_speed;	// This is enemy default base speed
+		startVel.y = Reg.P.en_speed;	// This is enemy default base speed
 		sameX = O.same_x;
 		
 		// sameX Flag means it will be a ghost enemy, full Y area movement
 		if (sameX)
 		{
+			// velocity facing calculated onspawn()
 			v0 = Std.int(E.O.y / Game.map.ROOM_HEIGHT) * Game.map.ROOM_HEIGHT + 8;
 			v1 = v0 + Game.map.ROOM_HEIGHT - E.height - 16;
 			return;
@@ -382,7 +394,7 @@ class AI_Move_Y extends Enemy_AI
 			if (O.distance < 0) {	// Negative distance only works if no sameX defined
 				v1 = v0;
 				v0 = v1 + (O.distance * 8);
-				initV = -initV;
+				startVel.y = -startVel.y;
 			}else{
 				v1 = v0 + (O.distance * 8);
 			}
@@ -397,9 +409,10 @@ class AI_Move_Y extends Enemy_AI
 			v0 = B.v0 * 8;
 			v1 = (B.v1 * 8) - e.width;
 		}
+		
 	}//---------------------------------------------------;
 	
-	override public function enter() 
+	override public function respawn() 
 	{
 		// Spawn at the opposite side of player Y
 		if (sameX) {
@@ -411,11 +424,12 @@ class AI_Move_Y extends Enemy_AI
 				e.y = v0;
 				e.velocity.y = initV;
 			}
-		}else{
-			e.velocity.y = initV;
+			
+			e.facing = e.velocity.y > 0?FlxObject.RIGHT:FlxObject.LEFT;
+			return;
 		}
 		
-		e.facing = initV > 0?FlxObject.RIGHT:FlxObject.LEFT;
+		super.respawn();
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 

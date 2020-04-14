@@ -25,8 +25,7 @@ class AnimatedTile extends MapSprite
 	public function new() 
 	{		
 		super();
-		TW = TH = 32;
-		loadGraphic(Reg.IM.anim_tile, true, TW, TH);
+		Reg.IM.loadGraphic(this, 'animtile');
 		animation.add('_EXIT', [12, 13], 4);
 		animation.add('_EXIT_LOCK', [14, 15], 4);
 		animation.add('_HAZARD', [0, 1, 2, 3], 8);
@@ -41,7 +40,7 @@ class AnimatedTile extends MapSprite
 		super.spawn(o, gid);
 		
 		offset.set(0, 0);
-		setSize(TW, TH);	// < ReSetting size and offset back to normal
+		setSize(32, 32);	// < ReSetting size and offset back to normal
 		
 		var anim = "";
 		switch(gid)
@@ -51,12 +50,12 @@ class AnimatedTile extends MapSprite
 				type = AnimTileType.EXIT(true);
 				offset.set(0, 8);
 				setSize(32, 16);
-				set_spawn_origin(1);
+				spawn_origin_set(1);
 				// TODO: Is the exit locked
 			case 2, 3:
 				anim = "_WEAPON_" + gid;
 				type = AnimTileType.WEAPON(gid);
-				set_spawn_origin(0);
+				spawn_origin_set(0);
 			case 4:
 				anim = "_HAZARD";
 				type = AnimTileType.HAZARD;
@@ -64,11 +63,11 @@ class AnimatedTile extends MapSprite
 				// when walking into it from the sides.
 				offset.set(0, 15);
 				setSize(32, 9);	// 8 pixels is GFX, 1 pixels empty to the top.
-				set_spawn_origin(1);
+				spawn_origin_set(1);
 			case _:
 				anim = "_DECO_" + gid;
 				type = AnimTileType.DECO;
-				set_spawn_origin(0);
+				spawn_origin_set(0);
 		};
 		
 		// NOTE: You can check enums like this :
@@ -78,7 +77,7 @@ class AnimatedTile extends MapSprite
 		//}
 		
 		animation.play(anim, true);
-		respawn();
+		spawn_origin_move();
 	}//---------------------------------------------------;
 	
 }// --

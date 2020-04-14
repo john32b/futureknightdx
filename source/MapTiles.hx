@@ -65,7 +65,7 @@ class MapTiles
 	// These apply for all MAP_TYPES
 	// :: "tiletype" => [start_index, ?range]
 	public static var EDITOR_ENTITY(default, null):Map < EDITOR_TILE, Array<Int> > = [
-		ENEMY => [1,23],
+		ENEMY => [1,20],
 		PLAYER => [25, 1],
 		ANIM => [26, 6],
 		HAZARD => [29,1],	// Declare it again
