@@ -133,8 +133,8 @@ class Player extends FlxSprite
 		
 		// Graphics
 		Reg.IM.loadGraphic(this,'player');
-		setFacingFlip(FlxObject .LEFT, false, false);
-		setFacingFlip(FlxObject.RIGHT, true, false);
+		setFacingFlip(FlxObject .LEFT, true, false);
+		setFacingFlip(FlxObject.RIGHT, false, false);
 		
 		// Animations
 		animation.add("idle", 	[1], 1, false);

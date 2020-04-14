@@ -65,8 +65,11 @@ class Enemy_AI
 	public function respawn()
 	{
 		e.velocity.set(startVel.x, startVel.y);
-		e.facing = e.velocity.y > 0?FlxObject.RIGHT:FlxObject.LEFT;
+		e.facing = e.velocity.y >= 0?FlxObject.RIGHT:FlxObject.LEFT;
 		e.spawn_origin_move();
+		trace("ENEMY FACING,vel", e.velocity.x);
+		if (e.facing == FlxObject.RIGHT) trace("RIGHT"); else trace("LEFT");
+	
 	}//---------------------------------------------------;
 	// --
 	public function update(elapsed:Float)
@@ -324,7 +327,7 @@ class AI_Move_X extends Enemy_AI
 		});
 		
 		// This is for the extended <big_bounce> to work
-		if (forceDistance != 0)
+		if (forceDistance > 0)
 		{
 			O.distance = forceDistance;
 		}

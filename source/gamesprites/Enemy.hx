@@ -170,8 +170,19 @@ class Enemy extends MapSprite
 			
 			// :: Worms
 			case 19, 20:
-				trace("TODO");
-			
+				i -= 19;
+				Reg.IM.loadGraphic(this, 'enemy_worm');
+				if (i == 0){
+					animation.add('main', [0, 1, 0, 2, 0, 3], ANIM_FPS - 2);
+					height = 22;
+					offset.y = 2;
+				}else{
+					animation.add('main', [4, 5, 6, 5], ANIM_FPS);
+					height = 20;
+					offset.y = 2;
+				}
+				centerOffsets();
+				spawn_origin_set(1);// Always floor bound
 			
 			case _:
 				throw "Invalid GID in The Enemy Type" + i;
