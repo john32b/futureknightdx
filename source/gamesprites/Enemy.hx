@@ -150,14 +150,18 @@ class Enemy extends MapSprite
 				i -= 13;
 				Reg.IM.loadGraphic(this, 'enemy_big');
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
-				setSize(44, 44);
+				if (i == 3){ // Long enemy 
+					setSize(22, 44);
+				}else{	// Normal big enemy
+					setSize(44, 44);
+				}
 				centerOffsets();
 				spawn_origin_set(0);
 				SPAWN_POS.y = (SPAWN_TILE.y * 8) + 8;	// This is a good placement for BIG enemies
 				
 			// :: Tall Legs
 			case 17, 18:
-				i = i - 17;
+				i -= 17;
 				Reg.IM.loadGraphic(this, 'enemy_tall');
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
 				setSize(50, 50);

@@ -37,13 +37,13 @@ class Reg
 	// -- Enemies, Playser, World
 	// :: Other not physic parameters can be found as statics at each class so look over there also
 	// :: Player - jump cut off variables are hard coded in <player.state_onair_update()>
+	// - Some ENEMYAI parametes in the enemy_ai classes
 	static var P = {
 		gravity:410,
 		pl_speed:70,
 		pl_jump:220,
 		en_speed:30,
 		en_bounce:180,
-		en_chase_dist: 3 * 32,
 		en_spawn_time: 3
 	};
 	

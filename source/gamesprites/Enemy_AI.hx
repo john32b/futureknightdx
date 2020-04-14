@@ -157,20 +157,20 @@ class AI_Turret extends Enemy_AI
 **/
 class AI_BigChase extends Enemy_AI
 {
-	// Version 1:
-	// What the CPC version does
+	static inline var CHASE_DISTANCE = 3 * 32;
 	
-	// Version 2:
-	// What the C64 version does.
-	// Enemy moves around and makes your life difficult
+	// Version 1 (CPC)
+	//  - Chase on the x axis if close enough
+	
+	// Version 2 (C64)
+	//  - Enemy moves around and makes your life difficult, also shoots
 	
 	override public function update(elapsed:Float) 
 	{
 		// Move only if close to player:
-		if (Math.abs(e.x - Game.player.x) <= Reg.P.en_chase_dist)
+		if (Math.abs(e.x - Game.player.x) <= CHASE_DISTANCE)
 			chase_x();
 	}//---------------------------------------------------;
-	
 	
 }// --
 
@@ -180,8 +180,27 @@ class AI_BigChase extends Enemy_AI
 /**
    Big Enemy - Bounce right-left
 **/
-class AI_BigBounce extends Enemy_AI
+class AI_BigBounce extends AI_Move_X
 {
+	static inline var BOUNCE_DISTANCE_TILES = 4;	// x8 tiles
+	static inline var BOUNCE_HEIGHT = 32;	// pixel
+	
+	var Y:Float;		// Start PI
+	var distpi:Float;
+	public function new(E:Enemy)
+	{
+		super(E, BOUNCE_DISTANCE_TILES);
+		// This is set on the parent
+		Y = E.y;	
+		// One pi is one cycle, so slice it
+		distpi = Math.PI / Std.int(v1 - v0);
+	}//---------------------------------------------------;
+	
+	override public function update(elapsed:Float) 
+	{
+		super.update(elapsed);
+		e.y = Y + Math.sin(distpi * (e.x - v1)) * BOUNCE_HEIGHT;
+	}//---------------------------------------------------;
 }
 
 
@@ -295,7 +314,7 @@ class AI_Move_X extends Enemy_AI
 	var v0:Float;
 	var v1:Float;
 	
-	public function new(E:Enemy)
+	public function new(E:Enemy, forceDistance:Int = 0)
 	{
 		super(E);
 		
@@ -303,6 +322,12 @@ class AI_Move_X extends Enemy_AI
 			platform_bound:false,
 			distance:0			
 		});
+		
+		// This is for the extended <big_bounce> to work
+		if (forceDistance != 0)
+		{
+			O.distance = forceDistance;
+		}
 		
 		startVel.x = Reg.P.en_speed;
 		
