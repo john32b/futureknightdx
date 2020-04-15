@@ -36,12 +36,14 @@ class Enemy extends MapSprite
 	var _spawnTimer:Float;
 	var spawnTime:Float;
 	
-	// --
-	public function new() 
-	{
-		super();
-	}//---------------------------------------------------;
+	// Precalculated to avoid width/2 all the time.
+	public var halfWidth:Int = 0;
+	public var halfheight:Int = 0;
 	
+	// GFXType, used for creating appropriate explosions
+	// 0:Normal, 1:Big, 2:Long, 3:Worm
+	var _gfxtype:Int = 0;
+
 	// --
 	override public function update(elapsed:Float):Void 
 	{
@@ -76,6 +78,7 @@ class Enemy extends MapSprite
 				
 		_loadGraphic(gid);
 		halfWidth = Std.int(width / 2);
+		halfheight = Std.int(height / 2);
 		
 		// :: AI
 		ai = Enemy_AI.getAI(o.type, this);
@@ -95,19 +98,48 @@ class Enemy extends MapSprite
 	// --
 	override public function hurt(Damage:Float):Void 
 	{
-		//softKill();
+		softKill();
 	}//---------------------------------------------------;
 	
 	// --
 	public function softKill()
 	{
 		ai.softkill();
-		D.snd.play("en_die");
+		_explode();
 		_spawnTimer = 0;
 		alive = false;
 		solid = false;
 		visible = false;
 		moves = false;
+	}//---------------------------------------------------;
+	
+	
+	/**
+	   Create Particles and Sound for current Enemy
+	**/
+	function _explode()
+	{
+		D.snd.play("en_die");
+		
+		switch(_gfxtype)
+		{
+			case 1: // 4 particles box
+				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfheight - 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfheight + 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfheight - 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfheight + 12, velocity.x, velocity.y);
+				
+			case 2: // 2 in height
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfheight - 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfheight + 12, velocity.x, velocity.y);
+				
+			case 3: // 3 in width
+				for(i in 0...3) // (0,1,2)
+				Reg.st.PM.createAt(0, (x + 11) + (i * 22), y + halfheight, velocity.x, velocity.y);
+				
+			case _: // 1 particle or default
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfheight, velocity.x, velocity.y);				
+		};
 	}//---------------------------------------------------;
 	
 	
@@ -117,6 +149,7 @@ class Enemy extends MapSprite
 			
 			// :: Normal Sized Enemy
 			case a if (i < 10): 
+				_gfxtype = 0;
 				i--; // Make it start from 0
 				Reg.IM.loadGraphic(this, 'enemy_sm');
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
@@ -139,6 +172,7 @@ class Enemy extends MapSprite
 				
 			// :: Player Sprite
 			case 10:
+				_gfxtype = 0;
 				Reg.IM.loadGraphic(this, 'player');
 				animation.add("main", [2, 3, 2, 1], ANIM_FPS + 2);
 				setSize(8, 22);
@@ -147,10 +181,12 @@ class Enemy extends MapSprite
 				
 			// :: Big Enemy
 			case 13, 14, 15, 16:
+				_gfxtype = 1;
 				i -= 13;
 				Reg.IM.loadGraphic(this, 'enemy_big');
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
 				if (i == 3){ // Long enemy 
+					_gfxtype = 2;
 					setSize(22, 44);
 				}else{	// Normal big enemy
 					setSize(44, 44);
@@ -161,6 +197,7 @@ class Enemy extends MapSprite
 				
 			// :: Tall Legs
 			case 17, 18:
+				_gfxtype = 1;
 				i -= 17;
 				Reg.IM.loadGraphic(this, 'enemy_tall');
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
@@ -171,6 +208,7 @@ class Enemy extends MapSprite
 			// :: Worms
 			case 19, 20:
 				i -= 19;
+				_gfxtype = 3;
 				Reg.IM.loadGraphic(this, 'enemy_worm');
 				if (i == 0){
 					animation.add('main', [0, 1, 0, 2, 0, 3], ANIM_FPS - 2);

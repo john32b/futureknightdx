@@ -6,7 +6,7 @@
 	- Loads and Creates the TileMap
 	- Handles camera scrolling
 	- Reads room entities and pushes them to user for creation
-	- Follows Player (from Game.player global) and scrolls rooms
+	- Follows Player (from Reg.st.player global) and scrolls rooms
 	- Offers some tile checks functions to be used from Sprites
 	
 	
@@ -24,6 +24,7 @@ package;
 
 import MapTiles.FG_TILE_TYPE;
 import MapTiles.EDITOR_TILE;
+import flixel.FlxSprite;
 
 import tools.TilemapGeneric;
 import gamesprites.Player;
@@ -251,14 +252,14 @@ class MapFK extends TilemapGeneric
 		
 		#if debug
 			// Place player
-			if (!Game.player.alive)
+			if (!Reg.st.player.alive)
 			{
 				for (tx in 0...ROOM_TILE_WIDTH)
 				for (ty in 0...ROOM_TILE_HEIGHT)
 				{
 					if (getCol(roomCornerTile.x + tx, roomCornerTile.y + ty) == 0)
 					{
-						Game.player.spawn((roomCornerTile.x + tx) * TILE_SIZE, (roomCornerTile.y + ty) * TILE_SIZE);
+						Reg.st.player.spawn((roomCornerTile.x + tx) * TILE_SIZE, (roomCornerTile.y + ty) * TILE_SIZE);
 						return;
 					}
 				}
@@ -347,14 +348,14 @@ class MapFK extends TilemapGeneric
 	{
 		if (Std.is(b, Player)) {
 			var t = cast (a, flixel.tile.FlxTile);
-			Game.player.event_slide_tile(cast a, FlxObject.LEFT);
+			Reg.st.player.event_slide_tile(cast a, FlxObject.LEFT);
 		}
 	}//---------------------------------------------------;
 	function _tilecol_slide_right(a:FlxObject,b:FlxObject)
 	{
 		if (Std.is(b, Player)) {
 			var t = cast (a, flixel.tile.FlxTile);
-			Game.player.event_slide_tile(cast a, FlxObject.RIGHT);
+			Reg.st.player.event_slide_tile(cast a, FlxObject.RIGHT);
 		}
 	}//---------------------------------------------------;	
 	
@@ -368,24 +369,38 @@ class MapFK extends TilemapGeneric
 		
 		#if debug
 			_update_debug();
-			if (!Game.player.alive) return;	// Do not track player for debug purposes
+			if (!Reg.st.player.alive) return;	// Do not track player for debug purposes
 		#end
 		
 		// HARD_CODED Padding
-		if (Game.player.x + 4 > roomCornerPixel.x + ROOM_WIDTH){
+		if (Reg.st.player.x + 4 > roomCornerPixel.x + ROOM_WIDTH){
 			camera_move_rel(1, 0);
 		}else
-		if (Game.player.x + 4 < roomCornerPixel.x){
+		if (Reg.st.player.x + 4 < roomCornerPixel.x){
 			camera_move_rel( -1, 0);
 		}else
-		if (Game.player.y + 8 > roomCornerPixel.y + ROOM_HEIGHT){
+		if (Reg.st.player.y + 8 > roomCornerPixel.y + ROOM_HEIGHT){
 			camera_move_rel(0, 1);
 		}else
-		if (Game.player.y + 8 < roomCornerPixel.y){
+		if (Reg.st.player.y + 8 < roomCornerPixel.y){
 			camera_move_rel(0, -1);
 		}
 		
 	}//---------------------------------------------------;
+	
+	/**
+	   Check if a sprite went off-view of the current room
+	**/
+	public function isOffRoom(s:FlxSprite):Bool
+	{
+		return ( 
+			s.x < Reg.st.map.roomCornerPixel.x  ||
+			s.x + s.width > Reg.st.map.roomCornerPixel.x + Reg.st.map.ROOM_WIDTH ||
+			s.y < Reg.st.map.roomCornerPixel.y ||
+			s.y + s.height > Reg.st.map.roomCornerPixel.y + Reg.st.map.ROOM_HEIGHT 
+			);
+	}//---------------------------------------------------;
+	
 	
 	
 	/** Return Y for floor, -1 if not found */
@@ -474,10 +489,10 @@ class MapFK extends TilemapGeneric
 		
 		if (FlxG.keys.pressed.SHIFT)
 		{
-			//Game.player._teleport(FlxG.mouse.x, FlxG.mouse.y);
+			//Reg.st.player._teleport(FlxG.mouse.x, FlxG.mouse.y);
 			if (FlxG.mouse.justPressed)
 			{
-				Game.player.spawn(FlxG.mouse.x, FlxG.mouse.y);
+				Reg.st.player.spawn(FlxG.mouse.x, FlxG.mouse.y);
 				return;
 			}
 			
@@ -493,7 +508,7 @@ class MapFK extends TilemapGeneric
 				vec.y = 1;
 			}
 			if (camera_move_rel(vec.x, vec.y)){
-				Game.player.alive = false; // Skip auto-positioning in update()
+				Reg.st.player.alive = false; // Skip auto-positioning in update()
 			}
 		}
 		

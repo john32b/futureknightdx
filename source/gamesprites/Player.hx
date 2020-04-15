@@ -14,7 +14,7 @@
 	
   = Interactions :
 	- Reads physics parameters from <REG>
-	- Uses <Game.map> for tile checking
+	- Uses <Reg.st.map> for tile checking
 	- Is being sent <event_collide_slide> from the map
 	- Graphic declared in <Reg.hx>
   
@@ -238,7 +238,7 @@ class Player extends FlxSprite
 		}else if (_pressingDown)
 		{
 			_sndTick += FlxG.elapsed;
-			if ( !Game.map.tileIsType(Game.map.getTileP(x + 2, y + height + 4), LADDER) || 
+			if ( !Reg.st.map.tileIsType(Reg.st.map.getTileP(x + 2, y + height + 4), LADDER) || 
 				D.ctrl.pressed(A) )
 			{
 				physics_start();
@@ -276,7 +276,7 @@ class Player extends FlxSprite
 	{
 		// NOTE : Collide Check NEEDS to be before anything else here for it to work
 		// DEV  : This will trigger all tile-callbacks, including TRIGGER_SLIDE
-		FlxG.collide(this, Game.map.layers[1]);
+		FlxG.collide(this, Reg.st.map.layers[1]);
 		
 		if (_hack_break) { // (exit if some collide/overlap functions occur)
 			_hack_break = false;
@@ -385,7 +385,7 @@ class Player extends FlxSprite
 	{
 		// DEV: This will trigger all tile-callbacks, including TRIGGER_SLIDE
 		//	  : Collide Check NEEDS to be before anything else here for it to work
-		FlxG.collide(this, Game.map.layers[1]);
+		FlxG.collide(this, Reg.st.map.layers[1]);
 		
 		if (_hack_break) { // (exit if some collide/overlap functions occur)
 			_hack_break = false;
@@ -602,14 +602,14 @@ class Player extends FlxSprite
 	// Check current position for ladder UP . Return if it mounted a ladder
 	function ladder_checkUp():Bool
 	{
-		var tc = Game.map.getTileCoordsFromP(x + 4, y + height - 2);
-		var tile = Game.map.layers[1].getTile(tc.x, tc.y);
-		if (Game.map.tileIsType(tile, LADDER) || Game.map.tileIsType(tile, LADDER_TOP))
+		var tc = Reg.st.map.getTileCoordsFromP(x + 4, y + height - 2);
+		var tile = Reg.st.map.layers[1].getTile(tc.x, tc.y);
+		if (Reg.st.map.tileIsType(tile, LADDER) || Reg.st.map.tileIsType(tile, LADDER_TOP))
 		{
 			last.x = x = (Std.int(x / 32) * 32) + (32 - width) / 2;
 			// Search for a ladder TOP.
 			#if debug var _t = 0; #end
-			while (!Game.map.tileIsType(Game.map.layers[1].getTile(tc.x, tc.y), LADDER_TOP)) {
+			while (!Reg.st.map.tileIsType(Reg.st.map.layers[1].getTile(tc.x, tc.y), LADDER_TOP)) {
 				tc.y--;
 				#if debug
 				if ( (_t++) > 64 || tc.y < 0) throw 'Ladder tile, does not have a ladder top. ${tc}';
@@ -630,7 +630,7 @@ class Player extends FlxSprite
 	{
 		// The playeris 8 pixels wide, so a tile length, check + 4 to get the middle point of X
 		// Check + 4 in Y to get the middle point of the tile below his feet
-		if (Game.map.tileIsType(Game.map.getTileP(x + 4, y + height + 4), LADDER_TOP))
+		if (Reg.st.map.tileIsType(Reg.st.map.getTileP(x + 4, y + height + 4), LADDER_TOP))
 		{
 			// SNAP to 32pixels BIG tile, and center
 			_specialTileY = Std.int((y + height + 4) / 8) * 8;
@@ -700,7 +700,7 @@ class Player extends FlxSprite
 		do{
 			tx += xdir;
 			ty ++;
-			t = Game.map.getCol(tx, ty);
+			t = Reg.st.map.getCol(tx, ty);
 		}while (t != 0);
 		
 		_specialTileY = ty * 8;	// This is the free TILE, not the last tile
@@ -758,7 +758,7 @@ class Player extends FlxSprite
 	{
 		var SP_TILE = new SimpleCoords(Std.int(X / 32) * 4 , Std.int(Y / 32) * 4);
 		last.x = x = Std.int((SP_TILE.x * 8) + ((32 - width) / 2));
-		var floory = Game.map.getFloor(SP_TILE.x + 1, SP_TILE.y + 1);
+		var floory = Reg.st.map.getFloor(SP_TILE.x + 1, SP_TILE.y + 1);
 		if (floory >= 0) {
 			last.y = y = (floory * 8) - Std.int(height);
 		}else{

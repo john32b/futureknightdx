@@ -1,3 +1,20 @@
+/**
+ROOM SPRITES MANAGER
+======================== 
+
+ Manager for all Tiled Map Entities that scroll in and out of rooms
+ 
+ - Enemies
+ - Items
+ - Animated Tiles
+ 
+ - Pause/delete the ones that go off screen
+ - Create and place the new entities for each screen
+ 
+ ------------------------------- */
+
+ 
+
 package;
 
 import flixel.FlxBasic;
@@ -11,14 +28,7 @@ import gamesprites.Enemy;
 import gamesprites.Item;
 import gamesprites.MapSprite;
 
-/**
- * 
- * Manager for all Entities that scroll in and out of rooms
- * and have Map Editor Origin
- * - Enemies
- * - Items
- * - Animated Tiles
- */
+
 class RoomSprites extends FlxGroup
 {
 	// Easy access :

@@ -33,9 +33,6 @@ class MapSprite extends FlxSprite
 	// it is the 8x8 tile the sprite belongs to
 	var SPAWN_TILE:SimpleCoords;
 	
-	// Precalculated to avoid width/2 all the time. Make sure to set this at each extended object
-	public var halfWidth:Int = 0;
-	
 	// --
 	public function new()
 	{
@@ -90,7 +87,7 @@ class MapSprite extends FlxSprite
 			
 		if (type == 1)
 		{
-			var floory = Game.map.getFloor(SPAWN_TILE.x, SPAWN_TILE.y);
+			var floory = Reg.st.map.getFloor(SPAWN_TILE.x, SPAWN_TILE.y);
 			if (floory >= 0) {
 				SPAWN_POS.y = (floory * 8) - Std.int(height);
 				return floory;

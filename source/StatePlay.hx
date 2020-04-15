@@ -16,32 +16,34 @@ import djFlixel.ui.FlxMenu;
 
 class StatePlay extends FlxState
 {
+	public var map:MapFK;
+	
+	public var ROOMSPR:RoomSprites;
+	public var player:Player;
+	public var PM:ParticleManager;
+	public var BM:BulletManager;
 	
 	var menu:FlxMenu;
 	
-	var map:MapFK;
-	
-	var ROOMSPR:RoomSprites;
-	
-	var player:Player;
 	
 	override public function create():Void 
 	{
 		super.create();
-		
+		Reg.st = this;
 		ROOMSPR = new RoomSprites();
 		player = new Player();
 		map = new MapFK();
+		PM = new ParticleManager();
+		BM = new BulletManager();
+		
 		map.onEvent = event_map_handler;
 		
-		Game.map = map;
-		Game.player = player;
-		Game.roomspr = ROOMSPR;
-
 		// :: Ordering
 		add(map);
 		add(ROOMSPR);
 		add(player);
+		add(PM);
+		add(BM);
 		
 		// : load the level, logic will be auto-triggered 
 		map.load(Reg.LEVELS[0]);
@@ -54,6 +56,7 @@ class StatePlay extends FlxState
 		
 		// --
 		FlxG.overlap(player, ROOMSPR, _overlap_player_roomgroup);
+		
 	}//---------------------------------------------------;
 	
 	
@@ -81,7 +84,9 @@ class StatePlay extends FlxState
 			case loadMap: 
 				// Map has just loaded. Tilemap Created, Entities and Tiles Processed
 				ROOMSPR.reset();
-		
+				for (i in PM) i.kill();
+				for (i in BM) i.kill();
+				
 				if (map.PLAYER_SPAWN != null) 
 				{
 					var sp = map.PLAYER_SPAWN;
@@ -105,6 +110,7 @@ class StatePlay extends FlxState
 				
 			// This is called before the new room entities are pushed
 			case scrollStart:
+				for (i in BM) i.kill();
 				for (e in ROOMSPR) e.active = false;
 				player.active = false;
 				ROOMSPR.stashSave();

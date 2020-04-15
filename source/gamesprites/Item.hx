@@ -23,7 +23,6 @@ class Item extends MapSprite
 		Reg.IM.loadGraphic(this, 'items');
 	}//---------------------------------------------------;
 	
-	
 	override public function spawn(o:TiledObject, gid:Int):Void 
 	{
 		super.spawn(o, gid);
@@ -32,4 +31,4 @@ class Item extends MapSprite
 		spawn_origin_move();
 	}//---------------------------------------------------;
 	
-}
+}// --

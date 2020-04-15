@@ -19,7 +19,10 @@ class Reg
 	static inline var BANNER_DELAY:Float = 12;
 	
 	// :: Image Asset Manager
-	static var IM:ImageAssets;
+	public static var IM:ImageAssets;
+
+	// This is for quick access to game elements
+	public static var st:StatePlay;
 	
 	// :: Sounds
 	static var musicVers = ["music_c64", "music_cpc"];
@@ -53,9 +56,12 @@ class Reg
 	];
 	
 
-	
 	// Asset loaded times
 	static var _dtimes:Int = 0;
+	
+	
+
+	
 	
 	// --
 	// -- This is going to be called right before FLXGAME being created

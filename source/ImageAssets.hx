@@ -39,13 +39,15 @@ class ImageAssets
 	};
 	
 	static var GFX:Map<String,{im:String,tw:Int,th:Int,col:Bool}> = [
-		"player" => { im:"im/anim_player.png", tw:28, th:26, col:true},
-		"enemy_sm" =>  {im:"im/anim_enemy_sm.png", tw:24, th:24, col:true},
-		"enemy_big" => {im:"im/anim_enemy_big.png", tw:50, th:46, col:true},
-		"enemy_tall" => {im:"im/anim_enemy_tall.png", tw:56, th:52, col:true},
-		"enemy_worm" => {im:"im/anim_enemy_worm.png", tw:70, th:24, col:true},
-		"animtile" => {im:"im/anim_tiles.png", tw:32, th:32, col:false},
-		"items" => {im:"im/anim_items.png", tw:20, th:20, col:false},
+		"player" => { im:"im/ts_player.png", tw:28, th:26, col:true},
+		"enemy_sm" =>  {im:"im/ts_enemy_sm.png", tw:24, th:24, col:true},
+		"enemy_big" => {im:"im/ts_enemy_big.png", tw:50, th:46, col:true},
+		"enemy_tall" => {im:"im/ts_enemy_tall.png", tw:56, th:52, col:true},
+		"enemy_worm" => {im:"im/ts_enemy_worm.png", tw:70, th:24, col:true},
+		"animtile" => {im:"im/ts_tiles.png", tw:32, th:32, col:false},
+		"items" => {im:"im/ts_items.png", tw:20, th:20, col:false},
+		"bullets" => {im:"im/ts_bullets.png", tw:20, th:20, col:false}, 
+		"particles" => {im:"im/ts_particles.png", tw:22, th:24, col:true},
 	];
 	
 	

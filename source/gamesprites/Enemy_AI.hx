@@ -67,9 +67,6 @@ class Enemy_AI
 		e.velocity.set(startVel.x, startVel.y);
 		e.facing = e.velocity.y >= 0?FlxObject.RIGHT:FlxObject.LEFT;
 		e.spawn_origin_move();
-		trace("ENEMY FACING,vel", e.velocity.x);
-		if (e.facing == FlxObject.RIGHT) trace("RIGHT"); else trace("LEFT");
-	
 	}//---------------------------------------------------;
 	// --
 	public function update(elapsed:Float)
@@ -91,12 +88,12 @@ class Enemy_AI
 	// Set velocity X to follow player
 	function chase_x()
 	{
-		if (e.x + e.halfWidth < Game.player.x + Game.player.halfWidth - CHASE_CORRECTION)
+		if (e.x + e.halfWidth < Reg.st.player.x + Reg.st.player.halfWidth - CHASE_CORRECTION)
 		{
 			e.velocity.x = Reg.P.en_speed;
 			e.facing = FlxObject.RIGHT;
 		}else
-		if (e.x + e.halfWidth > Game.player.x + Game.player.halfWidth + CHASE_CORRECTION )
+		if (e.x + e.halfWidth > Reg.st.player.x + Reg.st.player.halfWidth + CHASE_CORRECTION )
 		{
 			e.velocity.x = -Reg.P.en_speed;
 			e.facing = FlxObject.LEFT;
@@ -109,11 +106,11 @@ class Enemy_AI
 	// Set velocity Y to follow player
 	function chase_y()
 	{
-		if (e.y < Game.player.y - 1)
+		if (e.y < Reg.st.player.y - 1)
 		{
 			e.velocity.y = Reg.P.en_speed;
 		}else
-		if (e.y > Game.player.y + 1)
+		if (e.y > Reg.st.player.y + 1)
 		{
 			e.velocity.y = -Reg.P.en_speed;
 		}
@@ -171,7 +168,7 @@ class AI_BigChase extends Enemy_AI
 	override public function update(elapsed:Float) 
 	{
 		// Move only if close to player:
-		if (Math.abs(e.x - Game.player.x) <= CHASE_DISTANCE)
+		if (Math.abs(e.x - Reg.st.player.x) <= CHASE_DISTANCE)
 			chase_x();
 	}//---------------------------------------------------;
 	
@@ -274,8 +271,8 @@ class AI_Bounce extends Enemy_AI
 		{
 			var ty = Std.int((e.y + e.height) / 8);
 			var tx = Std.int(e.x / 8);
-			if( Game.map.getCol(tx, ty) > 0 ||
-				Game.map.getCol(tx + 1, ty) > 0)
+			if( Reg.st.map.getCol(tx, ty) > 0 ||
+				Reg.st.map.getCol(tx + 1, ty) > 0)
 			{
 				e.velocity.y = - Reg.P.en_bounce;
 				e.last.y = e.y = (ty * 8) - e.height; // Lock y to the floor, because it went through it
@@ -285,7 +282,7 @@ class AI_Bounce extends Enemy_AI
 		}else{
 			
 			// Check for ceiling. (Rare but can cauase bugs)
-			if (e.y < Game.map.roomCornerPixel.y){
+			if (e.y < Reg.st.map.roomCornerPixel.y){
 				e.velocity.y = 0;
 			}
 			
@@ -300,6 +297,12 @@ class AI_Bounce extends Enemy_AI
 		chase_x();
 	}//---------------------------------------------------;
 	
+	
+	override public function softkill() 
+	{
+		// Visual bug fix. When it dies the particle moves too fast sometimes
+		e.velocity.y = e.velocity.y / 10;
+	}//---------------------------------------------------;
 }// --
 
 
@@ -336,7 +339,7 @@ class AI_Move_X extends Enemy_AI
 		
 		if (O.platform_bound) {
 			var floorY = e.spawn_origin_set(1);
-			var B = Game.map.get2RayCast(e.SPAWN_TILE.x, floorY, true, FlxObject.NONE);
+			var B = Reg.st.map.get2RayCast(e.SPAWN_TILE.x, floorY, true, FlxObject.NONE);
 			v0 = B.v0 * 8;
 			v1 = (B.v1 * 8) - e.width;
 		}else
@@ -353,7 +356,7 @@ class AI_Move_X extends Enemy_AI
 			/// Don't check for borders, trust the editor values
 		}else{
 			// Move until end of room or collides
-			var B = Game.map.get2RayCast(e.SPAWN_TILE.x , e.SPAWN_TILE.y + 1, true, FlxObject.ANY);
+			var B = Reg.st.map.get2RayCast(e.SPAWN_TILE.x , e.SPAWN_TILE.y + 1, true, FlxObject.ANY);
 			v0 = B.v0 * 8;
 			v1 = (B.v1 * 8) - e.width;
 		}
@@ -411,8 +414,8 @@ class AI_Move_Y extends Enemy_AI
 		if (sameX)
 		{
 			// velocity facing calculated onspawn()
-			v0 = Std.int(E.O.y / Game.map.ROOM_HEIGHT) * Game.map.ROOM_HEIGHT + 8;
-			v1 = v0 + Game.map.ROOM_HEIGHT - E.height - 16;
+			v0 = Std.int(E.O.y / Reg.st.map.ROOM_HEIGHT) * Reg.st.map.ROOM_HEIGHT + 8;
+			v1 = v0 + Reg.st.map.ROOM_HEIGHT - E.height - 16;
 			return;
 		}
 		
@@ -430,10 +433,10 @@ class AI_Move_Y extends Enemy_AI
 			
 			// HACK (Special Occasion)
 			// Check if overlapping some tile and move it a bit out of the way to snap
-			if (Game.map.layers[1].getTile(e.SPAWN_TILE.x, e.SPAWN_TILE.y) > 0) {
+			if (Reg.st.map.layers[1].getTile(e.SPAWN_TILE.x, e.SPAWN_TILE.y) > 0) {
 				e.SPAWN_POS.y += 8;
 			}
-			var B = Game.map.get2RayCast(e.SPAWN_TILE.x + 1 , e.SPAWN_TILE.y + 1, false, 1);
+			var B = Reg.st.map.get2RayCast(e.SPAWN_TILE.x + 1 , e.SPAWN_TILE.y + 1, false, 1);
 			v0 = B.v0 * 8;
 			v1 = (B.v1 * 8) - e.width;
 		}
@@ -444,8 +447,8 @@ class AI_Move_Y extends Enemy_AI
 	{
 		// Spawn at the opposite side of player Y
 		if (sameX) {
-			e.x = Game.player.x + (Game.player.width - e.width) / 2;
-			if (Game.player.y < Game.map.roomCornerPixel.y + (Game.map.ROOM_HEIGHT / 2) - Game.player.height / 2){
+			e.x = Reg.st.player.x + (Reg.st.player.width - e.width) / 2;
+			if (Reg.st.player.y < Reg.st.map.roomCornerPixel.y + (Reg.st.map.ROOM_HEIGHT / 2) - Reg.st.player.height / 2){
 				e.y = v1;
 				e.velocity.y = -initV;
 			}else{
