@@ -125,13 +125,13 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 	
 
-	override public function load(s:String) 
+	override public function load(S:String, asData:Bool = false) 
 	{
 		// :: Init:
 		// It was scrolling -- not supposed to -- but check anyway
 		if (tweenCamera != null) {tweenCamera.cancel(); tweenCamera = null; }	
 		
-		super.load(s);
+		super.load(S, asData);
 		
 		MAP_TYPE = T.properties.TYPE;
 		MAP_NAME = T.properties.NAME;
@@ -161,7 +161,7 @@ class MapFK extends TilemapGeneric
 		
 		// INFO and DEV CHECKS ------
 		#if debug
-			trace(' -- Loaded Map "$s"');
+			trace(' -- Loaded Map "$S"');
 			trace(' TYPE: $MAP_TYPE, NAME: $MAP_NAME');
 			trace(' . MAP : Rooms Total ' , roomTotal);
 			trace(' . MAP : Rooms Current ' , roomCurrent);

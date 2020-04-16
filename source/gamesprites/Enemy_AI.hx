@@ -41,6 +41,7 @@ package gamesprites;
 
 import djA.DataT;
 import djA.types.SimpleVector;
+import djFlixel.D;
 
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -49,7 +50,9 @@ import flixel.math.FlxAngle;
 
 @:access(gamesprites.Enemy)
 class Enemy_AI 
-{	
+{
+	
+	// Pixel padding to center of chase target
 	static inline var CHASE_CORRECTION = 2;
 	
 	var e:Enemy;
@@ -106,13 +109,15 @@ class Enemy_AI
 	// Set velocity Y to follow player
 	function chase_y()
 	{
-		if (e.y < Reg.st.player.y - 1)
+		if (e.y + e.halfHeight < Reg.st.player.y + Reg.st.player.halfHeight - CHASE_CORRECTION)
 		{
 			e.velocity.y = Reg.P.en_speed;
+			e.facing = FlxObject.RIGHT;
 		}else
-		if (e.y > Reg.st.player.y + 1)
+		if (e.y + e.halfHeight > Reg.st.player.y + Reg.st.player.halfHeight + CHASE_CORRECTION )
 		{
 			e.velocity.y = -Reg.P.en_speed;
+			e.facing = FlxObject.LEFT;
 		}
 		else
 			e.velocity.y = 0;
@@ -139,14 +144,30 @@ class Enemy_AI
 
 
 /**
-   Big Enemy - Follow on the X axis if get too close
+   TURRET, Shoots bullets that home on player
+   - NOTICE: The turret timer gets randomized a bit
 **/
 class AI_Turret extends Enemy_AI
 {
+	// Time to Shoot
+	var _timer:Float = 0;
+	
 	override public function update(elapsed:Float) 
 	{
-		// count time and shoot a bullet
-	}
+		if ((_timer += elapsed) > Reg.P.en_turret_speed)
+		{
+			_timer = 0;
+			Reg.st.BM.shootFromEnemy(2, e.x + e.halfWidth, e.y + e.halfHeight);
+			// <SOUND>
+		}
+	}//---------------------------------------------------;
+	
+	override public function respawn() 
+	{
+		super.respawn();
+		// Randomize the start time, so turrets will not fire at the same time
+		_timer = Reg.P.en_turret_speed * Math.random() * 0.85;
+	}//---------------------------------------------------;
 }
 
 
@@ -218,7 +239,7 @@ class AI_Chase extends Enemy_AI
 		chase_y();
 		
 		// :: ANGLE WAY
-		//var r1 = FlxAngle.angleBetweenPoint(e, FlxG.mouse.getPosition());
+		//var r1 = FlxAngle.angleBetween(e, Reg.st.player);
 		//e.velocity.x = Reg.P.en_speed * Math.cos(r1);
 		//e.velocity.y = Reg.P.en_speed * Math.sin(r1);
 		//if (e.velocity.x > 0)
@@ -394,7 +415,6 @@ class AI_Move_Y extends Enemy_AI
 {
 	var v0:Float;
 	var v1:Float;
-	var initV:Float;
 	var sameX:Bool;
 	
 	public function new(E:Enemy)
@@ -414,8 +434,8 @@ class AI_Move_Y extends Enemy_AI
 		if (sameX)
 		{
 			// velocity facing calculated onspawn()
-			v0 = Std.int(E.O.y / Reg.st.map.ROOM_HEIGHT) * Reg.st.map.ROOM_HEIGHT + 8;
-			v1 = v0 + Reg.st.map.ROOM_HEIGHT - E.height - 16;
+			v0 = (Std.int(E.O.y / Reg.st.map.ROOM_HEIGHT) * Reg.st.map.ROOM_HEIGHT) + 8;
+			v1 = (v0 + Reg.st.map.ROOM_HEIGHT - E.height) - 8;
 			return;
 		}
 		
@@ -436,6 +456,7 @@ class AI_Move_Y extends Enemy_AI
 			if (Reg.st.map.layers[1].getTile(e.SPAWN_TILE.x, e.SPAWN_TILE.y) > 0) {
 				e.SPAWN_POS.y += 8;
 			}
+			// Get free area to move
 			var B = Reg.st.map.get2RayCast(e.SPAWN_TILE.x + 1 , e.SPAWN_TILE.y + 1, false, 1);
 			v0 = B.v0 * 8;
 			v1 = (B.v1 * 8) - e.width;
@@ -447,15 +468,18 @@ class AI_Move_Y extends Enemy_AI
 	{
 		// Spawn at the opposite side of player Y
 		if (sameX) {
-			e.x = Reg.st.player.x + (Reg.st.player.width - e.width) / 2;
-			if (Reg.st.player.y < Reg.st.map.roomCornerPixel.y + (Reg.st.map.ROOM_HEIGHT / 2) - Reg.st.player.height / 2){
+			D.align.XAxis(e, Reg.st.player);
+			// When the player comes from a side, don't spawn too close to the edge
+			if (e.x - e.offset.x < Reg.st.map.roomCornerPixel.x) e.x += 10; else
+			if (e.x + e.width + e.offset.x >= Reg.st.map.roomCornerPixel.x + Reg.st.map.ROOM_WIDTH) e.x -= 10;
+			
+			if (Reg.st.player.y < Reg.st.map.roomCornerPixel.y + (Reg.st.map.ROOM_HEIGHT / 2) - Reg.st.player.halfHeight){
 				e.y = v1;
-				e.velocity.y = -initV;
+				e.velocity.y = -startVel.y;
 			}else{
 				e.y = v0;
-				e.velocity.y = initV;
+				e.velocity.y = -startVel.y;
 			}
-			
 			e.facing = e.velocity.y > 0?FlxObject.RIGHT:FlxObject.LEFT;
 			return;
 		}

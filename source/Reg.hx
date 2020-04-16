@@ -24,6 +24,7 @@ class Reg
 	// This is for quick access to game elements
 	public static var st:StatePlay;
 	
+
 	// :: Sounds
 	static var musicVers = ["music_c64", "music_cpc"];
 	static var musicVer:Int = 0; // Store index	
@@ -35,32 +36,47 @@ class Reg
 	// :: External Parameters parsed objects
 	static var INI:ConfigFile;
 	static var JSON:Dynamic;
+	
+	
+	// All DAMAGE Numbers here
+	public static var P_DAM = {
+		player_to_enemy : 100,
+		player_fall_damage:200,
+		
+		enemy_to_player : 50,
+		enemy_bullet	: 25,
+		player_bullet   : 50,
+		hazard:40,
+	}
 
 	// Parameters for entities
 	// -- Enemies, Playser, World
 	// :: Other not physic parameters can be found as statics at each class so look over there also
 	// :: Player - jump cut off variables are hard coded in <player.state_onair_update()>
-	// - Some ENEMYAI parametes in the enemy_ai classes
-	static var P = {
+	public static var P = {
+		flicker_time:0.4,
 		gravity:410,
+		
 		pl_speed:70,
 		pl_jump:220,
-		en_speed:30,
+		pl_bl_onscreen:2,	// MAX bullets plyer can shoot
+		pl_bl_speed:150,	// Player bullet speed
+		pl_bl_timer:250,	// Shoot every this much MILLISECONDS
+		
+		en_bl_speed:62,			// Enemy bullet speed
+		en_speed:35,
+		en_turret_speed:2.5,	// Shoot every this
 		en_bounce:180,
-		en_spawn_time: 3
+		en_spawn_time:3, 
+		en_health:100,			// Base enemy health
 	};
 	
+	
 	static var LEVELS = [
-		'assets/maps/_debug.tmx',
 		'assets/maps/level_01.tmx',
+		'assets/maps/_debug.tmx',
 	];
 	
-
-	// Asset loaded times
-	static var _dtimes:Int = 0;
-	
-	
-
 	
 	
 	// --
@@ -68,7 +84,7 @@ class Reg
 	public static function init()
 	{
 		trace(" == Reg init");
-		D.assets.DYN_FILES = [PATH_JSON, PATH_INI];	// Reload on F12
+		D.assets.DYN_FILES = [PATH_JSON, PATH_INI, LEVELS[0]];
 		D.assets.onAssetLoad = onAssetLoad;	
 		D.snd.ROOT_SND = "snd/";
 		D.snd.ROOT_MSC = "mus/";
@@ -76,8 +92,8 @@ class Reg
 		
 		// -- Game things: might be moved:
 		IM = new ImageAssets();
-		
 	}//---------------------------------------------------;
+	
 	
 	// Whenever D.assets gets reloaded, I need to reparse the data into the objects
 	// Then the state will be reset automatically
@@ -87,12 +103,16 @@ class Reg
 		INI = new ConfigFile(D.assets.files.get(PATH_INI));
 		JSON = Json.parse(D.assets.files.get(PATH_JSON));
 		
+		//INI.getObj('REG_P', P);	// Read 
+		
 		if (++_dtimes == 1)
 		{
 			D.snd.addMetadataNode(JSON.soundFiles);
 		}
 	}//---------------------------------------------------;
+		static var _dtimes:Int = 0; // Asset loaded times
 
+		
 	
 	/** This is to be overlayed on top of every state */
 	static function get_overlayScreen():FlxSprite

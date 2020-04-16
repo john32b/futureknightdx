@@ -7,6 +7,7 @@
 
 package;
 
+import djFlixel.D;
 import flixel.FlxG;
 import flixel.FlxState;
 import gamesprites.*;
@@ -25,11 +26,11 @@ class StatePlay extends FlxState
 	
 	var menu:FlxMenu;
 	
-	
 	override public function create():Void 
 	{
 		super.create();
 		Reg.st = this;
+		
 		ROOMSPR = new RoomSprites();
 		player = new Player();
 		map = new MapFK();
@@ -46,7 +47,8 @@ class StatePlay extends FlxState
 		add(BM);
 		
 		// : load the level, logic will be auto-triggered 
-		map.load(Reg.LEVELS[0]);
+		//map.load(Reg.LEVELS[0]);
+		map.load(D.assets.files.get(Reg.LEVELS[0]), true);
 	}//---------------------------------------------------;
 	
 	// --
@@ -54,18 +56,44 @@ class StatePlay extends FlxState
 	{
 		super.update(elapsed);
 		
-		// --
+		// Notes:
+		// ------
+		// Player->Map collisions , in player.update()
+		// Bullet->Map collisions , in BulletManager.update()
+		
+		// Player->(Enemies,Items,AnimTiles)
 		FlxG.overlap(player, ROOMSPR, _overlap_player_roomgroup);
+		
+		// Bullets->Player
+		FlxG.overlap(player, BM, _overlap_player_bullet);
+		
+		// Bullets->Enemies
+		FlxG.overlap(ROOMSPR.gr_enemy, BM, _overlap_enemy_bullet);
 		
 	}//---------------------------------------------------;
 	
-	
+	// <COLLISION> Bullet to Enemy
+	function _overlap_enemy_bullet(e:Enemy, b:BulletManager.Bullet)
+	{
+		if (b.owner != BulletManager.OWNER_PLAYER) return;
+		BM.killBullet(b, true);
+		e.hurt(Reg.P_DAM.player_bullet);	/// Do bullets have different power?
+	}//---------------------------------------------------;
+	// <COLLISION>, Bullet to Player
+	function _overlap_player_bullet(a:Player, b:BulletManager.Bullet)
+	{
+		if (b.owner != BulletManager.OWNER_ENEMY) return;
+		BM.killBullet(b);
+		a.hurt(Reg.P_DAM.enemy_bullet);
+	}//---------------------------------------------------;
+	// <COLLISION> Player to (ENEMY,ITEM,ANIM)
 	function _overlap_player_roomgroup(a:Player, b:MapSprite)
 	{
 		if (Std.is(b, Enemy)){
 			if (!b.alive) return;
 			var en:Enemy = cast b;
-			b.hurt(100);
+			b.hurt(Reg.P_DAM.player_to_enemy);
+			a.hurt(Reg.P_DAM.enemy_to_player);
 		}
 		else if (Std.is(b, Item)){
 			
@@ -77,6 +105,7 @@ class StatePlay extends FlxState
 	}//---------------------------------------------------;
 	
 	
+	// --
 	function event_map_handler(ev:MapFK.MapEvent)
 	{
 		switch(ev) 
@@ -84,15 +113,14 @@ class StatePlay extends FlxState
 			case loadMap: 
 				// Map has just loaded. Tilemap Created, Entities and Tiles Processed
 				ROOMSPR.reset();
-				for (i in PM) i.kill();
-				for (i in BM) i.kill();
+				BM.reset();
+				PM.reset();
 				
 				if (map.PLAYER_SPAWN != null) 
 				{
 					var sp = map.PLAYER_SPAWN;
-					trace("Player Spawn Point FOUND",sp);
-					map.camera_teleport_to_room_containing(sp.x, sp.y);
-					player.spawn(sp.x, sp.y);
+					player.spawn(sp.x, sp.y);	// Do this first thing, then the enemies, since some enemies rely on player pos
+					map.camera_teleport_to_room_containing(sp.x, sp.y);	// This will trigger enemy creation
 				}else{
 					// Scan for ENTRY points and teleport to the correct one
 					trace("NO PLAYER SPAWN POINT");
@@ -110,7 +138,8 @@ class StatePlay extends FlxState
 				
 			// This is called before the new room entities are pushed
 			case scrollStart:
-				for (i in BM) i.kill();
+				PM.kill();
+				BM.kill();
 				for (e in ROOMSPR) e.active = false;
 				player.active = false;
 				ROOMSPR.stashSave();

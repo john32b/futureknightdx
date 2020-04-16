@@ -23,6 +23,7 @@ package gamesprites;
 import djFlixel.D;
 import djfl.util.TiledMap.TiledObject;
 import flixel.FlxSprite;
+import flixel.effects.FlxFlicker;
 import gamesprites.Enemy_AI;
 
 
@@ -38,11 +39,13 @@ class Enemy extends MapSprite
 	
 	// Precalculated to avoid width/2 all the time.
 	public var halfWidth:Int = 0;
-	public var halfheight:Int = 0;
+	public var halfHeight:Int = 0;
 	
 	// GFXType, used for creating appropriate explosions
 	// 0:Normal, 1:Big, 2:Long, 3:Worm
 	var _gfxtype:Int = 0;
+	
+	var _hurtTimer:Float = 0;
 
 	// --
 	override public function update(elapsed:Float):Void 
@@ -50,7 +53,17 @@ class Enemy extends MapSprite
 		super.update(elapsed);
 		
 		if (alive) {
+			
+			if (_hurtTimer > 0)
+			{
+				if ((_hurtTimer -= elapsed)<= 0)
+				{
+					setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);
+				}
+			}
+			
 	 		ai.update(elapsed);
+			
 		}else {
 			if (spawnTime < 0) return;	// This enemy does not ever respawn
 			_spawnTimer+= elapsed;
@@ -71,14 +84,16 @@ class Enemy extends MapSprite
 		moves = true;			// Override the default false of `MapSprite`
 		acceleration.set(0, 0);	// Just in case, this is for the bounce spite
 		
+		health = Reg.P.en_health;
 		spawnTime = Reg.P.en_spawn_time;	// Separate because some enemies might want to spawn later?
 		
 		// Default ORIGIN to all enemies is center, unless an AI sets this again
 		spawn_origin_set(0);
 				
 		_loadGraphic(gid);
+		
 		halfWidth = Std.int(width / 2);
-		halfheight = Std.int(height / 2);
+		halfHeight = Std.int(height / 2);
 		
 		// :: AI
 		ai = Enemy_AI.getAI(o.type, this);
@@ -90,15 +105,31 @@ class Enemy extends MapSprite
 	// --
 	function respawn() 
 	{
+		setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);	// Reset color in case it was altered
+		_hurtTimer = 0;
 		visible = alive = moves = solid = true;
 		animation.play('main', true);
 		ai.respawn();	// The AI will actually place it
+		
 	}//---------------------------------------------------;
 	
 	// --
 	override public function hurt(Damage:Float):Void 
 	{
-		softKill();
+		if (_hurtTimer > 0) return;
+		
+		health -= Damage;
+		
+		if (health <= 0)
+		{
+			softKill();
+		}else{
+			
+			//setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);
+			this.color = 0xFFedd446;
+			D.snd.play("hit_02");	/// TODO RANDOM 02,03,04
+			_hurtTimer = 0.1;
+		}
 	}//---------------------------------------------------;
 	
 	// --
@@ -124,21 +155,21 @@ class Enemy extends MapSprite
 		switch(_gfxtype)
 		{
 			case 1: // 4 particles box
-				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfheight - 12, velocity.x, velocity.y);
-				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfheight + 12, velocity.x, velocity.y);
-				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfheight - 12, velocity.x, velocity.y);
-				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfheight + 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfHeight - 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfHeight + 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight - 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight + 12, velocity.x, velocity.y);
 				
 			case 2: // 2 in height
-				Reg.st.PM.createAt(0, x + halfWidth, y + halfheight - 12, velocity.x, velocity.y);
-				Reg.st.PM.createAt(0, x + halfWidth, y + halfheight + 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight - 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight + 12, velocity.x, velocity.y);
 				
 			case 3: // 3 in width
 				for(i in 0...3) // (0,1,2)
-				Reg.st.PM.createAt(0, (x + 11) + (i * 22), y + halfheight, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, (x + 11) + (i * 22), y + halfHeight, velocity.x, velocity.y);
 				
 			case _: // 1 particle or default
-				Reg.st.PM.createAt(0, x + halfWidth, y + halfheight, velocity.x, velocity.y);				
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight, velocity.x, velocity.y);				
 		};
 	}//---------------------------------------------------;
 	
@@ -156,8 +187,8 @@ class Enemy extends MapSprite
 				
 				// Alter the bounds of SOME enemies
 				if (a == 3){ // Slime
-					height = 12;
-					offset.y = 6;
+					height = 8;
+					offset.y = 10;
 				}else
 				if (a == 6){ // Ball
 					height = 18;

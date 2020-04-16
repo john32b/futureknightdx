@@ -66,11 +66,21 @@ class TilemapGeneric extends FlxGroup
 	   
 	   - Camera is set to top-left, camera bounds are set
 	   - World Boundaries are set
-	   @param	s Asset to Load
+	   @param	s Asset to Load OR the xml data file
+	   @param asData, if you put the XML DATA set this to true
 	**/
-	public function load(s:String)
+	public function load(s:String, asData:Bool = false)
 	{
-		T = new TiledMap(s, _tiledParams);
+		T = new TiledMap(null, _tiledParams);
+		
+		if (asData){
+			trace("LOADING DATA MAP");
+			T.loadData(s);
+		}else{
+			trace("LOADING ASSET >>> MAP");
+			T.load(s);
+		}
+		
 		width = T.mapW * T.tileW;
 		height = T.mapH * T.tileH;
 		

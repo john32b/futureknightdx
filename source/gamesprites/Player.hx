@@ -48,13 +48,20 @@ enum PlayerState
 
 class Player extends FlxSprite
 {
+	
+	public inline static var START_HEALTH = 999;
+	public inline static var START_LIVES = 3;
+	
+	
 	inline static var PLAYER_IDLE_TIME_ANIMATION = 6.0;		// At how many seconds to idle anim
 
 	inline static var BOUND_W = 8; 		// Bounding box 
 	inline static var BOUND_H = 22;
 	inline static var BOUND_OFF_X = 11;
 	inline static var BOUND_OFF_Y = 4;
-	inline static var BOUND_CROUCH_OFF = 8;
+	inline static var BOUND_CROUCH_OFF = 4;			// Make top side this much smaller when crouching
+	
+	inline static var BULLET_X_PAD = 2;				// Push this much away from player when shooting (default is right at bounding box)
 	
 	inline static var LADDER_SNAP_Y = 8;			// Move player this much downwards when mounts a ladder
 	inline static var LADDER_MOUNT_PIXELS = 4;		// For this many traveled pixels the mount frame will be displayd
@@ -65,10 +72,14 @@ class Player extends FlxSprite
 	inline static var IDLE_STEP_TIME = 8;			// Seconds to go to the next idle stage (there are 3 idle stages)
 	inline static var FALL_DAMAGE_HEIGHT = 32 * 5;	// If it falls from 5x(bigtiles) do fall damage
 	inline static var FALL_DAMAGE_TIME = 3;			// Stun for 3 seconds
-	inline static var FALL_DAMAGE_HP = 200;			// Lose this much HP on fall damage
 	
 	// Precalculated to avoid width/2 all the time
 	public var halfWidth:Int;
+	public var halfHeight:Int;
+	
+	// Current bullet type the player can shoot
+	// 1:Normal, 2:Red, 3:Slime
+	public var BULLET_TYPE:Int = 1;
 
 	// Keys states
 	var _pressingUp:Bool;
@@ -100,6 +111,10 @@ class Player extends FlxSprite
 	var _jumpForceFull:Bool;		// Force a full jump, with no reduce height check (Used in hazards)
 	var _idle:Float;				// Track timer for IDLE and STUN
 	var _idle_stage:Int;
+	
+	
+	var _shoot_allow:Bool;			// Whether at this stage firing is supported
+	var _shoot_timer:Int;			// Time since last shot, IN TICKS, NOT MS
 	
 	
 	// - Sounds
@@ -157,14 +172,19 @@ class Player extends FlxSprite
 		offset.set(BOUND_OFF_X, BOUND_OFF_Y);
 		
 		halfWidth = Std.int(width / 2);
+		halfHeight = Std.int(height / 2);
 		
 		// --
+		// Dev: Some (onenter) conditions are done where the state change occurs
 		fsm = new Fsm();
 		fsm.addState(PlayerState.ONFLOOR , state_onfloor_enter, state_onfloor_update, state_onfloor_exit);
 		fsm.addState(PlayerState.ONAIR   , state_onair_enter, state_onair_update);
 		fsm.addState(PlayerState.ONLADDER, null, state_onladder_update);
 		fsm.addState(PlayerState.ONSLIDE, state_onslide_enter , state_onslide_update, state_onslide_exit);
 		fsm.addState(PlayerState.STUNNED, null , state_stunned_update);
+		
+		// --
+		health = START_HEALTH;
 		
 	}//---------------------------------------------------;
 
@@ -269,6 +289,7 @@ class Player extends FlxSprite
 		// Start with this to false, even if it is not jumping
 		// and it will be processed in the update cycle
 		isFalling = false;
+		_shoot_allow = true;
 	}//---------------------------------------------------;
 	
 	
@@ -314,7 +335,8 @@ class Player extends FlxSprite
 					animation.play('fallstun');
 					physics_stop();
 					D.snd.play(snd.hurt, 0.2);
-					//hurt(FALL_DAMAGE_HP);
+					hurt(Reg.P_DAM.player_fall_damage);
+					_shoot_allow = false;
 					fsm.goto(STUNNED);
 				}else{
 					fsm.goto(ONFLOOR);
@@ -370,6 +392,7 @@ class Player extends FlxSprite
 		_walkBlockDir = -1;
 		_jumpForceFull = false;
 		_idle = _idle_stage = 0;
+		_shoot_allow = true;
 	}//---------------------------------------------------;
 		
 	
@@ -525,6 +548,51 @@ class Player extends FlxSprite
 		
 		fsm.update();
 		
+		
+		if (_shoot_allow)
+		{
+			update_shoot();
+		}
+
+	}//---------------------------------------------------;
+	
+	
+	/**
+	   Check for key and create bullet.
+	**/
+	function update_shoot()
+	{
+		if (D.ctrl.justPressed(X))
+		{
+			_idle = 0;
+			
+			if (FlxG.game.ticks - _shoot_timer >= Reg.P.pl_bl_timer) {
+				_shoot_timer = FlxG.game.ticks;
+			}else{
+				return;	// Do not shoot
+			}
+			
+			var X = (facing == FlxObject.RIGHT?x + width + BULLET_X_PAD:x - BULLET_X_PAD);
+			if (Reg.st.BM.shootFromPlayer(BULLET_TYPE, X, y + halfHeight, facing))
+			{
+				// bullet shot OK
+				D.snd.play(snd.shoot);
+			}
+		}
+	}//---------------------------------------------------;
+	
+	
+	/// Check for HAZARD hurt value
+	override public function hurt(Damage:Float):Void 
+	{
+		health -= Damage;
+		D.snd.play(snd.hurt);
+		
+		if (health < 0) {
+			health = 0;
+		}
+		
+		FlxFlicker.flicker(this, Reg.P.flicker_time);
 	}//---------------------------------------------------;
 	
 	/**
@@ -545,6 +613,8 @@ class Player extends FlxSprite
 		_pressingDown = _pressingLeft = _pressingRight = _pressingUp = false;
 		
 		// --
+		_shoot_allow = false;	// < FSM States will change this
+		_shoot_timer = 0;
 		_hack_break = false;
 		isCrouching = false;
 		isWalking = false;
@@ -619,6 +689,7 @@ class Player extends FlxSprite
 			physics_stop();
 			animation.play("climb");
 			_sndTick = SOUND_sndTick_CLIMB * 0.75;
+			_shoot_allow = false;
 			fsm.goto(ONLADDER);
 			return true;
 		}
@@ -641,6 +712,7 @@ class Player extends FlxSprite
 			physics_stop();
 			animation.play("mount");
 			_sndTick = SOUND_sndTick_CLIMB * 0.75;
+			_shoot_allow = false;
 			fsm.goto(ONLADDER);
 			return true;
 		}
@@ -658,8 +730,7 @@ class Player extends FlxSprite
 			case HAZARD:
 				// Can't hit a hazard on the way up / Don't hit same hazard more than once
 				if (velocity.y < 0) return;	
-				D.snd.play(snd.hurt);
-				FlxFlicker.flicker(this, 0.5);
+				hurt(Reg.P_DAM.hazard);
 				velocity.y = -Reg.P.pl_jump;
 				touching = 0;
 				_jumpForceFull = true;
