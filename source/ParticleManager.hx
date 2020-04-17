@@ -24,12 +24,10 @@ class ParticleManager extends FlxGroup
 	inline public static var halfWidth = 11;
 	inline public static var halfHeight = 12;
 	
-	
 	/** Kill all bullets and remove them. keep (POOL_MIN) */
 	public function reset()
 	{
 		D.dest.groupKeep(this, POOL_MIN);
-		trace("PARTICLES CLEAR, new len", this.length);
 	}//---------------------------------------------------;
 
 	// Quickly kill all particles, but not group itself
@@ -73,17 +71,6 @@ class ParticleManager extends FlxGroup
 		// NOTE: IN the 2015 version I had gravity set to (GLOBAL_GRAVITY/2)
 		//		 by 5 feels better
 		return s;
-	}//---------------------------------------------------;
-	
-	override public function update(elapsed:Float):Void 
-	{
-		super.update(elapsed);
-		
-		#if debug
-		if (FlxG.mouse.justPressed && FlxG.keys.pressed.ONE) {
-			createAt(0, FlxG.mouse.x, FlxG.mouse.y, 0, 0);
-		}
-		#end
 	}//---------------------------------------------------;
 	
 }// --

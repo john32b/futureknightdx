@@ -23,6 +23,7 @@ class StatePlay extends FlxState
 	public var player:Player;
 	public var PM:ParticleManager;
 	public var BM:BulletManager;
+	public var INV:Inventory;
 	
 	var menu:FlxMenu;
 	
@@ -36,6 +37,9 @@ class StatePlay extends FlxState
 		map = new MapFK();
 		PM = new ParticleManager();
 		BM = new BulletManager();
+		INV = new Inventory();
+		INV.onClose = resume;
+		INV.onOpen = pause;
 		
 		map.onEvent = event_map_handler;
 		
@@ -45,10 +49,12 @@ class StatePlay extends FlxState
 		add(player);
 		add(PM);
 		add(BM);
+		add(INV);
 		
 		// : load the level, logic will be auto-triggered 
 		//map.load(Reg.LEVELS[0]);
 		map.load(D.assets.files.get(Reg.LEVELS[0]), true);
+		
 	}//---------------------------------------------------;
 	
 	// --
@@ -72,6 +78,7 @@ class StatePlay extends FlxState
 		
 	}//---------------------------------------------------;
 	
+	
 	// <COLLISION> Bullet to Enemy
 	function _overlap_enemy_bullet(e:Enemy, b:BulletManager.Bullet)
 	{
@@ -94,9 +101,26 @@ class StatePlay extends FlxState
 			var en:Enemy = cast b;
 			b.hurt(Reg.P_DAM.player_to_enemy);
 			a.hurt(Reg.P_DAM.enemy_to_player);
+			
+			// from old code:
+			//if (enemy.isBig) 
+			//{
+				//if(enemy.health>100)
+					//pl.hurt(100);
+				//else
+					//pl.hurt(enemy.health);
+					//
+				//enemy.hurt(100);
+			//}else
+			//{
+				//pl.hurt(enemy.health);
+				//enemy.softKill();				
+			//}
 		}
 		else if (Std.is(b, Item)){
-			
+			var item:Item = cast b;
+			item.killExtra();
+			INV.addItem(item.item_id);
 		}
 		else if (Std.is(b, AnimatedTile))
 		{
@@ -151,5 +175,24 @@ class StatePlay extends FlxState
 		}
 	}//---------------------------------------------------;
 	
+	// --
+	public function pause()
+	{
+		ROOMSPR.active = false;
+		player.active = false;
+		PM.active = false;
+		BM.active = false;
+		trace("game pause()");
+	}//---------------------------------------------------;
 	
+	// --
+	public function resume()
+	{
+		ROOMSPR.active = true;
+		player.active = true;
+		PM.active = true;
+		BM.active = true;
+		trace("game resume()");
+	}//---------------------------------------------------;
+		
 }// --

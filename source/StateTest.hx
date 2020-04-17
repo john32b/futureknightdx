@@ -26,69 +26,33 @@ class StateTest extends FlxState
 	//var trophy:TrophyPopup;
 	//var list:VList<ITEMTEST,Int>;
 	
-	var menu:FlxMenu;
-	var map:MapFK;
+	var INV:Inventory;
+
+	override public function update(elapsed:Float):Void 
+	{
+		super.update(elapsed);
+		if (FlxG.keys.justPressed.ENTER) {
+			INV.toggle();
+		}
+		
+		if (FlxG.keys.justPressed.I){
+			// add a random item
+			if (!INV.addItem(cast Std.random(10) + 1)) trace("Cannot add item");
+		}
+	}//---------------------------------------------------;
 	
-	var ROOMSPR:RoomSprites;
-	
-	var player:Player;
 	
 	override public function create() 
 	{
 		super.create();
-	
-		ROOMSPR = new RoomSprites();
-		player = new Player();
-		map = new MapFK();
-		Game.map = map;
-		Game.player = player;
 		
-		map.onEvent = (ev)->{
-			switch(ev) {
-				
-				case loadMap: // Map has just loaded. Tilemap Created, Entities and Tiles Processed
-					
-					ROOMSPR.reset();
-					
-					if (map.PLAYER_SPAWN != null) {
-						var sp = map.PLAYER_SPAWN;
-						trace("Player Spawn Point FOUND",sp);
-						map.camera_teleport_to_room_containing(sp.x, sp.y);
-						player.spawn(sp.x, sp.y);
-					}else{
-						// Scan for ENTRY points and teleport to the correct one
-						trace("NO PLAYER SPAWN POINT");
-					}
-					
-				case roomEntities(b): // These entities are to be set in the current room
-					for (en in b) 
-					{
-						// DEV: I don't need to get player
-						ROOMSPR.spawn(en);
-					}
-					
-				case scrollStart:
-					for (e in ROOMSPR) e.active = false;
-					player.active = false;
-					ROOMSPR.stashSave();
-					
-				case scrollEnd:
-					ROOMSPR.stashKill();
-					for (e in ROOMSPR) e.active = true;
-					player.active = true;
-			}
-		};
-		
-		// :: Ordering
-		add(map);
-		add(ROOMSPR);
-		add(player);
-		
-		// : load the level, logic will be auto-triggered 
-		map.load(Reg.LEVELS[0]);
-		
+		INV = new Inventory();
+		INV.onItemSelect = (it)->{
+			INV.removeItemWithID(it);
+			INV.sortItems();
+		}
+		add(INV);
 		return;
-		
 		
 		//
 		//var stars:StarfieldSimple = new StarfieldSimple();
@@ -167,7 +131,7 @@ class StateTest extends FlxState
 		//add(stimer);		
 		
 	 		
-		menu = new FlxMenu(43, 80, 100, 10);
+		var menu = new FlxMenu(43, 80, 100, 10);
 		Reg.INI.getObj("style1", menu.stL);
 		//menu.PARAMS.page_anim_parallel = true;
 		menu.stHeader = {
@@ -273,18 +237,6 @@ class StateTest extends FlxState
 	}//---------------------------------------------------
 
 		
-	override public function update(elapsed:Float):Void 
-	{
-		if (FlxG.keys.justPressed.ONE)
-		{
-			map.load(Reg.LEVELS[0]);
-		}else
-		if (FlxG.keys.justPressed.TWO)
-		{
-			map.load(Reg.LEVELS[1]);
-		}
-		
-		super.update(elapsed);
-	}//---------------------------------------------------;
+
 	
 }

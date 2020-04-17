@@ -49,7 +49,7 @@ enum MapEvent
 	scrollEnd;
 	roomEntities(v:Array<TiledObject>);	// Pushes ALL tiledObject the room has, even player
 	loadMap;
-}
+}//---------------------------------------------------;
 
 
 class MapFK extends TilemapGeneric
@@ -73,10 +73,9 @@ class MapFK extends TilemapGeneric
 	static inline var DRAW_START_X:Int = 32;  	// Pixels from screen left to draw map
 	static inline var DRAW_START_Y:Int = 20;  	// Pixels from screen top to draw map
 	
-	/// CHANGE THIS OR MAKE IT INLINE?
 	// :: CAMERA
-	static var CAMERA_TRANSITION_TIME = 0.2;
-	static var CAMERA_EASE:EaseFunction = FlxEase.quintIn;
+	static var CAMERA_TRANSITION_TIME = 0.23;
+	static var CAMERA_EASE:EaseFunction = FlxEase.smootherStepOut;
 	
 	public var ROOM_WIDTH  = TILE_SIZE * ROOM_TILE_WIDTH; 
 	public var ROOM_HEIGHT = TILE_SIZE * ROOM_TILE_HEIGHT; 
@@ -117,11 +116,6 @@ class MapFK extends TilemapGeneric
 		_tiledParams = {
 			object_tiles_to_center_points:true
 		}
-		
-		// DEV:
-		var CPAR = Reg.INI.getObjEx("room_camera");
-		CAMERA_EASE = Reflect.field(FlxEase, CPAR.ease);
-		CAMERA_TRANSITION_TIME = CPAR.time;	
 	}//---------------------------------------------------;
 	
 
@@ -161,7 +155,7 @@ class MapFK extends TilemapGeneric
 		
 		// INFO and DEV CHECKS ------
 		#if debug
-			trace(' -- Loaded Map "$S"');
+			if (!asData) trace(' -- Loaded Map "$S"');
 			trace(' TYPE: $MAP_TYPE, NAME: $MAP_NAME');
 			trace(' . MAP : Rooms Total ' , roomTotal);
 			trace(' . MAP : Rooms Current ' , roomCurrent);
@@ -172,9 +166,19 @@ class MapFK extends TilemapGeneric
 	
 	
 	// -- Call this to push to user
+	/// TODO: Check for deleted entities (items) and not include those
 	function roomcurrent_pushEntities()
 	{
-		var batch = get_objectTilesAt(LAYER_ENTITIES, roomCurrent.x  * ROOM_WIDTH, roomCurrent.y * ROOM_HEIGHT, ROOM_WIDTH, ROOM_HEIGHT);
+		// Get ALL tiles from this area
+		// -automatic- does not get entities in the KILLED Array
+		var batch = get_objectTilesAt (
+			LAYER_ENTITIES, 
+			roomCurrent.x  * ROOM_WIDTH, 
+			roomCurrent.y  * ROOM_HEIGHT, 
+			ROOM_WIDTH, 
+			ROOM_HEIGHT
+			);
+			
 		onEvent(MapEvent.roomEntities(batch));	// Pushes out to user the new entities of the new room
 	}//---------------------------------------------------;
 	
@@ -271,7 +275,6 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 
 	
-	
 	// -- Called after loading the map and before creating the map
 	// Mainly used for translating "HAZARD" fg tiles to Entities so that they can be pushed as entities to user
 	// I can skip this and make all hazards live in editor only?
@@ -298,12 +301,12 @@ class MapFK extends TilemapGeneric
 				});
 				// Delete the actual tiles
 				// DEV: This is fine since the map is read left to right
-				data[i]   = 0; 
+				data[i]   = 0;
 				data[i+1] = 0;
 				data[i+2] = 0;
 				data[i+3] = 0;
 			}
-			i += 4;
+			i += 4; // << Scan every 4 tiles, since I am only checking for hazards
 		}
 	}//---------------------------------------------------;
 	
@@ -331,14 +334,18 @@ class MapFK extends TilemapGeneric
 	function _setTileProperties()
 	{
 		var m = layers[COLLISION_LAYER];
-		var C = MapTiles.TILE_COL[MAP_TYPE];		
-		// DEV: Declaring SOLIDS is not needed, everytile is solid by default
+		var C = MapTiles.TILE_COL[MAP_TYPE];
+		
+
+		// Notes:
+		// . Declaring SOLIDS is not needed, everytile is solid by default
+		// . Animated hazard tiles, not needed, they are converted to Entities
 		m.setTileProperties(C[SOFT][0], FlxObject.CEILING, null, null, C[SOFT][1]);
 		m.setTileProperties(C[LADDER][0], FlxObject.NONE, null, null, C[LADDER][1]);
 		m.setTileProperties(C[LADDER_TOP][0], FlxObject.CEILING, null, null, C[LADDER_TOP][1]);
 		m.setTileProperties(C[SLIDE_LEFT][0], FlxObject.ANY, _tilecol_slide_left, null, C[SLIDE_LEFT][1]);
 		m.setTileProperties(C[SLIDE_RIGHT][0], FlxObject.ANY, _tilecol_slide_right, null, C[SLIDE_RIGHT][1]);
-		//m.setTileProperties(C[HAZARDTILE][0], FlxObject.NONE, _tilecol_hazard, null, C[HAZARDTILE][1]);
+		
 	}//---------------------------------------------------;
 	
 	

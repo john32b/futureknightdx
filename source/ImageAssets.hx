@@ -36,6 +36,7 @@ class ImageAssets
 	// Static images:
 	public var STATIC = {
 		overlay_scr:"im/monitor_overlay.png",
+		hud_inventory:"im/hud_inventory.png",
 	};
 	
 	static var GFX:Map<String,{im:String,tw:Int,th:Int,col:Bool}> = [

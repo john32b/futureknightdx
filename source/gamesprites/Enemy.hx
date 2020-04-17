@@ -23,7 +23,6 @@ package gamesprites;
 import djFlixel.D;
 import djfl.util.TiledMap.TiledObject;
 import flixel.FlxSprite;
-import flixel.effects.FlxFlicker;
 import gamesprites.Enemy_AI;
 
 

@@ -131,4 +131,29 @@ class Reg
 	}//---------------------------------------------------;
 	
 	
+	public static var ITEM_DATA:Map<MapTiles.ITEM_TYPE,ItemInfo> = [
+			SAFE_PASS => { name:"Safe Pass", desc:"It says Safe pass"},
+			BOMB => { name:"Bomb" },
+			PLATFORM_KEY => { name:"Platkey" },
+			CONFUSER_UNIT => { name:"Conf" },
+			SECURO_KEY => { name:"SEcuro" },
+			EXIT_PASS => { name:"Exitp" },
+			BRIDGE_SPELL => { name:"Bridge" },
+			SHORTERNER_SPELL => { name:"Shortne" },
+			FLASH_BANG_SPELL => { name:"flashbandg" },
+			GLOVE => { name:"glov" },
+			RELEASE_SPELL => { name:"reles" },
+			DESTRUCT_SPELL => { name:"dest" }
+	];
+	
+}//--
+
+
+
+// Basic Item structure
+typedef ItemInfo = {
+	name:String,
+	?desc:String
 }
+
+

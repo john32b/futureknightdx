@@ -28,6 +28,25 @@ enum EDITOR_TILE {
 }
 
 
+// This is ALSO the itemID as it is on the EDITOR
+enum abstract ITEM_TYPE(Int)
+{
+	var NONE; // 0
+	var SAFE_PASS;
+	var BOMB;
+	var PLATFORM_KEY;
+	var CONFUSER_UNIT;
+	var SECURO_KEY;
+	var EXIT_PASS;
+	var BRIDGE_SPELL;
+	var SHORTERNER_SPELL;
+	var FLASH_BANG_SPELL;
+	var GLOVE;
+	var RELEASE_SPELL;
+	var DESTRUCT_SPELL;
+}//---------------------------------------------------;
+
+
 class MapTiles
 {
 	
@@ -72,7 +91,15 @@ class MapTiles
 		ITEM => [34, 12]
 	];
 	
-
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	//====================================================;
 	
 	

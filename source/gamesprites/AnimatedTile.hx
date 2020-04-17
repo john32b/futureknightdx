@@ -19,7 +19,6 @@ enum AnimTileType
  */
 class AnimatedTile extends MapSprite
 {
-
 	public var type:AnimTileType;
 	
 	public function new() 

@@ -1,6 +1,8 @@
 package tools ;
+
 import djfl.tool.Geom;
 import djfl.util.TiledMap;
+
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.group.FlxGroup;
@@ -31,10 +33,13 @@ class TilemapGeneric extends FlxGroup
 	// Autoset to last layer by default
 	var COLLISION_LAYER:Int;
 	
-	/** 
-	  TiledLoader optional load parameters, see <TiledMap.PARAMS>.
-	  Set this on the extended object */
+	// TiledLoader optional load parameters, see <TiledMap.PARAMS>.
+	// Set this on the extended object
 	var _tiledParams:Dynamic;
+	
+	// Killed Objects. Entities here will not return process on'get_objectTilesAt'
+	// Declare an object as killed with killObject()
+	var _killed:Array<TiledObject>;
 	
 	public function new(numLayers:Int = 1)
 	{
@@ -74,12 +79,12 @@ class TilemapGeneric extends FlxGroup
 		T = new TiledMap(null, _tiledParams);
 		
 		if (asData){
-			trace("LOADING DATA MAP");
 			T.loadData(s);
 		}else{
-			trace("LOADING ASSET >>> MAP");
 			T.load(s);
 		}
+		
+		_killed = [];
 		
 		width = T.mapW * T.tileW;
 		height = T.mapH * T.tileH;
@@ -98,18 +103,30 @@ class TilemapGeneric extends FlxGroup
 	}//---------------------------------------------------;
 	
 	
+	public function killObject(o:TiledObject)
+	{
+		if (_killed.indexOf(o) ==-1)
+			_killed.push(o);
+	}//---------------------------------------------------;
+	
+	
 	/**
 	   Get a list of Tiled Objects by Checking CENTER POINTS, or (X,Y) of objects ONLY
-	   Returns TILE OBJECTS Only (not polygons,text,etc)
-	   DEV : SEARCHES SERIALLY, no quad_tree yet. If there are less han ~20 entities per map, and you
-	         don't call this at every frame. THIS IS OK FOR NOW. Don't worry
-	   @param	id Name of the Object Layer
+	   Returns TILE OBJECTS Only (not polygons, text,etc )
+	   DEV : SEARCHES ALL OBJECTS, no quad_tree yet. If there are less han ~20 entities per map, and you
+	         don't call this at every frame. THIS IS OK FOR NOW. Don't worry.
+	   @param id Name of the Object Layer
 	**/
 	function get_objectTilesAt(id:String, x:Float, y:Float, w:Float, h:Float):Array<TiledObject>
 	{
 		var list:Array<TiledObject> = [];
 		for (i in T.getObjLayer(id)) 
 		{
+			if (_killed.indexOf(i) >= 0) {
+				trace("A KILLED OBJECT IS CHECKED, skipping");
+				continue;
+			}
+			
 			if (i.gid != null && Geom.rectHasPoint(x, y, w, h, i.x, i.y)){
 				list.push(i);
 			}
@@ -118,23 +135,13 @@ class TilemapGeneric extends FlxGroup
 	}//---------------------------------------------------;
 	
 	
-	/** 
-	   Convert map serial to (x,y)
-	   The TiledMAP needs to have been loaded */
-	function serialToTileCoords(i:Int)
-	{
-		return {x:i % T.mapW, y:Std.int(i / T.mapW)};
-	}//---------------------------------------------------;
-	
-	/**
-	   Convert world pixel coords to tile coords */
+	/** Convert world pixel coords to tile coords */
 	public function getTileCoordsFromP(x:Float, y:Float)
 	{
 		return { x:Std.int(x / T.tileW), y:Std.int(y / T.tileH) };
 	}//---------------------------------------------------;
 	
-	/** 
-	   Get tile collision data at (x,y) Tile coordinates */
+	/** Get tile collision data at (x,y) Tile coordinates */
 	public function getCol(x:Int, y:Int):Int
 	{
 		var t = layers[COLLISION_LAYER].getTile(x, y);
@@ -146,4 +153,13 @@ class TilemapGeneric extends FlxGroup
 	{
 		return getCol(Std.int(x / T.tileW), Std.int(y / T.tileH));
 	}//---------------------------------------------------;
+	
+	/**  
+	   Convert map serial to (x,y)
+	   The TiledMAP needs to have been loaded */
+	function serialToTileCoords(i:Int)
+	{
+		return {x:i % T.mapW, y:Std.int(i / T.mapW)};
+	}//---------------------------------------------------;
+	
 }// --

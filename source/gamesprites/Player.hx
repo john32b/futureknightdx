@@ -25,6 +25,7 @@ package gamesprites;
 
 import djA.Fsm;
 import djA.types.SimpleCoords;
+import djFlixel.core.Dcontrols;
 import flixel.effects.FlxFlicker;
 
 import djFlixel.D;
@@ -548,12 +549,17 @@ class Player extends FlxSprite
 		
 		fsm.update();
 		
-		
 		if (_shoot_allow)
 		{
 			update_shoot();
 		}
 
+		// Player can open the menu
+		if (D.ctrl.justPressed(DButton.START))
+		{
+			Reg.st.INV.open();
+		}
+		
 	}//---------------------------------------------------;
 	
 	
@@ -582,7 +588,6 @@ class Player extends FlxSprite
 	}//---------------------------------------------------;
 	
 	
-	/// Check for HAZARD hurt value
 	override public function hurt(Damage:Float):Void 
 	{
 		health -= Damage;
@@ -592,7 +597,7 @@ class Player extends FlxSprite
 			health = 0;
 		}
 		
-		FlxFlicker.flicker(this, Reg.P.flicker_time);
+		//FlxFlicker.flicker(this, Reg.P.flicker_time);
 	}//---------------------------------------------------;
 	
 	/**
@@ -736,6 +741,10 @@ class Player extends FlxSprite
 				_jumpForceFull = true;
 				_verticalJump = false;	// Help player escape if falls from above
 				fsm.goto(ONAIR);
+				
+			// WEAPON(i:Int);
+			// EXIT(open:Bool);
+			// DECO;
 			case _:
 		}
 	
