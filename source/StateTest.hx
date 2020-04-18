@@ -72,7 +72,8 @@ class StateTest extends FlxState
 		//add(new FlxSprite(52, 200, D.ui.getIcon(12, 10)));
 		//add(new FlxSprite(64, 200, D.ui.getIcon(12, "heart")));
 		
-		add(Reg.get_overlayScreen());
+		//add(Reg.get_overlayScreen());
+		
 		
 		//var st:MItemStyle =  {
 			//text:{

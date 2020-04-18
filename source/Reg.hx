@@ -2,6 +2,8 @@ package;
 
 import djA.ConfigFile;
 import djFlixel.D;
+import flixel.FlxCamera;
+import flixel.FlxG;
 import flixel.FlxSprite;
 import haxe.Json;
 
@@ -15,16 +17,6 @@ class Reg
 {
 	static inline var VERSION = "1.5";
 	
-	// How long to wait on each screen on the banners
-	static inline var BANNER_DELAY:Float = 12;
-	
-	// :: Image Asset Manager
-	public static var IM:ImageAssets;
-
-	// This is for quick access to game elements
-	public static var st:StatePlay;
-	
-
 	// :: Sounds
 	static var musicVers = ["music_c64", "music_cpc"];
 	static var musicVer:Int = 0; // Store index	
@@ -32,27 +24,40 @@ class Reg
 	// :: External parameters
 	static inline var PATH_JSON = "assets/djflixel.json";
 	static inline var PATH_INI  = "assets/test.ini";
+	
+	// How long to wait on each screen on the banners
+	static inline var BANNER_DELAY:Float = 12;
+	
+	//====================================================;
+	
+	// :: Image Asset Manager
+	public static var IM:ImageAssets;
+
+	// This is for quick access to game elements
+	public static var st:StatePlay;
 
 	// :: External Parameters parsed objects
 	static var INI:ConfigFile;
 	static var JSON:Dynamic;
 	
 	
-	// All DAMAGE Numbers here
+	// :: DAMAGE VALUES 
+	// I am using this simple naming style, first is who takes damage _ from whom
 	public static var P_DAM = {
-		player_to_enemy : 100,
-		player_fall_damage:200,
-		
-		enemy_to_player : 50,
-		enemy_bullet	: 25,
-		player_bullet   : 50,
-		hazard:40,
+		player_from_en_bullet 	: 25,
+		player_from_enemy 		: 40,
+		player_from_hazard		: 20,
+		player_fall_damage		: 180,
+		// --
+		enemy_from_player 		: 100,
+		enemy_from_pl_bullet 	: 50,
 	}
 
-	// Parameters for entities
-	// -- Enemies, Playser, World
-	// :: Other not physic parameters can be found as statics at each class so look over there also
-	// :: Player - jump cut off variables are hard coded in <player.state_onair_update()>
+	
+	// :: General Parameters 
+	// Enemies, Playser, World
+	// Other not physic parameters can be found as statics at each class so look over there also
+	// Player - jump cut off variables are hard coded in <player.state_onair_update()>
 	public static var P = {
 		flicker_time:0.4,
 		gravity:410,
@@ -63,12 +68,12 @@ class Reg
 		pl_bl_speed:150,	// Player bullet speed
 		pl_bl_timer:250,	// Shoot every this much MILLISECONDS
 		
-		en_bl_speed:62,			// Enemy bullet speed
-		en_speed:35,
-		en_turret_speed:2.5,	// Shoot every this
-		en_bounce:180,
-		en_spawn_time:3, 
-		en_health:100,			// Base enemy health
+		en_health		:100,
+		en_bl_speed		:62,
+		en_speed		:35,
+		en_turret_speed	:2.5,	// Millisecs between shots
+		en_bounce		:180,
+		en_spawn_time	:3, 
 	};
 	
 	
@@ -78,12 +83,17 @@ class Reg
 	];
 	
 	
+	// All states default BG color,
+	static var BG_COLOR:Int = 0xFF000000;
 	
-	// --
-	// -- This is going to be called right before FLXGAME being created
-	public static function init()
+	
+	//====================================================;
+	//====================================================;
+	
+	// >> Called BEFORE FlxGame() is created
+	public static function init_pre()
 	{
-		trace(" == Reg init");
+		trace(" == Reg init -pre-");
 		D.assets.DYN_FILES = [PATH_JSON, PATH_INI, LEVELS[0]];
 		D.assets.onAssetLoad = onAssetLoad;	
 		D.snd.ROOT_SND = "snd/";
@@ -94,6 +104,16 @@ class Reg
 		IM = new ImageAssets();
 	}//---------------------------------------------------;
 	
+	// >> Called AFTER FlxGame() is created
+	public static function init_post()
+	{
+		trace(" == Reg init -post-");
+		D.snd.setVolume("master", 0.15);
+		
+		
+		//D.text.styles.set('hud_health', );
+		
+	}//---------------------------------------------------;
 	
 	// Whenever D.assets gets reloaded, I need to reparse the data into the objects
 	// Then the state will be reset automatically
@@ -114,13 +134,16 @@ class Reg
 
 		
 	
-	/** This is to be overlayed on top of every state */
-	static function get_overlayScreen():FlxSprite
+	// Quickly add the monitor border. And set it to be drawn at one camera only
+	public static function add_border():FlxSprite
 	{
+		var st = FlxG.state;
 		var a = new FlxSprite(0, 0, IM.STATIC.overlay_scr);
 			a.scrollFactor.set(0, 0);
 			a.active = false;
-			return a;
+			a.camera = st.camera;
+		st.add(a);
+		return a;
 	}//---------------------------------------------------;
 	
 	// TODO:
@@ -131,29 +154,32 @@ class Reg
 	}//---------------------------------------------------;
 	
 	
-	public static var ITEM_DATA:Map<MapTiles.ITEM_TYPE,ItemInfo> = [
-			SAFE_PASS => { name:"Safe Pass", desc:"It says Safe pass"},
-			BOMB => { name:"Bomb" },
-			PLATFORM_KEY => { name:"Platkey" },
-			CONFUSER_UNIT => { name:"Conf" },
-			SECURO_KEY => { name:"SEcuro" },
-			EXIT_PASS => { name:"Exitp" },
-			BRIDGE_SPELL => { name:"Bridge" },
-			SHORTERNER_SPELL => { name:"Shortne" },
-			FLASH_BANG_SPELL => { name:"flashbandg" },
-			GLOVE => { name:"glov" },
-			RELEASE_SPELL => { name:"reles" },
-			DESTRUCT_SPELL => { name:"dest" }
+	
+	public static var ITEM_DATA:Map<MapTiles.ITEM_TYPE,ItemHudInfo> = [
+			SAFE_PASS => { name:"Safe Pass", desc:"It says `Safe pass`", icon:1},
+			CONFUSER_UNIT => { name:"Confuser", desc:"Hey, you`ve found a confuser", icon:2 },
+			SECURO_KEY => { name:"Securo Key", desc:"This is a Securo key", icon:3 },
+			BOMB => { name:"Bomb", desc:"You have a Berm (Francais)", icon:4 },
+			PLATFORM_KEY => { name:"Platform Key", desc:"You have a platform key", icon:5 },
+			EXIT_PASS => { name:"Exit Pass", desc:"Looks like an exit pass", icon:6 },
+			
+			BRIDGE_SPELL => { name:"Bridge Spell", desc:"11", icon:1 },
+			SHORTERNER_SPELL => { name:"Shortne", desc:"11", icon:1 },
+			FLASH_BANG_SPELL => { name:"flashbandg", desc:"11", icon:1 },
+			GLOVE => { name:"glov", desc:"", icon:1 },
+			RELEASE_SPELL => { name:"reles", desc:"", icon:1 },
+			DESTRUCT_SPELL => { name:"dest", desc:"", icon:1 }
 	];
 	
 }//--
 
 
 
-// Basic Item structure
-typedef ItemInfo = {
+// Item HUD information
+typedef ItemHudInfo = {
 	name:String,
-	?desc:String
+	desc:String,
+	icon:Int	// There are 10 unique item icons for the HUD (1-10) values
 }
 
 

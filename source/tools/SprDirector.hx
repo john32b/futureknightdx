@@ -1,24 +1,27 @@
+/** 
+
+  = Quickly add /images/sprites/text to the scene In one Go
+  and set attribute like position, alpha, tween.
+  
+  = Works best for UI elements, the benefit is that you
+  can declare many sprites without having to declare them as variables
+ 
+  = EXAMPLE =
+  
+  var sp = new SprDirector();
+  add(sp);
+  sp.on("id1", new FlxSprite(~)).p(20,20).a(0.3).tween({alpha:1,x:30},1);
+    
+================================================================== **/
+  
+ 
 package tools;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxTween.TweenOptions;
 
-/** 
-  = Quickly add /images/sprites/text to the scene In one Go
-  and set attribute like position, alpha, tween.
-  = Works best for UI elements, the benefit is that you
-  can declare many sprites without having to declare them as variables
- 
-  = EXAMPLE ==
-  
-  var sp = new SprDirector();
-	add(sp);
-  sp.on("id1", new FlxSprite(~)).p(20,20).a(0.3).tween({alpha:1,x:30},1);
-  
-  
-  
- **/
+
 @:dce
 class SprDirector extends FlxGroup
 {

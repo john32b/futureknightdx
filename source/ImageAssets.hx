@@ -21,14 +21,13 @@ package;
 
 import djFlixel.D;
 import djFlixel.gfx.pal.Pal_DB32;
+
 import djfl.util.Atlas;
-import lime.graphics.opengl.ext.OES_EGL_image_external;
 
 import flixel.FlxSprite;
 
 import openfl.display.BitmapData;
 import openfl.utils.Assets;
-
 
 
 class ImageAssets
@@ -37,6 +36,7 @@ class ImageAssets
 	public var STATIC = {
 		overlay_scr:"im/monitor_overlay.png",
 		hud_inventory:"im/hud_inventory.png",
+		hud_bottom:"im/hud_bg.png",
 	};
 	
 	static var GFX:Map<String,{im:String,tw:Int,th:Int,col:Bool}> = [
@@ -49,6 +49,8 @@ class ImageAssets
 		"items" => {im:"im/ts_items.png", tw:20, th:20, col:false},
 		"bullets" => {im:"im/ts_bullets.png", tw:20, th:20, col:false}, 
 		"particles" => {im:"im/ts_particles.png", tw:22, th:24, col:true},
+		"static" => {im:"im/hud_static.png", tw:64, th:24, col:false},
+		"huditem" => {im:"im/hud_items.png", tw:17, th:17, col:false},
 	];
 	
 	

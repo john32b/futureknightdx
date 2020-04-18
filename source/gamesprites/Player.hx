@@ -53,6 +53,8 @@ class Player extends FlxSprite
 	public inline static var START_HEALTH = 999;
 	public inline static var START_LIVES = 3;
 	
+	static inline var HEALTH_TICK = 0.06;	// Refresh life every this much
+	static inline var HEALTH_LOSS = 1;		// Loss per tick
 	
 	inline static var PLAYER_IDLE_TIME_ANIMATION = 6.0;		// At how many seconds to idle anim
 
@@ -78,10 +80,6 @@ class Player extends FlxSprite
 	public var halfWidth:Int;
 	public var halfHeight:Int;
 	
-	// Current bullet type the player can shoot
-	// 1:Normal, 2:Red, 3:Slime
-	public var BULLET_TYPE:Int = 1;
-
 	// Keys states
 	var _pressingUp:Bool;
 	var _pressingDown:Bool;
@@ -112,7 +110,7 @@ class Player extends FlxSprite
 	var _jumpForceFull:Bool;		// Force a full jump, with no reduce height check (Used in hazards)
 	var _idle:Float;				// Track timer for IDLE and STUN
 	var _idle_stage:Int;
-	
+	var _htick:Float = 0;			// Count down health tick timer
 	
 	var _shoot_allow:Bool;			// Whether at this stage firing is supported
 	var _shoot_timer:Int;			// Time since last shot, IN TICKS, NOT MS
@@ -128,9 +126,21 @@ class Player extends FlxSprite
 		step:"pl_step",		// ok
 		die:"pl_die",
 		hurt:"pl_hurt",
-		shoot:"p_shoot",
+		shoot:"pl_shoot",
+		ceil:"pl_ceil"
 	}
 	
+	public var lives:Int;
+	
+	// Current bullet type the player can shoot
+	// 1:Normal, 2:Red, 3:Slime
+	public var bullet_type:Int;
+	
+	// This is the Health Number printed at the HUD
+	// This is the one that when reaches ZERO, the player will die
+	var healthSlow:Float;
+	
+
 	
 	public function new() 
 	{
@@ -186,9 +196,13 @@ class Player extends FlxSprite
 		
 		// --
 		health = START_HEALTH;
+		lives = START_LIVES;
+		healthSlow = health;
+		bullet_type = 1;
 		
+		_htick = 0;
 	}//---------------------------------------------------;
-
+	
 	
 	function state_stunned_update()
 	{
@@ -204,7 +218,7 @@ class Player extends FlxSprite
 	
 	function state_onslide_enter()
 	{
-		_sndTemp = D.snd.play(snd.slide, 0.7);
+		_sndTemp = D.snd.playV(snd.slide);
 		animation.play('slide');
 	}//---------------------------------------------------;
 	
@@ -232,7 +246,7 @@ class Player extends FlxSprite
 		if (_sndTick >= SOUND_sndTick_CLIMB)
 		{
 			_sndTick = 0;
-			D.snd.play(snd.climb);
+			D.snd.playV(snd.climb);
 		}
 		
 		if (_pressingUp)
@@ -307,7 +321,7 @@ class Player extends FlxSprite
 		
 		if (justTouched(FlxObject.CEILING))
 		{
-			D.snd.play("pl_ceil", 0.6);
+			D.snd.playV(snd.ceil);
 			if (_sndTemp != null){
 				_sndTemp.stop();
 			}
@@ -326,7 +340,7 @@ class Player extends FlxSprite
 			if (justTouched(FlxObject.FLOOR))	// landed
 			{
 				velocity.set(0, 0);
-				D.snd.play(snd.land, 0.8);
+				D.snd.playV(snd.land);
 				last.y = y = Std.int(y);
 				
 
@@ -335,7 +349,7 @@ class Player extends FlxSprite
 					_idle = 0;
 					animation.play('fallstun');
 					physics_stop();
-					D.snd.play(snd.hurt, 0.2);
+					D.snd.playV(snd.hurt);
 					hurt(Reg.P_DAM.player_fall_damage);
 					_shoot_allow = false;
 					fsm.goto(STUNNED);
@@ -433,7 +447,7 @@ class Player extends FlxSprite
 		if (_sndTick >= SOUND_sndTick_WALK)
 		{
 			_sndTick = 0;
-			D.snd.play(snd.step);
+			D.snd.playV(snd.step);
 		}
 		
 		// 3 Idle states, Wave, Wave, Dance
@@ -491,7 +505,7 @@ class Player extends FlxSprite
 				animation.play("jump");
 			}
 			
-			_sndTemp = D.snd.play(snd.jump, 0.8);
+			_sndTemp = D.snd.playV(snd.jump);
 			fsm.goto(ONAIR);
 			return;	// <- prevent the update portion to be called later in this function;
 			
@@ -560,6 +574,14 @@ class Player extends FlxSprite
 			Reg.st.INV.open();
 		}
 		
+		// Check Health
+		if ((_htick += elapsed) >= HEALTH_TICK) {
+			_htick = 0;
+			if (healthSlow > health) {
+				healthSlow -= Math.min(HEALTH_LOSS, healthSlow - health);
+				Reg.st.HUD.set_health(healthSlow);
+			}
+		}
 	}//---------------------------------------------------;
 	
 	
@@ -579,10 +601,10 @@ class Player extends FlxSprite
 			}
 			
 			var X = (facing == FlxObject.RIGHT?x + width + BULLET_X_PAD:x - BULLET_X_PAD);
-			if (Reg.st.BM.shootFromPlayer(BULLET_TYPE, X, y + halfHeight, facing))
+			if (Reg.st.BM.shootFromPlayer(bullet_type, X, y + halfHeight, facing))
 			{
 				// bullet shot OK
-				D.snd.play(snd.shoot);
+				D.snd.playV(snd.shoot);
 			}
 		}
 	}//---------------------------------------------------;
@@ -591,10 +613,11 @@ class Player extends FlxSprite
 	override public function hurt(Damage:Float):Void 
 	{
 		health -= Damage;
-		D.snd.play(snd.hurt);
+		D.snd.playV(snd.hurt);
 		
 		if (health < 0) {
 			health = 0;
+			// Do not kill, SlowHealth counter will kill the player
 		}
 		
 		//FlxFlicker.flicker(this, Reg.P.flicker_time);
@@ -627,7 +650,6 @@ class Player extends FlxSprite
 		
 		fsm.goto(ONFLOOR);
 	}//---------------------------------------------------;
-	
 	
 	
 	// Called when climbing or sliding
@@ -735,7 +757,7 @@ class Player extends FlxSprite
 			case HAZARD:
 				// Can't hit a hazard on the way up / Don't hit same hazard more than once
 				if (velocity.y < 0) return;	
-				hurt(Reg.P_DAM.hazard);
+				hurt(Reg.P_DAM.player_from_hazard);
 				velocity.y = -Reg.P.pl_jump;
 				touching = 0;
 				_jumpForceFull = true;

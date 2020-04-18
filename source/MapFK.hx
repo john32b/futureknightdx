@@ -71,7 +71,7 @@ class MapFK extends TilemapGeneric
 	
 	/// CHANGE THESE TWO:
 	static inline var DRAW_START_X:Int = 32;  	// Pixels from screen left to draw map
-	static inline var DRAW_START_Y:Int = 20;  	// Pixels from screen top to draw map
+	static inline var DRAW_START_Y:Int = 26;  	// Pixels from screen top to draw map
 	
 	// :: CAMERA
 	static var CAMERA_TRANSITION_TIME = 0.23;
@@ -106,7 +106,10 @@ class MapFK extends TilemapGeneric
 	{
 		super(2);	// Two layers, BG and Platforms
 		
-		setCameraViewport(DRAW_START_X, DRAW_START_Y, ROOM_WIDTH, ROOM_HEIGHT);
+		var C = new FlxCamera(DRAW_START_X * 2, DRAW_START_Y * 2, ROOM_WIDTH, ROOM_HEIGHT);
+		cameras = [C];
+		FlxG.cameras.add(C);
+		FlxCamera.defaultCameras = [camera];	// < Make all sprites to only draw on that camera
 		
 		roomTotal = new SimpleCoords();
 		roomCurrent = new SimpleCoords();

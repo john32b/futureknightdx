@@ -19,7 +19,7 @@ import flixel.tweens.FlxTween;
 class StateAmstrad extends FlxState
 {
 	static inline var _NEXT_MIN_TIME = 1;	// Wait this much until you can press enter to go to next state
-	static inline var FONT:String = "assets/amstrad.ttf";
+	static inline var FONT:String = "fnt/amstrad.ttf";
 	static inline var LOADSOUND:String = "amstrad_load";
 	
 	var OS_TEXT:String = 
@@ -38,6 +38,7 @@ class StateAmstrad extends FlxState
 	override public function create():Void 
 	{
 		super.create();
+		Reg.add_border();
 		FlxG.camera.bgColor = 0xFF000080;	// Amstrad Palette Color
 		
 		var l0 = new FlxGroup();
@@ -45,7 +46,6 @@ class StateAmstrad extends FlxState
 		
 		var rainbow = new RainbowStripes();
 		add(rainbow);
-		add(Reg.get_overlayScreen());
 		
 		var snd_load:FlxSound;
 		var seq = new FlxSequencer();

@@ -1,19 +1,24 @@
-/**
-  Future Knight Enemy
- ======================================
- - Assets loaded from `AssetColorizer.hx`
- - Movement handles by an AI system check <Enemy_AI.hx>
+/*
+Future Knight Enemy
+======================================
+- Assets loaded from `AssetColorizer.hx`
+- Movement handles by an AI system check <Enemy_AI.hx>
  
- == Enemy graphics ID
+== Enemy graphics ID
 	1-8: Normal unique enemies
 	9  : Ghost Explosion
 	10 : Player Clone
-	
+
 	13-15 : Bigs
 	16: Big Bounce
 	17-18: Long Legs
 	19-20: Worms
+
 	
+== SOUND_FILES
+	en_die
+	en_spawn	// rewrk this
+	en_start	// when boss start moving? I don't need it?
  
 **/
  
@@ -149,7 +154,7 @@ class Enemy extends MapSprite
 	**/
 	function _explode()
 	{
-		D.snd.play("en_die");
+		D.snd.playV("en_die");
 		
 		switch(_gfxtype)
 		{

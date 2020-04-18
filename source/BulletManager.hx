@@ -88,6 +88,8 @@ class BulletManager extends FlxGroup
 		var velx = (face == FlxObject.RIGHT?Reg.P.pl_bl_speed: -Reg.P.pl_bl_speed);
 		var b = createAt(anim, x, y, velx, 0, OWNER_PLAYER);
 		count_player++;
+		
+		b._phasing = (type == 3);	// Type 3 goes through wall
 		return true;
 	}//---------------------------------------------------;
 	
@@ -99,6 +101,7 @@ class BulletManager extends FlxGroup
 	{
 		var anim = 'e_$type';
 		var b = createAt(anim, x, y, 0, 0, OWNER_ENEMY);
+		b._phasing = true;
 		b._chase = true;
 	}//---------------------------------------------------;
 	
@@ -136,7 +139,7 @@ class BulletManager extends FlxGroup
 	
 	function _collideMap(A:FlxTile, B:Bullet):Bool
 	{
-		if (B.owner == OWNER_ENEMY) return false; // Enemy bullets go through walls		
+		if (B._phasing) return false;
 		if (A.allowCollisions == FlxObject.ANY) {
 			killBullet(B, true);
 			D.snd.play("hit_01");
@@ -172,12 +175,14 @@ class Bullet extends FlxSprite
 	
 	// 0:None, 1:Player, 2:Enemy
 	public var owner:Int = 0;
+
 	
 	// This is set directly from the manager
 	var manager:BulletManager;
 	
 	var _chase:Bool = false;
 	var _timer:Float = 0;
+	var _phasing:Bool = false; // Go through walls
 	
 	public function new()
 	{

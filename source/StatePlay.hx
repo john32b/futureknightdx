@@ -2,13 +2,27 @@
 	FUTURE KNIGHT - MAIN PLAY STATE
 	===============================
 
-**/
+	
+	
+	NOTES ON CAMERAS::
+	--------------------
+	
+	- First create the background and put the border, at THE BOTTOM
+	- Then the MAP gets created and it will create its own camera
+	- I am making the MAP camera as the default camera for all sprites to be drawn on (flxcamera.defaultcameras)
+	- Then the HUD uses its own camera, and all of the HUD objects are specified to use the HUD camera
+	- The inventory and pause menu open inside the map camera
+	- That's it, it works. The flixel camera system is just annoying, Why can't I just have layers?
+
+========================================= **/
 
 
 package;
 
 import djFlixel.D;
+import flixel.FlxCamera;
 import flixel.FlxG;
+import flixel.FlxSprite;
 import flixel.FlxState;
 import gamesprites.*;
 
@@ -19,28 +33,32 @@ class StatePlay extends FlxState
 {
 	public var map:MapFK;
 	
-	public var ROOMSPR:RoomSprites;
 	public var player:Player;
+	public var ROOMSPR:RoomSprites;
 	public var PM:ParticleManager;
 	public var BM:BulletManager;
 	public var INV:Inventory;
+	public var HUD:Hud;
 	
 	var menu:FlxMenu;
 	
 	override public function create():Void 
 	{
 		super.create();
-		Reg.st = this;
 		
+		Reg.st = this;
+		bgColor = Reg.BG_COLOR;
+		Reg.add_border();
+	
+		map = new MapFK();	// < WARNING : This creates a camera and makes it default
 		ROOMSPR = new RoomSprites();
 		player = new Player();
-		map = new MapFK();
 		PM = new ParticleManager();
 		BM = new BulletManager();
 		INV = new Inventory();
-		INV.onClose = resume;
-		INV.onOpen = pause;
-		
+			INV.onClose = resume;
+			INV.onOpen = pause;
+
 		map.onEvent = event_map_handler;
 		
 		// :: Ordering
@@ -51,11 +69,21 @@ class StatePlay extends FlxState
 		add(BM);
 		add(INV);
 		
+		// :: Hud on another camera view
+		HUD = new Hud();
+		add(HUD);
+		HUD.reset();
+		
+		// : LAST :
 		// : load the level, logic will be auto-triggered 
 		//map.load(Reg.LEVELS[0]);
 		map.load(D.assets.files.get(Reg.LEVELS[0]), true);
 		
+		
+		HUD.set_info_text("Welcome to Future Knight DX");
 	}//---------------------------------------------------;
+	
+
 	
 	// --
 	override public function update(elapsed:Float):Void 
@@ -79,19 +107,22 @@ class StatePlay extends FlxState
 	}//---------------------------------------------------;
 	
 	
+	
+	
+	
 	// <COLLISION> Bullet to Enemy
 	function _overlap_enemy_bullet(e:Enemy, b:BulletManager.Bullet)
 	{
 		if (b.owner != BulletManager.OWNER_PLAYER) return;
 		BM.killBullet(b, true);
-		e.hurt(Reg.P_DAM.player_bullet);	/// Do bullets have different power?
+		e.hurt(Reg.P_DAM.enemy_from_pl_bullet);	/// Do bullets have different power?
 	}//---------------------------------------------------;
 	// <COLLISION>, Bullet to Player
 	function _overlap_player_bullet(a:Player, b:BulletManager.Bullet)
 	{
 		if (b.owner != BulletManager.OWNER_ENEMY) return;
 		BM.killBullet(b);
-		a.hurt(Reg.P_DAM.enemy_bullet);
+		a.hurt(Reg.P_DAM.player_from_en_bullet);
 	}//---------------------------------------------------;
 	// <COLLISION> Player to (ENEMY,ITEM,ANIM)
 	function _overlap_player_roomgroup(a:Player, b:MapSprite)
@@ -99,8 +130,9 @@ class StatePlay extends FlxState
 		if (Std.is(b, Enemy)){
 			if (!b.alive) return;
 			var en:Enemy = cast b;
-			b.hurt(Reg.P_DAM.player_to_enemy);
-			a.hurt(Reg.P_DAM.enemy_to_player);
+			b.hurt(Reg.P_DAM.enemy_from_player);
+			a.hurt(Reg.P_DAM.player_from_enemy);
+			/// TODO ::
 			
 			// from old code:
 			//if (enemy.isBig) 
@@ -119,14 +151,22 @@ class StatePlay extends FlxState
 		}
 		else if (Std.is(b, Item)){
 			var item:Item = cast b;
-			item.killExtra();
-			INV.addItem(item.item_id);
+			if (INV.addItem(item.item_id))
+			{
+				// Pick up OK
+				HUD.item_pickup(item.item_id);
+				item.killExtra();
+			}else{
+				// No more space in inventory
+				// >> sound error?
+			}
 		}
 		else if (Std.is(b, AnimatedTile))
 		{
 			player.event_anim_tile(player, cast b);
 		}
 	}//---------------------------------------------------;
+	
 	
 	
 	// --
@@ -158,7 +198,7 @@ class StatePlay extends FlxState
 				{
 					ROOMSPR.spawn(en);
 				}
-				
+
 				
 			// This is called before the new room entities are pushed
 			case scrollStart:
@@ -175,6 +215,7 @@ class StatePlay extends FlxState
 		}
 	}//---------------------------------------------------;
 	
+	
 	// --
 	public function pause()
 	{
@@ -182,7 +223,6 @@ class StatePlay extends FlxState
 		player.active = false;
 		PM.active = false;
 		BM.active = false;
-		trace("game pause()");
 	}//---------------------------------------------------;
 	
 	// --
@@ -192,7 +232,6 @@ class StatePlay extends FlxState
 		player.active = true;
 		PM.active = true;
 		BM.active = true;
-		trace("game resume()");
 	}//---------------------------------------------------;
 		
 }// --

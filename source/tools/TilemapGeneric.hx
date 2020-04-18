@@ -1,3 +1,25 @@
+/**
+ == Generic TileMap
+ --------------------
+ 
+ - Loads and handles `TILED` maps
+ - Basic cameras and TiledObject load functions
+ - MUST BE EXTENDED !!!
+ 
+ CAMERA TIP:
+ ----------
+ - You can create a new camera for the tilemap and have all the sprites follow the camera
+ - First create a new camera. e.g.:
+   	var CAM = new FlxCamera(DRAW_START_X, DRAW_START_Y, ROOM_WIDTH, ROOM_HEIGHT);
+	camera = CAM;
+	
+ - Then you can either make this the `default` camera or make all sprites to use this camera
+	FlxCamera.defaultCameras = [CAM];
+	// or
+	player.cameras = [CAM]
+ 
+ ===============================*/
+
 package tools ;
 
 import djfl.tool.Geom;
@@ -9,13 +31,7 @@ import flixel.group.FlxGroup;
 import flixel.tile.FlxTilemap;
 import lime.graphics.opengl.ext.IMG_program_binary;
 
-/**
- * Generic TileMap
- * 
- * - Loads and handles `TILED` maps
- * - Basic cameras and TiledObject load functions
- * - MUST BE EXTENDED !!!
- */
+
 class TilemapGeneric extends FlxGroup
 {
 	/** The .tmx tiled map. Short name for quick access */
@@ -55,20 +71,9 @@ class TilemapGeneric extends FlxGroup
 		COLLISION_LAYER = layers.length - 1;
 		
 	}//---------------------------------------------------;
-	
+
+
 	/**
-	   Set a camera viewport. Do this right after new()
-	**/
-	function setCameraViewport(X:Int, Y:Int, W:Int, H:Int)
-	{
-		camera.x = X;
-		camera.y = Y;
-		camera.width = W;
-		camera.height = H;
-	}//---------------------------------------------------;
-	
-	/**
-	   
 	   - Camera is set to top-left, camera bounds are set
 	   - World Boundaries are set
 	   @param	s Asset to Load OR the xml data file

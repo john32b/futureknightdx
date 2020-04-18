@@ -39,7 +39,7 @@ import gamesprites.Item;
 
 class Inventory extends FlxSpriteGroup
 {
-	static inline var SCREEN_Y 	   = 32;	// Y pos, The X pos is centered
+	static inline var SCREEN_Y 	= 20;	// Y pos, The X pos is centered
 	static inline var SCREEN_Y_OFF = SCREEN_Y + 12;	// Enter/Exit position
 	static inline var GRID_X = 20;			// Pixels offset from Inventory X
 	static inline var GRID_Y = 16;			// Pixels offset form Inventory Y
@@ -176,6 +176,7 @@ class Inventory extends FlxSpriteGroup
 			active = true;
 		}});
 		
+		D.snd.play("inventory_open");
 		if (onOpen != null) onOpen();
 	}//---------------------------------------------------;
 	// --
@@ -184,6 +185,8 @@ class Inventory extends FlxSpriteGroup
 		if (!isOpen || _tween != null) return;
 		isOpen = false;
 		active = false;
+		D.snd.play("inventory_close");
+		
 		y = SCREEN_Y;
 		_tween = FlxTween.tween(this, {y:SCREEN_Y_OFF}, TWEEN_TIME, { onComplete:(_)->{
 			// DEV: I need to destroy and null, because it will not immediately be nulled
@@ -198,7 +201,13 @@ class Inventory extends FlxSpriteGroup
 	{
 		if (isOpen) close(); else open();
 	}//---------------------------------------------------;
-	// --
+	// 
+	/**
+	   Adds an item with (ID, starting at 1) to the inventory
+	   - Sets the item to the HUD
+	   @param	it 1...
+	   @return Does the item fit? Can it pick it up?
+	**/
 	public function addItem(it:Int):Bool
 	{
 		var i = get_available_index();
