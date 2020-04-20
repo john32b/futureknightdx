@@ -58,13 +58,12 @@ class Inventory extends FlxSpriteGroup
 	
 	// Item ID, in array with holes (null for hole) Length = grid.length
 	public var ITEMS:Array<Null<Int>>;
-	// --
+	
 	public var isOpen(default, null):Bool;
-	// -- SET THIS
+	
+	// :: CALLBACKS ::
 	public var onItemSelect:Int->Void;
-	
 	public var onClose:Void->Void;
-	
 	public var onOpen:Void->Void;
 	
 	//====================================================;
@@ -140,6 +139,7 @@ class Inventory extends FlxSpriteGroup
 		}
 		
 		else if (D.ctrl.justPressed(X) || D.ctrl.justPressed(START)) {
+			D.snd.play("inventory_close");
 			close();
 		}
 		
@@ -180,12 +180,12 @@ class Inventory extends FlxSpriteGroup
 		if (onOpen != null) onOpen();
 	}//---------------------------------------------------;
 	// --
+	// No sound, Because sometimes I don't need to 
 	public function close()
 	{
 		if (!isOpen || _tween != null) return;
 		isOpen = false;
 		active = false;
-		D.snd.play("inventory_close");
 		
 		y = SCREEN_Y;
 		_tween = FlxTween.tween(this, {y:SCREEN_Y_OFF}, TWEEN_TIME, { onComplete:(_)->{
@@ -196,12 +196,7 @@ class Inventory extends FlxSpriteGroup
 			if (onClose != null) onClose();
 		}});
 	}//---------------------------------------------------;
-	// --
-	public function toggle()
-	{
-		if (isOpen) close(); else open();
-	}//---------------------------------------------------;
-	// 
+	
 	/**
 	   Adds an item with (ID, starting at 1) to the inventory
 	   - Sets the item to the HUD
@@ -219,8 +214,8 @@ class Inventory extends FlxSpriteGroup
 		ITEMS[i] = it;
 		
 		var item = box_items[i];
-		item.setItemID(it);
-		item.visible = true;
+			item.setItemID(it);
+			item.visible = true;
 		
 		// The new item was added on the cursor, so change the text
 		if (grid.index == i)

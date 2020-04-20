@@ -1,6 +1,6 @@
 /**
 	
- FUTURE KNIGHT ANIMATED TILE
+ FUTURE KNIGHT GENERIC MAP SPRITE
  ===========================
  - Item
  - Hazard

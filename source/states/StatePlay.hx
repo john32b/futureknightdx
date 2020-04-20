@@ -17,7 +17,7 @@
 ========================================= **/
 
 
-package;
+package states;
 
 import djFlixel.D;
 import flixel.FlxCamera;
@@ -58,7 +58,9 @@ class StatePlay extends FlxState
 		INV = new Inventory();
 			INV.onClose = resume;
 			INV.onOpen = pause;
+			INV.onItemSelect = handle_inventory_select;
 
+			
 		map.onEvent = event_map_handler;
 		
 		// :: Ordering
@@ -79,8 +81,9 @@ class StatePlay extends FlxState
 		//map.load(Reg.LEVELS[0]);
 		map.load(D.assets.files.get(Reg.LEVELS[0]), true);
 		
+		// --
+		HUD.set_text("Welcome to Future Knight DX", 5);
 		
-		HUD.set_info_text("Welcome to Future Knight DX");
 	}//---------------------------------------------------;
 	
 
@@ -215,7 +218,6 @@ class StatePlay extends FlxState
 		}
 	}//---------------------------------------------------;
 	
-	
 	// --
 	public function pause()
 	{
@@ -233,5 +235,13 @@ class StatePlay extends FlxState
 		PM.active = true;
 		BM.active = true;
 	}//---------------------------------------------------;
-		
+	
+	
+	function handle_inventory_select(id:Int)
+	{
+		INV.close();
+		HUD.item_pickup(id);
+	}//---------------------------------------------------;
+	
+	
 }// --

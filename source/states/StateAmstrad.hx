@@ -1,4 +1,4 @@
-package;
+package states;
 
 import djFlixel.D;
 import djFlixel.fx.RainbowStripes;

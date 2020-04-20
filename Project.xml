@@ -35,7 +35,6 @@
 	<!-- NOTE I am putting connect to the HAXEDEVELOP project settings -->	
 	<!--<haxeflag name="--connect 6000"/>-->	
 	<haxeflag name="-dce" value="std"/>
-	<!--<haxeflag name="--times" />-->
 	
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 	

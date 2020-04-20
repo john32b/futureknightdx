@@ -29,21 +29,25 @@ enum EDITOR_TILE {
 
 
 // This is ALSO the itemID as it is on the EDITOR
+// Item ID = FRAME = EDITORID
 enum abstract ITEM_TYPE(Int)
 {
 	var NONE; // 0
-	var SAFE_PASS;
-	var BOMB;
-	var PLATFORM_KEY;
-	var CONFUSER_UNIT;
-	var SECURO_KEY;
-	var EXIT_PASS;
-	var BRIDGE_SPELL;
-	var SHORTERNER_SPELL;
-	var FLASH_BANG_SPELL;
+	var BOMB1;
+	var BOMB2;
+	var BOMB3;
 	var GLOVE;
+	var SAFE_PASS; // 5
+	var EXIT_PASS;
+	var CONFUSER_UNIT;
+	var PLATFORM_KEY;
+	var SECURO_KEY; 
+	var BRIDGE_SPELL; // 10
+	
+	var FLASH_BANG_SPELL;
 	var RELEASE_SPELL;
-	var DESTRUCT_SPELL;
+	var DESTRUCT_SPELL; 
+	var SHORTENER_SPELL;
 }//---------------------------------------------------;
 
 
@@ -90,13 +94,6 @@ class MapTiles
 		HAZARD => [29,1],	// Declare it again
 		ITEM => [34, 12]
 	];
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	

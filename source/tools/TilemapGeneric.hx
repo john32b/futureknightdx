@@ -128,7 +128,6 @@ class TilemapGeneric extends FlxGroup
 		for (i in T.getObjLayer(id)) 
 		{
 			if (_killed.indexOf(i) >= 0) {
-				trace("A KILLED OBJECT IS CHECKED, skipping");
 				continue;
 			}
 			

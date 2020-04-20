@@ -70,9 +70,11 @@ class Enemy extends MapSprite
 			
 		}else {
 			if (spawnTime < 0) return;	// This enemy does not ever respawn
-			_spawnTimer+= elapsed;
+			_spawnTimer += elapsed;
 			if ( _spawnTimer >= spawnTime) {
-				respawn();
+				
+				if(Reg.st.player.alive) // Avoid spawning and then running into player while he dead.
+					respawn();
 			}
 		}
 	}//---------------------------------------------------;
@@ -114,7 +116,6 @@ class Enemy extends MapSprite
 		visible = alive = moves = solid = true;
 		animation.play('main', true);
 		ai.respawn();	// The AI will actually place it
-		
 	}//---------------------------------------------------;
 	
 	// --

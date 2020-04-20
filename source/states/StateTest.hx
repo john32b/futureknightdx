@@ -1,4 +1,4 @@
-package;
+package states;
 
 import djFlixel.*;
 import djFlixel.core.*;

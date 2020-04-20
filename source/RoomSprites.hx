@@ -112,4 +112,14 @@ class RoomSprites extends FlxGroup
 		stash = [];
 	}//---------------------------------------------------;
 	
+	
+	public function enemies_freeze(freeze:Bool)
+	{
+		for (i in gr_enemy)
+		{
+			if (i.alive) {
+				i.moves = !freeze;
+			}
+		}
+	}//---------------------------------------------------;
 }// --

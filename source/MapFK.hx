@@ -382,7 +382,7 @@ class MapFK extends TilemapGeneric
 			if (!Reg.st.player.alive) return;	// Do not track player for debug purposes
 		#end
 		
-		// HARD_CODED Padding
+		// Camera Track Player ::
 		if (Reg.st.player.x + 4 > roomCornerPixel.x + ROOM_WIDTH){
 			camera_move_rel(1, 0);
 		}else
@@ -502,7 +502,9 @@ class MapFK extends TilemapGeneric
 			//Reg.st.player._teleport(FlxG.mouse.x, FlxG.mouse.y);
 			if (FlxG.mouse.justPressed)
 			{
-				Reg.st.player.spawn(FlxG.mouse.x, FlxG.mouse.y);
+				var MP = FlxG.mouse.getWorldPosition(camera);
+				trace("Clicked at ", MP);
+				Reg.st.player.spawn(MP.x, MP.y);
 				return;
 			}
 			

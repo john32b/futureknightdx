@@ -82,7 +82,14 @@ class ImageAssets
 		sprite.loadGraphic(getbitmap(d.im, d.col?1:0), true, d.tw, d.th);
 	}//---------------------------------------------------;
 	
-	
+	public function getSprite(X:Float = 0, Y:Float = 0, name:String, frame:Int = 1)
+	{
+		var S = new FlxSprite(X, Y);
+		loadGraphic(S, name);
+		S.animation.frameIndex = frame;
+		return S;
+	}//---------------------------------------------------;
+
 	/**
 	   @param	type 0:Space, 1:Forest, 2:Castle
 	   @param	layer bg , fg
@@ -109,11 +116,12 @@ class ImageAssets
 			return source;
 		}
 		
+		return source;
 		// Colorize and Return
-		var dest = D.bmu.replaceColors(source, TEMPLATE_COLORS, [ 
-			Pal_DB32.COL_20, Pal_DB32.COL_09, Pal_DB32.COL_30 /// TODO: colors to be replaced with:
-		]);
-		return dest;
+		//var dest = D.bmu.replaceColors(source, TEMPLATE_COLORS, [ 
+			//Pal_DB32.COL_20, Pal_DB32.COL_09, Pal_DB32.COL_30 /// TODO: colors to be replaced with:
+		//]);
+		//return dest;
 	}//---------------------------------------------------;
 		
 	

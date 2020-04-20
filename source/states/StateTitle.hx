@@ -1,4 +1,4 @@
-package;
+package states;
 
 import djFlixel.core.Dtext.DTextStyle;
 import djFlixel.fx.BoxFader;

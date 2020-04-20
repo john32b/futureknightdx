@@ -42,16 +42,23 @@ class Hud extends FlxGroup
 	var el_bullet:FlxSprite;
 	var el_item:FlxSprite;
 	
+	
+	var _timer_text:Float = -1;	// When this reaches 0 kill the text. -1 to do nothing
+	
+	// The ITEM GID if an item is equipped
+	public var equipped_item(default, null):Int = 0;
+	
 	//====================================================;
-			override public function update(elapsed:Float):Void 
-		{
-			super.update(elapsed);
-			if (FlxG.keys.justPressed.ONE) static_run();
-			if (FlxG.keys.justPressed.TWO) set_lives(1,true);
-			if (FlxG.keys.justPressed.THREE) set_lives(2,true);
-			if (FlxG.keys.justPressed.FOUR) set_lives(3,true);
-			if (FlxG.keys.justPressed.ZERO) set_lives(0,true);
+	override public function update(elapsed:Float):Void 
+	{
+		super.update(elapsed);
+		
+		if (_timer_text > 0) {
+			if ((_timer_text -= elapsed) < 0) {
+				text_info.text = "";
+			}
 		}
+	}//---------------------------------------------------;
 		
 	public function new() 
 	{
@@ -75,25 +82,28 @@ class Hud extends FlxGroup
 			
 		// --
 		text_info = D.text.get("", 16, 4, {c:Pal_CPCBoy.COL[27]});
+			add(text_info);
 		text_health = D.text.get("", 202, 30, {f:FONT_HEALTH, s:26, c:Pal_CPCBoy.COL[6]} );
 		text_health.antialiasing = false;
 		text_health.textField.antiAliasType = "advanced";
 		text_health.textField.sharpness = 400;
+			add(text_health);
 		text_score = D.text.get("", 30, 30, {c:Pal_CPCBoy.COL[30]});
-		add(text_info);
-		add(text_health);
-		add(text_score);
+			add(text_score);
 		
-		
+		// --
+		el_bullet = Reg.IM.getSprite(107, 27, "huditem", 1);
+			add(el_bullet);
+		el_item = Reg.IM.getSprite(145, 27, "huditem", 7);
+			add(el_item);
+			
 		//-- Lives
 		el_lives = [];
 		for (l in 0...3) {
-			var spr = new FlxSprite(25 + l * 16, 39);
-			Reg.IM.loadGraphic(spr, "huditem");
-			spr.animation.frameIndex = 3;
+			var spr = Reg.IM.getSprite(25 + l * 16, 39, "huditem", 3);
+			spr.visible = false;
 			el_lives[l] = spr;
 			add(spr);
-			spr.visible = false;
 		}
 		
 		//-- Put this at the top of the list
@@ -103,46 +113,6 @@ class Hud extends FlxGroup
 		fx_static.visible = false;
 		add(fx_static);
 	}//---------------------------------------------------;
-	
-	
-	/**
-	   Reflect play state
-	**/
-	public function reset()
-	{
-		set_health(Reg.st.player.health);
-		set_lives(Reg.st.player.lives);
-		text_info.text = "";
-		set_score(0);
-		fx_static.visible = false;
-	}//---------------------------------------------------;
-	
-	
-	public function item_pickup(itemID:Int)
-	{
-		var ITD = Reg.ITEM_DATA.get(cast itemID);
-		static_run();
-		set_info_text(ITD.desc);
-		/// ICON change to itd.icon
-	}//---------------------------------------------------;
-	
-	function static_run()
-	{
-		fx_static.visible = true;
-		fx_static.animation.play("main");
-		fx_static.animation.finishCallback = (s)->{
-			fx_static.visible = false;
-		}
-	}//---------------------------------------------------;
-	
-	
-	
-	
-	/*
-	  	"hud" : {
-		"ammo" : { "x" : 120, "y" : 30 },
-		"bullet" : { "x" : 98, "y" : 24 },
-	},*/
 	
 	override public function add(O:FlxBasic):FlxBasic 
 	{
@@ -155,17 +125,54 @@ class Hud extends FlxGroup
 		return super.add(O);
 	}//---------------------------------------------------;
 	
+	/**
+	   Reflect play state
+	**/
+	public function reset()
+	{
+		set_health(Reg.st.player.health);
+		set_lives(Reg.st.player.lives);
+		set_bullet(Reg.st.player.bullet_type);
+		
+		set_text("");
+		set_score(0);
+		set_item(0);
+		
+		fx_static.visible = false;
+		fx_static.animation.reset();
+	}//---------------------------------------------------;
+
 	
-	/** Set and Draw Health, if no parameter
-	    Values 0-999 
-	 */
+	// Pick up item with real itemID (EntityID, starting from 1)
+	public function item_pickup(itemID:Int=0)
+	{
+		if (equipped_item == itemID) return;
+		
+		equipped_item = itemID;
+		
+		if (itemID > 0)
+		{
+			var ITD = Reg.ITEM_DATA.get(cast itemID);
+			set_text(ITD.desc, true);
+			set_item(ITD.icon);
+			static_run();
+		}else{
+			set_item(0);
+			set_text("");
+			static_run();
+		}
+		
+	}//---------------------------------------------------;
+	
+	
+	// Values (0-999)
 	public function set_health(val:Float)
 	{
 		_health = Std.int(val);
 		text_health.text = StringTools.lpad(Std.string(_health), "0", 3);
 	}//---------------------------------------------------;
 	
-	/** Values 0-3 */
+	// Values (0-3)
 	public function set_lives(i:Int, blink:Bool = false)
 	{
 		// Safequard ?
@@ -188,27 +195,46 @@ class Hud extends FlxGroup
 		_lives = i;
 	}//---------------------------------------------------;
 	
-	
-	public function set_info_text(t:String)
+	// --
+	public function set_text(t:String, ?blinkOn:Bool = false, ?timeToLive:Float = -1)
 	{
+		_timer_text = timeToLive;
 		text_info.text = t;
-		FlxFlicker.flicker(text_info, 1, 0.25);
+		if (blinkOn) FlxFlicker.flicker(text_info, 0.4, 0.04);
 	}//---------------------------------------------------;
 	
-	/** Values 1-3 */
-	public function set_weapon(i:Int)
+	// Values 1-3
+	public function set_bullet(i:Int)
 	{
+		el_bullet.animation.frameIndex = i - 1;
 	}//---------------------------------------------------;
 	
-	public function set_item(i:Int)
+	// Actual frame value in <huditems.png>
+	// Starting from 1, values (1-10). 0 to remove item
+	public function set_item(i:Int = 0)
 	{
+		el_item.visible = (i > 0);
+		el_item.animation.frameIndex = i + 3;
 	}//---------------------------------------------------;
 	
-	/**/
+	// The text will be padded to 6 digits
 	public function set_score(i:Int)
 	{
 		_score = i;
 		text_score.text = StringTools.lpad(Std.string(_score), "0", 6);
 	}//---------------------------------------------------;
+
+	
+	
+	function static_run(?callback:Void->Void)
+	{
+		fx_static.visible = true;
+		fx_static.animation.play("main", true);
+		fx_static.animation.finishCallback = (s)->{
+			fx_static.visible = false;
+			if (callback != null) callback();
+		}
+	}//---------------------------------------------------;
+	
 	
 }// --

@@ -6,6 +6,7 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import haxe.Json;
+import states.StatePlay;
 
 
 /**
@@ -44,10 +45,12 @@ class Reg
 	// :: DAMAGE VALUES 
 	// I am using this simple naming style, first is who takes damage _ from whom
 	public static var P_DAM = {
-		player_from_en_bullet 	: 25,
-		player_from_enemy 		: 40,
-		player_from_hazard		: 20,
+		player_from_en_bullet 	: 10,	
+		player_from_enemy 		: 30,	// Depends on enemy
+		player_from_hazard		: 28,	
 		player_fall_damage		: 180,
+		player_from_big			: 240,
+		
 		// --
 		enemy_from_player 		: 100,
 		enemy_from_pl_bullet 	: 50,
@@ -68,7 +71,9 @@ class Reg
 		pl_bl_speed:150,	// Player bullet speed
 		pl_bl_timer:250,	// Shoot every this much MILLISECONDS
 		
-		en_health		:100,
+		en_health			:20,	// Depends on enemy
+		en_health_chase		:30,	// Depends on enemy
+		
 		en_bl_speed		:62,
 		en_speed		:35,
 		en_turret_speed	:2.5,	// Millisecs between shots
@@ -110,9 +115,11 @@ class Reg
 		trace(" == Reg init -post-");
 		D.snd.setVolume("master", 0.15);
 		
-		
 		//D.text.styles.set('hud_health', );
 		
+		#if debug
+		new Debug();
+		#end
 	}//---------------------------------------------------;
 	
 	// Whenever D.assets gets reloaded, I need to reparse the data into the objects
@@ -155,20 +162,25 @@ class Reg
 	
 	
 	
+	// Note: BOMB1,BOMB2,BOMB3, all will get the data key => BOMB
+	// Icon Number is what <hud_items.png> index - 4
 	public static var ITEM_DATA:Map<MapTiles.ITEM_TYPE,ItemHudInfo> = [
+			BOMB1 => { name:"Bomb", desc:"You have a Berm (Francais)", icon:4 },
+			BOMB2 => { name:"Bomb", desc:"You have a Berm (Francais)", icon:4 },
+			BOMB3 => { name:"Bomb", desc:"You have a Berm (Francais)", icon:4 },
+			GLOVE => { name:"Glove", desc:"Glove", icon:8 },
+
 			SAFE_PASS => { name:"Safe Pass", desc:"It says `Safe pass`", icon:1},
-			CONFUSER_UNIT => { name:"Confuser", desc:"Hey, you`ve found a confuser", icon:2 },
-			SECURO_KEY => { name:"Securo Key", desc:"This is a Securo key", icon:3 },
-			BOMB => { name:"Bomb", desc:"You have a Berm (Francais)", icon:4 },
-			PLATFORM_KEY => { name:"Platform Key", desc:"You have a platform key", icon:5 },
 			EXIT_PASS => { name:"Exit Pass", desc:"Looks like an exit pass", icon:6 },
+			CONFUSER_UNIT => { name:"Confuser", desc:"Hey, you`ve found a confuser", icon:2 },			
+			PLATFORM_KEY => { name:"Platform Key", desc:"You have a platform key", icon:5 },
+			SECURO_KEY => { name:"Securo Key", desc:"This is a Securo key", icon:3 },
+			BRIDGE_SPELL => { name:"Bridge Spell", desc:"--", icon:1 },
 			
-			BRIDGE_SPELL => { name:"Bridge Spell", desc:"11", icon:1 },
-			SHORTERNER_SPELL => { name:"Shortne", desc:"11", icon:1 },
-			FLASH_BANG_SPELL => { name:"flashbandg", desc:"11", icon:1 },
-			GLOVE => { name:"glov", desc:"", icon:1 },
-			RELEASE_SPELL => { name:"reles", desc:"", icon:1 },
-			DESTRUCT_SPELL => { name:"dest", desc:"", icon:1 }
+			FLASH_BANG_SPELL => { name:"Flashbang Spell", desc:"--", icon:1 },
+			RELEASE_SPELL => { name:"Release Spell", desc:"--", icon:1 },
+			DESTRUCT_SPELL => { name:"Destruct Spell", desc:"--", icon:1 },
+			SHORTENER_SPELL => { name:"Shortener Spell", desc:"--", icon:1 },
 	];
 	
 }//--

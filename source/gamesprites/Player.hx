@@ -22,19 +22,22 @@
 
 package gamesprites;
 
+import Reg;
+import states.StateGameover;
 
 import djA.Fsm;
 import djA.types.SimpleCoords;
 import djFlixel.core.Dcontrols;
-import flixel.effects.FlxFlicker;
 
 import djFlixel.D;
 
+import flixel.effects.FlxFlicker;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.system.FlxSound;
 import flixel.tile.FlxTile;
+
 
 
 enum PlayerState
@@ -44,6 +47,7 @@ enum PlayerState
 	ONLADDER;
 	ONSLIDE;
 	STUNNED;
+	DEAD;
 }
 
 
@@ -53,8 +57,8 @@ class Player extends FlxSprite
 	public inline static var START_HEALTH = 999;
 	public inline static var START_LIVES = 3;
 	
-	static inline var HEALTH_TICK = 0.06;	// Refresh life every this much
-	static inline var HEALTH_LOSS = 1;		// Loss per tick
+	static inline var HEALTH_TICK = 0.05;	// Refresh life every this much
+	static inline var HEALTH_LOSS = 2;		// Loss per tick
 	
 	inline static var PLAYER_IDLE_TIME_ANIMATION = 6.0;		// At how many seconds to idle anim
 
@@ -75,6 +79,7 @@ class Player extends FlxSprite
 	inline static var IDLE_STEP_TIME = 8;			// Seconds to go to the next idle stage (there are 3 idle stages)
 	inline static var FALL_DAMAGE_HEIGHT = 32 * 5;	// If it falls from 5x(bigtiles) do fall damage
 	inline static var FALL_DAMAGE_TIME = 3;			// Stun for 3 seconds
+	inline static var DEAD_TIME = 4;				// Stay in the dead animation for 4 seconds
 	
 	// Precalculated to avoid width/2 all the time
 	public var halfWidth:Int;
@@ -108,7 +113,7 @@ class Player extends FlxSprite
 	var _sndTick:Float;				// Used in WALK,CLIMB to make a sound at an interval.
 	var _walkBlockDir:Int;			// Used for not walking into walls. Last direction that was blocked when walking
 	var _jumpForceFull:Bool;		// Force a full jump, with no reduce height check (Used in hazards)
-	var _idle:Float;				// Track timer for IDLE and STUN
+	var _idle:Float;				// Generic timer. Used in IDLE / STUN / DEAD TIME
 	var _idle_stage:Int;
 	var _htick:Float = 0;			// Count down health tick timer
 	
@@ -124,10 +129,10 @@ class Player extends FlxSprite
 		slide:"pl_slide",	// ok
 		land:"pl_land",		// ok
 		step:"pl_step",		// ok
-		die:"pl_die",
-		hurt:"pl_hurt",
-		shoot:"pl_shoot",
-		ceil:"pl_ceil"
+		die:"pl_die",	
+		hurt:"pl_hurt",		// ok
+		shoot:"pl_shoot",	// ok
+		ceil:"pl_ceil"		// ok
 	}
 	
 	public var lives:Int;
@@ -141,7 +146,6 @@ class Player extends FlxSprite
 	var healthSlow:Float;
 	
 
-	
 	public function new() 
 	{
 		super();
@@ -193,16 +197,38 @@ class Player extends FlxSprite
 		fsm.addState(PlayerState.ONLADDER, null, state_onladder_update);
 		fsm.addState(PlayerState.ONSLIDE, state_onslide_enter , state_onslide_update, state_onslide_exit);
 		fsm.addState(PlayerState.STUNNED, null , state_stunned_update);
-		
+		fsm.addState(PlayerState.DEAD, null, state_dead_update);
+
 		// --
-		health = START_HEALTH;
 		lives = START_LIVES;
+		health = START_HEALTH;
 		healthSlow = health;
-		bullet_type = 1;
-		
 		_htick = 0;
+		
+		bullet_type = 1;
 	}//---------------------------------------------------;
 	
+	// :: kill() will enable this state
+	function state_dead_update()
+	{
+		_idle+= FlxG.elapsed;
+		if (_idle > DEAD_TIME)
+		{
+			lives--;
+			Reg.st.HUD.set_lives(lives, true);
+			
+			if (lives == 0)
+			{
+				FlxG.switchState(new StateGameover());
+			}else
+			{
+				Reg.st.ROOMSPR.enemies_freeze(false);
+				revive();
+				physics_start();
+				fsm.goto(ONFLOOR);
+			}
+		}
+	}//---------------------------------------------------;
 	
 	function state_stunned_update()
 	{
@@ -421,6 +447,13 @@ class Player extends FlxSprite
 	
 	function state_onfloor_update()
 	{
+		// Only check for death when on the floor
+		if (healthSlow <= 0) 
+		{
+			kill();
+			return;
+		}
+		
 		// DEV: This will trigger all tile-callbacks, including TRIGGER_SLIDE
 		//	  : Collide Check NEEDS to be before anything else here for it to work
 		FlxG.collide(this, Reg.st.map.layers[1]);
@@ -580,10 +613,24 @@ class Player extends FlxSprite
 			if (healthSlow > health) {
 				healthSlow -= Math.min(HEALTH_LOSS, healthSlow - health);
 				Reg.st.HUD.set_health(healthSlow);
+				
 			}
 		}
 	}//---------------------------------------------------;
 	
+	
+	override public function kill():Void 
+	{
+		if (!alive) return;
+		alive = false;
+		_idle = 0;
+		_shoot_allow = false;
+		physics_stop();
+		animation.play("die");
+		D.snd.playV(snd.die);
+		Reg.st.ROOMSPR.enemies_freeze(true);
+		fsm.goto(DEAD);
+	}//---------------------------------------------------;
 	
 	/**
 	   Check for key and create bullet.
@@ -623,6 +670,21 @@ class Player extends FlxSprite
 		//FlxFlicker.flicker(this, Reg.P.flicker_time);
 	}//---------------------------------------------------;
 	
+	// -- Revives when dead, also at the first time for initialization
+	override public function revive():Void 
+	{
+		super.revive();
+		
+		health = START_HEALTH;
+		healthSlow = health;
+		Reg.st.HUD.set_health(health);
+		_htick = 0;
+		
+		if (lives < START_LIVES) FlxFlicker.flicker(this, 1, 0.04);
+		
+		// bullet_type = 1;
+	}//---------------------------------------------------;
+	
 	/**
 	   - New Map, spawn to enter tile
 	   - First level, spawn to start of area
@@ -630,6 +692,8 @@ class Player extends FlxSprite
 	public function spawn(X:Float, Y:Float)
 	{
 		alive = true;
+		
+		// > Do not touch slowHealth, as it could be counting down, even if changing levels
 		
 		// :: Position ::
 		_snapToFloor(X, Y);
