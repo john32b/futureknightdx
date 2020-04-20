@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 
-	<haxedef name="DYN_ASSETS" if="debug"/>
 	<!--<haxedef name="TROPHIES"/>-->
 	<!--<haxedef name="FLASHONLINE"/>-->
 	<!--<haxedef name="GAMEJOLT"/> <set name="GAMEJOLT"/>-->
@@ -38,4 +37,9 @@
 	
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 	
+	
+	<!--:: GAME DEFINES ::-->
+	<haxedef name="DYN_ASSETS" if="debug"/>
+	<!--<haxedef name="SHOOT_HOLD"/>-->
+
 </project>

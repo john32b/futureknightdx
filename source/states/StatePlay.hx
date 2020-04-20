@@ -25,9 +25,9 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import gamesprites.*;
+import gamesprites.Item.ITEM_TYPE;
 
 import djFlixel.ui.FlxMenu;
-
 
 class StatePlay extends FlxState
 {
@@ -39,6 +39,7 @@ class StatePlay extends FlxState
 	public var BM:BulletManager;
 	public var INV:Inventory;
 	public var HUD:Hud;
+	public var EXITS:ExitManager;
 	
 	var menu:FlxMenu;
 	
@@ -58,8 +59,9 @@ class StatePlay extends FlxState
 		INV = new Inventory();
 			INV.onClose = resume;
 			INV.onOpen = pause;
-			INV.onItemSelect = handle_inventory_select;
+			INV.onItemSelect = on_inventory_select;
 
+		EXITS = new ExitManager();
 			
 		map.onEvent = event_map_handler;
 		
@@ -78,8 +80,8 @@ class StatePlay extends FlxState
 		
 		// : LAST :
 		// : load the level, logic will be auto-triggered 
-		//map.load(Reg.LEVELS[0]);
-		map.load(D.assets.files.get(Reg.LEVELS[0]), true);
+		map.load(Game.START_MAP);
+		//map.load(D.assets.files.get(Reg.LEVELS[0]), true);
 		
 		// --
 		HUD.set_text("Welcome to Future Knight DX", 5);
@@ -114,59 +116,63 @@ class StatePlay extends FlxState
 	
 	
 	// <COLLISION> Bullet to Enemy
-	function _overlap_enemy_bullet(e:Enemy, b:BulletManager.Bullet)
+	function _overlap_enemy_bullet(e:Enemy, b:Bullet)
 	{
-		if (b.owner != BulletManager.OWNER_PLAYER) return;
+		if (b.owner != Bullet.OWNER_PLAYER) return;
 		BM.killBullet(b, true);
-		e.hurt(Reg.P_DAM.enemy_from_pl_bullet);	/// Do bullets have different power?
+		e.hurt(b.T.damage);
 	}//---------------------------------------------------;
+	
 	// <COLLISION>, Bullet to Player
-	function _overlap_player_bullet(a:Player, b:BulletManager.Bullet)
+	function _overlap_player_bullet(a:Player, b:Bullet)
 	{
-		if (b.owner != BulletManager.OWNER_ENEMY) return;
+		if (b.owner != Bullet.OWNER_ENEMY) return;
 		BM.killBullet(b);
-		a.hurt(Reg.P_DAM.player_from_en_bullet);
+		a.hurt(b.T.damage);
 	}//---------------------------------------------------;
-	// <COLLISION> Player to (ENEMY,ITEM,ANIM)
+	// <COLLISION> Player to (ENEMY, ITEM, ANIM)
 	function _overlap_player_roomgroup(a:Player, b:MapSprite)
 	{
-		if (Std.is(b, Enemy)){
-			if (!b.alive) return;
-			var en:Enemy = cast b;
-			b.hurt(Reg.P_DAM.enemy_from_player);
-			a.hurt(Reg.P_DAM.player_from_enemy);
-			/// TODO ::
-			
-			// from old code:
-			//if (enemy.isBig) 
-			//{
-				//if(enemy.health>100)
-					//pl.hurt(100);
-				//else
-					//pl.hurt(enemy.health);
-					//
-				//enemy.hurt(100);
-			//}else
-			//{
-				//pl.hurt(enemy.health);
-				//enemy.softKill();				
-			//}
-		}
-		else if (Std.is(b, Item)){
-			var item:Item = cast b;
-			if (INV.addItem(item.item_id))
-			{
-				// Pick up OK
-				HUD.item_pickup(item.item_id);
-				item.killExtra();
-			}else{
-				// No more space in inventory
-				// >> sound error?
-			}
-		}
-		else if (Std.is(b, AnimatedTile))
+		switch(Type.getClass(b))
 		{
-			player.event_anim_tile(player, cast b);
+			case Enemy:
+					if (!b.alive) return;
+					var en:Enemy = cast b;
+					b.hurt(Reg.P_DAM.enemy_from_player);
+					a.hurt(Reg.P_DAM.player_from_enemy);
+				// from old code:
+						//if (enemy.isBig) 
+						//{
+							//if(enemy.health>100)
+								//pl.hurt(100);
+							//else
+								//pl.hurt(enemy.health);
+								//
+							//enemy.hurt(100);
+						//}else
+						//{
+							//pl.hurt(enemy.health);
+							//enemy.softKill();				
+						//}	
+					
+			case Item:
+					var item:Item = cast b;
+					if (INV.addItem(item.item_id))
+					{
+						// Pick up OK
+						HUD.item_pickup(item.item_id);
+						item.killExtra();
+					}else{
+						// No more space in inventory
+						// >> sound error?
+					}
+					
+					
+			case AnimatedTile:
+				// Animated Tiles: Weapon
+				player.event_anim_tile(player, cast b);
+				
+			case _:
 		}
 	}//---------------------------------------------------;
 	
@@ -237,11 +243,15 @@ class StatePlay extends FlxState
 	}//---------------------------------------------------;
 	
 	
-	function handle_inventory_select(id:Int)
+	function on_inventory_select(id:ITEM_TYPE)
 	{
 		INV.close();
 		HUD.item_pickup(id);
 	}//---------------------------------------------------;
 	
 	
+	public function on_player_no_lives()
+	{
+		FlxG.switchState(new StateGameover());
+	}//---------------------------------------------------;
 }// --

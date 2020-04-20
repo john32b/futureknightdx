@@ -36,9 +36,11 @@ class Enemy extends MapSprite
 	// :: Some hard coded
 	static inline var ANIM_FPS = 8;
 	static inline var ANIM_FRAMES = 2; // Every enemy has 2 frames. In the future I could change it to 3 or 4
+	static inline var HURT_I_TIME = 0.1;	// Invinvibility time after being hurt
+	
 	
 	var ai:Enemy_AI;
-	var _spawnTimer:Float;
+	var _spawnTimer:Float;	// Checked against <spawnTime> and when it triggers it respawns the enemy
 	var spawnTime:Float;
 	
 	// Precalculated to avoid width/2 all the time.
@@ -49,6 +51,7 @@ class Enemy extends MapSprite
 	// 0:Normal, 1:Big, 2:Long, 3:Worm
 	var _gfxtype:Int = 0;
 	
+	// Time since last hurt. I count so it doesn't get hurt at each frame. Counts down to 0
 	var _hurtTimer:Float = 0;
 
 	// --
@@ -58,27 +61,27 @@ class Enemy extends MapSprite
 		
 		if (alive) {
 			
-			if (_hurtTimer > 0)
-			{
-				if ((_hurtTimer -= elapsed)<= 0)
-				{
+			if (_hurtTimer > 0) {
+				if ((_hurtTimer -= elapsed)<= 0) {
 					setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);
 				}
 			}
-			
 	 		ai.update(elapsed);
 			
 		}else {
+			
 			if (spawnTime < 0) return;	// This enemy does not ever respawn
-			_spawnTimer += elapsed;
-			if ( _spawnTimer >= spawnTime) {
-				
-				if(Reg.st.player.alive) // Avoid spawning and then running into player while he dead.
+			
+			if ( (_spawnTimer += elapsed) >= spawnTime) {
+				// Avoid spawning and then running into player while he dead.
+				// Will spawn once the player is alive
+				if(Reg.st.player.alive)
 					respawn();
 			}
 		}
 	}//---------------------------------------------------;
 
+	
 	// Called from MAIN when the enemy is to be created 
 	// DEV Notes: 
 	// - Size is reset by <loadgraphic>
@@ -104,7 +107,6 @@ class Enemy extends MapSprite
 		// :: AI
 		ai = Enemy_AI.getAI(o.type, this);
 		
-		// --
 		respawn();
 	}//---------------------------------------------------;
 	
@@ -133,7 +135,7 @@ class Enemy extends MapSprite
 			//setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);
 			this.color = 0xFFedd446;
 			D.snd.play("hit_02");	/// TODO RANDOM 02,03,04
-			_hurtTimer = 0.1;
+			_hurtTimer = HURT_I_TIME;
 		}
 	}//---------------------------------------------------;
 	

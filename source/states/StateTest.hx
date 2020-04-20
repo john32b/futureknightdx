@@ -37,7 +37,7 @@ class StateTest extends FlxState
 		
 		if (FlxG.keys.justPressed.I){
 			// add a random item
-			if (!INV.addItem(cast Std.random(10) + 1)) trace("Cannot add item");
+			//if (!INV.addItem(cast Std.random(10) + 1)) trace("Cannot add item");
 		}
 	}//---------------------------------------------------;
 	

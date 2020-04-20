@@ -21,11 +21,25 @@ import flixel.effects.FlxFlicker;
 import flixel.group.FlxGroup;
 import flixel.text.FlxText;
 
+import gamesprites.Item.ITEM_TYPE;
+
+
+// Item HUD information
+typedef ItemHudInfo = {
+	name:String,
+	desc:String,
+	icon:Int	// There are 10 unique item icons for the HUD (1-10) values
+}
+
+
 class Hud extends FlxGroup
 {
 
 	static inline var HUD_SCREEN_X:Int = 25; // (320-270)/2
 	static inline var FONT_HEALTH = "fnt/lc_light.otf";
+	
+	static inline var TEXT_BLINK_TIME = 0.4;
+	static inline var LIVES_BLINK_TIME = 1;
 	
 	// -----
 	var _health:Int = 0;	// Current displayed health (not actual player health)
@@ -42,11 +56,10 @@ class Hud extends FlxGroup
 	var el_bullet:FlxSprite;
 	var el_item:FlxSprite;
 	
-	
 	var _timer_text:Float = -1;	// When this reaches 0 kill the text. -1 to do nothing
 	
 	// The ITEM GID if an item is equipped
-	public var equipped_item(default, null):Int = 0;
+	public var equipped_item(default, null):ITEM_TYPE = null;
 	
 	//====================================================;
 	override public function update(elapsed:Float):Void 
@@ -136,28 +149,37 @@ class Hud extends FlxGroup
 		
 		set_text("");
 		set_score(0);
-		set_item(0);
+		set_item_icon(0);
 		
 		fx_static.visible = false;
 		fx_static.animation.reset();
+		
+		equipped_item = null;
 	}//---------------------------------------------------;
 
 	
+	
+	public function bullet_pickup(bullet:Int)
+	{
+		set_bullet(bullet);
+		static_run();
+	}//---------------------------------------------------;
+	
 	// Pick up item with real itemID (EntityID, starting from 1)
-	public function item_pickup(itemID:Int=0)
+	public function item_pickup(itemID:ITEM_TYPE)
 	{
 		if (equipped_item == itemID) return;
 		
 		equipped_item = itemID;
 		
-		if (itemID > 0)
+		if (itemID != null)
 		{
-			var ITD = Reg.ITEM_DATA.get(cast itemID);
+			var ITD = Game.ITEM_DATA.get(itemID);
 			set_text(ITD.desc, true);
-			set_item(ITD.icon);
+			set_item_icon(ITD.icon);
 			static_run();
 		}else{
-			set_item(0);
+			set_item_icon(0);
 			set_text("");
 			static_run();
 		}
@@ -188,7 +210,7 @@ class Hud extends FlxGroup
 				} else {
 					// Flicker the lives that are off, Works OK
 					if (l >= i && l < _lives)
-					FlxFlicker.flicker(el_lives[l], 1, 0.1, false);
+					FlxFlicker.flicker(el_lives[l], LIVES_BLINK_TIME, Reg.P.flicker_rate, false);	
 				}
 			}
 		}
@@ -200,18 +222,18 @@ class Hud extends FlxGroup
 	{
 		_timer_text = timeToLive;
 		text_info.text = t;
-		if (blinkOn) FlxFlicker.flicker(text_info, 0.4, 0.04);
+		if (blinkOn) FlxFlicker.flicker(text_info, TEXT_BLINK_TIME, Reg.P.flicker_rate);
 	}//---------------------------------------------------;
 	
 	// Values 1-3
 	public function set_bullet(i:Int)
 	{
-		el_bullet.animation.frameIndex = i - 1;
+		el_bullet.animation.frameIndex = i;
 	}//---------------------------------------------------;
 	
 	// Actual frame value in <huditems.png>
 	// Starting from 1, values (1-10). 0 to remove item
-	public function set_item(i:Int = 0)
+	public function set_item_icon(i:Int = 0)
 	{
 		el_item.visible = (i > 0);
 		el_item.animation.frameIndex = i + 3;
@@ -224,7 +246,6 @@ class Hud extends FlxGroup
 		text_score.text = StringTools.lpad(Std.string(_score), "0", 6);
 	}//---------------------------------------------------;
 
-	
 	
 	function static_run(?callback:Void->Void)
 	{

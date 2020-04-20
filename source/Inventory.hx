@@ -33,9 +33,12 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.tweens.misc.VarTween;
+import haxe.EnumTools;
 import tools.GridNav;
 
 import gamesprites.Item;
+import gamesprites.Item.ITEM_TYPE;
+
 
 class Inventory extends FlxSpriteGroup
 {
@@ -57,12 +60,12 @@ class Inventory extends FlxSpriteGroup
 	var grid:GridNav;
 	
 	// Item ID, in array with holes (null for hole) Length = grid.length
-	public var ITEMS:Array<Null<Int>>;
+	public var ITEMS:Array<Null<ITEM_TYPE>>;
 	
 	public var isOpen(default, null):Bool;
 	
 	// :: CALLBACKS ::
-	public var onItemSelect:Int->Void;
+	public var onItemSelect:ITEM_TYPE->Void;
 	public var onClose:Void->Void;
 	public var onOpen:Void->Void;
 	
@@ -76,7 +79,7 @@ class Inventory extends FlxSpriteGroup
 
 		// :: Background
 		var bg = new FlxSprite(Reg.IM.STATIC.hud_inventory);
-		bg.active = false;
+			bg.active = false;
 		add(bg);
 
 		// --
@@ -97,8 +100,8 @@ class Inventory extends FlxSpriteGroup
 		// -- Add Box Sprites
 		for (c in 0...grid.length)
 		{
-			var i = Item.getItemSprite(1);	// Just get any sprite
-				i.visible = false;			// default not visible
+			var i = Item.getItemSprite(1);	// (1) does not matter, it will be replaced later
+				i.visible = false;			// default is not visible
 				box_items.push(i);
 				add(i);
 				// Position based on the grid
@@ -200,10 +203,10 @@ class Inventory extends FlxSpriteGroup
 	/**
 	   Adds an item with (ID, starting at 1) to the inventory
 	   - Sets the item to the HUD
-	   @param	it 1...
+	   @param	it ItemType Enum
 	   @return Does the item fit? Can it pick it up?
 	**/
-	public function addItem(it:Int):Bool
+	public function addItem(it:ITEM_TYPE):Bool
 	{
 		var i = get_available_index();
 		
@@ -214,7 +217,7 @@ class Inventory extends FlxSpriteGroup
 		ITEMS[i] = it;
 		
 		var item = box_items[i];
-			item.setItemID(it);
+			item.setItemID(it.getIndex());
 			item.visible = true;
 		
 		// The new item was added on the cursor, so change the text
@@ -226,7 +229,7 @@ class Inventory extends FlxSpriteGroup
 		return true;
 	}//---------------------------------------------------;
 	// --
-	public function removeItemWithID(it:Int):Bool
+	public function removeItemWithID(it:ITEM_TYPE):Bool
 	{
 		var i = ITEMS.indexOf(it);
 		if (i==-1) {
@@ -249,7 +252,7 @@ class Inventory extends FlxSpriteGroup
 	// - Remove holes
 	public function sortItems()
 	{
-		var AR2:Array<Null<Int>> = [];
+		var AR2:Array<ITEM_TYPE> = [];
 		for (i in ITEMS) {
 			if (i != null) AR2.push(i);
 		}
@@ -259,7 +262,7 @@ class Inventory extends FlxSpriteGroup
 			var item = box_items[c];
 			if (ITEMS[c] != null){
 				item.visible = true;
-				item.setItemID(ITEMS[c]);
+				item.setItemID(ITEMS[c].getIndex());
 			}else{
 				item.visible = false;
 			}
@@ -269,9 +272,9 @@ class Inventory extends FlxSpriteGroup
 	
 	
 	// Quickly get current item, -1 for no item
-	function get_current_item():Int
+	function get_current_item():ITEM_TYPE
 	{
-		if (ITEMS[grid.index] == null) return -1;
+		if (ITEMS[grid.index] == null) return null;
 		return ITEMS[grid.index];
 	}//---------------------------------------------------;
 		
@@ -298,8 +301,8 @@ class Inventory extends FlxSpriteGroup
 	{
 		// The item ID the cursor is pointing to
 		var i = get_current_item();
-		if (i >= 0){
-			text.text = Reg.ITEM_DATA.get(cast i).name;
+		if (i != null){
+			text.text = Game.ITEM_DATA.get(i).name;
 		}else{
 			text.text = "";
 		}

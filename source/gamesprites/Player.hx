@@ -23,7 +23,6 @@
 package gamesprites;
 
 import Reg;
-import states.StateGameover;
 
 import djA.Fsm;
 import djA.types.SimpleCoords;
@@ -48,21 +47,22 @@ enum PlayerState
 	ONSLIDE;
 	STUNNED;
 	DEAD;
-}
+}// --------------------;
+
 
 
 class Player extends FlxSprite
 {
-	
 	public inline static var START_HEALTH = 999;
-	public inline static var START_LIVES = 3;
+	public inline static var START_LIVES  = 3;
+	
+	static inline var I_TIME_REVIVE = 1.4;
+	static inline var I_TIME_HURT = 0.4;
 	
 	static inline var HEALTH_TICK = 0.05;	// Refresh life every this much
 	static inline var HEALTH_LOSS = 2;		// Loss per tick
 	
-	inline static var PLAYER_IDLE_TIME_ANIMATION = 6.0;		// At how many seconds to idle anim
-
-	inline static var BOUND_W = 8; 		// Bounding box 
+	inline static var BOUND_W = 8; 					// Bounding box 
 	inline static var BOUND_H = 22;
 	inline static var BOUND_OFF_X = 11;
 	inline static var BOUND_OFF_Y = 4;
@@ -74,13 +74,13 @@ class Player extends FlxSprite
 	inline static var LADDER_MOUNT_PIXELS = 4;		// For this many traveled pixels the mount frame will be displayd
 	inline static var SLIDE_MOUNT_PIXELS_Y_ON = 4;	// Offset when mounting the slide
 	inline static var SLIDE_MOUNT_PIXELS_Y_OFF = 8;	// Offset to check when getting off
-	inline static var SOUND_sndTick_WALK = 0.2857;	// This is ANIMATION FRAMES (1/FPS) * TOTAL_FRAMES
-	inline static var SOUND_sndTick_CLIMB = 0.30;
-	inline static var IDLE_STEP_TIME = 8;			// Seconds to go to the next idle stage (there are 3 idle stages)
+	inline static var SOUND_TICK_WALK  = 0.2857;	// This is ANIMATION FRAMES (1/FPS) * TOTAL_FRAMES
+	inline static var SOUND_TICK_CLIMB = 0.30;
+	inline static var IDLE_STEP_TIME = 7;			// Seconds to go to the next idle stage (there are 3 idle stages)
 	inline static var FALL_DAMAGE_HEIGHT = 32 * 5;	// If it falls from 5x(bigtiles) do fall damage
 	inline static var FALL_DAMAGE_TIME = 3;			// Stun for 3 seconds
 	inline static var DEAD_TIME = 4;				// Stay in the dead animation for 4 seconds
-	
+	 
 	// Precalculated to avoid width/2 all the time
 	public var halfWidth:Int;
 	public var halfHeight:Int;
@@ -118,8 +118,9 @@ class Player extends FlxSprite
 	var _htick:Float = 0;			// Count down health tick timer
 	
 	var _shoot_allow:Bool;			// Whether at this stage firing is supported
-	var _shoot_timer:Int;			// Time since last shot, IN TICKS, NOT MS
+	var _shoot_time:Int;			// Time since last shot, IN TICKS, NOT MS
 	
+	var _interact_time:Int;			// Short pause between interacting with ANIMTILE elements. IN TICKS, NOT MS
 	
 	// - Sounds
 	var snd =  {
@@ -134,18 +135,20 @@ class Player extends FlxSprite
 		shoot:"pl_shoot",	// ok
 		ceil:"pl_ceil"		// ok
 	}
-	
+
+	// --
 	public var lives:Int;
 	
 	// Current bullet type the player can shoot
-	// 1:Normal, 2:Red, 3:Slime
+	// INDEX in Bullet.TYPES[]
+	// 0:Normal, 1:Red, 2:Slime
 	public var bullet_type:Int;
 	
 	// This is the Health Number printed at the HUD
 	// This is the one that when reaches ZERO, the player will die
 	var healthSlow:Float;
 	
-
+	// -----------------------------------------------------------------------;
 	public function new() 
 	{
 		super();
@@ -180,9 +183,10 @@ class Player extends FlxSprite
 		animation.add("dance", [12, 13], 8);
 		animation.add("fallstun", [18, 19], 10);
 		
+		// I want to know the actual last walk frame, so I can callback when it reaches to it
 		_walkLastFrame = animation.getByName('walk').numFrames - 1;
 	
-		// Bounding Box
+		// -- Bound, Size
 		setSize(BOUND_W, BOUND_H);
 		offset.set(BOUND_OFF_X, BOUND_OFF_Y);
 		
@@ -205,7 +209,8 @@ class Player extends FlxSprite
 		healthSlow = health;
 		_htick = 0;
 		
-		bullet_type = 1;
+		bullet_type = 0;
+		
 	}//---------------------------------------------------;
 	
 	// :: kill() will enable this state
@@ -219,7 +224,7 @@ class Player extends FlxSprite
 			
 			if (lives == 0)
 			{
-				FlxG.switchState(new StateGameover());
+				Reg.st.on_player_no_lives();
 			}else
 			{
 				Reg.st.ROOMSPR.enemies_freeze(false);
@@ -269,7 +274,7 @@ class Player extends FlxSprite
 	
 	function state_onladder_update()
 	{
-		if (_sndTick >= SOUND_sndTick_CLIMB)
+		if (_sndTick >= SOUND_TICK_CLIMB)
 		{
 			_sndTick = 0;
 			D.snd.playV(snd.climb);
@@ -318,7 +323,7 @@ class Player extends FlxSprite
 		}
 		else
 		{
-			_sndTick = SOUND_sndTick_CLIMB * 0.75;
+			_sndTick = SOUND_TICK_CLIMB * 0.75;
 			velocity.y = 0;
 			animation.pause();
 		}
@@ -347,6 +352,8 @@ class Player extends FlxSprite
 		
 		if (justTouched(FlxObject.CEILING))
 		{
+			health -= Reg.P_DAM.player_from_ceil;
+			if (health < 0) health = 0;
 			D.snd.playV(snd.ceil);
 			if (_sndTemp != null){
 				_sndTemp.stop();
@@ -368,11 +375,10 @@ class Player extends FlxSprite
 				velocity.set(0, 0);
 				D.snd.playV(snd.land);
 				last.y = y = Std.int(y);
-				
 
 				if (y - _specialTileY > FALL_DAMAGE_HEIGHT)
 				{
-					_idle = 0;
+					_idle_stop();
 					animation.play('fallstun');
 					physics_stop();
 					D.snd.playV(snd.hurt);
@@ -427,13 +433,13 @@ class Player extends FlxSprite
 	
 	function state_onfloor_enter()
 	{
-		_sndTick = SOUND_sndTick_WALK * 0.8;	// Don't wait a fill TICK to make the sound
+		_sndTick = SOUND_TICK_WALK * 0.8;	// Don't wait a fill TICK to make the sound
 		isFalling = false;
 		animation.play("idle");
 		_walkBlockDir = -1;
 		_jumpForceFull = false;
-		_idle = _idle_stage = 0;
 		_shoot_allow = true;
+		_idle_stop();
 	}//---------------------------------------------------;
 		
 	
@@ -442,7 +448,6 @@ class Player extends FlxSprite
 		isWalking = false;
 		animation.callback = null;
 	}//---------------------------------------------------;
-	
 	
 	
 	function state_onfloor_update()
@@ -477,7 +482,7 @@ class Player extends FlxSprite
 			_walk_stop_cycle();
 		}
 		
-		if (_sndTick >= SOUND_sndTick_WALK)
+		if (_sndTick >= SOUND_TICK_WALK)
 		{
 			_sndTick = 0;
 			D.snd.playV(snd.step);
@@ -488,7 +493,7 @@ class Player extends FlxSprite
 		// because haxeflixel doesnot support to mirror a specific animation frame. So no spin for now
 		if (_idle >= IDLE_STEP_TIME)
 		{
-			_idle = 0;
+			_idle_stop();
 			if (++_idle_stage < 3){
 				animation.play("wave");
 			}else{
@@ -613,7 +618,6 @@ class Player extends FlxSprite
 			if (healthSlow > health) {
 				healthSlow -= Math.min(HEALTH_LOSS, healthSlow - health);
 				Reg.st.HUD.set_health(healthSlow);
-				
 			}
 		}
 	}//---------------------------------------------------;
@@ -623,7 +627,7 @@ class Player extends FlxSprite
 	{
 		if (!alive) return;
 		alive = false;
-		_idle = 0;
+		_idle_stop();
 		_shoot_allow = false;
 		physics_stop();
 		animation.play("die");
@@ -637,21 +641,25 @@ class Player extends FlxSprite
 	**/
 	function update_shoot()
 	{
+		#if SHOOT_HOLD
+		if (D.ctrl.pressed(X))
+		#else
 		if (D.ctrl.justPressed(X))
+		#end
 		{
-			_idle = 0;
-			
-			if (FlxG.game.ticks - _shoot_timer >= Reg.P.pl_bl_timer) {
-				_shoot_timer = FlxG.game.ticks;
-			}else{
-				return;	// Do not shoot
-			}
+			if (FlxG.game.ticks - _shoot_time < Bullet.TYPES[bullet_type].timer) return;
 			
 			var X = (facing == FlxObject.RIGHT?x + width + BULLET_X_PAD:x - BULLET_X_PAD);
-			if (Reg.st.BM.shootFromPlayer(bullet_type, X, y + halfHeight, facing))
+			if (Reg.st.BM.createAt(bullet_type, X, y + halfHeight, facing))
 			{
 				// bullet shot OK
 				D.snd.playV(snd.shoot);
+				_shoot_time = FlxG.game.ticks;
+				
+				if (_idle_stage > 0) {
+					animation.play('idle');
+				}
+				_idle_stop();
 			}
 		}
 	}//---------------------------------------------------;
@@ -667,7 +675,7 @@ class Player extends FlxSprite
 			// Do not kill, SlowHealth counter will kill the player
 		}
 		
-		//FlxFlicker.flicker(this, Reg.P.flicker_time);
+		FlxFlicker.flicker(this, I_TIME_HURT, Reg.P.flicker_rate);
 	}//---------------------------------------------------;
 	
 	// -- Revives when dead, also at the first time for initialization
@@ -680,9 +688,8 @@ class Player extends FlxSprite
 		Reg.st.HUD.set_health(health);
 		_htick = 0;
 		
-		if (lives < START_LIVES) FlxFlicker.flicker(this, 1, 0.04);
+		if (lives < START_LIVES) FlxFlicker.flicker(this, I_TIME_REVIVE, Reg.P.flicker_rate);
 		
-		// bullet_type = 1;
 	}//---------------------------------------------------;
 	
 	/**
@@ -706,11 +713,13 @@ class Player extends FlxSprite
 		
 		// --
 		_shoot_allow = false;	// < FSM States will change this
-		_shoot_timer = 0;
+		_shoot_time = 0;
 		_hack_break = false;
 		isCrouching = false;
 		isWalking = false;
-		isFalling = false;	// Init here does not matter, gets inited before use.
+		isFalling = false;		// Init here does not matter, gets inited before use.
+		
+		_interact_time = 0;
 		
 		fsm.goto(ONFLOOR);
 	}//---------------------------------------------------;
@@ -756,7 +765,7 @@ class Player extends FlxSprite
 		offset.y -= BOUND_CROUCH_OFF;
 		y -= BOUND_CROUCH_OFF;
 		animation.play("idle");
-		_idle = _idle_stage = 0;
+		_idle_stop();
 	}//---------------------------------------------------;
 	
 
@@ -779,7 +788,7 @@ class Player extends FlxSprite
 			_specialTileY = tc.y * 8;
 			physics_stop();
 			animation.play("climb");
-			_sndTick = SOUND_sndTick_CLIMB * 0.75;
+			_sndTick = SOUND_TICK_CLIMB * 0.75;
 			_shoot_allow = false;
 			fsm.goto(ONLADDER);
 			return true;
@@ -802,7 +811,7 @@ class Player extends FlxSprite
 			last.y = y;
 			physics_stop();
 			animation.play("mount");
-			_sndTick = SOUND_sndTick_CLIMB * 0.75;
+			_sndTick = SOUND_TICK_CLIMB * 0.75;
 			_shoot_allow = false;
 			fsm.goto(ONLADDER);
 			return true;
@@ -828,9 +837,27 @@ class Player extends FlxSprite
 				_verticalJump = false;	// Help player escape if falls from above
 				fsm.goto(ONAIR);
 				
-			// WEAPON(i:Int);
-			// EXIT(open:Bool);
-			// DECO;
+			case WEAPON(i):
+				if (fsm.currentStateName != ONFLOOR) return;
+				if (D.ctrl.justPressed(UP)) 
+				{
+					if (FlxG.game.ticks - _interact_time <= 300) return;
+					_interact_time = FlxG.game.ticks;
+					// ---
+					if (_idle_stage > 0) animation.play('idle');
+					_idle_stop();
+					if (bullet_type == i) bullet_type = 0; else bullet_type = i; // Toggle
+					Reg.st.HUD.bullet_pickup(bullet_type);
+				}
+				
+			case EXIT(locked):
+				if (fsm.currentStateName != ONFLOOR) return;
+				if (D.ctrl.justPressed(UP)) 
+				{
+					if (FlxG.game.ticks - _interact_time <= 300) return;
+					_interact_time = FlxG.game.ticks;
+					Game.exit_activate(B);
+				}
 			case _:
 		}
 	
@@ -845,8 +872,6 @@ class Player extends FlxSprite
 	**/
 	public function event_slide_tile(tile:FlxTile, tileDir:Int)
 	{	
-		// if (fsm.currentStateName == ONSLIDE) return; // << Can never happen since I don't check for collisions
-		
 		if (velocity.y < 0) return;
 		if (!isTouching(FlxObject.DOWN | FlxObject.WALL)) return;
 		
@@ -885,7 +910,7 @@ class Player extends FlxSprite
 	{
 		isWalking = false;
 		velocity.x = 0;
-		_sndTick = SOUND_sndTick_WALK * 0.8;	// Don't wait a full tick to make the sound.
+		_sndTick = SOUND_TICK_WALK * 0.8;	// Don't wait a full tick to make the sound.
 		// : Finish the walk animation then go to idle
 		animation.callback = (a, b, c)->{
 			if (b == _walkLastFrame) {
@@ -899,7 +924,7 @@ class Player extends FlxSprite
 	// - Request to start walking. Checks if already against a wall
 	function _walk_start_req()
 	{
-		_idle = _idle_stage = 0;
+		_idle_stop();
 		
 		if (_walkBlockDir == facing) {
 			return;
@@ -932,5 +957,12 @@ class Player extends FlxSprite
 			last.y = y = Y;
 		}
 	}//---------------------------------------------------;
+
+	
+	inline function _idle_stop()
+	{
+		_idle = _idle_stage = 0;
+	}//---------------------------------------------------;
 	
 }// --
+

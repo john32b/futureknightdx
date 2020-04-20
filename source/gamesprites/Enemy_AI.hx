@@ -144,8 +144,8 @@ class Enemy_AI
 
 
 /**
-   TURRET, Shoots bullets that home on player
-   - NOTICE: The turret timer gets randomized a bit
+   TURRET, Shoots bullets that chase the player
+   - NOTE: The turret timer gets randomized a bit
 **/
 class AI_Turret extends Enemy_AI
 {
@@ -157,7 +157,7 @@ class AI_Turret extends Enemy_AI
 		if ((_timer += elapsed) > Reg.P.en_turret_speed)
 		{
 			_timer = 0;
-			Reg.st.BM.shootFromEnemy(2, e.x + e.halfWidth, e.y + e.halfHeight);
+			Reg.st.BM.createAt(3, e.x + e.halfWidth, e.y + e.halfHeight, 0);
 			// <SOUND>
 		}
 	}//---------------------------------------------------;
@@ -168,13 +168,12 @@ class AI_Turret extends Enemy_AI
 		// Randomize the start time, so turrets will not fire at the same time
 		_timer = Reg.P.en_turret_speed * Math.random() * 0.85;
 	}//---------------------------------------------------;
-}
-
-
+	
+}// --
 
 
 /**
-   Big Enemy - Follow on the X axis if get too close
+   Big Enemy - Follow on the X axis if player gets too close
 **/
 class AI_BigChase extends Enemy_AI
 {

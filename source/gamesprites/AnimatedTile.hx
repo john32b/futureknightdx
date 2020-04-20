@@ -9,7 +9,7 @@ enum AnimTileType
 {
 	HAZARD;
 	WEAPON(i:Int);
-	EXIT(open:Bool);
+	EXIT(locked:Bool);
 	DECO;
 }
 
@@ -19,7 +19,7 @@ enum AnimTileType
  */
 class AnimatedTile extends MapSprite
 {
-	public var type:AnimTileType;
+	public var type(default, null):AnimTileType;
 	
 	public function new() 
 	{		
@@ -45,15 +45,17 @@ class AnimatedTile extends MapSprite
 		switch(gid)
 		{
 			case 1:
-				anim = "_EXIT";
-				type = AnimTileType.EXIT(true);
+				// NOW it is the time to figure out whether this EXIT is locked or not
+				var locked = Reg.st.EXITS.isLocked(o);
+				type = AnimTileType.EXIT(locked);
+				anim = "_EXIT" + (locked?"_LOCK":"");
 				offset.set(0, 8);
 				setSize(32, 16);
 				spawn_origin_set(1);
 				// TODO: Is the exit locked
 			case 2, 3:
 				anim = "_WEAPON_" + gid;
-				type = AnimTileType.WEAPON(gid);
+				type = AnimTileType.WEAPON(gid - 1);	// id2=>1, id3=>2
 				spawn_origin_set(0);
 			case 4:
 				anim = "_HAZARD";

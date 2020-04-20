@@ -17,6 +17,29 @@ package gamesprites;
 import djFlixel.D;
 import djfl.util.TiledMap.TiledObject;
 import flixel.FlxSprite;
+import haxe.EnumTools;
+
+
+// This is ALSO the itemID as it is on the EDITOR
+// Item ID = FRAME = EDITORID
+enum ITEM_TYPE
+{
+	NONE; // 0
+	BOMB1;
+	BOMB2;
+	BOMB3;
+	GLOVE;
+	SAFE_PASS; // 5
+	EXIT_PASS;
+	CONFUSER_UNIT;
+	PLATFORM_KEY;
+	SECURO_KEY; 
+	BRIDGE_SPELL; // 10
+	FLASH_BANG_SPELL;
+	RELEASE_SPELL;
+	DESTRUCT_SPELL; 
+	SHORTENER_SPELL;
+}//---------------------------------------------------;
 
 
 
@@ -25,7 +48,7 @@ class Item extends MapSprite
 	inline static var BOUNCE = 2; // pixels bounce
 	inline static var STEP = 0.12;
 	
-	public var item_id:Int = 0;
+	public var item_id:ITEM_TYPE;
 
 	var inc:Float = 0;	// Move-Loop counter
 	
@@ -56,12 +79,13 @@ class Item extends MapSprite
 	}//---------------------------------------------------;
 	
 	/** 
-	  Set a new item graphic 
+	  Set a new item graphic and enum data
 	  - separate function because this is used from the inventory also
+	  - GID is int (1->maxitems)
 	  */
 	public function setItemID(gid:Int)
 	{
-		item_id = gid;
+		item_id = EnumTools.createByIndex(ITEM_TYPE, gid);
 		animation.frameIndex = gid - 1;
 	}//---------------------------------------------------;
 	

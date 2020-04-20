@@ -19,11 +19,10 @@ import flixel.FlxSprite;
 
 
 
-
 class MapSprite extends FlxSprite
 {
 	// Pointer to Tiled Object Data.
-	var O:TiledObject;
+	public var O(default, null):TiledObject;
 	
 	// The original Spawn Coordinates in pixels
 	// IF NULL will re-spawn to where it was when it died
@@ -78,6 +77,10 @@ class MapSprite extends FlxSprite
 	**/
 	function spawn_origin_set(type:Int):Int
 	{
+		if (Std.is(this, AnimatedTile))
+		{
+			trace("OK");
+		}
 		// The top left tile of the 32tile in 8pixel tile dimensions
 		SPAWN_TILE = new SimpleCoords(Std.int(O.x / 32) * 4 , Std.int(O.y / 32) * 4);
 		
@@ -87,7 +90,7 @@ class MapSprite extends FlxSprite
 			
 		if (type == 1)
 		{
-			var floory = Reg.st.map.getFloor(SPAWN_TILE.x, SPAWN_TILE.y);
+			var floory = Reg.st.map.getFloor(SPAWN_TILE.x, SPAWN_TILE.y + 1);
 			if (floory >= 0) {
 				SPAWN_POS.y = (floory * 8) - Std.int(height);
 				return floory;

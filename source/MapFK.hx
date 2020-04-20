@@ -329,6 +329,7 @@ class MapFK extends TilemapGeneric
 				PLAYER_SPAWN = new SimpleCoords(cast i.x, cast i.y);
 				break;	// no need to scan for anything else
 			}
+			
 		}
 	}//---------------------------------------------------;
 		

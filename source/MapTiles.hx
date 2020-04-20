@@ -28,29 +28,6 @@ enum EDITOR_TILE {
 }
 
 
-// This is ALSO the itemID as it is on the EDITOR
-// Item ID = FRAME = EDITORID
-enum abstract ITEM_TYPE(Int)
-{
-	var NONE; // 0
-	var BOMB1;
-	var BOMB2;
-	var BOMB3;
-	var GLOVE;
-	var SAFE_PASS; // 5
-	var EXIT_PASS;
-	var CONFUSER_UNIT;
-	var PLATFORM_KEY;
-	var SECURO_KEY; 
-	var BRIDGE_SPELL; // 10
-	
-	var FLASH_BANG_SPELL;
-	var RELEASE_SPELL;
-	var DESTRUCT_SPELL; 
-	var SHORTENER_SPELL;
-}//---------------------------------------------------;
-
-
 class MapTiles
 {
 	
@@ -90,8 +67,8 @@ class MapTiles
 	public static var EDITOR_ENTITY(default, null):Map < EDITOR_TILE, Array<Int> > = [
 		ENEMY => [1,20],
 		PLAYER => [25, 1],
-		ANIM => [26, 6],
-		HAZARD => [29,1],	// Declare it again
+		ANIM => [26, 6],	// Animtiles will pused in <AnimatedTile.hx> and handled from there
+		HAZARD => [29,1],	// Hazard is already defined in "ANIM" but I need a separate decleration.
 		ITEM => [34, 12]
 	];
 	
@@ -104,6 +81,7 @@ class MapTiles
 	   From EDITOR_ENTITY.PNG index (the index used in TILED editor)
 	   => to {type , index} type is EDITOR_ENUM and index starts with 0
 	   , read from 'EDITOR_ENTITY' array
+	   e.g. GID:100 would translate to {GID:1,TYPE:ANIMATED_TILE}
 	   @param	gid As it is on the Tled Object GID
 	**/
 	   
@@ -119,7 +97,6 @@ class MapTiles
 				};
 			}
 		}
-		
 		throw 'ERROR. Editor Tile with gid $gid, IS NOT DEFINED';
 		return null;
 	}//---------------------------------------------------;
