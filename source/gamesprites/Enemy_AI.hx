@@ -157,6 +157,7 @@ class AI_Turret extends Enemy_AI
 		if ((_timer += elapsed) > Reg.P.en_turret_speed)
 		{
 			_timer = 0;
+			if (!Reg.st.player.alive) return;
 			Reg.st.BM.createAt(3, e.x + e.halfWidth, e.y + e.halfHeight, 0);
 			// <SOUND>
 		}

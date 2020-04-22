@@ -34,6 +34,7 @@ class StatePlay extends FlxState
 	public var map:MapFK;
 	
 	public var player:Player;
+	
 	public var ROOMSPR:RoomSprites;
 	public var PM:ParticleManager;
 	public var BM:BulletManager;
@@ -80,7 +81,7 @@ class StatePlay extends FlxState
 		
 		// : LAST :
 		// : load the level, logic will be auto-triggered 
-		map.load(Game.START_MAP);
+		map.loadMap(Game.START_MAP);
 		//map.load(D.assets.files.get(Reg.LEVELS[0]), true);
 		
 		// --
@@ -108,6 +109,16 @@ class StatePlay extends FlxState
 		
 		// Bullets->Enemies
 		FlxG.overlap(ROOMSPR.gr_enemy, BM, _overlap_enemy_bullet);
+		
+		
+		// -- End of loop checks
+		// DEV: I don't want to load a new map in the middle of an update
+		//      So I put it here, so everything has updated. New frame, new map.
+		if (EXITS.loadRequest!=null)
+		{
+			map.loadMap(EXITS.loadRequest);
+			EXITS.loadRequest = null;
+		}
 		
 	}//---------------------------------------------------;
 	
@@ -195,7 +206,10 @@ class StatePlay extends FlxState
 					player.spawn(sp.x, sp.y);	// Do this first thing, then the enemies, since some enemies rely on player pos
 					map.camera_teleport_to_room_containing(sp.x, sp.y);	// This will trigger enemy creation
 				}else{
-					// Scan for ENTRY points and teleport to the correct one
+					
+					// Search for an exit point?
+					// But which one?
+					
 					trace("NO PLAYER SPAWN POINT");
 				}
 				

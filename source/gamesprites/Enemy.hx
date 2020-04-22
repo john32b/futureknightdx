@@ -31,13 +31,16 @@ import flixel.FlxSprite;
 import gamesprites.Enemy_AI;
 
 
+// enum enemytype
+// normal, big, 
+
+
 class Enemy extends MapSprite
 {
 	// :: Some hard coded
 	static inline var ANIM_FPS = 8;
 	static inline var ANIM_FRAMES = 2; // Every enemy has 2 frames. In the future I could change it to 3 or 4
 	static inline var HURT_I_TIME = 0.1;	// Invinvibility time after being hurt
-	
 	
 	var ai:Enemy_AI;
 	var _spawnTimer:Float;	// Checked against <spawnTime> and when it triggers it respawns the enemy
@@ -133,7 +136,7 @@ class Enemy extends MapSprite
 		}else{
 			
 			//setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);
-			this.color = 0xFFedd446;
+			this.color = 0xFFedd446; /// TODO, other color or bitmap?
 			D.snd.play("hit_02");	/// TODO RANDOM 02,03,04
 			_hurtTimer = HURT_I_TIME;
 		}
@@ -157,6 +160,7 @@ class Enemy extends MapSprite
 	**/
 	function _explode()
 	{
+		/// todo, big bosses make another sound?
 		D.snd.playV("en_die");
 		
 		switch(_gfxtype)

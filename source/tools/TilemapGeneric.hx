@@ -76,8 +76,8 @@ class TilemapGeneric extends FlxGroup
 	/**
 	   - Camera is set to top-left, camera bounds are set
 	   - World Boundaries are set
-	   @param	s Asset to Load OR the xml data file
-	   @param asData, if you put the XML DATA set this to true
+	   @param s <Asset Path> or <XML Data as Text>.
+	   @param asData, if you pass XML DATA set this to True
 	**/
 	public function load(s:String, asData:Bool = false)
 	{

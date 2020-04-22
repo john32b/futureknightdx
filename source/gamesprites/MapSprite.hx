@@ -77,10 +77,6 @@ class MapSprite extends FlxSprite
 	**/
 	function spawn_origin_set(type:Int):Int
 	{
-		if (Std.is(this, AnimatedTile))
-		{
-			trace("OK");
-		}
 		// The top left tile of the 32tile in 8pixel tile dimensions
 		SPAWN_TILE = new SimpleCoords(Std.int(O.x / 32) * 4 , Std.int(O.y / 32) * 4);
 		

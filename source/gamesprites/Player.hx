@@ -59,6 +59,8 @@ class Player extends FlxSprite
 	static inline var I_TIME_REVIVE = 1.4;
 	static inline var I_TIME_HURT = 0.4;
 	
+	static inline var INTERACT_MIN_TIME = 300;	// Minimum time allowed to interact with an animated tile
+	
 	static inline var HEALTH_TICK = 0.05;	// Refresh life every this much
 	static inline var HEALTH_LOSS = 2;		// Loss per tick
 	
@@ -841,8 +843,8 @@ class Player extends FlxSprite
 				if (fsm.currentStateName != ONFLOOR) return;
 				if (D.ctrl.justPressed(UP)) 
 				{
-					if (FlxG.game.ticks - _interact_time <= 300) return;
-					_interact_time = FlxG.game.ticks;
+					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;
+						_interact_time = FlxG.game.ticks;
 					// ---
 					if (_idle_stage > 0) animation.play('idle');
 					_idle_stop();
@@ -854,9 +856,10 @@ class Player extends FlxSprite
 				if (fsm.currentStateName != ONFLOOR) return;
 				if (D.ctrl.justPressed(UP)) 
 				{
-					if (FlxG.game.ticks - _interact_time <= 300) return;
+					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;
 					_interact_time = FlxG.game.ticks;
-					Game.exit_activate(B);
+					// > This will check if exit is locked etc, also will unlock and go to the new map.
+					Reg.st.EXITS.activate(B);	
 				}
 			case _:
 		}

@@ -66,7 +66,6 @@ class RoomSprites extends FlxGroup
 	{
 		var data = MapTiles.translateEditorEntity(en.gid);
 		var s:MapSprite;
-		
 		switch(data.type)
 		{
 			case EDITOR_TILE.ITEM:

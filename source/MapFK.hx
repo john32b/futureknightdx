@@ -43,6 +43,7 @@ import flixel.tweens.FlxTween;
 import flixel.tweens.misc.VarTween;
 
 
+
 enum MapEvent 
 {
 	scrollStart;
@@ -59,6 +60,8 @@ class MapFK extends TilemapGeneric
 	static inline var MAP_FOREST = 1;
 	static inline var MAP_CASTLE = 2;
 	static inline var TILE_SIZE = 8;
+	static inline var MAP_PATH = "assets/maps/";
+	static inline var MAP_EXT = ".tmx";
 	
 	// The layer names as declared in TILED 
 	static inline var LAYER_BG 			= 'Background';
@@ -93,6 +96,7 @@ class MapFK extends TilemapGeneric
 	public var roomCornerPixel(default, null):SimpleCoords;
 	
 	// Pixel Coordinates of the player
+	// Can be null if the current map does not have a start point
 	public var PLAYER_SPAWN(default, null):SimpleCoords;
 	
 	var tweenCamera:VarTween;
@@ -100,6 +104,11 @@ class MapFK extends TilemapGeneric
 	// Set this to load the appropriate BG+FG Tiles
 	var MAP_TYPE = 0;
 	var MAP_NAME = "";
+	
+	// Copy of all the exits in the current map
+	// ExitName->TiledObject
+	public var EXITS:Map<String,TiledObject>;
+		
 	//====================================================;
 	
 	public function new() 
@@ -120,11 +129,50 @@ class MapFK extends TilemapGeneric
 			object_tiles_to_center_points:true
 		}
 	}//---------------------------------------------------;
+
+	
+	/** This is the one you should call when loading a level
+	 @param DATA "A:B" 
+		A , Not a full asset, but rather the shortname of the map file. e.g. "level_02"
+		B , exitName If Defined will spawn player to that exit. Else a spawnpoint should be set
+	 */
+	public function loadMap(DATA:String)
+	{
+		var d = DATA.split(':');
+		// e.g. "level_02:B"
+		// d[0] = Map short name
+		// d[1] = Exit name
+	
+		load(MAP_PATH + d[0] + MAP_EXT);
+		
+		if (d[1] != null)
+		{
+			var exit = EXITS.get(d[1]);
+			#if debug
+			if (exit == null) throw 'Exit Name : ${d[1]} does not exist in Map ${d[0]}';
+			#end
+			PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
+		}else
+		{
+			#if debug
+			if (PLAYER_SPAWN == null) throw 'Forgot to specify a player spawn point';
+			#end
+		}
+		
+		// -- Notify user, that the map is ready
+		onEvent(MapEvent.loadMap);
+	}//---------------------------------------------------;
 	
 
-	override public function load(S:String, asData:Bool = false) 
+	
+	/** Don't call this from main, use loadLevel(),
+	    Call this directly when you want to load a map array (debugging)
+		! NOTE !
+		- Does not call `onEvent(MapEvent.loadMap)` need to call it later
+	 */
+	@:noCompletion
+	override public function load(S:String, asData:Bool = false)
 	{
-		// :: Init:
 		// It was scrolling -- not supposed to -- but check anyway
 		if (tweenCamera != null) {tweenCamera.cancel(); tweenCamera = null; }	
 		
@@ -150,13 +198,8 @@ class MapFK extends TilemapGeneric
 		// -- Init POST things,
 		roomTotal.set(Math.floor(T.mapW / ROOM_TILE_WIDTH), Math.floor(T.mapH / ROOM_TILE_HEIGHT));
 		roomCurrent.set( -1, -1);	// -1 allows it to be inited later when requested to go to 0,0
-		
-		onEvent(MapEvent.loadMap);	// DEV: Purpose is for user to de-init all entities
-		
-		// DEV:
-		// loadMap-> User should check for PLAYER spawn or EXIT POINTS and move camera
-		
-		// INFO and DEV CHECKS ------
+
+		// -- INFO and DEV CHECKS
 		#if debug
 			if (!asData) trace(' -- Loaded Map "$S"');
 			trace(' TYPE: $MAP_TYPE, NAME: $MAP_NAME');
@@ -169,7 +212,6 @@ class MapFK extends TilemapGeneric
 	
 	
 	// -- Call this to push to user
-	/// TODO: Check for deleted entities (items) and not include those
 	function roomcurrent_pushEntities()
 	{
 		// Get ALL tiles from this area
@@ -289,7 +331,7 @@ class MapFK extends TilemapGeneric
 		//  - This is done for easier map designing?
 		//  - IMPORTANT Requires hazard tiles to be in x4 groups
 		var data = T.getLayer(LAYER_PLATFORM);
-		var hazardIndex = MapTiles.TILE_COL[MAP_TYPE][HAZARDTILE][0];
+		var hazardIndex = MapTiles.TILE_COL[MAP_TYPE][HAZARD][0];
 		var i = 0;
 		while (i < data.length)
 		{
@@ -300,7 +342,7 @@ class MapFK extends TilemapGeneric
 					x:coords.x * T.tileW,
 					y:coords.y * T.tileH,
 					id:hazardIndex,	// This does not matter right now. So I am putting whatever
-					gid:MapTiles.EDITOR_ENTITY[HAZARD][0]
+					gid:MapTiles.EDITOR_HAZARD
 				});
 				// Delete the actual tiles
 				// DEV: This is fine since the map is read left to right
@@ -321,15 +363,19 @@ class MapFK extends TilemapGeneric
 	function _scanProcessEntities()
 	{
 		PLAYER_SPAWN = null;
-		var player_gid = MapTiles.EDITOR_ENTITY[PLAYER][0];
+		EXITS = [];
+		
 		for (i in T.getObjLayer(LAYER_ENTITIES))
 		{
-			if (i.gid == player_gid)
+			if (i.gid == MapTiles.EDITOR_ENTITY[PLAYER][0]) // the player GID
 			{
 				PLAYER_SPAWN = new SimpleCoords(cast i.x, cast i.y);
-				break;	// no need to scan for anything else
-			}
+			}else
 			
+			if (i.gid == MapTiles.EDITOR_EXIT)
+			{
+				EXITS.set(i.name, i);
+			}
 		}
 	}//---------------------------------------------------;
 		

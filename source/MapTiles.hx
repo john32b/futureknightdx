@@ -14,7 +14,7 @@ enum FG_TILE_TYPE {
 	SLIDE_RIGHT;
 	LADDER;
 	LADDER_TOP;
-	HAZARDTILE;
+	HAZARD;
 }
 
 
@@ -23,8 +23,7 @@ enum EDITOR_TILE {
 	PLAYER;
 	ENEMY;
 	ITEM;
-	ANIM;
-	HAZARD;
+	ANIM;	// > This has sub ids. Specifics defined in <AnimatedTile.hx>
 }
 
 
@@ -44,7 +43,7 @@ class MapTiles
 			SOFT => [21, 4],
 			LADDER_TOP => [26, 2],
 			LADDER => [28, 2],
-			HAZARDTILE => [30, 1]
+			HAZARD => [30, 1]
 		],
 		
 		// TYPE (1) : FOREST
@@ -54,8 +53,9 @@ class MapTiles
 			SLIDE_RIGHT => [1, 1],
 			LADDER => [1, 1],
 			LADDER_TOP => [1, 1],
-			HAZARDTILE => [-1]	// no hazard tiles there
+			HAZARD => [-1]	// no hazard tiles there
 		]
+		
 		// TYPE (2) : CASTLE
 	];
 	
@@ -68,13 +68,15 @@ class MapTiles
 		ENEMY => [1,20],
 		PLAYER => [25, 1],
 		ANIM => [26, 6],	// Animtiles will pused in <AnimatedTile.hx> and handled from there
-		HAZARD => [29,1],	// Hazard is already defined in "ANIM" but I need a separate decleration.
 		ITEM => [34, 12]
 	];
 	
 	
 	
-	//====================================================;
+	// Also declare these for easy access.
+	// ^ they are included in `EDUTOR_ENTITY` but I need it here as well
+	public static var EDITOR_HAZARD = 29;
+	public static var EDITOR_EXIT   = 26;
 	
 	
 	/**

@@ -9,16 +9,12 @@
 
 package;
 
-import djA.DataT;
-import gamesprites.AnimatedTile;
-import gamesprites.Player;
 import gamesprites.Item.ITEM_TYPE;
-import haxe.EnumTools;
-
 
 class Game 
 {
-	public static var START_MAP = 'assets/maps/level_01.tmx';
+	// This is the first level that a new game will start with
+	public static var START_MAP = 'level_01';
 	
 	// Note: BOMB1,BOMB2,BOMB3, all will get the data key => BOMB
 	// Icon Number is what <hud_items.png> index - 4
@@ -43,35 +39,6 @@ class Game
 	];
 	
 	
-	public static function init()
-	{
-	}//---------------------------------------------------;
 	
-	
-	// -- This exit has all the data I need to know
-	// Called from player, pressing up an any exit
-	static public function exit_activate(e:AnimatedTile)
-	{
-		trace("-- Activating Exit --");
-		
-		var locked = e.type.getParameters()[0];
-		if (locked)
-		{
-			var d = cast(e.O.prop.req, String).split(':');
-			if (d[0].toLowerCase() == "item")
-			{
-				trace("Needs item", EnumTools.createByName(ITEM_TYPE, d[1]));
-			}
-			// play sound
-			// message on what it requires to unlok
-		}else
-		{
-			var d = cast(e.O.prop.goto, String).split(':');
-			//d[0] is level id, d[1] is exit ID to spawn player
-			trace("OK. WILL GOTO :: ", d);
-		}
-		
-		
-	}//---------------------------------------------------;
 	
 }// --

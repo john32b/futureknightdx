@@ -127,6 +127,8 @@ class Reg
 		static var _dtimes:Int = 0; // Asset loaded times
 
 	
+		
+		
 	// Quickly add the monitor border. And set it to be drawn at one camera only
 	public static function add_border():FlxSprite
 	{
@@ -139,17 +141,15 @@ class Reg
 		return a;
 	}//---------------------------------------------------;
 	
-	// TODO:
+	
+	
+	// -- TODO :
 	public static function checkProtection():Bool
 	{
 		return true;
 		// !Reg.api.isURLAllowed()
 	}//---------------------------------------------------;
 	
-	
-	
-	
-	//====================================================;
 	
 	
 }//--

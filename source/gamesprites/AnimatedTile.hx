@@ -14,9 +14,6 @@ enum AnimTileType
 }
 
 
-/**
- * ...
- */
 class AnimatedTile extends MapSprite
 {
 	public var type(default, null):AnimTileType;
@@ -52,7 +49,6 @@ class AnimatedTile extends MapSprite
 				offset.set(0, 8);
 				setSize(32, 16);
 				spawn_origin_set(1);
-				// TODO: Is the exit locked
 			case 2, 3:
 				anim = "_WEAPON_" + gid;
 				type = AnimTileType.WEAPON(gid - 1);	// id2=>1, id3=>2

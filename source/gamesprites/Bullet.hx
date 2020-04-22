@@ -16,7 +16,6 @@ import flixel.math.FlxAngle;
 import gamesprites.Player;
 
 
-
 typedef BulletType = {
 	 anim:String,
 	 damage:Int,	
