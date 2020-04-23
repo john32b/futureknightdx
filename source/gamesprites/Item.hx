@@ -22,6 +22,7 @@ import haxe.EnumTools;
 
 // This is ALSO the itemID as it is on the EDITOR
 // Item ID = FRAME = EDITORID
+// This enum is to be set on the tiled map as exit requirements
 enum ITEM_TYPE
 {
 	NONE; // 0
@@ -74,7 +75,7 @@ class Item extends MapSprite
 	**/   
 	public function killExtra()
 	{
-		Reg.st.map.killObject(O);
+		Reg.st.map.killObject(O, true);
 		kill();
 	}//---------------------------------------------------;
 	

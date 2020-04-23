@@ -10,6 +10,9 @@
 	- Offers some tile checks functions to be used from Sprites
 	
 	
+	- EXIT HANDLER 
+		. handle exits
+	
 	DEBUG:
 	========
 	
@@ -24,16 +27,19 @@ package;
 
 import MapTiles.FG_TILE_TYPE;
 import MapTiles.EDITOR_TILE;
-import flixel.FlxSprite;
+
+import gamesprites.Item.ITEM_TYPE;
+import gamesprites.AnimatedTile;
+import gamesprites.Player;
 
 import tools.TilemapGeneric;
-import gamesprites.Player;
 
 import djA.types.SimpleCoords;
 import djfl.util.TiledMap.TiledObject;
 import djFlixel.D;
 import djFlixel.core.Dcontrols.DButton;
 
+import flixel.FlxSprite;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -42,6 +48,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.tweens.misc.VarTween;
 
+import haxe.EnumTools;
 
 
 enum MapEvent 
@@ -104,11 +111,17 @@ class MapFK extends TilemapGeneric
 	// Set this to load the appropriate BG+FG Tiles
 	var MAP_TYPE = 0;
 	var MAP_NAME = "";
+	var MAP_FILE = "";	// The short name of the loaded map. e.g. "level_01"
 	
-	// Copy of all the exits in the current map
+	// Pointer? of all the exit TileObjects in this map
 	// ExitName->TiledObject
 	public var EXITS:Map<String,TiledObject>;
-		
+	
+	// All unlocked exits throughout the game
+	// < "LEVEL:EXIT_NAME" >
+	public var GLOBAL_EXITS_UNLOCKED:Array<String>;
+	
+	
 	//====================================================;
 	
 	public function new() 
@@ -128,6 +141,8 @@ class MapFK extends TilemapGeneric
 		_tiledParams = {
 			object_tiles_to_center_points:true
 		}
+		
+		GLOBAL_EXITS_UNLOCKED = [];
 	}//---------------------------------------------------;
 
 	
@@ -143,7 +158,8 @@ class MapFK extends TilemapGeneric
 		// d[0] = Map short name
 		// d[1] = Exit name
 	
-		load(MAP_PATH + d[0] + MAP_EXT);
+		MAP_FILE = d[0];
+		load(MAP_PATH + MAP_FILE + MAP_EXT);
 		
 		if (d[1] != null)
 		{
@@ -162,7 +178,6 @@ class MapFK extends TilemapGeneric
 		// -- Notify user, that the map is ready
 		onEvent(MapEvent.loadMap);
 	}//---------------------------------------------------;
-	
 
 	
 	/** Don't call this from main, use loadLevel(),
@@ -201,12 +216,13 @@ class MapFK extends TilemapGeneric
 
 		// -- INFO and DEV CHECKS
 		#if debug
-			if (!asData) trace(' -- Loaded Map "$S"');
-			trace(' TYPE: $MAP_TYPE, NAME: $MAP_NAME');
+			if (!asData) 
+			trace(' === Loaded Map : "$S"');
+			trace(' . TYPE: $MAP_TYPE, NAME: $MAP_NAME');
 			trace(' . MAP : Rooms Total ' , roomTotal);
 			trace(' . MAP : Rooms Current ' , roomCurrent);
-			T.debug_info();
-			trace('-------------------------------');
+			//T.debug_info();
+			trace('--------------------------------------');
 		#end
 	}//---------------------------------------------------;
 	
@@ -331,7 +347,7 @@ class MapFK extends TilemapGeneric
 		//  - This is done for easier map designing?
 		//  - IMPORTANT Requires hazard tiles to be in x4 groups
 		var data = T.getLayer(LAYER_PLATFORM);
-		var hazardIndex = MapTiles.TILE_COL[MAP_TYPE][HAZARD][0];
+		var hazardIndex = MapTiles.TILE_COL[MAP_TYPE][HAZARD_TILE][0];
 		var i = 0;
 		while (i < data.length)
 		{
@@ -535,6 +551,82 @@ class MapFK extends TilemapGeneric
 		return layers[COLLISION_LAYER].getTile(Std.int(X / T.tileW), Std.int(Y / T.tileH));
 	}//---------------------------------------------------;
 	
+	
+	
+	// -- Called by an exit when it is spawned
+	public function exit_isLocked(o:TiledObject):Bool
+	{
+		if (o.prop == null) throw "Exit should have properties defined";
+		
+		if (o.prop.req == null || o.prop.req == "") return false;
+		
+		//trace("Checking exit against GLOBAL_EXITS_UNLOCKED");
+		//trace(o, GLOBAL_EXITS_UNLOCKED);
+		if (GLOBAL_EXITS_UNLOCKED.indexOf(get_exit_uid(o)) >= 0)
+		{
+			trace("Exit was unlocked from the globals , OK");
+			return false;
+		}
+		
+		return true;
+	}//---------------------------------------------------;
+	
+	
+	
+	// - Called from player, pressing up an any exit
+	// Note: The animatedTile, has all the data I need to know
+	public function exit_activate(e:AnimatedTile)
+	{
+		trace("-- Activating Exit --", e.type);
+		
+		var locked = e.type.getParameters()[0];
+
+		if (locked)
+		{
+			// Check Requirements: 
+			var d = cast(e.O.prop.req, String).split(':');
+			switch(d)
+			{
+				case ["item", _ ] :
+					var item = EnumTools.createByName(ITEM_TYPE, d[1]);
+					if (Reg.st.HUD.equipped_item == item)
+					{
+						GLOBAL_EXITS_UNLOCKED.push(get_exit_uid(e.O));
+						trace("YOU HAVE THE ITEM. EXIT UNLOCK KNOW", GLOBAL_EXITS_UNLOCKED);
+						// Do not return, it will unlock the exit later ->
+						
+						// Remove the currently selected
+						Reg.st.HUD.item_pickup(null);
+						Reg.st.INV.removeItemWithID(item);
+						
+					}else{
+						Reg.st.HUD.set_text("Needs item " + item, true, 3);
+						return;
+					}
+					
+				case _: trace("Error: Syntax Error", d); return;
+			}
+		}// -- (locked)
+		
+		
+		// :: GOTO EXIT TARGET 
+		
+		FlxG.signals.postUpdate.addOnce(()->{
+			loadMap(e.O.prop.goto);
+		});
+		
+	}//---------------------------------------------------;
+	
+	
+	
+	
+	
+	// Get a string id of an exit in this map
+	// USED IN: GLOBAL_EXITS_UNLOCKED []
+	function get_exit_uid(e:TiledObject)
+	{
+		return MAP_FILE + ':' + e.name;
+	}//---------------------------------------------------;
 	
 	
 	

@@ -31,10 +31,6 @@ import flixel.FlxSprite;
 import gamesprites.Enemy_AI;
 
 
-// enum enemytype
-// normal, big, 
-
-
 class Enemy extends MapSprite
 {
 	// :: Some hard coded
@@ -43,8 +39,8 @@ class Enemy extends MapSprite
 	static inline var HURT_I_TIME = 0.1;	// Invinvibility time after being hurt
 	
 	var ai:Enemy_AI;
-	var _spawnTimer:Float;	// Checked against <spawnTime> and when it triggers it respawns the enemy
 	var spawnTime:Float;
+	var _spawnTimer:Float;	// Checked against <spawnTime> and when it triggers it respawns the enemy
 	
 	// Precalculated to avoid width/2 all the time.
 	public var halfWidth:Int = 0;

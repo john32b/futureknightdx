@@ -26,13 +26,10 @@ class StateTest extends FlxState
 	//var trophy:TrophyPopup;
 	//var list:VList<ITEMTEST,Int>;
 	
-	var INV:Inventory;
-
 	override public function update(elapsed:Float):Void 
 	{
 		super.update(elapsed);
 		if (FlxG.keys.justPressed.ENTER) {
-			INV.toggle();
 		}
 		
 		if (FlxG.keys.justPressed.I){
@@ -46,14 +43,6 @@ class StateTest extends FlxState
 	{
 		super.create();
 		
-		INV = new Inventory();
-		INV.onItemSelect = (it)->{
-			INV.removeItemWithID(it);
-			INV.sortItems();
-		}
-		add(INV);
-		return;
-		
 		//
 		//var stars:StarfieldSimple = new StarfieldSimple();
 		//stars.color_bg = 0xFF76428a;
@@ -62,7 +51,7 @@ class StateTest extends FlxState
 		//
 		//trophy = new TrophyPopup(64, 64);
 		//add(trophy);
-		bgColor = Pal_DB32.COL_15;
+		//bgColor = Pal_DB32.COL_15;
 		
 		
 		//var c = new FlxSprite(X, Y, new BitmapData(100, 100, true, 0xFF005566));
@@ -134,14 +123,14 @@ class StateTest extends FlxState
 	 		
 		var menu = new FlxMenu(43, 80, 100, 10);
 		Reg.INI.getObj("style1", menu.stL);
-		//menu.PARAMS.page_anim_parallel = true;
+		menu.PARAMS.page_anim_parallel = true;
 		menu.stHeader = {
 			s:16
 		};
 	
-		menu.stI.text.f = "assets/amstrad.ttf";
+		//menu.stI.text.f = "assets/amstrad.ttf";
 		
-		menu.createPage("main","-M-").addM([
+		menu.createPage("main","- MAIN -").addM([
 			"New Game|link|new_game",
 			"Options|link|@options",	// Goto another page
 			"Help|link|help",
@@ -154,7 +143,9 @@ class StateTest extends FlxState
 			"Graphic Style|list|list=old,new",
 			"Back|link|@back"
 		]);
+		
 		menu.onItemEvent = (a, b)->{
+			
 			trace("MENU EVENT", a, b);
 			
 			if (a == fire){
@@ -213,17 +204,17 @@ class StateTest extends FlxState
 		slides.finalize();
 		slides.setArrows(8, 20, 100, 200);
 		
-		//slides.goto(0);
-		//slides.onEvent = cast Log.trace;
+		slides.goto(0);
+		slides.onEvent = cast Log.trace;
 		//add(slides);
 		
 		
 		// >>>>>>
 		
-			var A = new AnimatedTile();
-				A.setPosition(32, 32);
-				A.animation.play("_HAZARD");
-				add(A);
+			//var A = new AnimatedTile();
+				//A.setPosition(32, 32);
+				//A.animation.play("_HAZARD");
+				//add(A);
 		
 		// >>>>> Uiindicators
 		

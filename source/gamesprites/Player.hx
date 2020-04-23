@@ -5,6 +5,11 @@
   - Tries to emulate the original game but with some improvements
   
   
+  = NOTES:
+	- Invincinble when flickering
+	
+
+  
   = Changes from the CPC version
 	- Moves a bit faster
 	- Can move while on air
@@ -384,6 +389,10 @@ class Player extends FlxSprite
 					animation.play('fallstun');
 					physics_stop();
 					D.snd.playV(snd.hurt);
+					// HACK: I want the damage to happen even if player flickers
+					//       e.g. just hit by a bullet before landing
+					FlxFlicker.stopFlickering(this);
+
 					hurt(Reg.P_DAM.player_fall_damage);
 					_shoot_allow = false;
 					fsm.goto(STUNNED);
@@ -435,7 +444,7 @@ class Player extends FlxSprite
 	
 	function state_onfloor_enter()
 	{
-		_sndTick = SOUND_TICK_WALK * 0.8;	// Don't wait a fill TICK to make the sound
+		_sndTick = SOUND_TICK_WALK * 0.8;	// Don't wait a fill TICK to make the sound. It sounds better this way.
 		isFalling = false;
 		animation.play("idle");
 		_walkBlockDir = -1;
@@ -471,7 +480,7 @@ class Player extends FlxSprite
 		}
 		
 		// :: UPDATE
-		if (!isTouching(FlxObject.FLOOR)) // Was the player walked off a platform?
+		if (!isTouching(FlxObject.FLOOR)) // Has the player walked off a platform?
 		{
 			_verticalJump = true;
 			velocity.x = 0;	// drop flat
@@ -669,6 +678,9 @@ class Player extends FlxSprite
 	
 	override public function hurt(Damage:Float):Void 
 	{
+		if (!alive) return;	// e.g. a bullet hits the player on dying animation
+		if (FlxFlicker.isFlickering(this)) return;
+		
 		health -= Damage;
 		D.snd.playV(snd.hurt);
 		
@@ -859,7 +871,7 @@ class Player extends FlxSprite
 					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;
 					_interact_time = FlxG.game.ticks;
 					// > This will check if exit is locked etc, also will unlock and go to the new map.
-					Reg.st.EXITS.activate(B);	
+					Reg.st.map.exit_activate(B);
 				}
 			case _:
 		}
@@ -890,6 +902,7 @@ class Player extends FlxSprite
 		x = (tx * 8);
 		y = (ty * 8) - height + SLIDE_MOUNT_PIXELS_Y_ON;
 		
+		// Find where the slide ends, (tx,ty) now are the empty tile
 		var t = 0;
 		do{
 			tx += xdir;

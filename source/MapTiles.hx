@@ -1,8 +1,19 @@
 
-/**
+/** --------------------------------------------------------
 	Editor Tiles Infos
 	- Describe the tile Indexes that come from the TILED MAPS.
-**/
+	
+   == TILED EXIT PROPERTIES
+
+		-name , is just an ID
+		-goto, where to go "mapname,ID"
+		req, requirements to unlock, "item:ITEM_ENUM"
+		e.g.
+		- name = A
+		- prop.goto = "level_03:B"
+		- prot.req = "item:EXIT_PASS"
+		
+-------------------------------------------------------- */
 
 
 package;
@@ -14,7 +25,7 @@ enum FG_TILE_TYPE {
 	SLIDE_RIGHT;
 	LADDER;
 	LADDER_TOP;
-	HAZARD;
+	HAZARD_TILE;
 }
 
 
@@ -25,6 +36,10 @@ enum EDITOR_TILE {
 	ITEM;
 	ANIM;	// > This has sub ids. Specifics defined in <AnimatedTile.hx>
 }
+
+
+
+
 
 
 class MapTiles
@@ -43,7 +58,7 @@ class MapTiles
 			SOFT => [21, 4],
 			LADDER_TOP => [26, 2],
 			LADDER => [28, 2],
-			HAZARD => [30, 1]
+			HAZARD_TILE => [30, 1]
 		],
 		
 		// TYPE (1) : FOREST
@@ -53,7 +68,7 @@ class MapTiles
 			SLIDE_RIGHT => [1, 1],
 			LADDER => [1, 1],
 			LADDER_TOP => [1, 1],
-			HAZARD => [-1]	// no hazard tiles there
+			HAZARD_TILE => [-1]	// no hazard tiles there
 		]
 		
 		// TYPE (2) : CASTLE
@@ -70,7 +85,6 @@ class MapTiles
 		ANIM => [26, 6],	// Animtiles will pused in <AnimatedTile.hx> and handled from there
 		ITEM => [34, 12]
 	];
-	
 	
 	
 	// Also declare these for easy access.

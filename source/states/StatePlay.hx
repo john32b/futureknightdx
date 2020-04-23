@@ -40,7 +40,6 @@ class StatePlay extends FlxState
 	public var BM:BulletManager;
 	public var INV:Inventory;
 	public var HUD:Hud;
-	public var EXITS:ExitManager;
 	
 	var menu:FlxMenu;
 	
@@ -62,8 +61,6 @@ class StatePlay extends FlxState
 			INV.onOpen = pause;
 			INV.onItemSelect = on_inventory_select;
 
-		EXITS = new ExitManager();
-			
 		map.onEvent = event_map_handler;
 		
 		// :: Ordering
@@ -109,17 +106,7 @@ class StatePlay extends FlxState
 		
 		// Bullets->Enemies
 		FlxG.overlap(ROOMSPR.gr_enemy, BM, _overlap_enemy_bullet);
-		
-		
-		// -- End of loop checks
-		// DEV: I don't want to load a new map in the middle of an update
-		//      So I put it here, so everything has updated. New frame, new map.
-		if (EXITS.loadRequest!=null)
-		{
-			map.loadMap(EXITS.loadRequest);
-			EXITS.loadRequest = null;
-		}
-		
+
 	}//---------------------------------------------------;
 	
 	

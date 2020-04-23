@@ -21,7 +21,7 @@ class Debug
 	public function pl_kill()
 	{
 		Reg.st.player.health = 0;
-		@:privateAccess Reg.st.player.healthSlow = 50;
+		@:privateAccess Reg.st.player.healthSlow = 2;
 		FlxG.log.notice('Player Heath = 0');
 	}//---------------------------------------------------;
 	
@@ -38,5 +38,11 @@ class Debug
 		FlxG.log.notice('Adding item $i');
 	}//---------------------------------------------------;
 	
+	
+	public function info_1()
+	{
+		// show info on all game groups,
+		//
+	}//---------------------------------------------------;
 	
 }// --

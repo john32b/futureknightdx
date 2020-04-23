@@ -43,7 +43,7 @@ class AnimatedTile extends MapSprite
 		{
 			case 1:
 				// NOW it is the time to figure out whether this EXIT is locked or not
-				var locked = Reg.st.EXITS.isLocked(o);
+				var locked = Reg.st.map.exit_isLocked(o);
 				type = AnimTileType.EXIT(locked);
 				anim = "_EXIT" + (locked?"_LOCK":"");
 				offset.set(0, 8);

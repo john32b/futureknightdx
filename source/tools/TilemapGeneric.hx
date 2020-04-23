@@ -2,9 +2,10 @@
  == Generic TileMap
  --------------------
  
- - Loads and handles `TILED` maps
- - Basic cameras and TiledObject load functions
  - MUST BE EXTENDED !!!
+ - Loads and handles `TILED` maps
+ - Basic cameras and TiledObject load functions 
+ - Keeps track of "KILLED" TiledObjects, so <get_objectTilesAt()> will not push them again to user
  
  CAMERA TIP:
  ----------
@@ -53,9 +54,16 @@ class TilemapGeneric extends FlxGroup
 	// Set this on the extended object
 	var _tiledParams:Dynamic;
 	
-	// Killed Objects. Entities here will not return process on'get_objectTilesAt'
-	// Declare an object as killed with killObject()
-	var _killed:Array<TiledObject>;
+	// Killed Objects. Entities here will not return process on 'get_objectTilesAt'
+	// Use with "killObject()"
+	// DEV: All object layer objects go here. Array[object.id]
+	var _killed:Array<Int>;
+	
+	// Globally Killed Objects.
+	// Keeps the _killed objects across loading maps
+	// When loading maps, <_killed> will be constructed with this data
+	// Format Stored = "assetmap::object.ID" e.g. "level01.tmx:";
+	var _killed_global:Array<String>;
 	
 	public function new(numLayers:Int = 1)
 	{
@@ -69,6 +77,8 @@ class TilemapGeneric extends FlxGroup
 		}
 		
 		COLLISION_LAYER = layers.length - 1;
+		
+		_killed_global = [];
 		
 	}//---------------------------------------------------;
 
@@ -91,6 +101,15 @@ class TilemapGeneric extends FlxGroup
 		
 		_killed = [];
 		
+		// -- Check for global kills and store 
+		if (T.assetLoaded != null) // In case user loads a dynamic map?? Dynamic maps don't have an asset name
+		for (i in _killed_global) {
+			if (i.indexOf(T.assetLoaded) == 0){
+				var d = i.split(":");
+				_killed.push(Std.parseInt(d[1]));
+			}
+		}
+		
 		width = T.mapW * T.tileW;
 		height = T.mapH * T.tileH;
 		
@@ -107,11 +126,26 @@ class TilemapGeneric extends FlxGroup
 		camera.setScrollBoundsRect(0, 0, width, height);
 	}//---------------------------------------------------;
 	
-	
-	public function killObject(o:TiledObject)
+	/**
+	   Flag an object as "killed" so in the next "get_objectTiles" function it
+	   will not get passed to the array.
+	   
+	   @param	o The Object to kill
+	   @param	global If TRUE, then it will stay killed in all map loads. False will only stay dead until map is reloaded
+	**/
+	public function killObject(o:TiledObject, global:Bool = false)
 	{
-		if (_killed.indexOf(o) ==-1)
-			_killed.push(o);
+		if (_killed.indexOf(o.id) == -1)
+		{
+			_killed.push(o.id);
+			
+			if (global)
+			{
+				var id = T.assetLoaded + ":" + o.id;
+				_killed_global.push(id);
+			}
+		}
+			
 	}//---------------------------------------------------;
 	
 	
@@ -127,7 +161,7 @@ class TilemapGeneric extends FlxGroup
 		var list:Array<TiledObject> = [];
 		for (i in T.getObjLayer(id)) 
 		{
-			if (_killed.indexOf(i) >= 0) {
+			if (_killed.indexOf(i.id) >= 0) {
 				continue;
 			}
 			

@@ -9,6 +9,7 @@ class Main extends Sprite
 	inline static var FPS = 40;
 	//inline static var START_STATE = StateTest;
 	//inline static var START_STATE = states.StateGameover;
+	//inline static var START_STATE = states.StateTest;
 	inline static var START_STATE = states.StatePlay;
 	
 	public function new() 
