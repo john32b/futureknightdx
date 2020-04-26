@@ -55,7 +55,7 @@ class ImageAssets
 	
 	
 	//var cache:Map<String,BitmapData>;
-	
+		
 	// These colors are read from the source image and replaces
 	// with custom colors in getBitmap()
 	var TEMPLATE_COLORS:Array<Int> = [
@@ -82,6 +82,8 @@ class ImageAssets
 		sprite.loadGraphic(getbitmap(d.im, d.col?1:0), true, d.tw, d.th);
 	}//---------------------------------------------------;
 	
+	// --
+	// Quickly get a sprite with a tileset loaded at current frame
 	public function getSprite(X:Float = 0, Y:Float = 0, name:String, frame:Int = 1)
 	{
 		var S = new FlxSprite(X, Y);

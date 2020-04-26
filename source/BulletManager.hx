@@ -96,7 +96,7 @@ class BulletManager extends FlxGroup
 			for (b in this)
 			{
 				if(b.alive)
-					Reg.st.map.layers[1].overlapsWithCallback(cast b, cast _collideMap);
+					Reg.st.map.layerCol().overlapsWithCallback(cast b, cast _collideMap);
 			}
 		}
 	}//---------------------------------------------------;

@@ -174,7 +174,7 @@ class TilemapGeneric extends FlxGroup
 	
 	
 	/** Convert world pixel coords to tile coords */
-	public function getTileCoordsFromP(x:Float, y:Float)
+	public function getTileCoordsFromP(x:Float, y:Float):{x:Int, y:Int}
 	{
 		return { x:Std.int(x / T.tileW), y:Std.int(y / T.tileH) };
 	}//---------------------------------------------------;
@@ -192,6 +192,12 @@ class TilemapGeneric extends FlxGroup
 		return getCol(Std.int(x / T.tileW), Std.int(y / T.tileH));
 	}//---------------------------------------------------;
 	
+	/** Quickly get the collision layer itself */
+	inline public function layerCol():FlxTilemap
+	{
+		return layers[COLLISION_LAYER];
+	}//---------------------------------------------------;
+	
 	/**  
 	   Convert map serial to (x,y)
 	   The TiledMAP needs to have been loaded */
@@ -200,4 +206,5 @@ class TilemapGeneric extends FlxGroup
 		return {x:i % T.mapW, y:Std.int(i / T.mapW)};
 	}//---------------------------------------------------;
 	
+
 }// --

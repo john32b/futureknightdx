@@ -83,7 +83,7 @@ class MapTiles
 		ENEMY => [1,20],
 		PLAYER => [25, 1],
 		ANIM => [26, 6],	// Animtiles will pused in <AnimatedTile.hx> and handled from there
-		ITEM => [34, 12]
+		ITEM => [34, 14]
 	];
 	
 	
@@ -113,7 +113,6 @@ class MapTiles
 				};
 			}
 		}
-		throw 'ERROR. Editor Tile with gid $gid, IS NOT DEFINED';
 		return null;
 	}//---------------------------------------------------;
 	

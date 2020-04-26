@@ -231,12 +231,12 @@ class Hud extends FlxGroup
 		el_bullet.animation.frameIndex = i;
 	}//---------------------------------------------------;
 	
-	// Actual frame value in <huditems.png>
-	// Starting from 1, values (1-10). 0 to remove item
+	// Actual Frame icon in "hud_items.png" Starting from 1
+	// Look it up with aseprite 
 	public function set_item_icon(i:Int = 0)
 	{
 		el_item.visible = (i > 0);
-		el_item.animation.frameIndex = i + 3;
+		el_item.animation.frameIndex = i - 1;
 	}//---------------------------------------------------;
 	
 	// The text will be padded to 6 digits

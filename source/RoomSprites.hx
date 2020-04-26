@@ -65,6 +65,14 @@ class RoomSprites extends FlxGroup
 	public function spawn(en:TiledObject)
 	{
 		var data = MapTiles.translateEditorEntity(en.gid);
+	
+		if (data == null)
+		{
+			trace("Error: No Entity Data for ", en);
+			trace("CHECK YOUR MAP IN THE EDITOR FOR EMPTY ENTITIES");
+			return;
+		}
+		
 		var s:MapSprite;
 		switch(data.type)
 		{

@@ -350,7 +350,7 @@ class Player extends FlxSprite
 	{
 		// NOTE : Collide Check NEEDS to be before anything else here for it to work
 		// DEV  : This will trigger all tile-callbacks, including TRIGGER_SLIDE
-		FlxG.collide(this, Reg.st.map.layers[1]);
+		FlxG.collide(this, Reg.st.map.layerCol());
 		
 		if (_hack_break) { // (exit if some collide/overlap functions occur)
 			_hack_break = false;
@@ -472,7 +472,7 @@ class Player extends FlxSprite
 		
 		// DEV: This will trigger all tile-callbacks, including TRIGGER_SLIDE
 		//	  : Collide Check NEEDS to be before anything else here for it to work
-		FlxG.collide(this, Reg.st.map.layers[1]);
+		FlxG.collide(this, Reg.st.map.layerCol());
 		
 		if (_hack_break) { // (exit if some collide/overlap functions occur)
 			_hack_break = false;
@@ -787,7 +787,7 @@ class Player extends FlxSprite
 	function ladder_checkUp():Bool
 	{
 		var tc = Reg.st.map.getTileCoordsFromP(x + 4, y + height - 2);
-		var tile = Reg.st.map.layers[1].getTile(tc.x, tc.y);
+		var tile = Reg.st.map.layerCol().getTile(tc.x, tc.y);
 		if (Reg.st.map.tileIsType(tile, LADDER) || Reg.st.map.tileIsType(tile, LADDER_TOP))
 		{
 			last.x = x = (Std.int(x / 32) * 32) + (32 - width) / 2;

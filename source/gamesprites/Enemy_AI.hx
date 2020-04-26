@@ -453,7 +453,7 @@ class AI_Move_Y extends Enemy_AI
 			
 			// HACK (Special Occasion)
 			// Check if overlapping some tile and move it a bit out of the way to snap
-			if (Reg.st.map.layers[1].getTile(e.SPAWN_TILE.x, e.SPAWN_TILE.y) > 0) {
+			if (Reg.st.map.layerCol().getTile(e.SPAWN_TILE.x, e.SPAWN_TILE.y) > 0) {
 				e.SPAWN_POS.y += 8;
 			}
 			// Get free area to move

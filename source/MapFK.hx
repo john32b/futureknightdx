@@ -62,7 +62,7 @@ enum MapEvent
 
 class MapFK extends TilemapGeneric
 {
-	// :: No not touch
+	// :: Do not touch
 	static inline var MAP_SPACE = 0;
 	static inline var MAP_FOREST = 1;
 	static inline var MAP_CASTLE = 2;
@@ -79,7 +79,7 @@ class MapFK extends TilemapGeneric
 	inline static var ROOM_TILE_WIDTH:Int  = 8 * 4;	// How many tiles make up a room view
 	inline static var ROOM_TILE_HEIGHT:Int = 4 * 4;	// How many tiles make up a room view
 	
-	/// CHANGE THESE TWO:
+	/// CHANGE THESE TWO ?? :
 	static inline var DRAW_START_X:Int = 32;  	// Pixels from screen left to draw map
 	static inline var DRAW_START_Y:Int = 26;  	// Pixels from screen top to draw map
 	
@@ -90,9 +90,6 @@ class MapFK extends TilemapGeneric
 	public var ROOM_WIDTH  = TILE_SIZE * ROOM_TILE_WIDTH; 
 	public var ROOM_HEIGHT = TILE_SIZE * ROOM_TILE_HEIGHT; 
 	
-	// #USER SET, MUST BE SET
-	public var onEvent:MapEvent->Void;
-	
 	// How many rooms on the x/y axis
 	public var roomTotal(default, null):SimpleCoords;
 	// Current room the camera is in. STARTING from (0,0) for the top-left
@@ -101,6 +98,10 @@ class MapFK extends TilemapGeneric
 	public var roomCornerTile(default, null):SimpleCoords;
 	// Current room pixel coordinates of the top left corner.
 	public var roomCornerPixel(default, null):SimpleCoords;
+	
+	
+	// #USER SET, MUST BE SET
+	public var onEvent:MapEvent->Void;
 	
 	// Pixel Coordinates of the player
 	// Can be null if the current map does not have a start point
@@ -121,13 +122,13 @@ class MapFK extends TilemapGeneric
 	// < "LEVEL:EXIT_NAME" >
 	public var GLOBAL_EXITS_UNLOCKED:Array<String>;
 	
-	
 	//====================================================;
 	
 	public function new() 
 	{
 		super(2);	// Two layers, BG and Platforms
 		
+		// - New camera for the map, also this is now the default camera for everything
 		var C = new FlxCamera(DRAW_START_X * 2, DRAW_START_Y * 2, ROOM_WIDTH, ROOM_HEIGHT);
 		cameras = [C];
 		FlxG.cameras.add(C);
@@ -204,7 +205,7 @@ class MapFK extends TilemapGeneric
 			
 		layers[1].loadMapFromArray(T.getLayer(LAYER_PLATFORM), T.mapW, T.mapH,
 			Reg.IM.getMapTiles(MAP_TYPE, "fg", 0),
-			T.tileW, T.tileH, null, 1, 2, 1);
+			T.tileW, T.tileH, null, 1, 2, 1);	// 2: Start drawing from index 2, because 1 is ghost tile
 			
 		_setTileProperties();	// <- Declare tile collision properties
 		
@@ -482,8 +483,8 @@ class MapFK extends TilemapGeneric
 		// Max Search = (8) tiles down
 		for (i in 0...8) {
 			var y1 = y + i;
-			var t = layers[1].getTile(x, y1);	// No check is needed?
-			if (t > 0 && (layers[1].getTileCollisions(t) & FlxObject.ANY > 0))
+			var t = layerCol().getTile(x, y1);	// No check is needed?
+			if (t > 0 && (layerCol().getTileCollisions(t) & FlxObject.ANY > 0))
 			{
 				return y1;
 			}
@@ -610,6 +611,12 @@ class MapFK extends TilemapGeneric
 		
 		
 		// :: GOTO EXIT TARGET 
+		#if debug
+			if (e.O.prop.goto == null) {
+				trace("Error: No exit target");
+				return;
+			}
+		#end
 		
 		FlxG.signals.postUpdate.addOnce(()->{
 			loadMap(e.O.prop.goto);
