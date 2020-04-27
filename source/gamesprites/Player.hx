@@ -58,8 +58,10 @@ enum PlayerState
 
 class Player extends FlxSprite
 {
-	public inline static var START_HEALTH = 999;
-	public inline static var START_LIVES  = 3;
+	inline static var START_HEALTH = 999;
+	inline static var START_LIVES  = 3;
+	
+	static inline var COLOR_COMBO = "blue";
 	
 	static inline var I_TIME_REVIVE = 1.4;
 	static inline var I_TIME_HURT = 0.4;
@@ -172,7 +174,8 @@ class Player extends FlxSprite
 		maxVelocity.x = Reg.P.pl_speed;
 		
 		// Graphics
-		Reg.IM.loadGraphic(this,'player');
+		Reg.IM.loadGraphic(this, 'player', COLOR_COMBO);
+		
 		setFacingFlip(FlxObject .LEFT, true, false);
 		setFacingFlip(FlxObject.RIGHT, false, false);
 		
@@ -793,7 +796,7 @@ class Player extends FlxSprite
 			last.x = x = (Std.int(x / 32) * 32) + (32 - width) / 2;
 			// Search for a ladder TOP.
 			#if debug var _t = 0; #end
-			while (!Reg.st.map.tileIsType(Reg.st.map.layers[1].getTile(tc.x, tc.y), LADDER_TOP)) {
+			while (!Reg.st.map.tileIsType(Reg.st.map.layerCol().getTile(tc.x, tc.y), LADDER_TOP)) {
 				tc.y--;
 				#if debug
 				if ( (_t++) > 64 || tc.y < 0) throw 'Ladder tile, does not have a ladder top. ${tc}';

@@ -27,6 +27,7 @@ package;
 
 import MapTiles.FG_TILE_TYPE;
 import MapTiles.EDITOR_TILE;
+import flash.geom.ColorTransform;
 
 import gamesprites.Item.ITEM_TYPE;
 import gamesprites.AnimatedTile;
@@ -69,6 +70,8 @@ class MapFK extends TilemapGeneric
 	static inline var TILE_SIZE = 8;
 	static inline var MAP_PATH = "assets/maps/";
 	static inline var MAP_EXT = ".tmx";
+	
+	static inline var SHADOW_ALPHA = 0.5;
 	
 	// The layer names as declared in TILED 
 	static inline var LAYER_BG 			= 'Background';
@@ -113,6 +116,7 @@ class MapFK extends TilemapGeneric
 	var MAP_TYPE = 0;
 	var MAP_NAME = "";
 	var MAP_FILE = "";	// The short name of the loaded map. e.g. "level_01"
+	var MAP_COLOR = "";	// Color id, check "ImageAssets.D_COL_NAME"
 	
 	// Pointer? of all the exit TileObjects in this map
 	// ExitName->TiledObject
@@ -122,11 +126,13 @@ class MapFK extends TilemapGeneric
 	// < "LEVEL:EXIT_NAME" >
 	public var GLOBAL_EXITS_UNLOCKED:Array<String>;
 	
+	var sh_data:Array<Int>;
+	
 	//====================================================;
 	
 	public function new() 
 	{
-		super(2);	// Two layers, BG and Platforms
+		super(3);	// Two layers, BG and Platforms
 		
 		// - New camera for the map, also this is now the default camera for everything
 		var C = new FlxCamera(DRAW_START_X * 2, DRAW_START_Y * 2, ROOM_WIDTH, ROOM_HEIGHT);
@@ -144,6 +150,7 @@ class MapFK extends TilemapGeneric
 		}
 		
 		GLOBAL_EXITS_UNLOCKED = [];
+		
 	}//---------------------------------------------------;
 
 	
@@ -196,15 +203,32 @@ class MapFK extends TilemapGeneric
 		
 		MAP_TYPE = T.properties.TYPE;
 		MAP_NAME = T.properties.NAME;
+		MAP_COLOR = T.properties.COLOR;
+		
+		if (MAP_COLOR == null)
+		{
+			MAP_COLOR = Reg.IM.AVAILABLE_COLOR_COMBO[Std.random(Reg.IM.AVAILABLE_COLOR_COMBO.length)];
+		}
 		
 		 _scanProcessTiles();	// <- Read FG tiles
 
 		layers[0].loadMapFromArray(T.getLayer(LAYER_BG), T.mapW, T.mapH,
-			Reg.IM.getMapTiles(MAP_TYPE, "bg", 0),
+			Reg.IM.getMapTiles(MAP_TYPE, "bg", MAP_COLOR),
 			T.tileW, T.tileH, null, 1, 1, 1);
 			
-		layers[1].loadMapFromArray(T.getLayer(LAYER_PLATFORM), T.mapW, T.mapH,
-			Reg.IM.getMapTiles(MAP_TYPE, "fg", 0),
+		// Forest has no shadows
+		if (MAP_TYPE == MAP_FOREST) {
+			layers[1].visible = false;
+		}else{
+			layers[1].visible = true;
+			layers[1].alpha = SHADOW_ALPHA;	
+			layers[1].loadMapFromArray(sh_data, T.mapW, T.mapH,
+				"im/tiles_sh.png",
+				T.tileW, T.tileH, null, 1, 1, 1);
+		}
+		
+		layers[2].loadMapFromArray(T.getLayer(LAYER_PLATFORM), T.mapW, T.mapH,
+			Reg.IM.getMapTiles(MAP_TYPE, "fg"),
 			T.tileW, T.tileH, null, 1, 2, 1);	// 2: Start drawing from index 2, because 1 is ghost tile
 			
 		_setTileProperties();	// <- Declare tile collision properties
@@ -260,8 +284,6 @@ class MapFK extends TilemapGeneric
 		roomCornerPixel.set(roomCurrent.x * ROOM_WIDTH, roomCurrent.y * ROOM_HEIGHT);
 		return true;
 	}//---------------------------------------------------;
-	
-	
 	
 	/**
 	   Move camera to the room position containing a (X,Y) coords
@@ -338,22 +360,32 @@ class MapFK extends TilemapGeneric
 
 	
 	// -- Called after loading the map and before creating the map
-	// Mainly used for translating "HAZARD" fg tiles to Entities so that they can be pushed as entities to user
-	// I can skip this and make all hazards live in editor only?
+	// + Process HAZARD tiles and make them entities
+	// + Process/Create Shadow tiles based
 	@:dce
 	function _scanProcessTiles()
 	{
-		// :: SPECIAL OCCASION
-		//  - Convert HAZARD tiles from FG layer to be entities
-		//  - This is done for easier map designing?
-		//  - IMPORTANT Requires hazard tiles to be in x4 groups
+		sh_data = [];
+		
 		var data = T.getLayer(LAYER_PLATFORM);
 		var hazardIndex = MapTiles.TILE_COL[MAP_TYPE][HAZARD_TILE][0];
 		var i = 0;
+		var prev = 0; // Keep the previous processed tile
+		
 		while (i < data.length)
 		{
+			// Skip (0,1)
+			// Skip Ladder Tiles
+			if (data[i] < 2 || 
+			MapTiles.fgTileIsType(data[i], MAP_TYPE, FG_TILE_TYPE.LADDER))
+			{
+				prev = 0;
+				i++;
+				continue;
+			}
+			
 			if (data[i] == hazardIndex) {
-				// Create a new TiledObject, put it along the others
+				// Create a new TiledObject, put it with the others
 				var coords = serialToTileCoords(i);
 				T.objects[0].push({
 					x:coords.x * T.tileW,
@@ -367,8 +399,39 @@ class MapFK extends TilemapGeneric
 				data[i+1] = 0;
 				data[i+2] = 0;
 				data[i+3] = 0;
+				i += 4;	// The next 3 tiles are hazard, so don't check
+				prev = 0;
+				continue;
 			}
-			i += 4; // << Scan every 4 tiles, since I am only checking for hazards
+			
+			// > At this point, tile cannot be (empty,ladder,hazard)
+			//   so it is a solid block that casts shadow
+			
+			if (prev == 0 && data[i + T.mapW] < 2)
+			{
+				sh_data[i + T.mapW] = 3;	// (3) is start of shadow tile gfx
+			}
+			
+			// Don't process edge of the map
+			if ((i % T.mapW) < T.mapW - 1)
+			{
+				var SL = 0;
+				if (MapTiles.fgTileIsType(data[i], MAP_TYPE, FG_TILE_TYPE.SLIDE_RIGHT)) SL = 1;
+	
+				if (data[i + 1] < 2 && SL == 0)
+				{
+					sh_data[i + 1] = 1;
+				}
+				
+				// Place the normal shadow at +1+1 offset
+				if (data[i + T.mapW + 1] < 2)
+				{
+					sh_data[i + T.mapW + 1] = 1 + SL;
+				}
+			}
+
+			prev = data[i];
+			i++;
 		}
 	}//---------------------------------------------------;
 	

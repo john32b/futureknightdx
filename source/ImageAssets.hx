@@ -20,6 +20,8 @@ Future Knight Image Assets
 package;
 
 import djFlixel.D;
+import djFlixel.gfx.GfxTool;
+import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.gfx.pal.Pal_DB32;
 
 import djfl.util.Atlas;
@@ -54,19 +56,49 @@ class ImageAssets
 	];
 	
 	
-	//var cache:Map<String,BitmapData>;
-		
-	// These colors are read from the source image and replaces
-	// with custom colors in getBitmap()
-	var TEMPLATE_COLORS:Array<Int> = [
-		Pal_DB32.COL_23,
-		Pal_DB32.COL_25,
-		Pal_DB32.COL_01
+	// Template Colors
+	// 3 colors on the template graphics
+	var T_COL:Array<Int> = [
+		Pal_CPCBoy.COL[28],
+		Pal_CPCBoy.COL[29],
+		//Pal_CPCBoy.COL[30],
+		Pal_CPCBoy.COL[31]
 	];
-
+	
+	
+	public var AVAILABLE_COLOR_COMBO = [
+		"red", "green", "blue", "yellow", "pink", "red2", "green2", "blue2", "yellow2", "gray"];
+	
+	// This MAP will be translated on NEW() --from CPC_INDEX to REAL COLOR--
+	// - Check "_DRAFT_DESIGN.ase"
+	var D_COL_NAME:Map<String,Array<Int>> = [
+	
+		// SPRITE COLORS:
+		"red" => [15, 6, 3],
+		"green" => [21, 18, 9],
+		"blue" => [23, 11, 1],
+		"yellow" => [25, 24, 31],
+		"pink" => [27, 17, 6],
+		"red2" => [27, 16, 3],
+		"green2" => [25, 18, 31],
+		"blue2" => [23, 10, 31],
+		"yellow2" => [27, 24, 12],
+		"gray" => [27, 13, 31],
+		
+		// MAP COLORS:
+		"1" => [1,2,3],
+	];
+	
+	
+	//var cache:Map<String,BitmapData>;
+	
 	public function new() 
 	{
 		//cache = [];
+		for (k => v in D_COL_NAME)
+		{
+			D_COL_NAME.set(k, [Pal_CPCBoy.COL[v[0]], Pal_CPCBoy.COL[v[1]], Pal_CPCBoy.COL[v[2]]]);
+		}
 	}//---------------------------------------------------;
 	
 	
@@ -76,10 +108,15 @@ class ImageAssets
 	   @param	name Name in "GFX" map
 	   @param	O Color options TODO
 	**/
-	public function loadGraphic(sprite:FlxSprite, name:String, ?O:Dynamic)
+	public function loadGraphic(sprite:FlxSprite, name:String, ?C:String)
 	{
 		var d = GFX.get(name);
-		sprite.loadGraphic(getbitmap(d.im, d.col?1:0), true, d.tw, d.th);
+		
+		if (d.col){
+			sprite.loadGraphic(getbitmap(d.im, C), true, d.tw, d.th);
+		}else{
+			sprite.loadGraphic(d.im, true, d.tw, d.th);
+		}
 	}//---------------------------------------------------;
 	
 	// --
@@ -98,9 +135,9 @@ class ImageAssets
 	   @param	O Colors
 	   @return
 	**/
-	public function getMapTiles(type:Int, layer:String, ?O:Dynamic):BitmapData
+	public function getMapTiles(type:Int, layer:String, ?C:String):BitmapData
 	{
-		var bit = getbitmap('im/tiles_${layer}_${type}.png', 0);
+		var bit = getbitmap('im/tiles_${layer}_${type}.png', C);
 		return bit;
 	}//---------------------------------------------------;
 	
@@ -110,20 +147,16 @@ class ImageAssets
 	   @param	assetName
 	   @param	C 0 for no colorization
 	**/
-	function getbitmap(assetName:String, C:Int = 0)
+	function getbitmap(assetName:String, ?C:String)
 	{
 		var source = Assets.getBitmapData(assetName, false);
 		
-		if (C == 0) {
+		if (C == null) {
 			return source;
 		}
 		
-		return source;
-		// Colorize and Return
-		//var dest = D.bmu.replaceColors(source, TEMPLATE_COLORS, [ 
-			//Pal_DB32.COL_20, Pal_DB32.COL_09, Pal_DB32.COL_30 /// TODO: colors to be replaced with:
-		//]);
-		//return dest;
+		var dest = D.bmu.replaceColors(source, T_COL, D_COL_NAME[C] );
+		return dest;
 	}//---------------------------------------------------;
 		
 	

@@ -183,13 +183,20 @@ class Enemy extends MapSprite
 	
 	function _loadGraphic(i:Int)
 	{
+		var COL:String;
+		
+		if (O.name != null) 
+			COL = O.name; 
+		else
+			COL = Reg.IM.AVAILABLE_COLOR_COMBO[Std.random(Reg.IM.AVAILABLE_COLOR_COMBO.length)];
+		
 		switch(i){
 			
 			// :: Normal Sized Enemy
 			case a if (i < 10): 
 				_gfxtype = 0;
 				i--; // Make it start from 0
-				Reg.IM.loadGraphic(this, 'enemy_sm');
+				Reg.IM.loadGraphic(this, 'enemy_sm', COL);
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
 				
 				// Alter the bounds of SOME enemies
@@ -221,7 +228,7 @@ class Enemy extends MapSprite
 			case 13, 14, 15, 16:
 				_gfxtype = 1;
 				i -= 13;
-				Reg.IM.loadGraphic(this, 'enemy_big');
+				Reg.IM.loadGraphic(this, 'enemy_big', COL);
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
 				if (i == 3){ // Long enemy 
 					_gfxtype = 2;
@@ -247,7 +254,7 @@ class Enemy extends MapSprite
 			case 19, 20:
 				i -= 19;
 				_gfxtype = 3;
-				Reg.IM.loadGraphic(this, 'enemy_worm');
+				Reg.IM.loadGraphic(this, 'enemy_worm', COL);
 				if (i == 0){
 					animation.add('main', [0, 1, 0, 2, 0, 3], ANIM_FPS - 2);
 					height = 22;

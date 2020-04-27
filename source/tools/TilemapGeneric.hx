@@ -113,12 +113,13 @@ class TilemapGeneric extends FlxGroup
 		width = T.mapW * T.tileW;
 		height = T.mapH * T.tileH;
 		
-		if (layers[0].graphic != null ) { // Check to see if this is the first time ever
-			for (l in layers) {
-				l.graphic.bitmap.dispose();
-				l.graphic.destroy();			
-			}
-		}
+		// :: Useful in dynamnic bitmaps, but for assets it will destroy them forever
+		//if (layers[0].graphic != null ) { 
+			//for (l in layers) {
+				//l.graphic.bitmap.dispose(); 
+				//l.graphic.destroy();	
+			//}
+		//}
 		
 		// Init other
 		FlxG.worldBounds.set(0, 0, width, height);

@@ -40,8 +40,6 @@ enum EDITOR_TILE {
 
 
 
-
-
 class MapTiles
 {
 	
@@ -80,7 +78,7 @@ class MapTiles
 	// These apply for all MAP_TYPES
 	// :: "tiletype" => [start_index, ?range]
 	public static var EDITOR_ENTITY(default, null):Map < EDITOR_TILE, Array<Int> > = [
-		ENEMY => [1,20],
+		ENEMY => [1, 20],
 		PLAYER => [25, 1],
 		ANIM => [26, 6],	// Animtiles will pused in <AnimatedTile.hx> and handled from there
 		ITEM => [34, 14]
@@ -114,6 +112,15 @@ class MapTiles
 			}
 		}
 		return null;
+	}//---------------------------------------------------;
+	
+	
+	public inline static function fgTileIsType(gid:Int, map:Int, type:FG_TILE_TYPE):Bool
+	{
+		return ( 
+			 gid >= TILE_COL[map][type][0]  && 
+			 gid <  TILE_COL[map][type][0] + TILE_COL[map][type][1]
+		);
 	}//---------------------------------------------------;
 	
 }// --
