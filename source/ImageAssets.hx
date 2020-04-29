@@ -14,8 +14,7 @@ Future Knight Image Assets
 	- 0xFF859550
 	- 0xFFbac375 (light)
 
- */
- 
+ ------------------------------------------- */
 
 package;
 
@@ -23,13 +22,11 @@ import djFlixel.D;
 import djFlixel.gfx.GfxTool;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.gfx.pal.Pal_DB32;
-
 import djfl.util.Atlas;
-
 import flixel.FlxSprite;
-
 import openfl.display.BitmapData;
 import openfl.utils.Assets;
+
 
 
 class ImageAssets
@@ -39,6 +36,7 @@ class ImageAssets
 		overlay_scr:"im/monitor_overlay.png",
 		hud_inventory:"im/hud_inventory.png",
 		hud_bottom:"im/hud_bg.png",
+		tiles_shadow:"im/tiles_sh.png"
 	};
 	
 	static var GFX:Map<String,{im:String,tw:Int,th:Int,col:Bool}> = [
@@ -66,39 +64,67 @@ class ImageAssets
 	];
 	
 	
-	public var AVAILABLE_COLOR_COMBO = [
-		"red", "green", "blue", "yellow", "pink", "red2", "green2", "blue2", "yellow2", "gray"];
-	
 	// This MAP will be translated on NEW() --from CPC_INDEX to REAL COLOR--
 	// - Check "_DRAFT_DESIGN.ase"
 	var D_COL_NAME:Map<String,Array<Int>> = [
 	
 		// SPRITE COLORS:
 		"red" => [15, 6, 3],
-		"green" => [21, 18, 9],
-		"blue" => [23, 11, 1],
-		"yellow" => [25, 24, 31],
-		"pink" => [27, 17, 6],
 		"red2" => [27, 16, 3],
+		"green" => [21, 18, 9],
 		"green2" => [25, 18, 31],
+		"blue" => [23, 11, 1],
 		"blue2" => [23, 10, 31],
+		"yellow" => [25, 24, 31],
 		"yellow2" => [27, 24, 12],
+		"pink" => [27, 17, 6],
 		"gray" => [27, 13, 31],
 		
-		// MAP COLORS:
-		"1" => [1,2,3],
+		// MAP COLORS: (2 is dark)
+		"bg_yellow" => [25, 24, 15],
+		"bg_orange" => [24, 15, 6],
+		"bg_brown" => [25, 12, 3],
+		"bg_green" => [25, 18, 9],
+		"bg_purple" => [27, 17, 7],
+		"bg_purple2" => [17, 5, 4], // dark
+		"bg_blue" => [23, 20, 10],
+		"bg_blue2" => [23, 10, 1],
+		"bg_red" => [16, 6, 3],
+		"bg_red2" => [6, 3, 0] // dark
+		
 	];
 	
 	
-	//var cache:Map<String,BitmapData>;
+	// This is for the enemy class to get a random color
+	var COLORS_SPRITE = [
+		"red", "green", "blue", "yellow", "pink", "red2", "green2", "blue2", "yellow2", "gray"
+	];
+	
+			
+	var cache:Map<String,BitmapData>;
 	
 	public function new() 
 	{
-		//cache = [];
+		cache = [];
 		for (k => v in D_COL_NAME)
 		{
 			D_COL_NAME.set(k, [Pal_CPCBoy.COL[v[0]], Pal_CPCBoy.COL[v[1]], Pal_CPCBoy.COL[v[2]]]);
 		}
+		
+		// I want to cache ENEMIES and PARTICLES with some of the colors
+		for (k => v in D_COL_NAME)
+		{
+			if (k.indexOf("bg_") == 0) continue;	
+			getbitmap(GFX['enemy_sm'].im, k, true);
+			getbitmap(GFX['particles'].im, k, true);
+		}
+
+	}//---------------------------------------------------;
+	
+	
+	public function getRandomSprColor():String
+	{
+		return COLORS_SPRITE[Std.random(COLORS_SPRITE.length)];
 	}//---------------------------------------------------;
 	
 	
@@ -113,7 +139,8 @@ class ImageAssets
 		var d = GFX.get(name);
 		
 		if (d.col){
-			sprite.loadGraphic(getbitmap(d.im, C), true, d.tw, d.th);
+			// All colorized will be cached. So I am using 'd.col' to call cache
+			sprite.loadGraphic(getbitmap(d.im, C, d.col), true, d.tw, d.th);
 		}else{
 			sprite.loadGraphic(d.im, true, d.tw, d.th);
 		}
@@ -144,20 +171,34 @@ class ImageAssets
 	
 	/**
 	   Get Bitmap and colorize if the image supports it
-	   @param	assetName
-	   @param	C 0 for no colorization
+	   @param assetName
+	   @param C 0 for no colorization
+	   @param useCache If true, will search cache, if not found will create and put to cache
 	**/
-	function getbitmap(assetName:String, ?C:String)
+	function getbitmap(assetName:String, ?C:String, ?useCache:Bool = false)
 	{
-		var source = Assets.getBitmapData(assetName, false);
+		var source:BitmapData;
 		
-		if (C == null) {
+		if (useCache)
+		{
+			source = cache.get(assetName + "_" + C);
+			
+			if (source == null)
+			{
+				source = Assets.getBitmapData(assetName, false);
+				if (C != null) D.bmu.replaceColors(source, T_COL, D_COL_NAME[C]);
+				cache.set(assetName + "_" + C, source);
+			}
+			
+			return source.clone();
+			
+		}else
+		{
+			source = Assets.getBitmapData(assetName, false);
+			if (C != null) D.bmu.replaceColors(source, T_COL, D_COL_NAME[C]);
 			return source;
 		}
 		
-		var dest = D.bmu.replaceColors(source, T_COL, D_COL_NAME[C] );
-		return dest;
 	}//---------------------------------------------------;
 		
-	
 }// --

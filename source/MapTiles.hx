@@ -49,14 +49,16 @@ class MapTiles
 	public static var TILE_COL(default, null):Array<Map<FG_TILE_TYPE,Array<Int>>> = [
 		
 		// TYPE (0) : SPACE ::
-		/// TIP: What tiled editor says + 1, or look at the JSON
+		
+		/// TIP: Place the tile on TILED and rollover it, at the status bar
+		///      it is what is says + 1
 		[   
-			SLIDE_RIGHT => [15, 3],
-			SLIDE_LEFT => [18, 3],
-			SOFT => [21, 4],
-			LADDER_TOP => [26, 2],
-			LADDER => [28, 2],
-			HAZARD_TILE => [30, 1]
+			SLIDE_RIGHT => [8, 3],
+			SLIDE_LEFT => [11, 3],
+			SOFT => [99, 8],
+			LADDER_TOP => [105, 2],
+			LADDER => [107, 2],
+			HAZARD_TILE => [112, 1]
 		],
 		
 		// TYPE (1) : FOREST

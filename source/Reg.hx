@@ -77,7 +77,6 @@ class Reg
 	// All states default BG color,
 	static var BG_COLOR:Int = 0xFF000000;
 	
-	
 	//====================================================;
 	//====================================================;
 	
@@ -85,7 +84,7 @@ class Reg
 	public static function init_pre()
 	{
 		trace(" == Reg init -pre-");
-		D.assets.DYN_FILES = [PATH_JSON, PATH_INI];
+		D.assets.DYN_FILES = [PATH_JSON, PATH_INI, Game.DEBUG_MAP];
 		D.assets.onAssetLoad = onAssetLoad;	
 		D.snd.ROOT_SND = "snd/";
 		D.snd.ROOT_MSC = "mus/";

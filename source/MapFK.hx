@@ -27,6 +27,7 @@ package;
 
 import MapTiles.FG_TILE_TYPE;
 import MapTiles.EDITOR_TILE;
+import djA.DataT;
 import flash.geom.ColorTransform;
 
 import gamesprites.Item.ITEM_TYPE;
@@ -116,7 +117,8 @@ class MapFK extends TilemapGeneric
 	var MAP_TYPE = 0;
 	var MAP_NAME = "";
 	var MAP_FILE = "";	// The short name of the loaded map. e.g. "level_01"
-	var MAP_COLOR = "";	// Color id, check "ImageAssets.D_COL_NAME"
+	var MAP_COLOR = "";		// Color id, check "ImageAssets.D_COL_NAME"
+	var MAP_COLOR_FG = "";	// ladder colors
 	
 	// Pointer? of all the exit TileObjects in this map
 	// ExitName->TiledObject
@@ -203,12 +205,10 @@ class MapFK extends TilemapGeneric
 		
 		MAP_TYPE = T.properties.TYPE;
 		MAP_NAME = T.properties.NAME;
-		MAP_COLOR = T.properties.COLOR;
+		MAP_COLOR = 'bg_' + DataT.existsOr(T.properties.COLOR, 'yellow');
+		MAP_COLOR_FG = 'bg_' + DataT.existsOr(T.properties.COLOR_FG, 'blue');
 		
-		if (MAP_COLOR == null)
-		{
-			MAP_COLOR = Reg.IM.AVAILABLE_COLOR_COMBO[Std.random(Reg.IM.AVAILABLE_COLOR_COMBO.length)];
-		}
+		trace('MAP COLORS', MAP_COLOR, MAP_COLOR_FG);
 		
 		 _scanProcessTiles();	// <- Read FG tiles
 
@@ -223,12 +223,12 @@ class MapFK extends TilemapGeneric
 			layers[1].visible = true;
 			layers[1].alpha = SHADOW_ALPHA;	
 			layers[1].loadMapFromArray(sh_data, T.mapW, T.mapH,
-				"im/tiles_sh.png",
+				Reg.IM.STATIC.tiles_shadow,
 				T.tileW, T.tileH, null, 1, 1, 1);
 		}
 		
 		layers[2].loadMapFromArray(T.getLayer(LAYER_PLATFORM), T.mapW, T.mapH,
-			Reg.IM.getMapTiles(MAP_TYPE, "fg"),
+			Reg.IM.getMapTiles(MAP_TYPE, "fg", MAP_COLOR_FG),
 			T.tileW, T.tileH, null, 1, 2, 1);	// 2: Start drawing from index 2, because 1 is ghost tile
 			
 		_setTileProperties();	// <- Declare tile collision properties

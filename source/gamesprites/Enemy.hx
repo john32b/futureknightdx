@@ -52,6 +52,9 @@ class Enemy extends MapSprite
 	
 	// Time since last hurt. I count so it doesn't get hurt at each frame. Counts down to 0
 	var _hurtTimer:Float = 0;
+	
+	
+	var COLOR:String;
 
 	// --
 	override public function update(elapsed:Float):Void 
@@ -162,33 +165,32 @@ class Enemy extends MapSprite
 		switch(_gfxtype)
 		{
 			case 1: // 4 particles box
-				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfHeight - 12, velocity.x, velocity.y);
-				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfHeight + 12, velocity.x, velocity.y);
-				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight - 12, velocity.x, velocity.y);
-				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight + 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfHeight - 12, velocity.x, velocity.y, COLOR);
+				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfHeight + 12, velocity.x, velocity.y, COLOR);
+				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight - 12, velocity.x, velocity.y, COLOR);
+				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight + 12, velocity.x, velocity.y, COLOR);
 				
 			case 2: // 2 in height
-				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight - 12, velocity.x, velocity.y);
-				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight + 12, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight - 12, velocity.x, velocity.y, COLOR);
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight + 12, velocity.x, velocity.y, COLOR);
 				
 			case 3: // 3 in width
 				for(i in 0...3) // (0,1,2)
-				Reg.st.PM.createAt(0, (x + 11) + (i * 22), y + halfHeight, velocity.x, velocity.y);
+				Reg.st.PM.createAt(0, (x + 11) + (i * 22), y + halfHeight, velocity.x, velocity.y, COLOR);
 				
 			case _: // 1 particle or default
-				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight, velocity.x, velocity.y);				
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight, velocity.x, velocity.y, COLOR);
 		};
 	}//---------------------------------------------------;
 	
 	
 	function _loadGraphic(i:Int)
 	{
-		var COL:String;
 		
 		if (O.name != null) 
-			COL = O.name; 
+			COLOR = O.name; 
 		else
-			COL = Reg.IM.AVAILABLE_COLOR_COMBO[Std.random(Reg.IM.AVAILABLE_COLOR_COMBO.length)];
+			COLOR = Reg.IM.getRandomSprColor();
 		
 		switch(i){
 			
@@ -196,7 +198,7 @@ class Enemy extends MapSprite
 			case a if (i < 10): 
 				_gfxtype = 0;
 				i--; // Make it start from 0
-				Reg.IM.loadGraphic(this, 'enemy_sm', COL);
+				Reg.IM.loadGraphic(this, 'enemy_sm', COLOR);
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
 				
 				// Alter the bounds of SOME enemies
@@ -218,7 +220,7 @@ class Enemy extends MapSprite
 			// :: Player Sprite
 			case 10:
 				_gfxtype = 0;
-				Reg.IM.loadGraphic(this, 'player');
+				Reg.IM.loadGraphic(this, 'player', COLOR);
 				animation.add("main", [2, 3, 2, 1], ANIM_FPS + 2);
 				setSize(8, 22);
 				offset.set(11, 4);
@@ -228,7 +230,7 @@ class Enemy extends MapSprite
 			case 13, 14, 15, 16:
 				_gfxtype = 1;
 				i -= 13;
-				Reg.IM.loadGraphic(this, 'enemy_big', COL);
+				Reg.IM.loadGraphic(this, 'enemy_big', COLOR);
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
 				if (i == 3){ // Long enemy 
 					_gfxtype = 2;
@@ -244,7 +246,7 @@ class Enemy extends MapSprite
 			case 17, 18:
 				_gfxtype = 1;
 				i -= 17;
-				Reg.IM.loadGraphic(this, 'enemy_tall');
+				Reg.IM.loadGraphic(this, 'enemy_tall', COLOR);
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
 				setSize(50, 50);
 				centerOffsets();
@@ -254,7 +256,7 @@ class Enemy extends MapSprite
 			case 19, 20:
 				i -= 19;
 				_gfxtype = 3;
-				Reg.IM.loadGraphic(this, 'enemy_worm', COL);
+				Reg.IM.loadGraphic(this, 'enemy_worm', COLOR);
 				if (i == 0){
 					animation.add('main', [0, 1, 0, 2, 0, 3], ANIM_FPS - 2);
 					height = 22;

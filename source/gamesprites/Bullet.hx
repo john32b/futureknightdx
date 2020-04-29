@@ -56,6 +56,7 @@ class Bullet extends FlxSprite
 	// :: These are autoset on  `init()` ::
 	public var T(default, null):BulletType;		// Pointer to a bullet type object
 	public var owner(default, null):Int;		// 0:None, 1:Player, 2:Enemy.
+	public var type(default, null):Int;	
 	
 	var _chase:Bool;
 	var _timer:Float = 0;	   	// chase jitter timer
@@ -83,6 +84,7 @@ class Bullet extends FlxSprite
 	**/
 	public function init(TYPE:Int, X:Float, Y:Float, FACE:Int)
 	{
+		type = TYPE;
 		T = TYPES[TYPE];
 		last.x = x = X - halfWidth;
 		last.y = y = Y - halfHeight;

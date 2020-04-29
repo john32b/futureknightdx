@@ -44,8 +44,9 @@ class ParticleManager extends FlxGroup
 	   @param	y
 	   @param	vx
 	   @param	vy
+	   @param   col Color Palette, check `ImageAssets.hx`
 	**/
-	public function createAt(type:Int, x:Float, y:Float, vx:Float = 0, vy:Float = 0)
+	public function createAt(type:Int, x:Float, y:Float, vx:Float = 0, vy:Float = 0, col:String)
 	{
 		var s:FlxSprite = cast recycle(FlxSprite, factory);
 		s.velocity.set(vx, vy);
@@ -54,20 +55,36 @@ class ParticleManager extends FlxGroup
 		s.x = x - halfWidth;
 		s.y = y - halfHeight;
 		
-		s.animation.play('$type', true);
+		//
+		Reg.IM.loadGraphic(s, 'particles', col);
+		
+		switch(type)
+		{
+			case 0:
+				s.animation.add("0", [0, 1, 2, 3], 8, false);
+			case 1:
+				s.animation.add("0", [4, 5, 6, 4, 5, 6], 10, false);
+			case _:
+		}
+		
+		s.animation.play('0', true);
+		
 		s.animation.finishCallback = (name)->{
 			s.kill();
 		}
 	}//---------------------------------------------------;
 	
+	
 	public static function factory():FlxSprite
 	{
 		var s = new FlxSprite();
-		Reg.IM.loadGraphic(s, 'particles');
-		s.animation.add("0", [0, 1, 2, 3], 8, false);
-		s.animation.add("1", [4, 5, 6, 4, 5, 6], 10, false);
+		//Reg.IM.loadGraphic(s, 'particles');
+		//s.animation.add("0", [0, 1, 2, 3], 8, false);
+		//s.animation.add("1", [4, 5, 6, 4, 5, 6], 10, false);
+		
 		s.solid = false;
 		s.acceleration.y = Reg.P.gravity / 5;
+		
 		// NOTE: IN the 2015 version I had gravity set to (GLOBAL_GRAVITY/2)
 		//		 by 5 feels better
 		return s;

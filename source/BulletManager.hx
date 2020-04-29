@@ -28,6 +28,12 @@ class BulletManager extends FlxGroup
 {
 	inline static var POOL_MIN = 3; // Keep this much bullets when resetting
 	
+	// Every bullet type what color is it, 
+	// This is passed to the particle it creates on impact
+	static var BULLET_COLORS:Array<String> = [
+		'blue', 'red', 'green', 'yellow', 'yellow'
+	];
+	
 	// Number of player bullets on screen
 	// I need this because there is a limit to how many are allowed.
 	public var count_player = 0;
@@ -77,7 +83,7 @@ class BulletManager extends FlxGroup
 		b.kill();
 		if (b.owner == Bullet.OWNER_PLAYER) count_player--;
 		if (particle) {
-			Reg.st.PM.createAt(1, b.x + Bullet.halfWidth, b.y + Bullet.halfHeight, 0, 0);
+			Reg.st.PM.createAt(1, b.x + Bullet.halfWidth, b.y + Bullet.halfHeight, 0, 0, BULLET_COLORS[b.type]);
 		}
 	}//---------------------------------------------------;
 	

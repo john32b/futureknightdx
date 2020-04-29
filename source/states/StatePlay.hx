@@ -77,9 +77,11 @@ class StatePlay extends FlxState
 		HUD.reset();
 		
 		// : LAST :
-		// : load the level, logic will be auto-triggered 
-		map.loadMap(Game.START_MAP);
-		//map.load(D.assets.files.get(Reg.LEVELS[0]), true);
+		 //: load the level, logic will be auto-triggered 
+		//map.loadMap(Game.START_MAP);
+		
+		// : debug load map from file, need to trigger manually
+		map.load(D.assets.files.get(Game.DEBUG_MAP), true); map.onEvent(loadMap);
 		
 		// --
 		HUD.set_text("Welcome to Future Knight DX", 5);
