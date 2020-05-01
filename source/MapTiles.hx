@@ -56,8 +56,8 @@ class MapTiles
 			SLIDE_RIGHT => [8, 3],
 			SLIDE_LEFT => [11, 3],
 			SOFT => [99, 8],
-			LADDER_TOP => [105, 2],
-			LADDER => [107, 2],
+			LADDER_TOP => [107, 2],
+			LADDER => [109, 2],
 			HAZARD_TILE => [112, 1]
 		],
 		

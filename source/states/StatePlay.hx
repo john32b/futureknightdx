@@ -76,15 +76,18 @@ class StatePlay extends FlxState
 		add(HUD);
 		HUD.reset();
 		
-		// : LAST :
-		 //: load the level, logic will be auto-triggered 
-		//map.loadMap(Game.START_MAP);
-		
-		// : debug load map from file, need to trigger manually
-		map.load(D.assets.files.get(Game.DEBUG_MAP), true); map.onEvent(loadMap);
-		
 		// --
 		HUD.set_text("Welcome to Future Knight DX", 5);
+		
+		#if debug
+			if (MapFK.LAST_LOADED != "") {
+				map.loadMap(MapFK.LAST_LOADED);
+				return;
+			}
+		#end
+		
+		// : Last thing, load the level, this till trigger the event_map_handler()
+		map.loadMap(Game.START_MAP);
 		
 	}//---------------------------------------------------;
 	

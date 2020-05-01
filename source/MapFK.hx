@@ -103,7 +103,6 @@ class MapFK extends TilemapGeneric
 	// Current room pixel coordinates of the top left corner.
 	public var roomCornerPixel(default, null):SimpleCoords;
 	
-	
 	// #USER SET, MUST BE SET
 	public var onEvent:MapEvent->Void;
 	
@@ -116,9 +115,12 @@ class MapFK extends TilemapGeneric
 	// Set this to load the appropriate BG+FG Tiles
 	var MAP_TYPE = 0;
 	var MAP_NAME = "";
-	var MAP_FILE = "";	// The short name of the loaded map. e.g. "level_01"
+	var MAP_FILE = "";		// The short name of the loaded map. e.g. "level_01"
 	var MAP_COLOR = "";		// Color id, check "ImageAssets.D_COL_NAME"
 	var MAP_COLOR_FG = "";	// ladder colors
+	
+
+	var MAP_LOADED_ID = "";	// Combo of MAP:EXIT of the current map loaded.
 	
 	// Pointer? of all the exit TileObjects in this map
 	// ExitName->TiledObject
@@ -128,7 +130,12 @@ class MapFK extends TilemapGeneric
 	// < "LEVEL:EXIT_NAME" >
 	public var GLOBAL_EXITS_UNLOCKED:Array<String>;
 	
+	// Shadow tile data, constructed from FG tiles when loading the map
 	var sh_data:Array<Int>;
+	
+	#if debug
+		public static var LAST_LOADED = "";
+	#end
 	
 	//====================================================;
 	
@@ -163,30 +170,57 @@ class MapFK extends TilemapGeneric
 	 */
 	public function loadMap(DATA:String)
 	{
-		var d = DATA.split(':');
+		MAP_LOADED_ID = DATA;
+		
+		var d  = DATA.split(':');
 		// e.g. "level_02:B"
 		// d[0] = Map short name
 		// d[1] = Exit name
 	
-		MAP_FILE = d[0];
-		load(MAP_PATH + MAP_FILE + MAP_EXT);
+		var filepath = MAP_PATH + d[0] + MAP_EXT;
 		
-		if (d[1] != null)
-		{
-			var exit = EXITS.get(d[1]);
-			#if debug
-			if (exit == null) throw 'Exit Name : ${d[1]} does not exist in Map ${d[0]}';
-			#end
-			PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
-		}else
-		{
-			#if debug
-			if (PLAYER_SPAWN == null) throw 'Forgot to specify a player spawn point';
-			#end
-		}
+		#if (debug && DYN_ASSETS)
 		
-		// -- Notify user, that the map is ready
-		onEvent(MapEvent.loadMap);
+			// on (F12) load this map
+			LAST_LOADED = MAP_LOADED_ID;
+			
+			D.assets.getTextFile(filepath, (mapData)->{
+				load(mapData, true);
+						// Hacky way to make global killed objects work on dynamic assets
+						// This is copy-pasted from TileMapGeneric
+						@:privateAccess T.assetLoaded = filepath;
+						for (i in _killed_global) {
+							if (i.indexOf(T.assetLoaded) == 0){
+								var d = i.split(":");
+								_killed.push(Std.parseInt(d[1]));
+							}
+						}
+				// DEV: When loading dynamicaly assetLoaded will be null, but I need a value 
+				//      there for the global items to work
+				
+				if (d[1] != null)  {
+					var exit = EXITS.get(d[1]);
+					if (exit == null) throw 'Exit Name : ${d[1]} does not exist in Map ${d[0]}';
+					PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
+				}else {
+					if (PLAYER_SPAWN == null) throw 'Forgot to specify a player spawn point';
+				}
+				onEvent(MapEvent.loadMap);
+			});
+		
+		#else
+			
+			// Release: Load map from static assets :
+			load(filepath);
+			
+			if (d[1] != null) {
+				var exit = EXITS.get(d[1]);
+				PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
+			}
+			// -- Notify user that the map is ready
+			onEvent(MapEvent.loadMap);
+		
+		#end
 	}//---------------------------------------------------;
 
 	
@@ -207,8 +241,6 @@ class MapFK extends TilemapGeneric
 		MAP_NAME = T.properties.NAME;
 		MAP_COLOR = 'bg_' + DataT.existsOr(T.properties.COLOR, 'yellow');
 		MAP_COLOR_FG = 'bg_' + DataT.existsOr(T.properties.COLOR_FG, 'blue');
-		
-		trace('MAP COLORS', MAP_COLOR, MAP_COLOR_FG);
 		
 		 _scanProcessTiles();	// <- Read FG tiles
 
@@ -246,6 +278,7 @@ class MapFK extends TilemapGeneric
 			trace(' . TYPE: $MAP_TYPE, NAME: $MAP_NAME');
 			trace(' . MAP : Rooms Total ' , roomTotal);
 			trace(' . MAP : Rooms Current ' , roomCurrent);
+			trace(' . MAP COLORS', MAP_COLOR, MAP_COLOR_FG);
 			//T.debug_info();
 			trace('--------------------------------------');
 		#end
@@ -566,11 +599,11 @@ class MapFK extends TilemapGeneric
 	   @param Y In 8x8 tile coords
 	   @param AxisX True to check for X axis, false to check for Y axis
 	   @param CHECK 0 to check Until no Tile, 1 to check Until Any Collision Tile
-	   @return {v0,v1} Minimum Maximum
+	   @return {v0,v1} Minimum Maximum in Tiles
 	 */
 	/// DEV: This is almost ready to be put on the generic class.
 	///		  Need to  room limits into consideration? Make it optional or whatever.
-	public function get2RayCast(X:Int, Y:Int, AxisX:Bool = true, CHECK:Int = 0)
+	public function get2RayCast(X:Int, Y:Int, AxisX:Bool = true, CHECK:Int = 0):{v0:Int, v1:Int}
 	{
 		var o = {v0:0, v1:0};
 		var B0 = AxisX?roomCornerTile.x:roomCornerTile.y;

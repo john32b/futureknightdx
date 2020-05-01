@@ -64,12 +64,14 @@ class Reg
 		gravity:410,
 		pl_speed:70,
 		pl_jump:220,
-		//-
-		en_health			:20,	// Depends on enemy
-		en_health_chase		:30,	// Depends on enemy
-		en_speed		:35,
+		// --
+		
+		en_health		:20,	// All enemies
+		en_health_chase	:30,	// Chase enemies have 30 health
+		en_health_big	:240,
+		en_speed		:50,
 		en_turret_speed	:2.5,	// Millisecs between shots
-		en_bounce		:180,
+		en_bounce		:180,	// Jump velocity
 		en_spawn_time	:3, 
 	};
 
@@ -84,7 +86,7 @@ class Reg
 	public static function init_pre()
 	{
 		trace(" == Reg init -pre-");
-		D.assets.DYN_FILES = [PATH_JSON, PATH_INI, Game.DEBUG_MAP];
+		D.assets.DYN_FILES = [PATH_JSON, PATH_INI];
 		D.assets.onAssetLoad = onAssetLoad;	
 		D.snd.ROOT_SND = "snd/";
 		D.snd.ROOT_MSC = "mus/";
@@ -99,9 +101,7 @@ class Reg
 	{
 		trace(" == Reg init -post-");
 		D.snd.setVolume("master", 0.15);
-		
-		//D.text.styles.set('hud_health', );
-		
+	
 		#if debug
 		new Debug();
 		#end
@@ -115,9 +115,7 @@ class Reg
 		trace(" -- Reg Dynamic Asset Load");
 		INI = new ConfigFile(D.assets.files.get(PATH_INI));
 		JSON = Json.parse(D.assets.files.get(PATH_JSON));
-		
-		//INI.getObj('REG_P', P);	// Read 
-		
+			
 		if (++_dtimes == 1)
 		{
 			D.snd.addMetadataNode(JSON.soundFiles);
@@ -125,8 +123,6 @@ class Reg
 	}//---------------------------------------------------;
 		static var _dtimes:Int = 0; // Asset loaded times
 
-	
-		
 		
 	// Quickly add the monitor border. And set it to be drawn at one camera only
 	public static function add_border():FlxSprite

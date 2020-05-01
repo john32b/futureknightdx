@@ -176,7 +176,7 @@ class Player extends FlxSprite
 		// Graphics
 		Reg.IM.loadGraphic(this, 'player', COLOR_COMBO);
 		
-		setFacingFlip(FlxObject .LEFT, true, false);
+		setFacingFlip(FlxObject.LEFT, true, false);
 		setFacingFlip(FlxObject.RIGHT, false, false);
 		
 		// Animations
@@ -384,7 +384,8 @@ class Player extends FlxSprite
 			{
 				velocity.set(0, 0);
 				D.snd.playV(snd.land);
-				last.y = y = Std.int(y);
+				// DEV: Sometimes (y) is 9.99999999, so I need to round it
+				last.y = y = Math.ceil(y);
 
 				if (y - _specialTileY > FALL_DAMAGE_HEIGHT)
 				{
@@ -737,6 +738,12 @@ class Player extends FlxSprite
 		isFalling = false;		// Init here does not matter, gets inited before use.
 		
 		_interact_time = 0;
+		
+		if (x > Reg.st.map.roomCornerPixel.x + (Reg.st.map.ROOM_WIDTH / 2)) {
+			facing = FlxObject.LEFT;
+		}else{
+			facing = FlxObject.RIGHT;
+		}
 		
 		fsm.goto(ONFLOOR);
 	}//---------------------------------------------------;

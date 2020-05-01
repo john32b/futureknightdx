@@ -39,10 +39,9 @@ class Debug
 	}//---------------------------------------------------;
 	
 	
-	public function info_1()
+	public function load(lData:String)
 	{
-		// show info on all game groups,
-		//
+		Reg.st.map.loadMap(lData);
 	}//---------------------------------------------------;
 	
 }// --

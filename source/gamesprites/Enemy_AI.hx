@@ -51,7 +51,6 @@ import flixel.math.FlxAngle;
 @:access(gamesprites.Enemy)
 class Enemy_AI 
 {
-	
 	// Pixel padding to center of chase target
 	static inline var CHASE_CORRECTION = 2;
 	
@@ -112,12 +111,10 @@ class Enemy_AI
 		if (e.y + e.halfHeight < Reg.st.player.y + Reg.st.player.halfHeight - CHASE_CORRECTION)
 		{
 			e.velocity.y = Reg.P.en_speed;
-			e.facing = FlxObject.RIGHT;
 		}else
 		if (e.y + e.halfHeight > Reg.st.player.y + Reg.st.player.halfHeight + CHASE_CORRECTION )
 		{
 			e.velocity.y = -Reg.P.en_speed;
-			e.facing = FlxObject.LEFT;
 		}
 		else
 			e.velocity.y = 0;
@@ -204,7 +201,7 @@ class AI_BigChase extends Enemy_AI
 class AI_BigBounce extends AI_Move_X
 {
 	static inline var BOUNCE_DISTANCE_TILES = 4;	// x8 tiles
-	static inline var BOUNCE_HEIGHT = 32;	// pixel
+	static inline var BOUNCE_HEIGHT = 32;			// pixel
 	
 	var Y:Float;		// Start PI
 	var distpi:Float;
@@ -341,6 +338,7 @@ class AI_Move_X extends Enemy_AI
 	var v0:Float;
 	var v1:Float;
 	
+	// DEV: forceDistance is used by the big bounce AI
 	public function new(E:Enemy, forceDistance:Int = 0)
 	{
 		super(E);
@@ -360,9 +358,13 @@ class AI_Move_X extends Enemy_AI
 		
 		if (O.platform_bound) {
 			var floorY = e.spawn_origin_set(1);
+			// Check where platform ends:
 			var B = Reg.st.map.get2RayCast(e.SPAWN_TILE.x, floorY, true, FlxObject.NONE);
-			v0 = B.v0 * 8;
-			v1 = (B.v1 * 8) - e.width;
+			// Check for walls:
+			var C = Reg.st.map.get2RayCast(e.SPAWN_TILE.x, floorY - 1, true, FlxObject.ANY);
+			v0 = Math.max(B.v0, C.v0) * 8;
+			v1 = (Math.min(B.v1, C.v1) * 8) - e.width;
+			
 		}else
 		if (O.distance != 0) {
 			// Fixed amount of tiles. Going through walls, also check for negative distance

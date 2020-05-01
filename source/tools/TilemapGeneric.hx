@@ -55,8 +55,7 @@ class TilemapGeneric extends FlxGroup
 	var _tiledParams:Dynamic;
 	
 	// Killed Objects. Entities here will not return process on 'get_objectTilesAt'
-	// Use with "killObject()"
-	// DEV: All object layer objects go here. Array[object.id]
+	// Use with "killObject()" | INT = object.id;
 	var _killed:Array<Int>;
 	
 	// Globally Killed Objects.
@@ -143,6 +142,7 @@ class TilemapGeneric extends FlxGroup
 			if (global)
 			{
 				var id = T.assetLoaded + ":" + o.id;
+				trace("Killing global", id);
 				_killed_global.push(id);
 			}
 		}
