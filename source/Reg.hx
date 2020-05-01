@@ -50,22 +50,16 @@ class Reg
 		fall_damage		: 150,
 		from_ceil		: 1,	// [CPC] is 1
 		i_time			: 0.6,	// Player invisibility times after being hit
-		max_damage		: 80,	// Max damage per hit, to enemy + player
+		max_damage 		: 80,	// Max damage per hit, to enemy + player
 	}
 
 	
-	// :: General Parameters 
-	// Enemies, Playser, World
-	// Other not physic parameters can be found as statics at each class so look over there also
-	// Player - jump cut off variables are hard coded in <player.state_onair_update()>
+	// :: General Global Parameters 
 	public static var P = {
-		flicker_rate:0.06,
-		gravity:410,
-		pl_speed:70,
-		pl_jump:220,
+		flicker_rate: 0.06,
+		gravity : 410,
 	};
 
-	
 	// All states default BG color,
 	static var BG_COLOR:Int = 0xFF000000;
 	

@@ -20,12 +20,14 @@
 package states;
 
 import djFlixel.D;
+import djFlixel.gfx.pal.Pal_CPCBoy;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import gamesprites.*;
 import flixel.effects.FlxFlicker;
+import gamesprites.*;
+import flixel.util.FlxColor;
 import gamesprites.Item.ITEM_TYPE;
 
 import djFlixel.ui.FlxMenu;
@@ -187,11 +189,7 @@ class StatePlay extends FlxState
 					player.spawn(sp.x, sp.y);	// Do this first thing, then the enemies, since some enemies rely on player pos
 					map.camera_teleport_to_room_containing(sp.x, sp.y);	// This will trigger enemy creation
 				}else{
-					
-					// Search for an exit point?
-					// But which one?
-					
-					trace("NO PLAYER SPAWN POINT");
+					throw "No player spawn point";
 				}
 				
 				
@@ -245,8 +243,12 @@ class StatePlay extends FlxState
 	}//---------------------------------------------------;
 	
 	
+	// -- Called from player
 	public function on_player_no_lives()
 	{
 		FlxG.switchState(new StateGameover());
 	}//---------------------------------------------------;
+	
+	
+	
 }// --

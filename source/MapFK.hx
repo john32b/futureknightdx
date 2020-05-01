@@ -733,6 +733,36 @@ class MapFK extends TilemapGeneric
 	
 	
 	
+	// - Do a flash of the background
+	public function flash()
+	{
+		var COLORS:Array<Int> = [ 0x0000FF, 0x00FF00, 0xFF0000, 0xFF00FF, 0x00FFFF, 0xFFFF00, 0xFFFF00 ];
+		var c:Int = 0;
+		var loopsNow = 0;
+		var loopsMax = 3;
+		var stepTime = 0.08;
+		
+		var t = new flixel.util.FlxTimer();
+		t.start(stepTime, (t)->{
+			c++;
+			if (c > COLORS.length) {
+				c = 0;
+				loopsNow++;
+				/// TODO SOUND.
+				if (loopsNow > loopsMax)  {
+					layers[0].color = 0xffffff;
+					t.cancel();
+					t.destroy();
+					return;
+				}
+			}
+			layers[0].color = COLORS[c];
+			return;
+		}, 0);
+	}//---------------------------------------------------;
+	
+	
+	
 	#if debug
 	
 	function _update_debug()

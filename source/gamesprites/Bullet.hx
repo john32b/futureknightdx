@@ -39,7 +39,7 @@ class Bullet extends FlxSprite
 	
 	// All the game bullets:
 	public static var TYPES:Array<BulletType> = [
-		{ anim:"p_1", speed:150, distance:0, 	maxscreen:2, damage:10, timer:250 },
+		{ anim:"p_1", speed:150, distance:0, 	maxscreen:2, damage:10 , timer:250 },
 		{ anim:"p_2", speed:200, distance:80, 	maxscreen:4, damage:7,  timer:120 },
 		{ anim:"p_3", speed:220, distance:0, 	maxscreen:2, damage:15, timer:250 },
 		{ anim:"e_1", speed:150, distance:0, 	maxscreen:2, damage:10, timer:0   }

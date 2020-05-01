@@ -165,14 +165,17 @@ class Enemy extends MapSprite
 		
 		health -= Damage;
 		
+		
 		if (health <= 0)
 		{
+			D.snd.play("hit_02", 0.7);
 			softKill();
 		}else{
 			
-			//setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);
-			this.color = 0xFFedd446; /// TODO, other color or bitmap?
-			D.snd.play("hit_02");	 /// TODO RANDOM 02,03,04
+			//this.colorTransform.
+			setColorTransform(1, 1, 1, 1, 200, 200, 200, 0);
+			//D.snd.play("hit_02");	 /// TODO RANDOM 02,03,04
+			D.snd.play("hit_02");
 			_hurtTimer = HURT_I_TIME;
 		}
 	}//---------------------------------------------------;

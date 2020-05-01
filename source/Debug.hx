@@ -32,6 +32,12 @@ class Debug
 		FlxG.log.notice('Player Hurt 999');
 	}//---------------------------------------------------;
 	
+	@:access(gamesprites.Player)
+	public function pl_weapon(a:Int)
+	{
+		Reg.st.player.bullet_type = a;
+		Reg.st.HUD.bullet_pickup(a);
+	}//---------------------------------------------------;
 	
 	public function item_add(i:Int)
 	{
@@ -42,6 +48,11 @@ class Debug
 	public function load(lData:String)
 	{
 		Reg.st.map.loadMap(lData);
+	}//---------------------------------------------------;
+	
+	public function flash()
+	{
+		Reg.st.map.flash();
 	}//---------------------------------------------------;
 	
 }// --

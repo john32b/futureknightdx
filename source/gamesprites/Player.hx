@@ -58,17 +58,21 @@ enum PlayerState
 
 class Player extends FlxSprite
 {
-	inline static var START_HEALTH = 999;
-	inline static var START_LIVES  = 3;
+
+	static inline var SPEED = 70;
+	static inline var JUMP = 220; 
+	
+	static inline var START_HEALTH = 999;
+	static inline var START_LIVES  = 3;
 	
 	static inline var COLOR_COMBO = "blue";
 	
 	static inline var I_TIME_REVIVE = 1.4;
 	
-	static inline var INTERACT_MIN_TIME = 300;	// Minimum time allowed to interact with an animated tile
+	static inline var INTERACT_MIN_TIME = 350;		// Minimum time allowed to interact with an animated tile (exit or weapon)
 	
-	static inline var HEALTH_TICK = 0.05;	// Refresh life every this much
-	static inline var HEALTH_LOSS = 2;		// Loss per tick
+	static inline var HEALTH_TICK = 0.05;			// Refresh life every this much
+	static inline var HEALTH_LOSS = 2;				// Loss per tick
 	
 	inline static var BOUND_W = 8; 					// Bounding box 
 	inline static var BOUND_H = 22;
@@ -92,6 +96,9 @@ class Player extends FlxSprite
 	// Precalculated to avoid width/2 all the time
 	public var halfWidth:Int;
 	public var halfHeight:Int;
+	
+
+	
 	
 	// Keys states
 	var _pressingUp:Bool;
@@ -163,14 +170,14 @@ class Player extends FlxSprite
 		
 		// Auto set physics based on WALK SPEED and JUMP_STR
 		// Physics, and speed parameters
-		MAX_FALLSPEED = Reg.P.pl_jump + 56;
-		CLIMB_SPEED = Math.ceil(Reg.P.pl_speed * 0.8 );
-		SLIDE_SPEED = Math.ceil(Reg.P.pl_speed * 1.1 );
-		AIR_NUDGE_SPEED_0 = Math.ceil(Reg.P.pl_speed / 8);
+		MAX_FALLSPEED = JUMP + 56;
+		CLIMB_SPEED = Math.ceil(SPEED * 0.8 );
+		SLIDE_SPEED = Math.ceil(SPEED * 1.1 );
+		AIR_NUDGE_SPEED_0 = Math.ceil(SPEED / 8);
 		AIR_NUDGE_SPEED_1 = Math.ceil(AIR_NUDGE_SPEED_0 / 3);
 		
 		maxVelocity.y = MAX_FALLSPEED;
-		maxVelocity.x = Reg.P.pl_speed;
+		maxVelocity.x = SPEED;
 		
 		// Graphics
 		Reg.IM.loadGraphic(this, 'player', COLOR_COMBO);
@@ -219,6 +226,7 @@ class Player extends FlxSprite
 		_htick = 0;
 		
 		bullet_type = 0;
+		_interact_time = 0;	// this should not be reset at respawn
 		
 	}//---------------------------------------------------;
 	
@@ -520,13 +528,13 @@ class Player extends FlxSprite
 		if (_pressingRight)
 		{
 			facing = FlxObject.RIGHT;
-			velocity.x = Reg.P.pl_speed;
+			velocity.x = SPEED;
 			_walk_start_req();
 		}
 		else if (_pressingLeft)
 		{
 			facing = FlxObject.LEFT;
-			velocity.x = -Reg.P.pl_speed;
+			velocity.x = -SPEED;
 			_walk_start_req();
 		}
 		else
@@ -544,7 +552,7 @@ class Player extends FlxSprite
 		
 		if (D.ctrl.justPressed(A))
 		{
-			velocity.y = -Reg.P.pl_jump;
+			velocity.y = -JUMP;
 			touching = 0;
 		
 			if (isCrouching) standUp();
@@ -736,8 +744,6 @@ class Player extends FlxSprite
 		isWalking = false;
 		isFalling = false;		// Init here does not matter, gets inited before use.
 		
-		_interact_time = 0;
-		
 		if (x > Reg.st.map.roomCornerPixel.x + (Reg.st.map.ROOM_WIDTH / 2)) {
 			facing = FlxObject.LEFT;
 		}else{
@@ -854,7 +860,7 @@ class Player extends FlxSprite
 				// Can't hit a hazard on the way up / Don't hit same hazard more than once
 				if (velocity.y < 0) return;	
 				hurt(Reg.P_DAM.from_hazard);
-				velocity.y = -Reg.P.pl_jump;
+				velocity.y = -JUMP;
 				touching = 0;
 				_jumpForceFull = true;
 				_verticalJump = false;	// Help player escape if falls from above
