@@ -44,14 +44,13 @@ class Reg
 	
 	// :: DAMAGE VALUES 
 	// I am using this simple naming style, first is who takes damage _ from whom
+	// [INI FILE]
 	public static var P_DAM = {
-		player_from_enemy 		: 30,	// Depends on enemy
-		player_from_hazard		: 28,	
-		player_fall_damage		: 180,
-		player_from_big			: 240,
-		player_from_ceil		: 1,
-		// --
-		enemy_from_player 		: 100,
+		from_hazard		: 30,	// [CPC] is 30
+		fall_damage		: 150,
+		from_ceil		: 1,	// [CPC] is 1
+		i_time			: 0.6,	// Player invisibility times after being hit
+		max_damage		: 80,	// Max damage per hit, to enemy + player
 	}
 
 	
@@ -64,7 +63,6 @@ class Reg
 		gravity:410,
 		pl_speed:70,
 		pl_jump:220,
-		// --
 	};
 
 	
@@ -95,7 +93,7 @@ class Reg
 		D.snd.setVolume("master", 0.15);
 	
 		#if debug
-		new Debug();
+			new Debug();
 		#end
 		
 	}//---------------------------------------------------;
@@ -112,6 +110,9 @@ class Reg
 		{
 			D.snd.addMetadataNode(JSON.soundFiles);
 		}
+		
+		INI.getObj('P_DAM', P_DAM);
+		
 	}//---------------------------------------------------;
 		static var _dtimes:Int = 0; // Asset loaded times
 

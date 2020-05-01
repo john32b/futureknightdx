@@ -51,6 +51,7 @@ class Enemy extends MapSprite
 		
 		speed : 50,
 		speed_big : 30,
+		speed_long : 35,
 		speed_turret : 2.5,	// seconds between shots
 	};
 	

@@ -25,6 +25,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import gamesprites.*;
+import flixel.effects.FlxFlicker;
 import gamesprites.Item.ITEM_TYPE;
 
 import djFlixel.ui.FlxMenu;
@@ -140,23 +141,11 @@ class StatePlay extends FlxState
 		{
 			case Enemy:
 					if (!b.alive) return;
-					var en:Enemy = cast b;
-					b.hurt(Reg.P_DAM.enemy_from_player);
-					a.hurt(Reg.P_DAM.player_from_enemy);
-				// from old code:
-						//if (enemy.isBig) 
-						//{
-							//if(enemy.health>100)
-								//pl.hurt(100);
-							//else
-								//pl.hurt(enemy.health);
-								//
-							//enemy.hurt(100);
-						//}else
-						//{
-							//pl.hurt(enemy.health);
-							//enemy.softKill();				
-						//}	
+					if (FlxFlicker.isFlickering(player)) return;
+					var dam = Math.min(b.health, Reg.P_DAM.max_damage);
+					// Note, if enemy/player is flickering, hurt() will deal with it
+					b.hurt(dam);
+					a.hurt(dam);
 					
 			case Item:
 					var item:Item = cast b;

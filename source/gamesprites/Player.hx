@@ -64,7 +64,6 @@ class Player extends FlxSprite
 	static inline var COLOR_COMBO = "blue";
 	
 	static inline var I_TIME_REVIVE = 1.4;
-	static inline var I_TIME_HURT = 0.4;
 	
 	static inline var INTERACT_MIN_TIME = 300;	// Minimum time allowed to interact with an animated tile
 	
@@ -362,7 +361,7 @@ class Player extends FlxSprite
 		
 		if (justTouched(FlxObject.CEILING))
 		{
-			health -= Reg.P_DAM.player_from_ceil;
+			health -= Reg.P_DAM.from_ceil;
 			if (health < 0) health = 0;
 			D.snd.playV(snd.ceil);
 			if (_sndTemp != null){
@@ -397,7 +396,7 @@ class Player extends FlxSprite
 					//       e.g. just hit by a bullet before landing
 					FlxFlicker.stopFlickering(this);
 
-					hurt(Reg.P_DAM.player_fall_damage);
+					hurt(Reg.P_DAM.fall_damage);
 					_shoot_allow = false;
 					fsm.goto(STUNNED);
 				}else{
@@ -693,7 +692,7 @@ class Player extends FlxSprite
 			// Do not kill, SlowHealth counter will kill the player
 		}
 		
-		FlxFlicker.flicker(this, I_TIME_HURT, Reg.P.flicker_rate);
+		FlxFlicker.flicker(this, Reg.P_DAM.i_time, Reg.P.flicker_rate);
 	}//---------------------------------------------------;
 	
 	// -- Revives when dead, also at the first time for initialization
@@ -854,7 +853,7 @@ class Player extends FlxSprite
 			case HAZARD:
 				// Can't hit a hazard on the way up / Don't hit same hazard more than once
 				if (velocity.y < 0) return;	
-				hurt(Reg.P_DAM.player_from_hazard);
+				hurt(Reg.P_DAM.from_hazard);
 				velocity.y = -Reg.P.pl_jump;
 				touching = 0;
 				_jumpForceFull = true;

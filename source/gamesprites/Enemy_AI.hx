@@ -126,19 +126,20 @@ class Enemy_AI
 			case "move_y": ai = new AI_Move_Y(E); 
 			case "bounce": ai = new AI_Bounce(E);
 			case "chase": 
-				ai = new AI_Chase(E); 
 				E.startHealth = Enemy.PAR.health_chase;
+				ai = new AI_Chase(E); 
 			case "big_chase" : 
-				ai = new AI_BigChase(E); 
 				E.startHealth = Enemy.PAR.health_big;
 				E.spawnTime = Enemy.PAR.spawntime_big;
 				E.speed = Enemy.PAR.speed_big;
+				ai = new AI_BigChase(E); 
 			case "big_bounce": 
-				ai = new AI_BigBounce(E); 
 				E.startHealth = Enemy.PAR.health_long;
+				E.speed = Enemy.PAR.speed_long;
+				ai = new AI_BigBounce(E); 
 			case "turret" : 
-				ai = new AI_Turret(E); 
 				E.startHealth = Enemy.PAR.health_turret;
+				ai = new AI_Turret(E);
 			case _: 
 				ai = new Enemy_AI(E);
 		}
@@ -184,7 +185,7 @@ class AI_Turret extends Enemy_AI
 **/
 class AI_BigChase extends Enemy_AI
 {
-	static inline var CHASE_DISTANCE = 5 * 32;
+	static inline var CHASE_DISTANCE = 4 * 32;
 	
 	// Version 1 (CPC)
 	//  - Chase on the x axis if close enough
