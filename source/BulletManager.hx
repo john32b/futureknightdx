@@ -11,6 +11,7 @@
   NOTES:
 	- All bullets auto kill when off screen
 	- Get 'Player.bullet_type' for the current bullet type
+	- Sound when colliding with the MAP
 -------------------------------------------------------------------*/
 
 

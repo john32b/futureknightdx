@@ -90,14 +90,12 @@ class Enemy_AI
 	// Set velocity X to follow player
 	function chase_x()
 	{
-		if (e.x + e.halfWidth < Reg.st.player.x + Reg.st.player.halfWidth - CHASE_CORRECTION)
-		{
-			e.velocity.x = Reg.P.en_speed;
+		if (e.x + e.halfWidth < Reg.st.player.x + Reg.st.player.halfWidth - CHASE_CORRECTION) {
+			e.velocity.x = e.speed;
 			e.facing = FlxObject.RIGHT;
 		}else
-		if (e.x + e.halfWidth > Reg.st.player.x + Reg.st.player.halfWidth + CHASE_CORRECTION )
-		{
-			e.velocity.x = -Reg.P.en_speed;
+		if (e.x + e.halfWidth > Reg.st.player.x + Reg.st.player.halfWidth + CHASE_CORRECTION ) {
+			e.velocity.x = -e.speed;
 			e.facing = FlxObject.LEFT;
 		}
 		else
@@ -108,13 +106,11 @@ class Enemy_AI
 	// Set velocity Y to follow player
 	function chase_y()
 	{
-		if (e.y + e.halfHeight < Reg.st.player.y + Reg.st.player.halfHeight - CHASE_CORRECTION)
-		{
-			e.velocity.y = Reg.P.en_speed;
+		if (e.y + e.halfHeight < Reg.st.player.y + Reg.st.player.halfHeight - CHASE_CORRECTION) {
+			e.velocity.y = e.speed;
 		}else
-		if (e.y + e.halfHeight > Reg.st.player.y + Reg.st.player.halfHeight + CHASE_CORRECTION )
-		{
-			e.velocity.y = -Reg.P.en_speed;
+		if (e.y + e.halfHeight > Reg.st.player.y + Reg.st.player.halfHeight + CHASE_CORRECTION ) {
+			e.velocity.y = -e.speed;
 		}
 		else
 			e.velocity.y = 0;
@@ -123,17 +119,30 @@ class Enemy_AI
 	// From TILED MAP enemy type to an AI
 	public static function getAI(type:String, E:Enemy):Enemy_AI
 	{
-		return switch(type)
+		var ai:Enemy_AI;
+		switch(type)
 		{
-			case "move_x": new AI_Move_X(E);
-			case "move_y": new AI_Move_Y(E); 
-			case "bounce": new AI_Bounce(E);
-			case "chase": new AI_Chase(E);
-			case "big_chase" : new AI_BigChase(E);
-			case "big_bounce": new AI_BigBounce(E);
-			case "turret" : new AI_Turret(E);
-			case _: new Enemy_AI(E);
+			case "move_x": ai = new AI_Move_X(E);
+			case "move_y": ai = new AI_Move_Y(E); 
+			case "bounce": ai = new AI_Bounce(E);
+			case "chase": 
+				ai = new AI_Chase(E); 
+				E.startHealth = Enemy.PAR.health_chase;
+			case "big_chase" : 
+				ai = new AI_BigChase(E); 
+				E.startHealth = Enemy.PAR.health_big;
+				E.spawnTime = Enemy.PAR.spawntime_big;
+				E.speed = Enemy.PAR.speed_big;
+			case "big_bounce": 
+				ai = new AI_BigBounce(E); 
+				E.startHealth = Enemy.PAR.health_long;
+			case "turret" : 
+				ai = new AI_Turret(E); 
+				E.startHealth = Enemy.PAR.health_turret;
+			case _: 
+				ai = new Enemy_AI(E);
 		}
+		return ai;
 	}//---------------------------------------------------;
 	
 }//--
@@ -151,7 +160,7 @@ class AI_Turret extends Enemy_AI
 	
 	override public function update(elapsed:Float) 
 	{
-		if ((_timer += elapsed) > Reg.P.en_turret_speed)
+		if ((_timer += elapsed) > Enemy.PAR.speed_turret)
 		{
 			_timer = 0;
 			if (!Reg.st.player.alive) return;
@@ -164,7 +173,7 @@ class AI_Turret extends Enemy_AI
 	{
 		super.respawn();
 		// Randomize the start time, so turrets will not fire at the same time
-		_timer = Reg.P.en_turret_speed * Math.random() * 0.85;
+		_timer = Enemy.PAR.speed_turret * Math.random() * 0.85;
 	}//---------------------------------------------------;
 	
 }// --
@@ -175,7 +184,7 @@ class AI_Turret extends Enemy_AI
 **/
 class AI_BigChase extends Enemy_AI
 {
-	static inline var CHASE_DISTANCE = 3 * 32;
+	static inline var CHASE_DISTANCE = 5 * 32;
 	
 	// Version 1 (CPC)
 	//  - Chase on the x axis if close enough
@@ -257,10 +266,13 @@ class AI_Chase extends Enemy_AI
 	- Put it in rooms where there are no holes in the ground or it could fall
 	- Stops Animation and handles it manually
 **/
+@:access(gamesprites.Enemy)
 class AI_Bounce extends Enemy_AI
 {
 	// Count
 	static inline var GFX_BOUNCE_RESTORE_TIME = 0.16;
+	
+	static inline var BOUNCE_SPEED = 180;
 	
 	var frames:Array<Int>;
 	var t:Float = 0;
@@ -269,7 +281,7 @@ class AI_Bounce extends Enemy_AI
 	{
 		super(E);
 		e.acceleration.y = Reg.P.gravity;
-		startVel.y = Reg.P.en_speed;
+		startVel.y = e.speed;
 		frames = e.animation.getByName("main").frames;
 	}//---------------------------------------------------;
 	
@@ -292,7 +304,7 @@ class AI_Bounce extends Enemy_AI
 			if( Reg.st.map.getCol(tx, ty) > 0 ||
 				Reg.st.map.getCol(tx + 1, ty) > 0)
 			{
-				e.velocity.y = - Reg.P.en_bounce;
+				e.velocity.y = - BOUNCE_SPEED;
 				e.last.y = e.y = (ty * 8) - e.height; // Lock y to the floor, because it went through it
 				t = GFX_BOUNCE_RESTORE_TIME; // set timer
 				e.animation.frameIndex = frames[1];
@@ -354,7 +366,7 @@ class AI_Move_X extends Enemy_AI
 			O.distance = forceDistance;
 		}
 		
-		startVel.x = Reg.P.en_speed;
+		startVel.x = e.speed;
 		
 		if (O.platform_bound) {
 			var floorY = e.spawn_origin_set(1);
@@ -429,7 +441,7 @@ class AI_Move_Y extends Enemy_AI
 			same_x:false
 		});
 		
-		startVel.y = Reg.P.en_speed;	// This is enemy default base speed
+		startVel.y = e.speed;	// This is enemy default base speed
 		sameX = O.same_x;
 		
 		// sameX Flag means it will be a ghost enemy, full Y area movement

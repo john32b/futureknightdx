@@ -65,14 +65,6 @@ class Reg
 		pl_speed:70,
 		pl_jump:220,
 		// --
-		
-		en_health		:20,	// All enemies
-		en_health_chase	:30,	// Chase enemies have 30 health
-		en_health_big	:240,
-		en_speed		:50,
-		en_turret_speed	:2.5,	// Millisecs between shots
-		en_bounce		:180,	// Jump velocity
-		en_spawn_time	:3, 
 	};
 
 	

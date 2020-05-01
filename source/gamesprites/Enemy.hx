@@ -35,12 +35,33 @@ class Enemy extends MapSprite
 {
 	// :: Some hard coded
 	static inline var ANIM_FPS = 8;
-	static inline var ANIM_FRAMES = 2; // Every enemy has 2 frames. In the future I could change it to 3 or 4
+	static inline var ANIM_FRAMES = 2; 		// Every enemy has 2 frames. In the future I could change it to 3 or 4
 	static inline var HURT_I_TIME = 0.1;	// Invinvibility time after being hurt
 	
+	static public var PAR = {
+		health : 20,
+		health_chase : 30,
+		health_big  : 240,
+		health_long : 120,
+		health_worm : 180,
+		health_turret : 600,
+		
+		spawntime: 		3,
+		spawntime_big:  6,
+		
+		speed : 50,
+		speed_big : 30,
+		speed_turret : 2.5,	// seconds between shots
+	};
+	
+	
+	
 	var ai:Enemy_AI;
-	var spawnTime:Float;
-	var _spawnTimer:Float;	// Checked against <spawnTime> and when it triggers it respawns the enemy
+	var spawnTime:Float;	// Time to wait for regenerating
+	var _spawnTimer:Float;	// spawnTime counter
+	
+	var speed:Float;		// The actual speed of the enemy
+	var startHealth:Float;	//
 	
 	// Precalculated to avoid width/2 all the time.
 	public var halfWidth:Int = 0;
@@ -53,8 +74,12 @@ class Enemy extends MapSprite
 	// Time since last hurt. I count so it doesn't get hurt at each frame. Counts down to 0
 	var _hurtTimer:Float = 0;
 	
+	// This is the palette coloring of the enemy. e.g. "red", "yellow"
+	// Colors are defined in <ImageAssets.hx>
+	// This is also passed to the explosion particle
+	var PAL_COLOR:String;
 	
-	var COLOR:String;
+
 
 	// --
 	override public function update(elapsed:Float):Void 
@@ -95,8 +120,10 @@ class Enemy extends MapSprite
 		moves = true;			// Override the default false of `MapSprite`
 		acceleration.set(0, 0);	// Just in case, this is for the bounce spite
 		
-		health = Reg.P.en_health;
-		spawnTime = Reg.P.en_spawn_time;	// Separate because some enemies might want to spawn later?
+		// These are the defaults, can be overriden by AI init.
+		speed = PAR.speed;
+		startHealth = PAR.health;
+		spawnTime = PAR.spawntime;
 		
 		// Default ORIGIN to all enemies is center, unless an AI sets this again
 		spawn_origin_set(0);
@@ -107,7 +134,14 @@ class Enemy extends MapSprite
 		halfHeight = Std.int(height / 2);
 		
 		// :: AI
+		// This will also set the health/spawntime of some enemy types
 		ai = Enemy_AI.getAI(o.type, this);
+		
+		// :: Lastly check for overrides from TILED
+		if (o.prop != null && o.prop.speed != null)
+		{
+			speed = speed * o.prop.speed;
+		}
 		
 		respawn();
 	}//---------------------------------------------------;
@@ -117,6 +151,7 @@ class Enemy extends MapSprite
 	{
 		setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);	// Reset color in case it was altered
 		_hurtTimer = 0;
+		health = startHealth;
 		visible = alive = moves = solid = true;
 		animation.play('main', true);
 		ai.respawn();	// The AI will actually place it
@@ -136,7 +171,7 @@ class Enemy extends MapSprite
 			
 			//setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);
 			this.color = 0xFFedd446; /// TODO, other color or bitmap?
-			D.snd.play("hit_02");	/// TODO RANDOM 02,03,04
+			D.snd.play("hit_02");	 /// TODO RANDOM 02,03,04
 			_hurtTimer = HURT_I_TIME;
 		}
 	}//---------------------------------------------------;
@@ -165,32 +200,33 @@ class Enemy extends MapSprite
 		switch(_gfxtype)
 		{
 			case 1: // 4 particles box
-				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfHeight - 12, velocity.x, velocity.y, COLOR);
-				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfHeight + 12, velocity.x, velocity.y, COLOR);
-				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight - 12, velocity.x, velocity.y, COLOR);
-				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight + 12, velocity.x, velocity.y, COLOR);
+				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfHeight - 12, velocity.x, velocity.y, PAL_COLOR);
+				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfHeight + 12, velocity.x, velocity.y, PAL_COLOR);
+				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight - 12, velocity.x, velocity.y, PAL_COLOR);
+				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight + 12, velocity.x, velocity.y, PAL_COLOR);
 				
 			case 2: // 2 in height
-				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight - 12, velocity.x, velocity.y, COLOR);
-				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight + 12, velocity.x, velocity.y, COLOR);
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight - 12, velocity.x, velocity.y, PAL_COLOR);
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight + 12, velocity.x, velocity.y, PAL_COLOR);
 				
 			case 3: // 3 in width
 				for(i in 0...3) // (0,1,2)
-				Reg.st.PM.createAt(0, (x + 11) + (i * 22), y + halfHeight, velocity.x, velocity.y, COLOR);
+				Reg.st.PM.createAt(0, (x + 11) + (i * 22), y + halfHeight, velocity.x, velocity.y, PAL_COLOR);
 				
 			case _: // 1 particle or default
-				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight, velocity.x, velocity.y, COLOR);
+				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight, velocity.x, velocity.y, PAL_COLOR);
 		};
 	}//---------------------------------------------------;
 	
 	
+	// - Load graphic
+	// - Plus some tweaks to custom health
 	function _loadGraphic(i:Int)
 	{
-		
 		if (O.name != null) 
-			COLOR = O.name; 
+			PAL_COLOR = O.name; 
 		else
-			COLOR = Reg.IM.getRandomSprColor();
+			PAL_COLOR = Reg.IM.getRandomSprColor();
 		
 		switch(i){
 			
@@ -198,7 +234,7 @@ class Enemy extends MapSprite
 			case a if (i < 10): 
 				_gfxtype = 0;
 				i--; // Make it start from 0
-				Reg.IM.loadGraphic(this, 'enemy_sm', COLOR);
+				Reg.IM.loadGraphic(this, 'enemy_sm', PAL_COLOR);
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
 				
 				// Alter the bounds of SOME enemies
@@ -220,7 +256,8 @@ class Enemy extends MapSprite
 			// :: Player Sprite
 			case 10:
 				_gfxtype = 0;
-				Reg.IM.loadGraphic(this, 'player', COLOR);
+				startHealth = PAR.health * 2;
+				Reg.IM.loadGraphic(this, 'player', PAL_COLOR);
 				animation.add("main", [2, 3, 2, 1], ANIM_FPS + 2);
 				setSize(8, 22);
 				offset.set(11, 4);
@@ -230,7 +267,7 @@ class Enemy extends MapSprite
 			case 13, 14, 15, 16:
 				_gfxtype = 1;
 				i -= 13;
-				Reg.IM.loadGraphic(this, 'enemy_big', COLOR);
+				Reg.IM.loadGraphic(this, 'enemy_big', PAL_COLOR);
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
 				if (i == 3){ // Long enemy 
 					_gfxtype = 2;
@@ -246,7 +283,7 @@ class Enemy extends MapSprite
 			case 17, 18:
 				_gfxtype = 1;
 				i -= 17;
-				Reg.IM.loadGraphic(this, 'enemy_tall', COLOR);
+				Reg.IM.loadGraphic(this, 'enemy_tall', PAL_COLOR);
 				animation.add('main', [(i * ANIM_FRAMES), (i * ANIM_FRAMES) + 1], ANIM_FPS);
 				setSize(50, 50);
 				centerOffsets();
@@ -256,7 +293,8 @@ class Enemy extends MapSprite
 			case 19, 20:
 				i -= 19;
 				_gfxtype = 3;
-				Reg.IM.loadGraphic(this, 'enemy_worm', COLOR);
+				startHealth = PAR.health_worm;
+				Reg.IM.loadGraphic(this, 'enemy_worm', PAL_COLOR);
 				if (i == 0){
 					animation.add('main', [0, 1, 0, 2, 0, 3], ANIM_FPS - 2);
 					height = 22;
