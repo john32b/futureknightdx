@@ -51,6 +51,7 @@ class ImageAssets
 		"particles" => {im:"im/ts_particles.png", tw:22, th:24, col:true},
 		"static" => {im:"im/hud_static.png", tw:64, th:24, col:false},
 		"huditem" => {im:"im/hud_items.png", tw:17, th:17, col:false},
+		"keys" => {im:"im/ts_keys.png", tw:16, th:16, col:false},
 	];
 	
 	

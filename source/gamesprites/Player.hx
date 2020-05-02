@@ -97,8 +97,6 @@ class Player extends FlxSprite
 	public var halfWidth:Int;
 	public var halfHeight:Int;
 	
-
-	
 	
 	// Keys states
 	var _pressingUp:Bool;
@@ -868,6 +866,7 @@ class Player extends FlxSprite
 				
 			case WEAPON(i):
 				if (fsm.currentStateName != ONFLOOR) return;
+				Reg.st.key_ind.setAt(0, B.x, B.y);
 				if (D.ctrl.justPressed(UP)) 
 				{
 					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;
@@ -877,10 +876,12 @@ class Player extends FlxSprite
 					_idle_stop();
 					if (bullet_type == i) bullet_type = 0; else bullet_type = i; // Toggle
 					Reg.st.HUD.bullet_pickup(bullet_type);
+					D.snd.play(Reg.SND.weapon_get);
 				}
 				
 			case EXIT(locked):
 				if (fsm.currentStateName != ONFLOOR) return;
+				Reg.st.key_ind.setAt(0, B.x, B.y);
 				if (D.ctrl.justPressed(UP)) 
 				{
 					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;

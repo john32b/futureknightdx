@@ -59,6 +59,15 @@ class Reg
 		flicker_rate: 0.06,
 		gravity : 410,
 	};
+	
+	// ::
+	public static var SND = {
+		exit_unlock:"fx_2",
+		exit_travel:"fx_1",
+		item_use:"fx_1",
+		error:"error",
+		weapon_get:"fx_3",
+	};
 
 	// All states default BG color,
 	static var BG_COLOR:Int = 0xFF000000;

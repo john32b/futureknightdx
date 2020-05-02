@@ -41,7 +41,7 @@ class RoomSprites extends FlxGroup
 	
 	// Sub Groups. Holds all the inner groups
 	var sg:Array<FlxTypedGroup<MapSprite>>;
-	
+		
 	//====================================================;
 	
 	public function new() 

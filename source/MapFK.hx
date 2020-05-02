@@ -28,7 +28,9 @@ package;
 import MapTiles.FG_TILE_TYPE;
 import MapTiles.EDITOR_TILE;
 import djA.DataT;
+import djFlixel.other.StepTimer;
 import flash.geom.ColorTransform;
+import openfl.filters.ColorMatrixFilter;
 
 import gamesprites.Item.ITEM_TYPE;
 import gamesprites.AnimatedTile;
@@ -695,8 +697,10 @@ class MapFK extends TilemapGeneric
 						// Remove the currently selected
 						Reg.st.HUD.item_pickup(null);
 						Reg.st.INV.removeItemWithID(item);
+						D.snd.play(Reg.SND.exit_unlock);
 						
 					}else{
+						D.snd.play(Reg.SND.error);
 						Reg.st.HUD.set_text("Needs item " + item, true, 3);
 						return;
 					}
@@ -707,6 +711,7 @@ class MapFK extends TilemapGeneric
 		
 		
 		// :: GOTO EXIT TARGET 
+		
 		#if debug
 			if (e.O.prop.goto == null) {
 				trace("Error: No exit target");
@@ -716,8 +721,8 @@ class MapFK extends TilemapGeneric
 		
 		FlxG.signals.postUpdate.addOnce(()->{
 			loadMap(e.O.prop.goto);
+			D.snd.play(Reg.SND.exit_travel);
 		});
-		
 	}//---------------------------------------------------;
 	
 	
@@ -732,33 +737,62 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 	
 	
-	
 	// - Do a flash of the background
-	public function flash()
+	// Type : 0 = short , 1 = long
+	var _isflashing = false;
+	public function flash(type:Int = 0)
 	{
-		var COLORS:Array<Int> = [ 0x0000FF, 0x00FF00, 0xFF0000, 0xFF00FF, 0x00FFFF, 0xFFFF00, 0xFFFF00 ];
-		var c:Int = 0;
-		var loopsNow = 0;
-		var loopsMax = 3;
-		var stepTime = 0.08;
+		if (_isflashing) return; // should never happen in normal gameplay
+	
+		var MAT:Array<Array<Float>> = [
 		
-		var t = new flixel.util.FlxTimer();
-		t.start(stepTime, (t)->{
-			c++;
-			if (c > COLORS.length) {
-				c = 0;
-				loopsNow++;
-				/// TODO SOUND.
-				if (loopsNow > loopsMax)  {
-					layers[0].color = 0xffffff;
-					t.cancel();
-					t.destroy();
-					return;
-				}
+			[	// black and white
+				1, 0, 0, 0, 0,
+				1, 0, 0, 0, 0,
+				1, 0, 0, 0, 0,
+				0, 0, 0, 1, 0
+			],	
+			[
+				1, 0, 0, 0, 128,
+				0, 0, 0, 0, 0,
+				0, 0, 1, 0, -128,
+				0, 0, 0, 1, 0
+			],		
+			[
+				0, 0, 0, 0, 0,
+				0, 1, 0, 0, 128,
+				0, 0, 1, 0, -128,
+				0, 0, 0, 1, 0
+			],
+			[
+				1, 1, 0, 0, 0,
+				0, 1, 0, 0, -128,
+				0, 0, 1, 0, 128,
+				0, 0, 0, 1, 0
+			],
+			[
+				1, 1, 0, 0, 128,
+				0, 1, 1, 0, -20,
+				1, 0, 1, 0, 20,
+				0, 0, 0, 1, 0
+			],			
+		];
+		
+		// type 0, and type 1
+		var s = new StepTimer((t, f)->{
+			if (f){
+				_isflashing = false;
+				camera.setFilters([]);
+				return;
 			}
-			layers[0].color = COLORS[c];
-			return;
-		}, 0);
+			var f = MAT[t % MAT.length];	
+			camera.setFilters([new ColorMatrixFilter(f)]);
+		});	
+		
+		// 20 loops for long, 3 for short
+		var TICKS = type == 0?3:20;
+		s.start(0, TICKS, -0.1);
+		_isflashing = true;
 	}//---------------------------------------------------;
 	
 	

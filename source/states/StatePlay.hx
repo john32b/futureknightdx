@@ -44,6 +44,8 @@ class StatePlay extends FlxState
 	public var INV:Inventory;
 	public var HUD:Hud;
 	
+	public var key_ind:KeyIndicator;
+	
 	var menu:FlxMenu;
 	
 	override public function create():Void 
@@ -59,6 +61,7 @@ class StatePlay extends FlxState
 		player = new Player();
 		PM = new ParticleManager();
 		BM = new BulletManager();
+		key_ind = new KeyIndicator(); 
 		INV = new Inventory();
 			INV.onClose = resume;
 			INV.onOpen = pause;
@@ -72,6 +75,7 @@ class StatePlay extends FlxState
 		add(player);
 		add(PM);
 		add(BM);
+		add(key_ind);
 		add(INV);
 		
 		// :: Hud on another camera view
@@ -91,7 +95,7 @@ class StatePlay extends FlxState
 		
 		// : Last thing, load the level, this till trigger the event_map_handler()
 		map.loadMap(Game.START_MAP);
-		
+		map.camera.flash(0xFF000000, 0.5);
 	}//---------------------------------------------------;
 	
 
@@ -154,11 +158,13 @@ class StatePlay extends FlxState
 					if (INV.addItem(item.item_id))
 					{
 						// Pick up OK
+						D.snd.play('item_pickup');
 						HUD.item_pickup(item.item_id);
 						item.killExtra();
 					}else{
 						// No more space in inventory
 						// >> sound error?
+						D.snd.play('error');
 					}
 					
 					
@@ -182,6 +188,7 @@ class StatePlay extends FlxState
 				ROOMSPR.reset();
 				BM.reset();
 				PM.reset();
+				key_ind.kill();
 				
 				if (map.PLAYER_SPAWN != null) 
 				{
@@ -211,6 +218,7 @@ class StatePlay extends FlxState
 				ROOMSPR.stashSave();
 				
 			case scrollEnd:
+				key_ind.kill();
 				ROOMSPR.stashKill();
 				for (e in ROOMSPR) e.active = true;
 				player.active = true;
@@ -248,7 +256,6 @@ class StatePlay extends FlxState
 	{
 		FlxG.switchState(new StateGameover());
 	}//---------------------------------------------------;
-	
 	
 	
 }// --
