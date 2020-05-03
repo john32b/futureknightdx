@@ -51,7 +51,7 @@ class Reg
 		from_ceil		: 1,	// [CPC] is 1
 		i_time			: 0.6,	// Player invisibility times after being hit
 		max_damage 		: 80,	// Max damage per hit, to enemy + player
-	}
+	};
 
 	
 	// :: General Global Parameters 
@@ -62,15 +62,18 @@ class Reg
 	
 	// ::
 	public static var SND = {
-		exit_unlock:"fx_2",
+		exit_unlock:"fx_2",	// long vibrato effect medium
 		exit_travel:"fx_1",
-		item_use:"fx_1",
 		error:"error",
 		weapon_get:"fx_3",
+		inv_item_equip:"fx_3",
 	};
 
 	// All states default BG color,
 	static var BG_COLOR:Int = 0xFF000000;
+	
+	// This is the first level that a new game will start with
+	public static var START_MAP = 'level_01';
 	
 	//====================================================;
 	//====================================================;
@@ -94,7 +97,7 @@ class Reg
 	{
 		trace(" == Reg init -post-");
 		D.snd.setVolume("master", 0.15);
-	
+		
 		#if debug
 			new Debug();
 		#end
@@ -116,6 +119,8 @@ class Reg
 		
 		INI.getObj('P_DAM', P_DAM);
 		
+		START_MAP = INI.get('DEBUG', 'startLevel');
+
 	}//---------------------------------------------------;
 		static var _dtimes:Int = 0; // Asset loaded times
 

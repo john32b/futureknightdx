@@ -13,8 +13,6 @@ import gamesprites.Item.ITEM_TYPE;
 
 class Game 
 {
-	// This is the first level that a new game will start with
-	public static var START_MAP = 'level_01';
 	
 	// Note: BOMB1,BOMB2,BOMB3, all will get the data key => BOMB
 	// Icon Number is what <hud_items.png> index - 4

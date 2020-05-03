@@ -142,7 +142,6 @@ class TilemapGeneric extends FlxGroup
 			if (global)
 			{
 				var id = T.assetLoaded + ":" + o.id;
-				trace("Killing global", id);
 				_killed_global.push(id);
 			}
 		}

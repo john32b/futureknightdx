@@ -21,6 +21,7 @@ package states;
 
 import djFlixel.D;
 import djFlixel.gfx.pal.Pal_CPCBoy;
+import djFlixel.other.StepTimer;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -29,6 +30,7 @@ import flixel.effects.FlxFlicker;
 import gamesprites.*;
 import flixel.util.FlxColor;
 import gamesprites.Item.ITEM_TYPE;
+import openfl.filters.ColorMatrixFilter;
 
 import djFlixel.ui.FlxMenu;
 
@@ -47,6 +49,8 @@ class StatePlay extends FlxState
 	public var key_ind:KeyIndicator;
 	
 	var menu:FlxMenu;
+	
+	var _isflashing = false;
 	
 	override public function create():Void 
 	{
@@ -89,12 +93,13 @@ class StatePlay extends FlxState
 		#if debug
 			if (MapFK.LAST_LOADED != "") {
 				map.loadMap(MapFK.LAST_LOADED);
+				map.camera.flash(0xFF000000, 0.5);
 				return;
 			}
 		#end
 		
 		// : Last thing, load the level, this till trigger the event_map_handler()
-		map.loadMap(Game.START_MAP);
+		map.loadMap(Reg.START_MAP);
 		map.camera.flash(0xFF000000, 0.5);
 	}//---------------------------------------------------;
 	
@@ -258,4 +263,64 @@ class StatePlay extends FlxState
 	}//---------------------------------------------------;
 	
 	
+	
+	
+	/**
+	   - Do a flash of the whole map/camera
+	   @param	TICKS How many changes in color, 5 is a full cycle. You can do as much as you want
+	   @param   callback Optional onComplete
+	**/
+	public function flash(TICKS:Int = 10, ?callback:Void->Void)
+	{
+		if (_isflashing) return; // should never happen in normal gameplay
+	
+		var MAT:Array<Array<Float>> = [
+		
+			[	// black and white
+				1, 0, 0, 0, 0,
+				1, 0, 0, 0, 0,
+				1, 0, 0, 0, 0,
+				0, 0, 0, 1, 0
+			],	
+			[
+				1, 0, 0, 0, 128,
+				0, 0, 0, 0, 0,
+				0, 0, 1, 0, -128,
+				0, 0, 0, 1, 0
+			],		
+			[
+				0, 0, 0, 0, 0,
+				0, 1, 0, 0, 128,
+				0, 0, 1, 0, -128,
+				0, 0, 0, 1, 0
+			],
+			[
+				1, 1, 0, 0, 0,
+				0, 1, 0, 0, -128,
+				0, 0, 1, 0, 128,
+				0, 0, 0, 1, 0
+			],
+			[
+				1, 1, 0, 0, 128,
+				0, 1, 1, 0, -20,
+				1, 0, 1, 0, 20,
+				0, 0, 0, 1, 0
+			],			
+		];
+		
+		// type 0, and type 1
+		var s = new StepTimer((t, f)->{
+			if (f){
+				_isflashing = false;
+				map.camera.setFilters([]);
+				if (callback != null) callback();
+				return;
+			}
+			var f = MAT[t % MAT.length];	
+			map.camera.setFilters([new ColorMatrixFilter(f)]);
+		});	
+		
+		s.start(0, TICKS, -0.1);
+		_isflashing = true;
+	}//---------------------------------------------------;
 }// --

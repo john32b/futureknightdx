@@ -52,7 +52,12 @@ class Debug
 	
 	public function flash()
 	{
-		Reg.st.map.flash();
+		Reg.st.flash(20);
 	}//---------------------------------------------------;
 	
+	
+	public function appendMap()
+	{
+		Reg.st.map.appendMap(true);
+	}//---------------------------------------------------;
 }// --

@@ -20,6 +20,13 @@
 	- Press (SHIFT + MOUSE) to position player
 	
 	
+	LAYERS
+	======
+	0: Background
+	1: Shadows
+	2: FG Tiles / Collision
+	
+	
 **/
 
 
@@ -28,9 +35,6 @@ package;
 import MapTiles.FG_TILE_TYPE;
 import MapTiles.EDITOR_TILE;
 import djA.DataT;
-import djFlixel.other.StepTimer;
-import flash.geom.ColorTransform;
-import openfl.filters.ColorMatrixFilter;
 
 import gamesprites.Item.ITEM_TYPE;
 import gamesprites.AnimatedTile;
@@ -78,6 +82,7 @@ class MapFK extends TilemapGeneric
 	
 	// The layer names as declared in TILED 
 	static inline var LAYER_BG 			= 'Background';
+	static inline var LAYER_APPEND 		= 'Append';
 	static inline var LAYER_PLATFORM 	= 'Platforms';
 	static inline var LAYER_ENTITIES 	= 'Entities';
 	
@@ -115,25 +120,31 @@ class MapFK extends TilemapGeneric
 	var tweenCamera:VarTween;
 	
 	// Set this to load the appropriate BG+FG Tiles
-	var MAP_TYPE = 0;
-	var MAP_NAME = "";
+	var MAP_TYPE = 0;		// 0:Space, 1:Forest, 2:Castle
+	var MAP_NAME = "";		// Game map name . e.g. "Control Room"
+	
 	var MAP_FILE = "";		// The short name of the loaded map. e.g. "level_01"
 	var MAP_COLOR = "";		// Color id, check "ImageAssets.D_COL_NAME"
 	var MAP_COLOR_FG = "";	// ladder colors
 	
-
 	var MAP_LOADED_ID = "";	// Combo of MAP:EXIT of the current map loaded.
 	
 	// Pointer? of all the exit TileObjects in this map
 	// ExitName->TiledObject
-	public var EXITS:Map<String,TiledObject>;
+	var EXITS:Map<String,TiledObject>;
 	
 	// All unlocked exits throughout the game
 	// < "LEVEL:EXIT_NAME" >
-	public var GLOBAL_EXITS_UNLOCKED:Array<String>;
+	var GLOBAL_EXITS_UNLOCKED:Array<String>;
+	
+	// Name of MAPs that have their "append" layer unlocked
+	// Shortname "level_02"
+	var APPLIED_APPENDS:Array<String>;
+	
 	
 	// Shadow tile data, constructed from FG tiles when loading the map
 	var sh_data:Array<Int>;
+	
 	
 	#if debug
 		public static var LAST_LOADED = "";
@@ -161,7 +172,7 @@ class MapFK extends TilemapGeneric
 		}
 		
 		GLOBAL_EXITS_UNLOCKED = [];
-		
+		APPLIED_APPENDS = [];
 	}//---------------------------------------------------;
 
 	
@@ -172,12 +183,12 @@ class MapFK extends TilemapGeneric
 	 */
 	public function loadMap(DATA:String)
 	{
-		MAP_LOADED_ID = DATA;
-		
-		var d  = DATA.split(':');
 		// e.g. "level_02:B"
-		// d[0] = Map short name
-		// d[1] = Exit name
+		// d[0] = Map short name | d[1] = Exit name
+		var d  = DATA.split(':');
+		
+		MAP_FILE = d[0];
+		MAP_LOADED_ID = DATA;
 	
 		var filepath = MAP_PATH + d[0] + MAP_EXT;
 		
@@ -207,18 +218,22 @@ class MapFK extends TilemapGeneric
 				}else {
 					if (PLAYER_SPAWN == null) throw 'Forgot to specify a player spawn point';
 				}
+				// -- Check if map has unlocked section
+				if (APPLIED_APPENDS.indexOf(MAP_FILE) >= 0) appendMap();
 				onEvent(MapEvent.loadMap);
 			});
 		
 		#else
 			
-			// Release: Load map from static assets :
+			// Release: Load map from static assets
 			load(filepath);
 			
 			if (d[1] != null) {
 				var exit = EXITS.get(d[1]);
 				PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
 			}
+			// -- Check if map has unlocked section
+			if (APPLIED_APPENDS.indexOf(MAP_FILE) >= 0) appendMap();
 			// -- Notify user that the map is ready
 			onEvent(MapEvent.loadMap);
 		
@@ -272,7 +287,7 @@ class MapFK extends TilemapGeneric
 		// -- Init POST things,
 		roomTotal.set(Math.floor(T.mapW / ROOM_TILE_WIDTH), Math.floor(T.mapH / ROOM_TILE_HEIGHT));
 		roomCurrent.set( -1, -1);	// -1 allows it to be inited later when requested to go to 0,0
-
+		
 		// -- INFO and DEV CHECKS
 		#if debug
 			if (!asData) 
@@ -691,13 +706,22 @@ class MapFK extends TilemapGeneric
 					if (Reg.st.HUD.equipped_item == item)
 					{
 						GLOBAL_EXITS_UNLOCKED.push(get_exit_uid(e.O));
+						
 						trace("YOU HAVE THE ITEM. EXIT UNLOCK KNOW", GLOBAL_EXITS_UNLOCKED);
 						// Do not return, it will unlock the exit later ->
 						
 						// Remove the currently selected
 						Reg.st.HUD.item_pickup(null);
 						Reg.st.INV.removeItemWithID(item);
+						
 						D.snd.play(Reg.SND.exit_unlock);
+						
+						//FlxG.signals.postUpdate.addOnce(()->{
+							//loadMap(e.O.prop.goto);
+							//D.snd.play(Reg.SND.exit_travel);
+						//});
+						//
+						//return;
 						
 					}else{
 						D.snd.play(Reg.SND.error);
@@ -723,9 +747,8 @@ class MapFK extends TilemapGeneric
 			loadMap(e.O.prop.goto);
 			D.snd.play(Reg.SND.exit_travel);
 		});
+		
 	}//---------------------------------------------------;
-	
-	
 	
 	
 	
@@ -737,62 +760,27 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 	
 	
-	// - Do a flash of the background
-	// Type : 0 = short , 1 = long
-	var _isflashing = false;
-	public function flash(type:Int = 0)
+	/**
+	   - Append the "APPEND" layer to the current map
+	   - also makes it global
+	   @param save Push it to Global State
+	**/
+	public function appendMap(save:Bool = false)
 	{
-		if (_isflashing) return; // should never happen in normal gameplay
-	
-		var MAT:Array<Array<Float>> = [
+		// Make sure it is not already
 		
-			[	// black and white
-				1, 0, 0, 0, 0,
-				1, 0, 0, 0, 0,
-				1, 0, 0, 0, 0,
-				0, 0, 0, 1, 0
-			],	
-			[
-				1, 0, 0, 0, 128,
-				0, 0, 0, 0, 0,
-				0, 0, 1, 0, -128,
-				0, 0, 0, 1, 0
-			],		
-			[
-				0, 0, 0, 0, 0,
-				0, 1, 0, 0, 128,
-				0, 0, 1, 0, -128,
-				0, 0, 0, 1, 0
-			],
-			[
-				1, 1, 0, 0, 0,
-				0, 1, 0, 0, -128,
-				0, 0, 1, 0, 128,
-				0, 0, 0, 1, 0
-			],
-			[
-				1, 1, 0, 0, 128,
-				0, 1, 1, 0, -20,
-				1, 0, 1, 0, 20,
-				0, 0, 0, 1, 0
-			],			
-		];
+		var data = T.getLayer(LAYER_APPEND);
+		if (data == null) throw '$MAP_FILE does not have a $LAYER_APPEND layer';
 		
-		// type 0, and type 1
-		var s = new StepTimer((t, f)->{
-			if (f){
-				_isflashing = false;
-				camera.setFilters([]);
-				return;
+		for (i in 0...data.length) {
+			if (data[i] > 0) {
+				layers[2].setTileByIndex(i, data[i], true);
 			}
-			var f = MAT[t % MAT.length];	
-			camera.setFilters([new ColorMatrixFilter(f)]);
-		});	
+		}
 		
-		// 20 loops for long, 3 for short
-		var TICKS = type == 0?3:20;
-		s.start(0, TICKS, -0.1);
-		_isflashing = true;
+		if (save) APPLIED_APPENDS.push(MAP_FILE);
+		
+		trace(">> Appended Extra Layer Map");
 	}//---------------------------------------------------;
 	
 	

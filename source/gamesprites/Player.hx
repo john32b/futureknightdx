@@ -852,8 +852,24 @@ class Player extends FlxSprite
 	**/
 	public function event_anim_tile(A:Player, B:AnimatedTile)
 	{
+		// Because this can trigger while the inventory is open
+		if (!active) return;
+		
 		switch(B.type)
 		{
+			case KEYHOLE:
+				if (fsm.currentStateName != ONFLOOR) return;
+				Reg.st.key_ind.setAt(0, B.x);
+				if (D.ctrl.justPressed(UP))
+				{
+					/// TODO::
+					trace("KEYHOLE", B.O.name);
+					Reg.st.map.killObject(B.O, true);
+					B.kill();
+					// SOUND
+					Reg.st.map.appendMap(true);
+				}
+			
 			case HAZARD:
 				// Can't hit a hazard on the way up / Don't hit same hazard more than once
 				if (velocity.y < 0) return;	
@@ -866,7 +882,7 @@ class Player extends FlxSprite
 				
 			case WEAPON(i):
 				if (fsm.currentStateName != ONFLOOR) return;
-				Reg.st.key_ind.setAt(0, B.x, B.y);
+				Reg.st.key_ind.setAt(0, B.x);
 				if (D.ctrl.justPressed(UP)) 
 				{
 					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;
@@ -881,7 +897,7 @@ class Player extends FlxSprite
 				
 			case EXIT(locked):
 				if (fsm.currentStateName != ONFLOOR) return;
-				Reg.st.key_ind.setAt(0, B.x, B.y);
+				Reg.st.key_ind.setAt(0, B.x);
 				if (D.ctrl.justPressed(UP)) 
 				{
 					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;

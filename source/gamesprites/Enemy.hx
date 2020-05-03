@@ -39,14 +39,14 @@ class Enemy extends MapSprite
 	static inline var HURT_I_TIME = 0.1;	// Invinvibility time after being hurt
 	
 	static public var PAR = {
-		health : 20,
+		health 		 : 20,
 		health_chase : 30,
 		health_big  : 240,
 		health_long : 120,
 		health_worm : 180,
 		health_turret : 600,
 		
-		spawntime: 		3,
+		spawntime: 		3.5,
 		spawntime_big:  6,
 		
 		speed : 50,
