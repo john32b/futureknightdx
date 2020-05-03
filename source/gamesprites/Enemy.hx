@@ -41,8 +41,9 @@ class Enemy extends MapSprite
 	static public var PAR = {
 		health 		 : 20,
 		health_chase : 30,
-		health_big  : 240,
+		health_big  : 200,
 		health_long : 120,
+		health_tall	: 240,
 		health_worm : 180,
 		health_turret : 600,
 		
@@ -52,7 +53,8 @@ class Enemy extends MapSprite
 		speed : 50,
 		speed_big : 30,
 		speed_long : 35,
-		speed_turret : 2.5,	// seconds between shots
+		speed_turret  : 2.5,	// seconds between shots
+		speed_bigtall : 1.5,	// seconds between shots
 	};
 	
 	
@@ -80,8 +82,6 @@ class Enemy extends MapSprite
 	// This is also passed to the explosion particle
 	var PAL_COLOR:String;
 	
-
-
 	// --
 	override public function update(elapsed:Float):Void 
 	{
@@ -172,9 +172,7 @@ class Enemy extends MapSprite
 			softKill();
 		}else{
 			
-			//this.colorTransform.
 			setColorTransform(1, 1, 1, 1, 200, 200, 200, 0);
-			//D.snd.play("hit_02");	 /// TODO RANDOM 02,03,04
 			D.snd.play("hit_02");
 			_hurtTimer = HURT_I_TIME;
 		}

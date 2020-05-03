@@ -66,7 +66,10 @@ class Reg
 		exit_travel:"fx_1",
 		error:"error",
 		weapon_get:"fx_3",
-		inv_item_equip:"fx_3",
+		
+		item_pickup:"item_pickup",
+		item_equip:"fx_3",	// on inventory select
+		item_use:"fx_5",
 	};
 
 	// All states default BG color,
@@ -117,7 +120,7 @@ class Reg
 			D.snd.addMetadataNode(JSON.soundFiles);
 		}
 		
-		INI.getObj('P_DAM', P_DAM);
+		INI.getObjEx('P_DAM', P_DAM);
 		
 		START_MAP = INI.get('DEBUG', 'startLevel');
 

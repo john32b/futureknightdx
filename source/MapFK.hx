@@ -280,6 +280,7 @@ class MapFK extends TilemapGeneric
 			Reg.IM.getMapTiles(MAP_TYPE, "fg", MAP_COLOR_FG),
 			T.tileW, T.tileH, null, 1, 2, 1);	// 2: Start drawing from index 2, because 1 is ghost tile
 			
+			
 		_setTileProperties();	// <- Declare tile collision properties
 		
 		_scanProcessEntities();	// <- Figure out exits and player spawn points
@@ -667,6 +668,13 @@ class MapFK extends TilemapGeneric
 	
 	
 	
+	
+	
+	//====================================================;
+	// GAME 
+	//====================================================;
+	
+	
 	// -- Called by an exit when it is spawned
 	public function exit_isLocked(o:TiledObject):Bool
 	{
@@ -685,9 +693,7 @@ class MapFK extends TilemapGeneric
 		return true;
 	}//---------------------------------------------------;
 	
-	
-	
-	// - Called from player, pressing up an any exit
+// - Called from player, pressing up an any exit
 	// Note: The animatedTile, has all the data I need to know
 	public function exit_activate(e:AnimatedTile)
 	{
@@ -703,31 +709,31 @@ class MapFK extends TilemapGeneric
 			{
 				case ["item", _ ] :
 					var item = EnumTools.createByName(ITEM_TYPE, d[1]);
-					if (Reg.st.HUD.equipped_item == item)
+					if (Reg.st.HUD.equipped_item != item)
 					{
-						GLOBAL_EXITS_UNLOCKED.push(get_exit_uid(e.O));
-						
-						trace("YOU HAVE THE ITEM. EXIT UNLOCK KNOW", GLOBAL_EXITS_UNLOCKED);
-						// Do not return, it will unlock the exit later ->
-						
-						// Remove the currently selected
-						Reg.st.HUD.item_pickup(null);
-						Reg.st.INV.removeItemWithID(item);
-						
-						D.snd.play(Reg.SND.exit_unlock);
-						
-						//FlxG.signals.postUpdate.addOnce(()->{
-							//loadMap(e.O.prop.goto);
-							//D.snd.play(Reg.SND.exit_travel);
-						//});
-						//
-						//return;
-						
-					}else{
 						D.snd.play(Reg.SND.error);
 						Reg.st.HUD.set_text("Needs item " + item, true, 3);
 						return;
 					}
+					
+					GLOBAL_EXITS_UNLOCKED.push(get_exit_uid(e.O));
+					
+					trace("YOU HAVE THE ITEM. EXIT UNLOCK KNOW", GLOBAL_EXITS_UNLOCKED);
+					// Do not return, it will unlock the exit later ->
+					
+					// Remove the currently selected
+					Reg.st.HUD.item_pickup(null);
+					Reg.st.INV.removeItemWithID(item);
+					
+					D.snd.play(Reg.SND.exit_unlock);
+					
+					//FlxG.signals.postUpdate.addOnce(()->{
+						//loadMap(e.O.prop.goto);
+						//D.snd.play(Reg.SND.exit_travel);
+					//});
+					//
+					//return;
+						
 					
 				case _: trace("Error: Syntax Error", d); return;
 			}
@@ -751,13 +757,41 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 	
 	
-	
-	// Get a string id of an exit in this map
-	// USED IN: GLOBAL_EXITS_UNLOCKED []
-	function get_exit_uid(e:TiledObject)
+	// - Called from player, pressing up on any keyhole
+	// Check and processes
+	public function keyhole_activate(e:AnimatedTile)
 	{
-		return MAP_FILE + ':' + e.name;
+		trace("-- Activating KEYHOLE ");
+		
+		var item = EnumTools.createByName(ITEM_TYPE, e.O.name);
+		#if debug
+		if (item == null) throw "Forgot to set keyhole requirement, or name wrong";
+		#end
+		trace(", item required", item);
+	
+		if (Reg.st.HUD.equipped_item != item)
+		{
+			D.snd.play(Reg.SND.error);
+			Reg.st.HUD.set_text("Requires " + item, true, 3);
+			return;
+		}
+		
+		Reg.st.INV.removeItemWithID(item);
+		Reg.st.HUD.item_pickup(null);
+	
+		killObject(e.O, true);
+		e.kill();
+		D.snd.play(Reg.SND.item_use);
+		Reg.st.map.appendMap(true);	
+		Reg.st.flash(15);
 	}//---------------------------------------------------;
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	/**
@@ -781,8 +815,19 @@ class MapFK extends TilemapGeneric
 		if (save) APPLIED_APPENDS.push(MAP_FILE);
 		
 		trace(">> Appended Extra Layer Map");
+
 	}//---------------------------------------------------;
 	
+
+	
+	
+		
+	// Get a string id of an exit in this map
+	// USED IN: GLOBAL_EXITS_UNLOCKED []
+	function get_exit_uid(e:TiledObject)
+	{
+		return MAP_FILE + ':' + e.name;
+	}//---------------------------------------------------;
 	
 	
 	#if debug

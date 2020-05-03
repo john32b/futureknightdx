@@ -28,7 +28,9 @@
 		<assets path="assets/sounds" type="sound" include="*.mp3" rename="snd"/>
 		
 	
-	<haxedef name="webgl" if="html5"/>
+		
+	<!--Because I am doing bitmap manipulation HTML5 Webgl is buggy, So I am using canvas -->
+	<haxedef name="canvas" if="html5"/>
 	<haxedef name="FLX_NO_GAMEPAD"/>
 	
 	<!-- NOTE I am putting connect to the HAXEDEVELOP project settings -->	
@@ -37,9 +39,8 @@
 	
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 	
-	
 	<!--:: GAME DEFINES ::-->
-	<haxedef name="DYN_ASSETS" if="debug"/>
+	<haxedef name="DYN_ASSETS" if="debug" unless="html5"/>
 	<!--<haxedef name="SHOOT_HOLD"/>-->
 
 </project>

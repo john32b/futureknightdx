@@ -862,12 +862,12 @@ class Player extends FlxSprite
 				Reg.st.key_ind.setAt(0, B.x);
 				if (D.ctrl.justPressed(UP))
 				{
-					/// TODO::
-					trace("KEYHOLE", B.O.name);
-					Reg.st.map.killObject(B.O, true);
-					B.kill();
-					// SOUND
-					Reg.st.map.appendMap(true);
+					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;
+						_interact_time = FlxG.game.ticks;
+					if (_idle_stage > 0) animation.play('idle');
+					_idle_stop();
+					// -- logic:
+					Reg.st.map.keyhole_activate(B);
 				}
 			
 			case HAZARD:
@@ -887,9 +887,9 @@ class Player extends FlxSprite
 				{
 					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;
 						_interact_time = FlxG.game.ticks;
-					// ---
 					if (_idle_stage > 0) animation.play('idle');
 					_idle_stop();
+					// -- logic:
 					if (bullet_type == i) bullet_type = 0; else bullet_type = i; // Toggle
 					Reg.st.HUD.bullet_pickup(bullet_type);
 					D.snd.play(Reg.SND.weapon_get);

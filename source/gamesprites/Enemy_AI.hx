@@ -133,6 +133,10 @@ class Enemy_AI
 				E.spawnTime = Enemy.PAR.spawntime_big;
 				E.speed = Enemy.PAR.speed_big;
 				ai = new AI_BigChase(E); 
+			case "big_tall" :
+				E.startHealth = Enemy.PAR.health_tall;
+				E.spawnTime = Enemy.PAR.spawntime_big;
+				ai = new AI_Turret(E, 1);
 			case "big_bounce": 
 				E.startHealth = Enemy.PAR.health_long;
 				E.speed = Enemy.PAR.speed_long;
@@ -158,6 +162,21 @@ class AI_Turret extends Enemy_AI
 {
 	// Time to Shoot
 	var _timer:Float = 0;
+	var _bullet = 3;	// 3 is phasing, 4 is non phasing
+	var _waitTime:Float;
+	
+	// Type 0=Turret, 1=Tall Big
+	public function new(e:Enemy, type:Int = 0)
+	{
+		super(e);
+		if (type == 0) {
+			_bullet = 3;
+			_waitTime = Enemy.PAR.speed_turret;
+		}else{
+			_bullet = 4;
+			_waitTime = Enemy.PAR.speed_bigtall;
+		}
+	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 
 	{
@@ -165,7 +184,7 @@ class AI_Turret extends Enemy_AI
 		{
 			_timer = 0;
 			if (!Reg.st.player.alive) return;
-			Reg.st.BM.createAt(3, e.x + e.halfWidth, e.y + e.halfHeight, 0);
+			Reg.st.BM.createAt(_bullet, e.x + e.halfWidth, e.y + e.halfHeight, 0);
 			// <SOUND>
 		}
 	}//---------------------------------------------------;

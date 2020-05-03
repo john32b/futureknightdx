@@ -101,6 +101,7 @@ class StatePlay extends FlxState
 		// : Last thing, load the level, this till trigger the event_map_handler()
 		map.loadMap(Reg.START_MAP);
 		map.camera.flash(0xFF000000, 0.5);
+		
 	}//---------------------------------------------------;
 	
 
@@ -163,13 +164,13 @@ class StatePlay extends FlxState
 					if (INV.addItem(item.item_id))
 					{
 						// Pick up OK
-						D.snd.play('item_pickup');
+						D.snd.play(Reg.SND.item_pickup);
 						HUD.item_pickup(item.item_id);
 						item.killExtra();
 					}else{
 						// No more space in inventory
 						// >> sound error?
-						D.snd.play('error');
+						D.snd.play(Reg.SND.error);
 					}
 					
 					
