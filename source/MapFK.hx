@@ -71,9 +71,9 @@ enum MapEvent
 class MapFK extends TilemapGeneric
 {
 	// :: Do not touch
-	static inline var MAP_SPACE = 0;
-	static inline var MAP_FOREST = 1;
-	static inline var MAP_CASTLE = 2;
+	public static inline var MAP_SPACE = 0;
+	public static inline var MAP_FOREST = 1;
+	public static inline var MAP_CASTLE = 2;
 	static inline var TILE_SIZE = 8;
 	static inline var MAP_PATH = "assets/maps/";
 	static inline var MAP_EXT = ".tmx";
@@ -259,8 +259,8 @@ class MapFK extends TilemapGeneric
 		MAP_COLOR = 'bg_' + DataT.existsOr(T.properties.COLOR, 'yellow');
 		MAP_COLOR_FG = 'bg_' + DataT.existsOr(T.properties.COLOR_FG, 'blue');
 		
-		 _scanProcessTiles();	// <- Read FG tiles
-
+		_scanProcessTiles();	// <- Read FG tiles
+		 
 		layers[0].loadMapFromArray(T.getLayer(LAYER_BG), T.mapW, T.mapH,
 			Reg.IM.getMapTiles(MAP_TYPE, "bg", MAP_COLOR),
 			T.tileW, T.tileH, null, 1, 1, 1);
@@ -278,7 +278,7 @@ class MapFK extends TilemapGeneric
 		
 		layers[2].loadMapFromArray(T.getLayer(LAYER_PLATFORM), T.mapW, T.mapH,
 			Reg.IM.getMapTiles(MAP_TYPE, "fg", MAP_COLOR_FG),
-			T.tileW, T.tileH, null, 1, 2, 1);	// 2: Start drawing from index 2, because 1 is ghost tile
+			T.tileW, T.tileH, null, 1, MapTiles.FG_START_DRAW[MAP_TYPE], 1);
 			
 			
 		_setTileProperties();	// <- Declare tile collision properties
@@ -425,16 +425,7 @@ class MapFK extends TilemapGeneric
 		
 		while (i < data.length)
 		{
-			// Skip (0,1)
-			// Skip Ladder Tiles
-			if (data[i] < 2 || 
-			MapTiles.fgTileIsType(data[i], MAP_TYPE, FG_TILE_TYPE.LADDER))
-			{
-				prev = 0;
-				i++;
-				continue;
-			}
-			
+
 			if (data[i] == hazardIndex) {
 				// Create a new TiledObject, put it with the others
 				var coords = serialToTileCoords(i);
@@ -455,8 +446,24 @@ class MapFK extends TilemapGeneric
 				continue;
 			}
 			
+			// :: Scan and Create Shadows
+			// Skip (Forest)
+			// Skip (0,1)
+			// Skip Ladder Tiles
+			//
+			if (
+			MAP_TYPE == MAP_FOREST ||
+			data[i] < 2 || 
+			MapTiles.fgTileIsType(data[i], MAP_TYPE, FG_TILE_TYPE.LADDER))
+			{
+				prev = 0;
+				i++;
+				continue;
+			}
+			
 			// > At this point, tile cannot be (empty,ladder,hazard)
 			//   so it is a solid block that casts shadow
+			
 			
 			if (prev == 0 && data[i + T.mapW] < 2)
 			{
@@ -467,6 +474,8 @@ class MapFK extends TilemapGeneric
 			if ((i % T.mapW) < T.mapW - 1)
 			{
 				var SL = 0;
+				
+				if (MAP_TYPE == MAP_SPACE) // Slides only exist in spacestation
 				if (MapTiles.fgTileIsType(data[i], MAP_TYPE, FG_TILE_TYPE.SLIDE_RIGHT)) SL = 1;
 	
 				if (data[i + 1] < 2 && SL == 0)
@@ -524,8 +533,12 @@ class MapFK extends TilemapGeneric
 		m.setTileProperties(C[SOFT][0], FlxObject.CEILING, null, null, C[SOFT][1]);
 		m.setTileProperties(C[LADDER][0], FlxObject.NONE, null, null, C[LADDER][1]);
 		m.setTileProperties(C[LADDER_TOP][0], FlxObject.CEILING, null, null, C[LADDER_TOP][1]);
-		m.setTileProperties(C[SLIDE_LEFT][0], FlxObject.ANY, _tilecol_slide_left, null, C[SLIDE_LEFT][1]);
-		m.setTileProperties(C[SLIDE_RIGHT][0], FlxObject.ANY, _tilecol_slide_right, null, C[SLIDE_RIGHT][1]);
+		
+		if (MAP_TYPE == MAP_SPACE)
+		{
+			m.setTileProperties(C[SLIDE_LEFT][0], FlxObject.ANY, _tilecol_slide_left, null, C[SLIDE_LEFT][1]);
+			m.setTileProperties(C[SLIDE_RIGHT][0], FlxObject.ANY, _tilecol_slide_right, null, C[SLIDE_RIGHT][1]);
+		}
 		
 	}//---------------------------------------------------;
 	
@@ -712,7 +725,7 @@ class MapFK extends TilemapGeneric
 					if (Reg.st.HUD.equipped_item != item)
 					{
 						D.snd.play(Reg.SND.error);
-						Reg.st.HUD.set_text("Needs item " + item, true, 3);
+						Reg.st.HUD.set_text("Requires `" + Game.ITEM_DATA[item].name + "` to unlock", true, 3);
 						return;
 					}
 					
@@ -772,7 +785,7 @@ class MapFK extends TilemapGeneric
 		if (Reg.st.HUD.equipped_item != item)
 		{
 			D.snd.play(Reg.SND.error);
-			Reg.st.HUD.set_text("Requires " + item, true, 3);
+			Reg.st.HUD.set_text("Requires " + Game.ITEM_DATA[item].name, true, 3);
 			return;
 		}
 		

@@ -67,7 +67,7 @@ class Enemy_AI
 	public function respawn()
 	{
 		e.velocity.set(startVel.x, startVel.y);
-		e.facing = e.velocity.y >= 0?FlxObject.RIGHT:FlxObject.LEFT;
+		e.facing = e.velocity.x >= 0?FlxObject.RIGHT:FlxObject.LEFT;
 		e.spawn_origin_move();
 	}//---------------------------------------------------;
 	// --
@@ -229,24 +229,26 @@ class AI_BigChase extends Enemy_AI
 **/
 class AI_BigBounce extends AI_Move_X
 {
-	static inline var BOUNCE_DISTANCE_TILES = 4;	// x8 tiles
 	static inline var BOUNCE_HEIGHT = 32;			// pixel
 	
 	var Y:Float;		// Start PI
 	var distpi:Float;
+	var L:Float;
+	
 	public function new(E:Enemy)
 	{
-		super(E, BOUNCE_DISTANCE_TILES);
-		// This is set on the parent
-		Y = E.y;	
+		super(E);
+		var delta = Std.int(v1 - v0);
+		var blocks = (E.O.prop.distance / 4);	// big blocks it is travelling
+		Y = E.y; // This is set on the parent
 		// One pi is one cycle, so slice it
-		distpi = Math.PI / Std.int(v1 - v0);
+		distpi = (Math.PI * blocks) / delta;
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 
 	{
 		super.update(elapsed);
-		e.y = Y + Math.sin(distpi * (e.x - v1)) * BOUNCE_HEIGHT;
+		e.y = Y - Math.abs(Math.sin(distpi * (e.x - v1))) * BOUNCE_HEIGHT;
 	}//---------------------------------------------------;
 }
 
@@ -322,7 +324,8 @@ class AI_Bounce extends Enemy_AI
 			var ty = Std.int((e.y + e.height) / 8);
 			var tx = Std.int(e.x / 8);
 			if( Reg.st.map.getCol(tx, ty) > 0 ||
-				Reg.st.map.getCol(tx + 1, ty) > 0)
+				Reg.st.map.getCol(tx + 1, ty) > 0) 
+				//e.y + e.height > Reg.st.map.roomCornerPixel.y + Reg.st.map.ROOM_HEIGHT)
 			{
 				e.velocity.y = - BOUNCE_SPEED;
 				e.last.y = e.y = (ty * 8) - e.height; // Lock y to the floor, because it went through it
@@ -371,7 +374,7 @@ class AI_Move_X extends Enemy_AI
 	var v1:Float;
 	
 	// DEV: forceDistance is used by the big bounce AI
-	public function new(E:Enemy, forceDistance:Int = 0)
+	public function new(E:Enemy)
 	{
 		super(E);
 		
@@ -379,12 +382,6 @@ class AI_Move_X extends Enemy_AI
 			platform_bound:false,
 			distance:0			
 		});
-		
-		// This is for the extended <big_bounce> to work
-		if (forceDistance > 0)
-		{
-			O.distance = forceDistance;
-		}
 		
 		startVel.x = e.speed;
 		

@@ -857,18 +857,6 @@ class Player extends FlxSprite
 		
 		switch(B.type)
 		{
-			case KEYHOLE:
-				if (fsm.currentStateName != ONFLOOR) return;
-				Reg.st.key_ind.setAt(0, B.x);
-				if (D.ctrl.justPressed(UP))
-				{
-					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;
-						_interact_time = FlxG.game.ticks;
-					if (_idle_stage > 0) animation.play('idle');
-					_idle_stop();
-					// -- logic:
-					Reg.st.map.keyhole_activate(B);
-				}
 			
 			case HAZARD:
 				// Can't hit a hazard on the way up / Don't hit same hazard more than once
@@ -880,28 +868,27 @@ class Player extends FlxSprite
 				_verticalJump = false;	// Help player escape if falls from above
 				fsm.goto(ONAIR);
 				
-			case WEAPON(i):
-				if (fsm.currentStateName != ONFLOOR) return;
+				
+			case KEYHOLE:
 				Reg.st.key_ind.setAt(0, B.x);
-				if (D.ctrl.justPressed(UP)) 
+				if (_interact_anim_request()) 
 				{
-					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;
-						_interact_time = FlxG.game.ticks;
-					if (_idle_stage > 0) animation.play('idle');
-					_idle_stop();
-					// -- logic:
+					Reg.st.map.keyhole_activate(B);
+				}
+			
+			case WEAPON(i):
+				Reg.st.key_ind.setAt(0, B.x);
+				if (_interact_anim_request()) 
+				{
 					if (bullet_type == i) bullet_type = 0; else bullet_type = i; // Toggle
 					Reg.st.HUD.bullet_pickup(bullet_type);
-					D.snd.play(Reg.SND.weapon_get);
+					D.snd.play(Reg.SND.weapon_get);					
 				}
 				
 			case EXIT(locked):
-				if (fsm.currentStateName != ONFLOOR) return;
 				Reg.st.key_ind.setAt(0, B.x);
-				if (D.ctrl.justPressed(UP)) 
+				if (_interact_anim_request()) 
 				{
-					if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return;
-					_interact_time = FlxG.game.ticks;
 					// > This will check if exit is locked etc, also will unlock and go to the new map.
 					Reg.st.map.exit_activate(B);
 				}
@@ -951,6 +938,8 @@ class Player extends FlxSprite
 		fsm.goto(ONSLIDE);
 	}//---------------------------------------------------;
 
+	
+	
 	
 	// - USED IN <state_onfloor_update>
 	// - Stop walking and end current walk cycle
@@ -1004,6 +993,26 @@ class Player extends FlxSprite
 			trace("Warning: Can't find a floor. Dropping");
 			last.y = y = Y;
 		}
+	}//---------------------------------------------------;
+	
+	
+	// -- Check if player is on floor and can interact with animated tile
+	// - Takes into account timings etc
+	// - Produces INTERACT symbol
+	function _interact_anim_request():Bool
+	{
+		if (fsm.currentStateName != ONFLOOR) return false;
+		
+		if (D.ctrl.justPressed(UP)) 
+		{
+			if (_idle_stage > 0) animation.play('idle');
+			_idle_stop();
+			if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return false;
+			_interact_time = FlxG.game.ticks;
+			return true;
+		}
+		
+		return false;
 	}//---------------------------------------------------;
 
 	

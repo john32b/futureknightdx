@@ -123,7 +123,7 @@ class Reg
 		INI.getObjEx('P_DAM', P_DAM);
 		
 		START_MAP = INI.get('DEBUG', 'startLevel');
-
+		
 	}//---------------------------------------------------;
 		static var _dtimes:Int = 0; // Asset loaded times
 

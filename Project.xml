@@ -31,6 +31,7 @@
 		
 	<!--Because I am doing bitmap manipulation HTML5 Webgl is buggy, So I am using canvas -->
 	<haxedef name="canvas" if="html5"/>
+	
 	<haxedef name="FLX_NO_GAMEPAD"/>
 	
 	<!-- NOTE I am putting connect to the HAXEDEVELOP project settings -->	

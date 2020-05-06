@@ -9,6 +9,7 @@
 
 package;
 import flixel.FlxG;
+import gamesprites.Item.ITEM_TYPE;
 
 class Debug 
 {
@@ -44,6 +45,14 @@ class Debug
 		FlxG.log.notice('Adding item $i');
 	}//---------------------------------------------------;
 	
+	public function item_all()
+	{
+		Reg.st.INV.addItem(ITEM_TYPE.SECURO_KEY);
+		Reg.st.INV.addItem(ITEM_TYPE.PLATFORM_KEY);
+		Reg.st.INV.addItem(ITEM_TYPE.EXIT_PASS);
+		Reg.st.INV.addItem(ITEM_TYPE.SAFE_PASS);
+	}//---------------------------------------------------;
+	
 	
 	public function load(lData:String)
 	{
@@ -54,7 +63,6 @@ class Debug
 	{
 		Reg.st.flash(20);
 	}//---------------------------------------------------;
-	
 	
 	public function appendMap()
 	{

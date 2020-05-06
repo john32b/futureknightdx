@@ -45,6 +45,8 @@ class ImageAssets
 		"enemy_big" => {im:"im/ts_enemy_big.png", tw:50, th:46, col:true},
 		"enemy_tall" => {im:"im/ts_enemy_tall.png", tw:56, th:52, col:true},
 		"enemy_worm" => {im:"im/ts_enemy_worm.png", tw:70, th:24, col:true},
+		"enemy_clone" => {im:"im/ts_enemy_pl.png", tw:28, th:26, col:true},
+		"ts_enemy_pl" => {im:"im/ts_enemy_worm.png", tw:70, th:24, col:true},
 		"animtile" => {im:"im/ts_tiles.png", tw:32, th:32, col:false},
 		"items" => {im:"im/ts_items.png", tw:20, th:20, col:false},
 		"bullets" => {im:"im/ts_bullets.png", tw:20, th:20, col:false}, 
@@ -165,8 +167,9 @@ class ImageAssets
 	**/
 	public function getMapTiles(type:Int, layer:String, ?C:String):BitmapData
 	{
-		var bit = getbitmap('im/tiles_${layer}_${type}.png', C);
-		return bit;
+		var asset = 'im/tiles_${layer}_${type}.png';
+		// Colorize and return
+		return getbitmap(asset, C);
 	}//---------------------------------------------------;
 	
 	
@@ -178,6 +181,13 @@ class ImageAssets
 	**/
 	function getbitmap(assetName:String, ?C:String, ?useCache:Bool = false)
 	{
+		#if debug
+		if (C != null && !D_COL_NAME.exists(C)){
+			trace("Error: Wrong color or empty", C);
+			C = 'red';
+		}
+		#end
+		
 		var source:BitmapData;
 		
 		if (useCache)

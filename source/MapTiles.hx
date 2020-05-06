@@ -63,16 +63,29 @@ class MapTiles
 		
 		// TYPE (1) : FOREST
 		[   
-			SOFT => [2, 10],
-			SLIDE_LEFT => [1, 1],
-			SLIDE_RIGHT => [1, 1],
-			LADDER => [1, 1],
-			LADDER_TOP => [1, 1],
-			HAZARD_TILE => [-1]	// no hazard tiles there
-		]
+			SOFT => [4, 8],
+			LADDER => [15, 6],
+			LADDER_TOP => [13, 2],
+			HAZARD_TILE => [3, 1],
+			//SLIDE_LEFT => [],
+			//SLIDE_RIGHT => []
+		],
 		
 		// TYPE (2) : CASTLE
+		[   
+			SOFT => [5, 12],
+			LADDER => [51, 4],
+			LADDER_TOP => [49, 2],
+			HAZARD_TILE => [2, 1],
+			SLIDE_LEFT => [],
+			SLIDE_RIGHT => []
+		]
 	];
+	
+	
+	// Start drawing indexes for the FG layer
+	// 2 means that tiles(1) will be skipped. etc
+	public static var FG_START_DRAW = [2, 5, 5];
 	
 	
 	

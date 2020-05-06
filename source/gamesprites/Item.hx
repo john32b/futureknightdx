@@ -30,16 +30,16 @@ enum ITEM_TYPE
 	BOMB2;
 	BOMB3;
 	GLOVE;
-	SAFE_PASS; // 5
-	EXIT_PASS;
+	SAFE_PASS; 			// Used in level_06
+	EXIT_PASS;			// Used in level_08		
 	CONFUSER_UNIT;
-	PLATFORM_KEY;
+	PLATFORM_KEY;		// Used in level_07
 	SECURO_KEY; 
 	BRIDGE_SPELL; // 10
 	FLASH_BANG_SPELL;
 	RELEASE_SPELL;
 	DESTRUCT_SPELL; 
-	SHORTENER_SPELL;
+	SCEPTER;
 }//---------------------------------------------------;
 
 

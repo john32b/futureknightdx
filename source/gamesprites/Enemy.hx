@@ -257,10 +257,11 @@ class Enemy extends MapSprite
 				
 			// :: Player Sprite
 			case 10:
+				// enemy_clone
 				_gfxtype = 0;
 				startHealth = PAR.health * 2;
-				Reg.IM.loadGraphic(this, 'player', PAL_COLOR);
-				animation.add("main", [2, 3, 2, 1], ANIM_FPS + 2);
+				Reg.IM.loadGraphic(this, 'enemy_clone', PAL_COLOR);
+				animation.add("main", [1, 2, 1, 0], ANIM_FPS + 2);
 				setSize(8, 22);
 				offset.set(11, 4);
 				spawn_origin_set(0); // Will be calculated later also because clone is always FLOOR_BOUND
