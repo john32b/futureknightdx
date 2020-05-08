@@ -34,7 +34,9 @@ typedef ItemHudInfo = {
 
 class Hud extends FlxGroup
 {
-	static inline var HUD_SCREEN_X:Int = 25; // (320-270)/2 (screenwidth-graphicwidth) / 2 
+	
+	static inline var ITEM_MESSAGE_TIME = 6;	// seconds
+	static inline var HUD_SCREEN_X = 25; // (320-270)/2 (screenwidth-graphicwidth) / 2 
 	static inline var FONT_HEALTH = "fnt/lc_light.otf";
 	
 	static inline var TEXT_BLINK_TIME = 0.4;
@@ -166,7 +168,7 @@ class Hud extends FlxGroup
 	
 	// Pick up item with real itemID (EntityID, starting from 1
 	// Call with NULL to remove the item graphic
-	public function item_pickup(itemID:ITEM_TYPE)
+	public function item_pickup(itemID:ITEM_TYPE = null)
 	{
 		if (equipped_item == itemID) return;
 		
@@ -175,7 +177,7 @@ class Hud extends FlxGroup
 		if (itemID != null)
 		{
 			var ITD = Game.ITEM_DATA.get(itemID);
-			set_text(ITD.desc, true);
+			set_text(ITD.desc, true, ITEM_MESSAGE_TIME);
 			set_item_icon(ITD.icon);
 			static_run();
 		}else{

@@ -93,7 +93,9 @@ class ImageAssets
 		"bg_blue" => [23, 20, 10],
 		"bg_blue2" => [23, 10, 1],
 		"bg_red" => [16, 6, 3],
-		"bg_red2" => [6, 3, 0] // dark
+		"bg_red2" => [6, 3, 0], // dark
+		"bg_gray" => [27, 13, 31],
+		"bg_green2" => [21, 9, 31] // or 31 instead of 3
 		
 	];
 	

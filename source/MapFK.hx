@@ -780,12 +780,11 @@ class MapFK extends TilemapGeneric
 		#if debug
 		if (item == null) throw "Forgot to set keyhole requirement, or name wrong";
 		#end
-		trace(", item required", item);
 	
 		if (Reg.st.HUD.equipped_item != item)
 		{
 			D.snd.play(Reg.SND.error);
-			Reg.st.HUD.set_text("Requires " + Game.ITEM_DATA[item].name, true, 3);
+			Reg.st.HUD.set_text("You can use a " + Game.ITEM_DATA[item].name + " here", true, 3);
 			return;
 		}
 		

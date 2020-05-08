@@ -190,6 +190,17 @@ class Enemy extends MapSprite
 		moves = false;
 	}//---------------------------------------------------;
 	
+	/** Kill enemy for good */
+	public function killGlobal()
+	{
+		if (alive) {
+			softKill();
+		}else{
+			trace("Killing gobal enemy that was dead");
+		}
+		spawnTime = -1;
+		Reg.st.map.killObject(O, true);
+	}//---------------------------------------------------;
 	
 	/**
 	   Create Particles and Sound for current Enemy

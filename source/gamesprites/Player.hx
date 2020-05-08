@@ -446,8 +446,12 @@ class Player extends FlxSprite
 		if (_pressingUp)
 		{
 			if (ladder_checkUp()) return;
+		}else 
+		if (D.ctrl.justPressed(Y))
+		{
+			// :: Item use
+			Game.use_current_item();
 		}
-		
 	}//---------------------------------------------------;
 	
 	
@@ -584,8 +588,12 @@ class Player extends FlxSprite
 			// :: Check for ladder. This changes the state
 			if (ladder_checkUp()) return;
 			
-		}else
+		}else if (D.ctrl.justPressed(Y))
 		{
+			// :: Item use
+			Game.use_current_item();
+		}else
+		{	
 			// Not UP or DOWN, OR JUMP
 			if (isCrouching)
 			{

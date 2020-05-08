@@ -95,7 +95,7 @@ class MapTiles
 	public static var EDITOR_ENTITY(default, null):Map < EDITOR_TILE, Array<Int> > = [
 		ENEMY => [1, 20],
 		PLAYER => [25, 1],
-		ANIM => [26, 7],	// Animtiles will pused in <AnimatedTile.hx> and handled from there
+		ANIM => [26, 8],	// Animtiles will pused in <AnimatedTile.hx> and handled from there
 		ITEM => [34, 14]
 	];
 	

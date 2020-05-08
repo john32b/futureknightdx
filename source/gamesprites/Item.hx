@@ -17,6 +17,7 @@ package gamesprites;
 import djFlixel.D;
 import djfl.util.TiledMap.TiledObject;
 import flixel.FlxSprite;
+import flixel.effects.FlxFlicker;
 import haxe.EnumTools;
 
 
@@ -106,4 +107,11 @@ class Item extends MapSprite
 		inc += STEP;
 	}//---------------------------------------------------;
 	
+	
+	
+	public function cant_pick_up()
+	{
+		FlxFlicker.flicker(this, 2, 0.15);
+		D.snd.play(Reg.SND.error);
+	}//---------------------------------------------------;
 }// --

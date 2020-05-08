@@ -119,6 +119,14 @@ class RoomSprites extends FlxGroup
 		stash = [];
 	}//---------------------------------------------------;
 	
+	public function enemies_killAll()
+	{
+		for (i in gr_enemy)
+		{
+			if (i.exists)
+				cast(i, Enemy).killGlobal();
+		}
+	}//---------------------------------------------------;
 	
 	public function enemies_freeze(freeze:Bool)
 	{

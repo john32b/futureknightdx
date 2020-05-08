@@ -88,7 +88,7 @@ class StatePlay extends FlxState
 		HUD.reset();
 		
 		// --
-		HUD.set_text("Welcome to Future Knight DX", 5);
+		HUD.set_text("Welcome to Future Knight DX", 6);
 		
 		#if debug
 			if (MapFK.LAST_LOADED != "") {
@@ -160,7 +160,24 @@ class StatePlay extends FlxState
 					a.hurt(dam);
 					
 			case Item:
+			
 					var item:Item = cast b;
+					if (FlxFlicker.isFlickering(item)) return;
+					
+					// Special Occasion :: 
+					// (RELEASE SPELL) , you can only pick this up if a glove is equipped
+					
+					if (item.item_id == ITEM_TYPE.RELEASE_SPELL)
+					{
+						if (HUD.equipped_item != ITEM_TYPE.GLOVE)
+						{
+							item.cant_pick_up();
+							HUD.set_text("Too hot to pick up! Find a glove", true, 4);
+							return;
+						}
+					}
+					
+					
 					if (INV.addItem(item.item_id))
 					{
 						// Pick up OK
@@ -169,8 +186,8 @@ class StatePlay extends FlxState
 						item.killExtra();
 					}else{
 						// No more space in inventory
-						// >> sound error?
-						D.snd.play(Reg.SND.error);
+						item.cant_pick_up();
+						HUD.set_text("No more space", true, 5);
 					}
 					
 					
