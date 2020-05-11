@@ -50,7 +50,7 @@ class Reg
 		fall_damage		: 150,
 		from_ceil		: 1,	// [CPC] is 1
 		i_time			: 0.6,	// Player invisibility times after being hit
-		max_damage 		: 80,	// Max damage per hit, to enemy + player
+		max_damage 		: 75,	// Max damage per hit, to enemy + player
 	};
 
 	
@@ -58,6 +58,7 @@ class Reg
 	public static var P = {
 		flicker_rate: 0.06,
 		gravity : 410,
+		confuse_time:7	// Seconds
 	};
 	
 	// ::
@@ -67,9 +68,21 @@ class Reg
 		error:"error",
 		weapon_get:"fx_3",
 		
+		item_bomb:"enemy_final",
+		item_confuser:"enemy_final2",
+		
 		item_pickup:"item_pickup",
 		item_equip:"fx_3",	// on inventory select
 		item_use:"fx_5",
+	};
+	
+	
+	public static var SCORE = {
+		enemy_hit:7,
+		item_bomb:150,
+		item_confuser:120,
+		big_enemy_kill:90,
+		enemy_kill:15,
 	};
 
 	// All states default BG color,
@@ -120,7 +133,6 @@ class Reg
 			D.snd.addMetadataNode(JSON.soundFiles);
 		}
 		
-		INI.getObjEx('P_DAM', P_DAM);
 		
 		START_MAP = INI.get('DEBUG', 'startLevel');
 		
@@ -148,6 +160,8 @@ class Reg
 		return true;
 		// !Reg.api.isURLAllowed()
 	}//---------------------------------------------------;
+	
+	
 	
 	
 	

@@ -59,8 +59,8 @@ enum PlayerState
 class Player extends FlxSprite
 {
 
-	static inline var SPEED = 70;
-	static inline var JUMP = 220; 
+	static inline var SPEED = 70;	// Movement velocity
+	static inline var JUMP = 220;	// Minus Velocity on the Y axis
 	
 	static inline var START_HEALTH = 999;
 	static inline var START_LIVES  = 3;
@@ -161,6 +161,11 @@ class Player extends FlxSprite
 	// This is the one that when reaches ZERO, the player will die
 	var healthSlow:Float;
 	
+	// Confuser is active when this is >0. Will count down to 0 and restore enemies
+	// DEV: I am checking this here with the player, because I want to share the confuser
+	//      timer with the player active state. i.e. don't count the timer when inventory is open
+	public var confuserTimer:Float;
+	
 	// -----------------------------------------------------------------------;
 	public function new() 
 	{
@@ -243,6 +248,7 @@ class Player extends FlxSprite
 			}else
 			{
 				Reg.st.ROOMSPR.enemies_freeze(false);
+				confuserTimer = 0;	// just in case it was active
 				revive();
 				physics_start();
 				fsm.goto(ONFLOOR);
@@ -319,8 +325,11 @@ class Player extends FlxSprite
 		}else if (_pressingDown)
 		{
 			_sndTick += FlxG.elapsed;
-			if ( !Reg.st.map.tileIsType(Reg.st.map.getTileP(x + 2, y + height + 4), LADDER) || 
-				D.ctrl.pressed(A) )
+			if ( !Reg.st.map.tileIsType(Reg.st.map.getTileP(x + 2, y + height + 4), LADDER) 
+				#if !CLASSIC_LADDER
+					|| D.ctrl.pressed(A)
+				#end
+			   )
 			{
 				physics_start();
 				// DEV: The y velocity should be 0 here. So ONAIR will properly make it fall
@@ -450,7 +459,7 @@ class Player extends FlxSprite
 		if (D.ctrl.justPressed(Y))
 		{
 			// :: Item use
-			Game.use_current_item();
+			Reg.st.use_current_item();
 		}
 	}//---------------------------------------------------;
 	
@@ -591,7 +600,7 @@ class Player extends FlxSprite
 		}else if (D.ctrl.justPressed(Y))
 		{
 			// :: Item use
-			Game.use_current_item();
+			Reg.st.use_current_item();
 		}else
 		{	
 			// Not UP or DOWN, OR JUMP
@@ -646,6 +655,13 @@ class Player extends FlxSprite
 			if (healthSlow > health) {
 				healthSlow -= Math.min(HEALTH_LOSS, healthSlow - health);
 				Reg.st.HUD.set_health(healthSlow);
+			}
+		}
+		
+		// Check confuser
+		if (confuserTimer > 0) {
+			if ((confuserTimer -= elapsed) <= 0) {
+				Reg.st.ROOMSPR.enemies_freeze(false);
 			}
 		}
 	}//---------------------------------------------------;
@@ -731,6 +747,8 @@ class Player extends FlxSprite
 	{
 		alive = true;
 		
+		confuserTimer = 0;	// Deactivate confuser
+		
 		// > Do not touch slowHealth, as it could be counting down, even if changing levels
 		
 		// :: Position ::
@@ -807,6 +825,10 @@ class Player extends FlxSprite
 	// Check current position for ladder UP . Return if it mounted a ladder
 	function ladder_checkUp():Bool
 	{
+		#if CLASSIC_LADDER
+			if (fsm.currentStateName != ONFLOOR) return false;
+		#end
+		
 		var tc = Reg.st.map.getTileCoordsFromP(x + 4, y + height - 2);
 		var tile = Reg.st.map.layerCol().getTile(tc.x, tc.y);
 		if (Reg.st.map.tileIsType(tile, LADDER) || Reg.st.map.tileIsType(tile, LADDER_TOP))
@@ -888,7 +910,9 @@ class Player extends FlxSprite
 				Reg.st.key_ind.setAt(0, B.x);
 				if (_interact_anim_request()) 
 				{
-					if (bullet_type == i) bullet_type = 0; else bullet_type = i; // Toggle
+					// Cycle between 0,1,2
+					bullet_type++;
+					if (bullet_type > 2) bullet_type = 0;
 					Reg.st.HUD.bullet_pickup(bullet_type);
 					D.snd.play(Reg.SND.weapon_get);					
 				}
@@ -946,8 +970,6 @@ class Player extends FlxSprite
 		fsm.goto(ONSLIDE);
 	}//---------------------------------------------------;
 
-	
-	
 	
 	// - USED IN <state_onfloor_update>
 	// - Stop walking and end current walk cycle

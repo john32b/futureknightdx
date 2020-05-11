@@ -95,8 +95,11 @@ class ImageAssets
 		"bg_red" => [16, 6, 3],
 		"bg_red2" => [6, 3, 0], // dark
 		"bg_gray" => [27, 13, 31],
-		"bg_green2" => [21, 9, 31] // or 31 instead of 3
+		"bg_green2" => [21, 9, 31], // or 31 instead of 3
 		
+		
+		"bg_forest1" => [24, 9, 12],
+		"bg_forest2" => [16, 3, 31]
 	];
 	
 	

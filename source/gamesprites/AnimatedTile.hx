@@ -23,15 +23,15 @@ class AnimatedTile extends MapSprite
 	{		
 		super();
 		Reg.IM.loadGraphic(this, 'animtile');
-		animation.add('_EXIT', [12, 13], 4);
-		animation.add('_EXIT_LOCK', [14, 15], 4);
 		animation.add('_HAZARD', [0, 1, 2, 3], 8);
 		animation.add('_WEAPON_2', [4, 5, 6, 7], 8);
-		animation.add('_WEAPON_3', [8, 9, 10, 11], 8);
-		animation.add('_DECO_5', [16, 17, 18, 19], 7);
-		animation.add('_DECO_6', [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 28, 29, 28, 29, 28, 29, 28, 29], 6);
-		animation.add('_KEYHOLE_1', [30, 31], 6);
-		animation.add('_KEYHOLE_2', [32, 33], 6);
+		animation.add('_WEAPON_3', [8, 9], 8);
+		animation.add('_EXIT', [10, 11], 4);
+		animation.add('_EXIT_LOCK', [12, 13], 4);
+		animation.add('_DECO_5', [14, 15, 16, 17], 7);
+		animation.add('_DECO_6', [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 26, 27, 26, 27, 26, 27, 26, 27], 6);
+		animation.add('_KEYHOLE_1', [28, 29], 6);
+		animation.add('_KEYHOLE_2', [30, 31], 6);
 	}//---------------------------------------------------;
 	
 	override public function spawn(o:TiledObject, gid:Int):Void 

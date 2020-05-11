@@ -59,11 +59,11 @@ class GridNav
 	
 	public var FLAG_LOOP:Bool = false;
 	
-	public function new(X:Int, Y:Int) 
+	public function new(X_COUNT:Int, Y_COUNT:Int) 
 	{
 		cursor_pos = new SimpleCoords(0, 0);
-		size = new SimpleCoords(X, Y);
-		length = (X * Y);
+		size = new SimpleCoords(X_COUNT, Y_COUNT);
+		length = (X_COUNT * Y_COUNT);
 		index = 0;
 	}//---------------------------------------------------;
 	

@@ -156,6 +156,14 @@ class Enemy extends MapSprite
 		visible = alive = moves = solid = true;
 		animation.play('main', true);
 		ai.respawn();	// The AI will actually place it
+		
+		// Check confuser active
+		if (Reg.st.player.confuserTimer > 0) {
+			moves = false;
+		}
+		
+		// DEV: I could send the enemy_respawn signal to another handler?
+		//      but for now it is just a confuser so I am checking here
 	}//---------------------------------------------------;
 	
 	// --
@@ -188,6 +196,11 @@ class Enemy extends MapSprite
 		solid = false;
 		visible = false;
 		moves = false;
+		if (_gfxtype > 0) {
+			Reg.st.HUD.score_add(Reg.SCORE.big_enemy_kill);
+		}else{
+			Reg.st.HUD.score_add(Reg.SCORE.enemy_kill);
+		}
 	}//---------------------------------------------------;
 	
 	/** Kill enemy for good */

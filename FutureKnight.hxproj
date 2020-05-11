@@ -27,7 +27,7 @@
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="flixel=4.7.0&#xA;lime=7.7.0&#xA;hscript=2.4.0&#xA;djFL=0.1.0&#xA;openfl=8.9.6&#xA;next&#xA;DYN_ASSETS&#xA;FLX_NO_GAMEPAD&#xA;tools=7.7.0&#xA;no-compilation&#xA;openfl-flash&#xA;FLX_NO_TOUCH&#xA;openfl-disable-handle-error&#xA;DJFLX_VER=0.4.0-DEV&#xA;web" />
+    <option directives="flixel=4.7.0&#xA;lime=7.7.0&#xA;hscript=2.4.0&#xA;djFL=0.1.0&#xA;openfl=8.9.6&#xA;next&#xA;DYN_ASSETS&#xA;FLX_NO_GAMEPAD&#xA;tools=7.7.0&#xA;no-compilation&#xA;openfl-flash&#xA;FLX_NO_TOUCH&#xA;SHOOT_HOLD&#xA;openfl-disable-handle-error&#xA;DJFLX_VER=0.4.0-DEV&#xA;web" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />

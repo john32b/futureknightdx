@@ -1,27 +1,3 @@
-package states;
-
-import djFlixel.core.Dtext.DTextStyle;
-import djFlixel.fx.BoxFader;
-import djFlixel.fx.StarfieldSimple;
-import djFlixel.other.FlxSequencer;
-import djFlixel.D;
-import djFlixel.ui.FlxSlides;
-import djFlixel.ui.VList;
-import tools.SprDirector;
-
-import djFlixel.gfx.pal.Pal_DB32;
-
-
-import flixel.FlxCamera;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.FlxState;
-import flixel.group.FlxGroup;
-import flixel.group.FlxSpriteGroup;
-import flixel.text.FlxText;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxDestroyUtil;
 /**
  * Future Knight Main Menu
  * ----------------------
@@ -32,55 +8,63 @@ import flixel.util.FlxDestroyUtil;
  * - Connect to onlineAPI?
  * - Controller Indication POPUP
  * - Cheat Code
- */
+ * 
+ * =============================================== */
+
+ 
+package states;
+
+import tools.SprDirector;
+
+import djFlixel.core.Dtext.DTextStyle;
+import djFlixel.fx.BoxFader;
+import djFlixel.fx.StarfieldSimple;
+import djFlixel.gfx.pal.Pal_CPCBoy;
+import djFlixel.other.FlxSequencer;
+import djFlixel.D;
+import djFlixel.ui.FlxMenu;
+import djFlixel.ui.FlxSlides;
+import djFlixel.ui.VList;
+
+import flixel.util.FlxTimer;
+import flixel.FlxCamera;
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.FlxState;
+import flixel.group.FlxGroup;
+import flixel.group.FlxSpriteGroup;
+import flixel.text.FlxText;
+import flixel.tweens.FlxEase;
+
+import openfl.display.BitmapData;
+import openfl.Assets;
 
 class StateTitle extends FlxState
 {
+	
+	
 	// :: Various State Parameters
 	var P = {
-		art_delay : 4.0,
 		im_title_art: "im/game_art.png",
-		im_title : 	"im/title_art.png",
-		font_title_2 : "assets/pixelberry.ttf",	// the "remake" text below the title
+		im_title : "im/title_01.png",
+		im_dx : "im/title_02.png",
+		im_gamepad: "im/controller_help.png",
+		
+		art_delay : 4.0,	// Wait this much on the graphic,
+		
+		title_fg : Pal_CPCBoy.COL[24],
+		title_tick: 0.125,
+		title_cols : [1, 2, 11, 15, 6, 18, 21, 5, 8, 25]	// CPC Boy palete codes for title to loop
 	};
 	
-	
+
 	// :: HELP PAGE :
-	var tstyle1:DTextStyle = {c:Pal_DB32.COL_02};
-	var tstyle2:DTextStyle = {c:Pal_DB32.COL_19};
+	var tstyle1:DTextStyle = {c:Pal_CPCBoy.COL[20]};
+	var tstyle2:DTextStyle = {c:Pal_CPCBoy.COL[2]};
 	var help_slides:FlxSlides;
 	
 	
-	function _create_helpSlides():FlxSlides
-	{
-		var h = new FlxSlides();
-		// (0) : Controls, Keyboard
-		h.newSlide();
-		
-		// (1) : Controls, Gamepad
-		h.newSlide();
-		
-		// (2) : Tiles
-		h.newSlide();
-		
-		// (3) : Items
-		h.newSlide();
-		
-		// (4) : Enemies
-		h.newSlide();
-		
-		//var dd = new FlxSprite();
-		//dd.loadGraphic();
-		
-		//h.a();
-		//h.finalize();
-		return h;
-	}//---------------------------------------------------;
 	
-	
-	
-	
-
 	var stars:StarfieldSimple;
 	var starsTimer:Float = 0;	// Change stars angle on timer
 	
@@ -89,296 +73,67 @@ class StateTitle extends FlxState
 	var pFader:BoxFader;
 	var seq:FlxSequencer;
 	
-	// Where the pages will start on the screen in pixels
-	//var pageScrPos:SimpleCoords;
+	// The main menu
+	var menu:FlxMenu;
 	
-	//// Simple staging sequence
-	//var seq:Sequencer;
-	
-	//// Add misc sprites here.
-	//var groupMisc:FlxGroup; 
+	// Help slides
+	var slides:FlxSlides;
 	
 	// --
-	// -- Controller banner
-	//var popup_controller:FlxSpriteGroup;
-	//var popup_controllerIsOn:Bool = false;
-	// -- Pages
-	//var helpPages:FlxMenuPages;
-	// -- The menu
-	//var menu:FlxMenu;
-	// --
-	
-	//// -- Display some info, like if it's connected to an API and HighScore?
-	//var infoGroup:FlxSpriteGroup = null; // Goes in groupMisc
-
-	//// -- cheats 
-	//var flag_cheat_step1:Bool;
-	
-	
-	// --
-	//var trophiesList:VListNav<TrophyBigBox,Trophy> = null;
+	var title_01_spr:FlxSprite;	// Title sprite
+	var title_02_spr:FlxSprite; // DX sprite
+	var title_tickr:FlxTimer;	// Timer for the title flash
 	
 	// I want a dynamic function because in some cases I need to check different things
 	var updateFunction:Void->Void;
 
-	//====================================================;
-	// FUNCTIONS
-	//====================================================;
-	
-	// --
-	// Quick Fade out the state to another stage
-	function fadeSwitch(state:FlxState) 
-	{
-		// Save settings upon leaving this state.
-		//Reg.settingsSave();
-		//
-		//menu.unfocus();
-		//pfader.fadeColor(Palette_DB32.COL_01, function() {
-			//FlxG.switchState(state);
-		//});
-	}//---------------------------------------------------;
-		
-	// Split for readability
-	function _createMainMenu()
-	{
-		//menu = new FlxMenu(32, 86, 230, 6);	// #param
-		//menu.styleOption.fontSize = 16;
-		//// -- Page Main --
-		//var p:PageData = new PageData("main");
-			//p = menu.newPage("main");
-			//p.link("New game", "start");
-			//p.add("Resume", { type:"link", sid:"resume", selectable:hasSaveDataAt(1) } );
-			//p.link("Options", "@options");
-			//p.link("Demo play", "vcr");
-			//#if FLASHONLINE
-			//p.link("Leaderboards", "leader");
-			//#end
-			//p.link("Trophies", "trophies");
-			//p.link("Help", "help");
-		//// -- Page Options --
-		//p = menu.newPage("options");
-			//#if (!FLASHONLINE)
-			//p.add("Window Size", { type:"oneof", sid:'wsize', pool:["1", "2", "3"], current:1 } );
-			//#end
-			//p.add("Graphics", { type:"oneof", sid:"palette", pool:["Original", "Updated"], current: (Reg.COLORSCHEME == "cpc"?0:1) } );
-			//p.add("Smoothing", { type:"toggle", sid:"antialias", current:FLS.ANTIALIASING } );
-			//p.add("Fullscreen", { type:"toggle", sid:"fullscreen", current:FLS.FULLSCREEN } );
-			//p.add("Roll Colors at Exits", { type:"toggle", sid:"rndcol", current:Reg.RANDOM_COLORS } );
-			//p.add("Music", { type:"toggle", sid:"music", current:SND.MUSIC_ENABLED } );
-			//p.add("Music Version", { type:"oneof", sid:"musicver", pool:["C64", "CPC"], current:Reg.musicVer } );
-			//#if debug
-			//p.link("Del Save", "delsave");
-			//#end
-			//p.add("Trophy Indicator", { type:"toggle", sid:"tropp", current:Reg.api.flag_trophy_popup } );
-			//p.link("back", "@back");
-			//
-		//// --	
-		//p = menu.newPage("delete");
-			//p.question("Delete existing save?", "del");
-			//
-		//// --
-		//menu.callbacks_option = callback_options;
-		//menu.callbacks_menu = callback_menu;
-		//
-		//Reg.menuP = menu;
-			
-	}//---------------------------------------------------;
-	
-	// --
-	function callback_options(msg:String, o:Dynamic)
-	{
-		//switch(msg) { 
-			//default: Reg.callbacks_options_global(msg, o);
-			//case "optFire": //- OPTION FIRE
-			//switch(o.SID) {
-			//case "start":
-				//if (hasSaveDataAt(1))
-					//menu.showPage("delete");
-				//else 
-					//fadeSwitch(new StateMain("new"));
-			//case "vcr":	startDemoPlay();
-			//case "resume": 	fadeSwitch(new StateMain("resume"));
-			//case "help":
-				//Controls.RESET();
-				//menu.close();
-				//helpPages.showPage(0);
-				//updateFunction = null;
-				//infoGroup.visible = false;
-			//case "trophies":
-				//showTrophies();
-			//case "del_yes":
-				//fadeSwitch(new StateMain("new"));
-			//case "del_no":
-				//menu.goBack();
-			//case "delsave":
-				//SAVE.deleteSave();
-				//FlxG.resetGame();
-			//
-			//#if FLASHONLINE
-			//case "leader":
-				//// LEADERBOARDS
-				//showLeaderBoards();
-			//#end
-			//}
-		//}
-	}//---------------------------------------------------;
-	
-	// --
-	function callback_menu(msg:String,param:String)
-	{
-		// Reset the demo time, regardless of the event
-		//Reg.callbacks_menu_global(msg, param);
-		//switch(msg) { 
-			//default:
-			//case "pageOn": if (param == "main" && infoGroup != null) infoGroup.visible = true;
-			//case "pageOff": if (param == "main" && infoGroup != null) infoGroup.visible = false;
-			//case "rootback":
-				//FlxG.resetState();	// Go back to the start of the state
-		//}
-	}//---------------------------------------------------;	
-	
-	
-	// --
-	#if TROPHIES
-	function showTrophies()
-	{
-		//if (trophiesList == null) // create it
-		//{
-			//TrophyBigBox.IMAGE = "assets/images/trophy_box.png";
-			//TrophyBigBox.SIZE = 32;
-			//trophiesList = new VListNav(TrophyBigBox, 64, 40, 0, 4);
-			//trophiesList.styleBase = Styles.newStyle_Base();
-			//trophiesList.styleBase.instantScroll = true;
-			//trophiesList.styleList = Styles.newStyle_List();
-			//trophiesList.styleList.focus_nudge = 3;
-			//trophiesList.setDataSource(Reg.api.trophiesAr);
-			//trophiesList.callbacks = function(s:String, opt:Dynamic)
-			//{
-				//if (opt == null) Reg.callbacks_menu_global(s);
-			//}
-		//}
-		//// -- other --
-		//var t1 = Gui.getQText("Trophies", 16, Palette_DB32.COL[8], Palette_DB32.COL[1], Reg.JSON.mmenu.tr1.x, Reg.JSON.mmenu.tr1.y);
-			//add(t1);
-			//
-		//var t2 = Gui.getQText('Unlocked ${Reg.api.trophiesUnlocked}/${Reg.api.trophiesTotal}', 8, Palette_DB32.COL[21], Palette_DB32.COL[1], Reg.JSON.mmenu.tr2.x, Reg.JSON.mmenu.tr2.y);
-			//add(Align.screen(t2, "center", "none"));
-	//
-		//menu.close();
-		//if (infoGroup != null) infoGroup.visible = false;
-		//remove(groupMisc);
-		//
-		//add(trophiesList);
-		//trophiesList.setViewIndex(0); // scroll to top
-		//trophiesList.onScreen();
-		//
-		//Controls.RESET();
-		//FlxG.mouse.reset();
-		//updateFunction = function() {
-			//if (Controls.CURSOR_CANCEL() || Controls.CURSOR_START() || FlxG.mouse.justPressed) {
-				//// close
-					//t1.destroy();
-					//t2.destroy();
-					//remove(trophiesList);
-					//updateFunction = null;
-					//menu.showPage("main");
-					//add(groupMisc);
-					//if (infoGroup != null) infoGroup.visible = true;				
-			//}
-		//}//-- updtfn
-	//
-
-	}//---------------------------------------------------;
-	#else
-	function showTrophies(){}
-	#end
-	
-	
-	// --
-	#if FLASHONLINE
-	var LB:LeaderBoards;
-	function showLeaderBoards()
-	{
-		//if (LB == null) {
-		//LB = new LeaderBoards(Reg.JSON.mmenu.lb, false);
-		//}
-		//add(LB);
-		//menu.close();
-		//if (infoGroup != null) infoGroup.visible = false;
-		//LB.fetch(5, function() {
-			//trace("Can now exit the leaderboards");
-			//updateFunction = function() {
-				//if (Controls.CURSOR_CANCEL() || Controls.CURSOR_START() || FlxG.mouse.justPressed) {
-					//remove(LB);
-					//updateFunction = null;
-					//menu.showPage("main");
-					//if (infoGroup != null) infoGroup.visible = true;
-				//}
-			//};
-		//});
-		//
-	}//---------------------------------------------------;
-	#end
-
-	// --
-	function startDemoPlay()
-	{	
-		//// Map to Load
-		//var str:String = Script.demo_maps[(Script.demo_count * 2) + 1] + ".fgr";
-		//
-		//menu.unfocus();
-		//pfader.fadeColor(Palette_DB32.COL_01, function() {
-			//FlxG.vcr.loadReplay(
-				//Assets.getText("assets/replay/" + str), new StateMain("demo"),
-					//["ENTER", "SPACE", "K", "J"], null, function() {
-					//FlxG.switchState(new StateTitle()); }
-			//);
-		//});
-		
-		/**
-		 * WARNING, IN ORDER TO WORK WITH JOYSTICK.
-		 * 
-		 * ADD THIS TO FlxGamepadManager.hx 
-		 * 
-				private function handleButtonDown(FlashEvent:JoystickEvent):Void
-				#if FLX_RECORD
-				if (FlxG.game.replaying) {
-					FlxG.vcr.cancelReplay();
-				}
-				#end
-		 */
-
-	}//---------------------------------------------------;
-	
-	
-	
+	// -
 	override public function create():Void 
 	{
 		super.create();
 		
 		//FlxG.vcr.stopReplay(); // In case it was called from a replay from the game???
-		FlxCamera.defaultCameras = [camera];
-	
+		
 		// -- Data init
 		updateFunction = null;
 		
 		// --
-		//seq = new Sequencer(sequence_handler);
-		seq = new FlxSequencer(sequence_handler);
+		seq = new FlxSequencer(sequence_title_start);
 		add(seq);
 
 		// :: STARS
-		stars = new StarfieldSimple(320, 240);	// Default colors, transparent BG
-		stars.setBGCOLOR(Pal_DB32.COL_01);
+		stars = new StarfieldSimple(FlxG.width, FlxG.height, [	
+			Pal_CPCBoy.COL[0],
+			Pal_CPCBoy.COL[7],
+			Pal_CPCBoy.COL[20],
+			Pal_CPCBoy.COL[24]
+		]);
 		stars.WIDE_PIXEL = true;
 		stars.STAR_SPEED = 1.9;
+			
 		
-		dir0 = new SprDirector();
+		// :: Setup the animated Title stuff
+		title_02_spr = new FlxSprite(P.im_dx);
+		var _tb = Assets.getBitmapData(P.im_title, false);
+			_tb = D.bmu.replaceColor(_tb, Pal_CPCBoy.COL[28], P.title_fg);
+		title_01_spr = new FlxSprite(_tb.clone());
+		title_tickr = new FlxTimer();
+		title_tickr.start(P.title_tick, (t)->{
+			var l = t.elapsedLoops % P.title_cols.length;
+			title_01_spr.pixels = D.bmu.replaceColor(_tb.clone(), Pal_CPCBoy.COL[31], Pal_CPCBoy.COL[P.title_cols[l]]);
+			title_01_spr.dirty = true;
+			title_02_spr.color = Pal_CPCBoy.COL[P.title_cols[l]];
+		}, 0);
+		title_tickr.active = false;
+
 		
-		// :: Load some static sprites
+		// -- With a sprite director you can add and animate sprites easily
+		dir0 = new SprDirector();		
 		dir0.on(P.im_title_art).v(0);
-		dir0.on(P.im_title).p(0, -20).v(0);
-		dir0.on('remake', D.text.get("remake", 256, 64, {f:P.font_title_2, c:Pal_DB32.COL_30})).v(0);
+		dir0.on('title', title_01_spr).p(0, -20).v(0);
+		dir0.on('dx', title_02_spr).v(0); // Positioned later
+		
+		
 		
 		// --
 		//popup_controller = new FlxSpriteGroup();
@@ -395,9 +150,9 @@ class StateTitle extends FlxState
 			//Reg.api.connect();
 		//}
 		//Reg.api.callOnConnect(callback_ApiConnected);
-//
+
 		//// -- Menu
-		//_createMainMenu();
+		//sub_create_menu();
 		//
 		//// --
 		//// -- Pages
@@ -417,32 +172,30 @@ class StateTitle extends FlxState
 		//sub_createHelp();
 		//
 		//// Start the sequence
+		
 		add(stars);
 		add(dir0);
+		
+		sub_create_menu();
 		
 		//add(groupMisc);
 		//add(menu);
 		//add(helpPages);
 
-		// --
+		// :: Fade the screen from black and call seq.nextv()
 		pFader = new BoxFader();
-		pFader.setColor(Pal_DB32.COL_02);
+		pFader.setColor(Pal_CPCBoy.COL[0]);
 		pFader.fadeOff(seq.nextV, {time:0.33});
 		add(pFader);
 		
+		// :: Border
+		Reg.add_border();
+		
 		// --
-		D.snd.playMusic(Reg.musicVers[Reg.musicVer]);
+		// D.snd.playMusic(Reg.musicVers[Reg.musicVer]);
 		
 		//flag_cheat_step1 = false;
 		
-		// TEST MENU -----
-		
-		add(Reg.get_overlayScreen());
-	}//---------------------------------------------------;	
-	// --
-	override public function destroy():Void 
-	{
-		super.destroy();
 	}//---------------------------------------------------;	
 	
 	
@@ -451,15 +204,16 @@ class StateTitle extends FlxState
 	{
 		super.update(elapsed);
 		
-		// :: STARS 
+		// :: Change the star angle over time
+		//    Easter egg, pressing (LB) , (RB) 
 		if ((starsTimer += elapsed) > 0.1) {
 			starsTimer = 0;
 			stars.STAR_ANGLE += 0.1;
 		}else{
-			if (FlxG.keys.pressed.LBRACKET) {
+			if (D.ctrl.pressed(LB)) {
 				stars.STAR_ANGLE -= 0.8;
 			}else
-			if (FlxG.keys.pressed.RBRACKET) {
+			if (D.ctrl.pressed(RB)) {
 				stars.STAR_ANGLE += 0.8;
 			}
 		}
@@ -511,10 +265,9 @@ class StateTitle extends FlxState
 	}//---------------------------------------------------;
 
 
-
 	// --
 	// -- Show the titleArt, then the Title
-	function sequence_handler(step:Int)
+	function sequence_title_start(step:Int)
 	{
 		switch(step) {	
 		case 1:	//--	show the title
@@ -530,71 +283,26 @@ class StateTitle extends FlxState
 		case 3: // --	hide the art
 			updateFunction = null;
 			dir0.on(P.im_title_art).tween({ alpha:0 }, 0.2);
-			FlxG.camera.bgColor = Pal_DB32.COL_03;
-			stars.setBGCOLOR(Pal_DB32.COL_03);
 			seq.next(0.1);
 		case 4: // --	show the menu
 			//SND.playFile("title");
-			dir0.on(P.im_title).a(0.5).v(1).tween({alpha:1, y:32}, 0.5, { ease:FlxEase.elasticOut } );
-			seq.next(0.2);	
+			dir0.on('title').a(0.5).v(1).tween({alpha:1, y:32}, 0.5, { ease:FlxEase.elasticOut } );
+			title_tickr.active = true;
+			seq.next(0.2);
 		case 5:
-			dir0.on('remake').v(1).a(0.5).p(256, 32).tween({alpha:1, y:64}, 0.3, { ease:FlxEase.elasticOut } );
+			dir0.on('dx').v(1).a(0.5).p(274, 32).tween({alpha:1, y:62}, 0.3, { ease:FlxEase.elasticOut } );
 			seq.next(0.300);
 		case 6:
 			dir0.on('footer', sub_getFooterGroup()).p(0, 20).a(0.3).tween({y:0, alpha:1}, 0.2);
+			dir0.on('dx').tween({alpha:1, y:65}, 0.3, { ease:FlxEase.quadOut, type:4 } );
+			menu.goto('main');
 		case 7:
-			
-				//
+
 		default:
 		}
-			//
-		//case 6:
-			//// --------
-			//sub_getFooterGroup();
-			//menu.showPage("main");
-			//// -- API
-			//infoGroup.visible = true;
-			//seq.next(0.5);
-			//
-		//case 7: // -- Show the controller notification a bit later
-			//
-			//// Check for controller if it was alive from the start once
-			//if (Controls.gamepadConnected()) {
-				//showControllerPopup();
-			//}
-		//}//-- switch end --//
-		
 	}//---------------------------------------------------;
 
 	
-	// --
-	function showControllerPopup()
-	{
-		//if (popup_controllerIsOn) return;
-	//
-		//var tx = new FlxText(0, 12, 120, "Controller connected");
-			//tx.alignment = FlxTextAlign.RIGHT;
-	//
-		//popup_controllerIsOn = true;
-		//popup_controller.y = Reg.JSON.mmenu.ctrl.y;
-		//popup_controller.x = Reg.JSON.mmenu.ctrl.x;
-		//popup_controller.add(new FlxSprite(120, 0, "assets/images/controller_art.png"));
-		//popup_controller.add(tx);
-		//
-		//groupMisc.add(popup_controller);
-		//
-		//FlxTween.tween(popup_controller, { x:148 }, 0.3, { ease:FlxEase.quadOut } );
-//
-		//// Hide popup after 2.5 seconds
-		//new FlxTimer().start(2.5, function(_) {
-			//FlxTween.tween(popup_controller, { x:320 }, 0.3, { ease:FlxEase.quadOut,
-				//onComplete:function(_){ popup_controller.destroy(); }
-			//});			
-		//});
-
-	}//---------------------------------------------------;
-
-
 	// --
 	// -- Create the help pages
 	function sub_createHelp()
@@ -696,122 +404,110 @@ class StateTitle extends FlxState
 	}//---------------------------------------------------;
 	
 	
-	/** Create footer objects
-	 **/
+	
+	
+	/** Create footer objects **/
 	function sub_getFooterGroup():FlxSpriteGroup
 	{
+		var color = Pal_CPCBoy.COL[30];
 		// Set a horizontal line and infos below it:
-		var line = new FlxSprite(0, 216);
-			line.makeGraphic(FlxG.width - 50, 1, Pal_DB32.COL_23);
+		var line = new FlxSprite(0, 208);
+			line.makeGraphic(FlxG.width - 50, 1, color);
 			D.align.screen(line, 'c', '');
-			
-		var txt_ver = D.text.get("ver " + Reg.VERSION, {c:Pal_DB32.COL_27});
-		var txt_by  = D.text.get("by John Dimi", {c:Pal_DB32.COL_27});
+		var txt_ver = D.text.get("ver " + Reg.VERSION, {c:color});
+		var txt_by  = D.text.get("by John Dimi", {c:color});
 		D.align.inLine(line.x, line.y, line.width, [txt_ver, txt_by], 'j');
-		
 		var grp = new FlxSpriteGroup();
 			grp.add(txt_by); grp.add(txt_ver); grp.add(line);
-			
 		return grp;
+	}//---------------------------------------------------;
+
+	
+	// -- Creates and Adds the menu
+	function sub_create_menu()
+	{
+		//menu = new FlxMenu(32, 86, 200);
+		menu = new FlxMenu(32, 90, FlxG.width);
+		menu.PARAMS.header_enable = false;
+		menu.PARAMS.line_height = 0;
+		menu.PARAMS.page_anim_parallel = true;
+		menu.stL.focus_nudge = 2;
+		menu.stL.vt_in_times = "0.2:0.1";
+		menu.stL.vt_out_times = "0.12:0.06";
+		menu.stL.vt_in_offset = "-20:0";
+		menu.stL.vt_out_offset = "20:0";
+		menu.stI.col_t.focus = Pal_CPCBoy.COL[24];
+		menu.stI.col_t.accent = Pal_CPCBoy.COL[6];
+		menu.stI.col_t.idle = Pal_CPCBoy.COL[27];
+		menu.stI.col_b.idle = Pal_CPCBoy.COL[1];
 		
-		/// TODO:
-		// -- GET FULL VERSION -- LINK TO DOWNLOAD FULL VERSION
-		//#if FLASHONLINE
-			//var btnFull = Gui.getFButton("#GET WINDOWS VERSION#", 0, true, function() {
-				//FlxG.openURL(FLS.WEBSITE);
-			//});
-			//btnFull.setPosition(Reg.JSON.mmenu.fv.x, Reg.JSON.mmenu.fv.y);
-			//groupMisc.add(btnFull);
-			//FlxFlicker.flicker(btnFull, 2, 0.16);
-		//#end
+		menu.stL.align = "left";
+		menu.stI.text = { s:16, bt:1, so:[2, 2] };
+		
+		menu.createPage("main").addM([
+			"Start|link|new_game",
+			"Options|link|@options",	// Goto another page
+			"Help|link|help"
+		]);
+		
+		menu.createPage("options","options").addM([
+			//"Options:|label",
+			"Sound Effects|toggle",
+			"Graphic Style|list|list=old,new",
+			"Back|link|@back"
+		]);
+		
+		menu.onItemEvent = (a, b)->{
+			
+			D.ctrl.flush();
+			
+			if (a == fire) {
+				switch(b.ID){
+					case "new_game":
+						FlxG.switchState(new StatePlay());
+						return;
+					case "help":
+						trace("going to help");
+						slides = sub_get_help_slides();
+						menu.close();
+						add(slides);
+						slides.onEvent = (e)->{
+							trace("SLides event", e);
+							if (e == "close"){
+								remove(slides);
+								slides = null;
+								menu.open();
+							}
+						};
+						slides.goto(0);
+					case _:
+				}
+			}
+		};
+		
+		add(menu);
 	}//---------------------------------------------------;
-
 	
-		// --
-	// Whethere slot $num has save data written
-	public function hasSaveDataAt(num:Int):Bool
+	// --
+	function sub_get_help_slides():FlxSlides
 	{
-		//SAVE.setSlot(num);
-		//return (SAVE.load("_exists") == true);
-		return false;
+		var h = new FlxSlides();
+		
+		D.text.fix({f:'fnt/text.ttf', s:16});
+		
+		// : Joystick present show the gamepad help
+		h.newSlide();
+		h.a(new FlxSprite(P.im_gamepad));
+		D.align.screen(h.last);
+		
+		h.newSlide();
+		h.a(D.text.get("Keyboard controls", 40, 100));
+		h.a(D.align.down(D.text.get("[A] - JUMP", 40, 100), h.last));
+		h.a(D.align.down(D.text.get("[B] - SHOOT", 40, 100), h.last));
+		
+		D.text.fix();
+		h.finalize();
+		return h;
 	}//---------------------------------------------------;
-	
-
-	// - Autocalled
-	function callback_ApiConnected()
-	{
-		//#if FLASHONLINE
-	//
-		//var _score:Int = 0;
-		//var _user:String = "";
-		//var _apiName:String = Reg.api.SERVICE_NAME;
-	//
-		//if (!Reg.api.isConnected)
-		//{
-			//trace("Warning: Failed to connect to the api");
-			//
-			//var h0 = new FlxText(0, 0, Reg.JSON.mmenu.cstof.w, "Failed to connect to " + _apiName);
-				//h0.alignment = "right";
-				//h0.color = Palette_DB32.COL_29;
-				//h0.borderColor = Palette_DB32.COL_02;
-				//h0.borderQuality = 1;
-				//h0.borderStyle = FlxTextBorderStyle.OUTLINE_FAST;
-//
-			//infoGroup.x = Reg.JSON.mmenu.infogrp.x + Reg.JSON.mmenu.cstof.x;
-			//infoGroup.y = Reg.JSON.mmenu.infogrp.y + Reg.JSON.mmenu.cstof.y;
-			//infoGroup.add(h0);
-			//
-		//}
-		//else if (Reg.api.isConnected && !Reg.api.userLoggedIn)
-		//{
-			//trace("Warning: Guest User");
-			//
-			//var h0 = new FlxText(0, 0, Reg.JSON.mmenu.cstof.w, "Connected as GUEST to " + _apiName);
-				//h0.alignment = "right";
-				//h0.color = Palette_DB32.COL_11;
-				//h0.borderColor = Palette_DB32.COL_02;
-				//h0.borderQuality = 1;
-				//h0.borderStyle = FlxTextBorderStyle.OUTLINE_FAST;
-//
-			//infoGroup.x = Reg.JSON.mmenu.infogrp.x + Reg.JSON.mmenu.cstof.x;
-			//infoGroup.y = Reg.JSON.mmenu.infogrp.y + Reg.JSON.mmenu.cstof.y;
-			//infoGroup.add(h0);
-			//
-		//}else
-		//{
-			//// Connect OK
-			//_score = 0;
-			//_user = Reg.api.getUser();
-			//
-			//SAVE.setSlot(0);
-			//if (SAVE.exists("highscore")) {
-				//_score = cast SAVE.load("highscore");
-			//}
-			//
-			//var h1 = new FlxText(0, 0, 0, "Connected to " + _apiName);
-				//h1.color = Palette_DB32.COL_20;
-				//h1.borderColor = Palette_DB32.COL_02;
-				//h1.borderQuality = 1;
-				//h1.borderStyle = FlxTextBorderStyle.OUTLINE_FAST;
-			//var h2 = new FlxText(0, 12, 0 , "User : " + _user);
-				//h2.font = Reg.FONT_MENU;
-				//h2.color = Palette_DB32.COL_22;		
-			//var h3 = new FlxText(0, 24, 0, 'High Score : $_score');
-				//h3.font = Reg.FONT_MENU;
-				//h3.color = Palette_DB32.COL_22;
-			//
-			//infoGroup.add(h1);
-			//infoGroup.add(h2);
-			//infoGroup.add(h3);
-			//
-			//infoGroup.x = Reg.JSON.mmenu.infogrp.x;
-			//infoGroup.y = Reg.JSON.mmenu.infogrp.y;
-		//}
-		//
-		//groupMisc.add(infoGroup);
-		//
-		//#end
-	}//---------------------------------------------------;
-	
 	
 }//-- end --//

@@ -27,6 +27,7 @@
 package;
 
 import djFlixel.D;
+import djFlixel.gfx.pal.Pal_CPCBoy;
 import flixel.group.FlxSpriteGroup;
 import flixel.FlxSprite;
 import flixel.math.FlxMath;
@@ -42,22 +43,26 @@ import gamesprites.Item.ITEM_TYPE;
 
 class Inventory extends FlxSpriteGroup
 {
-	static inline var SCREEN_Y 	= 20;	// Y pos, The X pos is centered
+	static inline var SCREEN_Y 	= 16;		// Y pos, The X pos is centered
 	static inline var SCREEN_Y_OFF = SCREEN_Y + 12;	// Enter/Exit position
 	static inline var GRID_X = 20;			// Pixels offset from Inventory X
-	static inline var GRID_Y = 16;			// Pixels offset form Inventory Y
+	static inline var GRID_Y = 25;			// Pixels offset form Inventory Y
 	static inline var GRID_WIDTH  = 6;		// Size in boxes
 	static inline var GRID_HEIGHT = 2;		// Size in boxes
 	static inline var GRID_PAD = 4;			// Padding between elements
 	static inline var GRID_BOX_SIZE = 22;   // How big is the grid box
-	static inline var GRID_CURSOR_COLOR = 0xFF485d48;
+	static        var GRID_CURSOR_COLOR = Pal_CPCBoy.COL[30];
 	static inline var TWEEN_TIME = 0.05;
 	
 	var box_items:Array<Item> = [];
 	var cursor:FlxSprite;
-	var _tween:VarTween; 	// Animating on-off screen
-	var text:FlxText; 		// Name of the current item.
 	var grid:GridNav;
+	
+	var _tween:VarTween; 	// Animating on-off screen
+	
+	var text:FlxText; 		// Name of the current item.
+	
+	var text_level:FlxText;	// Name of level
 	
 	// Item ID, in array with holes (null for hole) Length = grid.length
 	public var ITEMS:Array<Null<ITEM_TYPE>>;
@@ -81,10 +86,16 @@ class Inventory extends FlxSpriteGroup
 		var bg = new FlxSprite(Reg.IM.STATIC.hud_inventory);
 			bg.active = false;
 		add(bg);
+		
+		
+		// --
+		text_level = D.text.get("Generic level name", 38, 5, {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[29]});
+		add(text_level);
 
 		// --
-		text = D.text.get("Dummy Text", 45, 70);
-		text.fieldWidth = 104;
+		text = D.text.get("Dummy Text", 46, 79, {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[27]});
+		text.fieldWidth = 100;
+		text.alignment = "center";
 		add(text);
 		
 		// --
@@ -97,6 +108,16 @@ class Inventory extends FlxSpriteGroup
 		grid.set_box_size(GRID_BOX_SIZE, GRID_BOX_SIZE, GRID_PAD, GRID_PAD);
 		grid.onCursorChange = handle_cursor_change;
 	
+		
+		// -- Add BUTTON INDICATORS
+		//var t_equip = '[' + D.ctrl.getKeymapName(A) + ']';
+		//var t_close = '[' + D.ctrl.getKeymapName(START) + ']';
+		//var t1 = D.text.get(t_equip + ' equip', {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[31]});
+		//var t2 = D.text.get(t_close + ' close', {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[31]});
+		//D.align.inLine(7, 93, 177, [t1, t2], 'j');
+		//add(t1);
+		//add(t2);
+		
 		// -- Add Box Sprites
 		for (c in 0...grid.length)
 		{
@@ -114,6 +135,7 @@ class Inventory extends FlxSpriteGroup
 		//setPosition(SCREEN_X, SCREEN_Y);
 		D.align.screen(this, "c", "");
 		y = SCREEN_Y;
+		
 		
 		// --
 		ITEMS = [];
@@ -308,5 +330,10 @@ class Inventory extends FlxSpriteGroup
 		}
 	}//---------------------------------------------------;
 	
+	
+	public function set_level_name(name:String = null)
+	{
+		if (name == null) text_level.text = ""; else text_level.text = name;
+	}//---------------------------------------------------;
 	
 }// --

@@ -43,16 +43,6 @@ class StateTest extends FlxState
 	{
 		super.create();
 		
-		//
-		//var stars:StarfieldSimple = new StarfieldSimple();
-		//stars.color_bg = 0xFF76428a;
-		//add(stars);
-		//// --
-		//
-		//trophy = new TrophyPopup(64, 64);
-		//add(trophy);
-		//bgColor = Pal_DB32.COL_15;
-		
 		
 		//var c = new FlxSprite(X, Y, new BitmapData(100, 100, true, 0xFF005566));
 		//add(c);
@@ -121,8 +111,10 @@ class StateTest extends FlxState
 		//add(stimer);		
 		
 	 		
-		var menu = new FlxMenu(43, 80, 100, 10);
+		var menu = new FlxMenu(43, 80, 200, 3);
 		Reg.INI.getObj("style1", menu.stL);
+		menu.stI.text.f = "fnt/text.ttf";
+		menu.stI.text.s = 16;
 		menu.PARAMS.page_anim_parallel = true;
 		menu.stHeader = {
 			s:16
@@ -140,7 +132,7 @@ class StateTest extends FlxState
 		menu.createPage("options","Options").addM([
 			"Options:|label",
 			"Sound Effects|toggle",
-			"Graphic Style|list|list=old,new",
+			"Graphic Style|list|list=sh,new and long,05",
 			"Back|link|@back"
 		]);
 		
@@ -180,41 +172,7 @@ class StateTest extends FlxState
 		
 		add(menu);
 		menu.goto("main");	// will focus it?
-		
-		// >>>>>>>>
-		var slides = new FlxSlides(Reg.INI.getObjEx('slides')); // Yes it can work with string object
-		
-		slides.newSlide();
-		slides.a(D.text.get("HELLO WORLD", 24, 24));
-		slides.a(D.align.down(D.text.get("-----------"), slides.last));
-		slides.a(D.align.down(D.text.get("Holy shit does this work?"), slides.last));
-		slides.a(D.align.right(D.text.get(">>>>>>>>", {c:Pal_DB32.COL_19, bc:Pal_DB32.COL_03}), slides.last));
-		slides.a(D.align.right(D.text.get("YES", {c:Pal_DB32.COL_04, bc:Pal_DB32.COL_01, bt:2, bs:2}), slides.last, 4));
 	
-		//
-		slides.newSlide();
-		slides.a(D.text.get("HELLO WORLD 222222", 44, 24));
-		slides.a(D.align.down(D.text.get("-----------"), slides.last));		
-		
-		//
-		slides.newSlide();
-		slides.a(D.text.get("HELLO WORLD  3333", 54, 24));
-		slides.a(D.align.down(D.text.get("-----------"), slides.last));
-		//
-		slides.finalize();
-		slides.setArrows(8, 20, 100, 200);
-		
-		slides.goto(0);
-		slides.onEvent = cast Log.trace;
-		//add(slides);
-		
-		
-		// >>>>>>
-		
-			//var A = new AnimatedTile();
-				//A.setPosition(32, 32);
-				//A.animation.play("_HAZARD");
-				//add(A);
 		
 		// >>>>> Uiindicators
 		

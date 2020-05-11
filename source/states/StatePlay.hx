@@ -103,8 +103,7 @@ class StatePlay extends FlxState
 		map.camera.flash(0xFF000000, 0.5);
 		
 	}//---------------------------------------------------;
-	
-
+		
 	
 	// --
 	override public function update(elapsed:Float):Void 
@@ -130,13 +129,13 @@ class StatePlay extends FlxState
 	
 	
 	
-	
 	// <COLLISION> Bullet to Enemy
 	function _overlap_enemy_bullet(e:Enemy, b:Bullet)
 	{
 		if (b.owner != Bullet.OWNER_PLAYER) return;
 		BM.killBullet(b, true);
 		e.hurt(b.T.damage);
+		HUD.score_add(Reg.SCORE.enemy_hit);
 	}//---------------------------------------------------;
 	
 	// <COLLISION>, Bullet to Player
@@ -172,7 +171,7 @@ class StatePlay extends FlxState
 						if (HUD.equipped_item != ITEM_TYPE.GLOVE)
 						{
 							item.cant_pick_up();
-							HUD.set_text("Too hot to pick up! Find a glove", true, 4);
+							HUD.set_text2("Too hot to pick up! Find a glove");
 							return;
 						}
 					}
@@ -187,7 +186,7 @@ class StatePlay extends FlxState
 					}else{
 						// No more space in inventory
 						item.cant_pick_up();
-						HUD.set_text("No more space", true, 5);
+						HUD.set_text2("No more space");
 					}
 					
 					
@@ -222,6 +221,7 @@ class StatePlay extends FlxState
 					throw "No player spawn point";
 				}
 				
+				INV.set_level_name(map.MAP_NAME);
 				
 			case roomEntities(b): 
 				// These entities are to be set in the current room
@@ -341,4 +341,60 @@ class StatePlay extends FlxState
 		s.start(0, TICKS, -0.1);
 		_isflashing = true;
 	}//---------------------------------------------------;
+	
+	
+	// -- Called by player, activates current equipped item if any
+	public function use_current_item()
+	{		
+		var item:ITEM_TYPE = Reg.st.HUD.equipped_item;
+		if (item == null) return;
+		
+		trace("ITEM USE : ", item);
+		
+		switch (item) {
+			
+		case BOMB1, BOMB2, BOMB3:
+			// :: Kill enemies forever and also enemies that are waiting to be spawned
+			flash(10);
+			HUD.item_pickup();
+			ROOMSPR.enemies_killAll();
+			D.snd.play(Reg.SND.item_bomb);
+			INV.removeItemWithID(item);
+			HUD.score_add(Reg.SCORE.item_bomb);
+			
+		case CONFUSER_UNIT:
+			flash(4);
+			HUD.item_pickup();
+			ROOMSPR.enemies_freeze(true);	// Player has timer for restore
+			D.snd.play(Reg.SND.item_confuser);
+			player.confuserTimer = Reg.P.confuse_time;
+			INV.removeItemWithID(item);
+			HUD.score_add(Reg.SCORE.item_confuser);
+			
+			// Ok the above^ will freeeze ALIVE enemies,
+			// I need to have a flag, so when an enemy is respawed, it will NOT move
+			// respect the global freeze flag ok?
+			
+		case GLOVE:
+			HUD.set_text2("With this you are able to pick up hot objects");
+				
+		case FLASH_BANG_SPELL:
+			flash(5);
+			HUD.item_pickup();
+				
+		case SCEPTER:
+			HUD.set_text2("Does not do anything.");
+			
+			
+		//case DESTRUCT_SPELL:
+				
+			
+		//case RELEASE_SPELL:
+			
+		case _:
+			HUD.set_text2("Can`t use this here");
+		}
+		
+	}//---------------------------------------------------;
+	
 }// --

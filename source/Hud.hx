@@ -34,10 +34,14 @@ typedef ItemHudInfo = {
 
 class Hud extends FlxGroup
 {
+
+	static inline var TEXT_TIME_GENERAL = 4;	// seconds
+	static inline var TEXT_TIME_ITEM 	= 6;	// seconds
 	
-	static inline var ITEM_MESSAGE_TIME = 6;	// seconds
 	static inline var HUD_SCREEN_X = 25; // (320-270)/2 (screenwidth-graphicwidth) / 2 
-	static inline var FONT_HEALTH = "fnt/lc_light.otf";
+	static inline var FONT_HEALTH = "fnt/digital.otf";
+	static inline var FONT_SCORE  = "fnt/score.ttf";
+	static inline var FONT_TEXT   = "fnt/text.ttf";
 	
 	static inline var TEXT_BLINK_TIME = 0.4;
 	static inline var LIVES_BLINK_TIME = 1;
@@ -95,33 +99,30 @@ class Hud extends FlxGroup
 		add(bg);
 			
 		// --
-		text_info = D.text.get("", 16, 4, {c:Pal_CPCBoy.COL[27]});
+		text_info = D.text.get("", 16, 6, {f:FONT_TEXT, s:16, c:Pal_CPCBoy.COL[27]});
 			add(text_info);
-		text_health = D.text.get("", 202, 30, {f:FONT_HEALTH, s:26, c:Pal_CPCBoy.COL[6]} );
-		text_health.antialiasing = false;
-		text_health.textField.antiAliasType = "advanced";
-		text_health.textField.sharpness = 400;
+		text_health = D.text.get("", 202, 32, {f:FONT_HEALTH, s:18, c:Pal_CPCBoy.COL[27]} );
 			add(text_health);
-		text_score = D.text.get("", 30, 30, {c:Pal_CPCBoy.COL[30]});
+		text_score = D.text.get("", 30, 30, {f:FONT_SCORE, s:6, c:Pal_CPCBoy.COL[22]});
 			add(text_score);
 		
 		// --
-		el_bullet = Reg.IM.getSprite(107, 27, "huditem", 1);
+		el_bullet = Reg.IM.getSprite(107, 29, "huditem", 1);
 			add(el_bullet);
-		el_item = Reg.IM.getSprite(145, 27, "huditem", 7);
+		el_item = Reg.IM.getSprite(145, 29, "huditem", 7);
 			add(el_item);
 			
 		//-- Lives
 		el_lives = [];
 		for (l in 0...3) {
-			var spr = Reg.IM.getSprite(25 + l * 16, 39, "huditem", 3);
+			var spr = Reg.IM.getSprite(25 + l * 16, 41, "huditem", 3);
 			spr.visible = false;
 			el_lives[l] = spr;
 			add(spr);
 		}
 		
 		//-- Put this at the top of the list
-		fx_static = new FlxSprite(103, 23);
+		fx_static = new FlxSprite(103, 25);
 		Reg.IM.loadGraphic(fx_static, "static");
 		fx_static.animation.add("main", [0, 1, 2, 3, 4, 0, 1, 5, 6, 7, 5, 4, 3, 2], 10, false);
 		fx_static.visible = false;
@@ -170,14 +171,12 @@ class Hud extends FlxGroup
 	// Call with NULL to remove the item graphic
 	public function item_pickup(itemID:ITEM_TYPE = null)
 	{
-		if (equipped_item == itemID) return;
-		
 		equipped_item = itemID;
 		
 		if (itemID != null)
 		{
 			var ITD = Game.ITEM_DATA.get(itemID);
-			set_text(ITD.desc, true, ITEM_MESSAGE_TIME);
+			set_text(ITD.desc, true, TEXT_TIME_ITEM);
 			set_item_icon(ITD.icon);
 			static_run();
 		}else{
@@ -192,6 +191,18 @@ class Hud extends FlxGroup
 	// Values (0-999)
 	public function set_health(val:Float)
 	{
+		if (val < _health)
+		{
+			if (val < 100 && _health>=100) text_health.color = Pal_CPCBoy.COL[6];
+		}else
+		{
+			// health going up
+			if (val >= 100)
+			{
+				text_health.color = Pal_CPCBoy.COL[27];
+			}
+		}
+		
 		_health = Std.int(val);
 		text_health.text = StringTools.lpad(Std.string(_health), "0", 3);
 	}//---------------------------------------------------;
@@ -217,6 +228,14 @@ class Hud extends FlxGroup
 			}
 		}
 		_lives = i;
+	}//---------------------------------------------------;
+	
+	/**
+	 * Set text auto blink and auto time
+	 */
+	public function set_text2(t:String)
+	{
+		set_text(t, true, TEXT_TIME_GENERAL);
 	}//---------------------------------------------------;
 	
 	// --
@@ -245,6 +264,7 @@ class Hud extends FlxGroup
 	public function set_score(i:Int)
 	{
 		_score = i;
+		if (_score > 9999999) _score = 9999999;
 		text_score.text = StringTools.lpad(Std.string(_score), "0", 6);
 	}//---------------------------------------------------;
 
@@ -260,4 +280,9 @@ class Hud extends FlxGroup
 	}//---------------------------------------------------;
 	
 	
+	public function score_add(c:Int)
+	{
+		set_score(_score + c);
+	}//---------------------------------------------------;
+		
 }// --

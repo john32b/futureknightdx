@@ -120,8 +120,8 @@ class MapFK extends TilemapGeneric
 	var tweenCamera:VarTween;
 	
 	// Set this to load the appropriate BG+FG Tiles
-	var MAP_TYPE = 0;		// 0:Space, 1:Forest, 2:Castle
-	var MAP_NAME = "";		// Game map name . e.g. "Control Room"
+	public var MAP_NAME = "";		// Game map name . e.g. "Control Room", This is read from the tmx file
+	var MAP_TYPE = 0;				// 0:Space, 1:Forest, 2:Castle. Used in controlling graphic and tile properties
 	
 	var MAP_FILE = "";		// The short name of the loaded map. e.g. "level_01"
 	var MAP_COLOR = "";		// Color id, check "ImageAssets.D_COL_NAME"
@@ -303,7 +303,7 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 	
 	
-	// -- Call this to push to user
+	// -- Called when a room changes and pushes data to user
 	function roomcurrent_pushEntities()
 	{
 		// Get ALL tiles from this area
@@ -706,7 +706,7 @@ class MapFK extends TilemapGeneric
 		return true;
 	}//---------------------------------------------------;
 	
-// - Called from player, pressing up an any exit
+	// - Called from player, pressing up an any exit
 	// Note: The animatedTile, has all the data I need to know
 	public function exit_activate(e:AnimatedTile)
 	{
@@ -722,10 +722,12 @@ class MapFK extends TilemapGeneric
 			{
 				case ["item", _ ] :
 					var item = EnumTools.createByName(ITEM_TYPE, d[1]);
+					var itemName = Game.ITEM_DATA[item].name;
+					
 					if (Reg.st.HUD.equipped_item != item)
 					{
 						D.snd.play(Reg.SND.error);
-						Reg.st.HUD.set_text("Requires `" + Game.ITEM_DATA[item].name + "` to unlock", true, 3);
+						Reg.st.HUD.set_text2("Requires `" + itemName + "` to unlock");
 						return;
 					}
 					
@@ -736,7 +738,10 @@ class MapFK extends TilemapGeneric
 					
 					// Remove the currently selected
 					Reg.st.HUD.item_pickup(null);
+					Reg.st.HUD.set_text2('Unlocked with ' + itemName);
+					
 					Reg.st.INV.removeItemWithID(item);
+					
 					
 					D.snd.play(Reg.SND.exit_unlock);
 					
@@ -784,7 +789,7 @@ class MapFK extends TilemapGeneric
 		if (Reg.st.HUD.equipped_item != item)
 		{
 			D.snd.play(Reg.SND.error);
-			Reg.st.HUD.set_text("You can use a " + Game.ITEM_DATA[item].name + " here", true, 3);
+			Reg.st.HUD.set_text2("You can use a " + Game.ITEM_DATA[item].name + " here");
 			return;
 		}
 		
