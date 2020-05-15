@@ -28,6 +28,7 @@ package;
 
 import djFlixel.D;
 import djFlixel.gfx.pal.Pal_CPCBoy;
+import flixel.FlxObject;
 import flixel.group.FlxSpriteGroup;
 import flixel.FlxSprite;
 import flixel.math.FlxMath;
@@ -61,8 +62,12 @@ class Inventory extends FlxSpriteGroup
 	var _tween:VarTween; 	// Animating on-off screen
 	
 	var text:FlxText; 		// Name of the current item.
-	
 	var text_level:FlxText;	// Name of level
+	
+	/// FUTURE, These should go in a Button Class
+	var options:FlxText;		// Options text
+	var options_bg:FlxSprite;	// Highlight square of the Options Text
+	
 	
 	// Item ID, in array with holes (null for hole) Length = grid.length
 	public var ITEMS:Array<Null<ITEM_TYPE>>;
@@ -73,6 +78,10 @@ class Inventory extends FlxSpriteGroup
 	public var onItemSelect:ITEM_TYPE->Void;
 	public var onClose:Void->Void;
 	public var onOpen:Void->Void;
+	
+	
+	// Which group is focused. 0:options, 1:Items
+	public var _grpfoc:Int = 0;	
 	
 	//====================================================;
 	
@@ -87,13 +96,21 @@ class Inventory extends FlxSpriteGroup
 			bg.active = false;
 		add(bg);
 		
+		D.text.fix({f:'fnt/text.ttf', s:16});
 		
 		// --
-		text_level = D.text.get("Generic level name", 38, 5, {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[29]});
+		options = D.text.get('options', 146, 5,  {c:Pal_CPCBoy.COL[31]});
+		options_bg = new FlxSprite(options.x + 1, options.y + 1);
+		options_bg.makeGraphic(cast options.width - 2, cast options.height - 2, GRID_CURSOR_COLOR);
+		add(options_bg);
+		add(options);
+		
+		// --
+		text_level = D.text.get("Generic level name", 38, 5, {c:Pal_CPCBoy.COL[29]});
 		add(text_level);
 
 		// --
-		text = D.text.get("Dummy Text", 46, 79, {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[27]});
+		text = D.text.get("Dummy Text", 46, 79, {c:Pal_CPCBoy.COL[27]});
 		text.fieldWidth = 100;
 		text.alignment = "center";
 		add(text);
@@ -107,13 +124,18 @@ class Inventory extends FlxSpriteGroup
 		grid = new GridNav(GRID_WIDTH, GRID_HEIGHT);
 		grid.set_box_size(GRID_BOX_SIZE, GRID_BOX_SIZE, GRID_PAD, GRID_PAD);
 		grid.onCursorChange = handle_cursor_change;
+		grid.onEscape = (d)->{
+			if (d == FlxObject.UP){
+				group_focus(0);
+			}
+		};
 	
 		
 		// -- Add BUTTON INDICATORS
 		//var t_equip = '[' + D.ctrl.getKeymapName(A) + ']';
 		//var t_close = '[' + D.ctrl.getKeymapName(START) + ']';
-		//var t1 = D.text.get(t_equip + ' equip', {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[31]});
-		//var t2 = D.text.get(t_close + ' close', {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[31]});
+		//var t1 = D.text.get(t_equip + ' equip', {c:Pal_CPCBoy.COL[31]});
+		//var t2 = D.text.get(t_close + ' close', {c:Pal_CPCBoy.COL[31]});
 		//D.align.inLine(7, 93, 177, [t1, t2], 'j');
 		//add(t1);
 		//add(t2);
@@ -137,6 +159,8 @@ class Inventory extends FlxSpriteGroup
 		y = SCREEN_Y;
 		
 		
+		D.text.fix();
+		
 		// --
 		ITEMS = [];
 		_tween = null;
@@ -147,23 +171,53 @@ class Inventory extends FlxSpriteGroup
 		handle_cursor_change(grid.index);
 	}//---------------------------------------------------;
 	
+	
+	function group_focus(g:Int)
+	{
+		_grpfoc = g;
+		if (_grpfoc == 0) {
+			options.color = Pal_CPCBoy.COL[28];
+			options_bg.visible = true;
+			cursor.visible = false;
+		}else{
+			options.color = Pal_CPCBoy.COL[31];
+			options_bg.visible = false;
+			cursor.visible = true;
+		}
+	}//---------------------------------------------------;
+	
+	
 	// --
 	override public function update(elapsed:Float):Void 
 	{
 		super.update(elapsed);
 
-		if (D.ctrl.justPressed(LEFT))  grid.cursor_move( -1,  0); else
-		if (D.ctrl.justPressed(RIGHT)) grid.cursor_move(  1,  0); else
-		if (D.ctrl.justPressed(DOWN))  grid.cursor_move(  0,  1); else
-		if (D.ctrl.justPressed(UP))    grid.cursor_move(  0, -1); else
+		if (_grpfoc == 0)
+		{
+			if (D.ctrl.justPressed(A)){
+				trace("go to options");
+			}
+			else if (D.ctrl.justPressed(DOWN)){
+				group_focus(1);
+			}
+		}else
+		{
+			// group focus 1 :
+			if (D.ctrl.justPressed(LEFT))  grid.cursor_move( -1,  0); else
+			if (D.ctrl.justPressed(RIGHT)) grid.cursor_move(  1,  0); else
+			if (D.ctrl.justPressed(DOWN))  grid.cursor_move(  0,  1); else
+			if (D.ctrl.justPressed(UP))    grid.cursor_move(  0, -1); else
 
-		if (D.ctrl.justPressed(A)) {
-			if (ITEMS[grid.index] != null) {
-				if (onItemSelect != null) onItemSelect(ITEMS[grid.index]);
+			if (D.ctrl.justPressed(A)) {
+				if (ITEMS[grid.index] != null) {
+					if (onItemSelect != null) onItemSelect(ITEMS[grid.index]);
+				}
 			}
 		}
+	
 		
-		else if (D.ctrl.justPressed(X) || D.ctrl.justPressed(START)) {
+		// Same with both focus groups
+		if (D.ctrl.justPressed(X) || D.ctrl.justPressed(START)) {
 			D.snd.play("inventory_close");
 			close();
 		}
@@ -202,6 +256,7 @@ class Inventory extends FlxSpriteGroup
 		}});
 		
 		D.snd.play("inventory_open");
+		group_focus(1);
 		if (onOpen != null) onOpen();
 	}//---------------------------------------------------;
 	// --

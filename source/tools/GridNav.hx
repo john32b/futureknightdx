@@ -29,6 +29,7 @@
 
 package tools;
 import djA.types.SimpleCoords;
+import flixel.FlxObject;
 
 
 class GridNav 
@@ -56,6 +57,10 @@ class GridNav
 	// Called whenever the cursor changes index (newIndex)->{}
 	// WARNING. When the grid is created, it does not fire this.
 	public var onCursorChange:Int->Void;
+	
+	// Called when the cursor is pushed out the border (FlxObject)
+	// Used whtn Flag_loop is false
+	public var onEscape:Int->Void;
 	
 	public var FLAG_LOOP:Bool = false;
 	
@@ -106,11 +111,27 @@ class GridNav
 	
 	
 	// Sets both <cursor_pos> and <index>
+	// Checks FLAG_LOOP
+	// Calls onEscape()
 	public function set_cursor_pos(x:Int, y:Int):Bool
 	{
 		if (cursor_pos.x == x && cursor_pos.y == y) return false;
-		if (x<0 || x>size.x-1) return false;
-		if (y<0 || y>size.y-1) return false;
+		if (x < 0) {
+			if (FLAG_LOOP) x = size.x - 1; else
+			if (onEscape != null) { onEscape(FlxObject.LEFT); return false; }
+		}else
+		if (x > size.x - 1){
+			if (FLAG_LOOP) x = 0; else
+			if (onEscape != null) { onEscape(FlxObject.RIGHT); return false; }
+		}else
+		if (y < 0) {
+			if (FLAG_LOOP) y = size.y - 1; else
+			if (onEscape != null) { onEscape(FlxObject.UP); return false; }
+		}else
+		if (y > size.y - 1) {
+			if (FLAG_LOOP) y = 0; else
+			if (onEscape != null) { onEscape(FlxObject.DOWN); return false; }
+		}
 		cursor_pos.set(x, y);
 		index = y * size.x + x;
 		if (onCursorChange != null) onCursorChange(index);
