@@ -19,7 +19,6 @@ Future Knight Image Assets
 package;
 
 import djFlixel.D;
-import djFlixel.gfx.GfxTool;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.gfx.pal.Pal_DB32;
 import djfl.util.Atlas;
@@ -109,11 +108,16 @@ class ImageAssets
 	];
 	
 			
+	
+	// Caches all the generated bitmaps
 	var cache:Map<String,BitmapData>;
+	
 	
 	public function new() 
 	{
 		cache = [];
+		
+		// : Translate the D_COL_NAME values from palette indexes to real colors
 		for (k => v in D_COL_NAME)
 		{
 			D_COL_NAME.set(k, [Pal_CPCBoy.COL[v[0]], Pal_CPCBoy.COL[v[1]], Pal_CPCBoy.COL[v[2]]]);
@@ -122,7 +126,7 @@ class ImageAssets
 		// I want to cache ENEMIES and PARTICLES with some of the colors
 		for (k => v in D_COL_NAME)
 		{
-			if (k.indexOf("bg_") == 0) continue;	
+			if (k.indexOf("bg_") == 0) continue;
 			getbitmap(GFX['enemy_sm'].im, k, true);
 			getbitmap(GFX['particles'].im, k, true);
 		}

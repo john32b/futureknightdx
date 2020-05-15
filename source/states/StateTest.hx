@@ -1,17 +1,27 @@
 package states;
 
 import djFlixel.*;
+import djA.types.SimpleRect;
 import djFlixel.core.*;
+import djFlixel.core.Dcontrols;
 import djFlixel.gfx.pal.*;
 import djFlixel.ui.*;
 import flixel.*;
+import djFlixel.ui.menu.MIconCacher;
+import djFlixel.ui.menu.MItem;
+import djFlixel.ui.menu.MPage;
+import djFlixel.ui.menu.MPageData;
+import flash.display3D.textures.CubeTexture;
+import flixel.effects.FlxFlicker;
 import flixel.group.FlxGroup;
+import flixel.text.FlxText;
 import gamesprites.AnimatedTile;
 import gamesprites.Enemy;
 import gamesprites.Item;
 import gamesprites.Player;
 import haxe.Log;
 import openfl.Assets;
+import tools.KeyCapture;
 //import djFlixel.gui.PanelPop;
 
 
@@ -25,6 +35,21 @@ class StateTest extends FlxState
 {
 	//var trophy:TrophyPopup;
 	//var list:VList<ITEMTEST,Int>;
+		
+	// :: Various State Parameters
+	var P = {
+		im_title_art: "im/game_art.png",
+		im_title : "im/title_01.png",
+		im_dx : "im/title_02.png",
+		im_gamepad: "im/controller_help.png",
+		
+		art_delay : 4.0,	// Wait this much on the graphic,
+		
+		title_fg : Pal_CPCBoy.COL[24],
+		title_tick: 0.125,
+		title_cols : [1, 2, 11, 15, 6, 18, 21, 5, 8, 25]	// CPC Boy palete codes for title to loop
+	};
+	
 	
 	override public function update(elapsed:Float):Void 
 	{
@@ -39,19 +64,32 @@ class StateTest extends FlxState
 	}//---------------------------------------------------;
 	
 	
+	
+	
+	
+	// --
+	
 	override public function create() 
 	{
 		super.create();
 		
 		
-		//var c = new FlxSprite(X, Y, new BitmapData(100, 100, true, 0xFF005566));
-		//add(c);
-
-		//add(new FlxSprite(40, 200, D.ui.getIcon(12, 1)));
-		//add(new FlxSprite(52, 200, D.ui.getIcon(12, 10)));
-		//add(new FlxSprite(64, 200, D.ui.getIcon(12, "heart")));
+		D.ui.pInit();
+		D.ui.pCol("100|100,32");
 		
-		//add(Reg.get_overlayScreen());
+		var COL = Pal_CPCBoy.COL; // Shortcut
+		D.text.fix({f:'fnt/amstrad.ttf', s:8, c:COL[23], bt:1, bc:COL[2]});
+		D.ui.FLAG_PLACE_ADD = true;
+		D.ui.pT("TEXT1", {c:1, ta:'center'});
+		D.ui.pT("TEXT2", {c:2, ta:'center'});
+		D.ui.pT("HELLO WORLD 1,2,3,4,5,6,6,7,8,98,7,6,5", {ta:'center',oy:10});
+		D.ui.pT("And another one", {ta:'center', oy:10});
+		D.ui.pT("0001", {c:1,ta:'right'},{c:COL[24]});
+		D.ui.pT("0002", {c:2}, {c:COL[24]});
+		
+		
+		//sub_get_keys(()->{});
+		return;
 		
 		
 		//var st:MItemStyle =  {
@@ -68,35 +106,57 @@ class StateTest extends FlxState
 			////box_txt:['[ ]', '[x]'],
 		//};
 		
-		
-		
-		//mp = new MPage(64, 64, 126, 8);
+		var mp = new MPage(64, 64, 126, 8);
 		//mp.styleC = {
-			////bitmap:D.ui.getIcon(8, 'home'),
-			////offset:[0, 2],
-			//text:"_-=",
-			//color:{c:Pal_DB32.COL_30}
+			//bitmap:D.ui.getIcon(8, 'home'),
+			//offset:[0, 2],
+			//color:{c:Pal_DB32.COL_30, bt:1, bc:Pal_DB32.COL_29},
+			//text:"-",
 		//};
-		//mp.style_tweakDef({
-			//item_pad: -4,
-			//align:Reg.INI.get('style','align')
-		//});
-		//mp.setPage(new MPageData('p1', "Main").addM([
+		
+		//var pd = new MPageData('p1', "Main", {
+				//part1W:80, stL:Reg.INI.getObj('style1')
+		//}).addM([
 			//'Label test|label',
 			//'Link Test|link|@page',
 			//'Link Test|link|call1',
 			//'Link Test|link|customcall|icon=8:options',
 			//'Toggle Test|toggle',
 			//'Toggle Test|toggle',
-			//'List Test|list|list=low,medium,high',
+			//'List Test|list|list=low,mediurm,high',
 			//'List Test|list|list=low,medium,high',
 			//'Range Int|range|range=0,10|c=0',
 			//'Range Int|range|range=0,10|c=0',
 			//'Range Step|range|range=0,15|c=5|step=5',
 			//'Range Float|range|range=0,1|step=0.2'
-		//]));
-		//mp.viewOn();
-		//add(mp);
+		//]);
+		
+		var pd = new MPageData('controls', "Configure Controls");
+		pd.add('Jump|label2|[k]');
+		pd.add('Shoot|label2|[l]');
+		pd.add('Inventory|label2|[o]');
+		pd.add('Pause|link|[enter]');
+		mp.setPage(pd);
+		mp.viewOn();
+		
+
+		mp.onItemEvent = (a, b)->{
+			if (a == fire){
+				trace("FIRE", a, b);
+				var it = mp.item_getCurrent();
+				it.data.text = " .. Press Key";
+				mp.item_update(it);
+				mp.active = false;
+				//new KeyCapture((k)->{
+					//it.data.text = "[" + k.toString() + "]";
+					//mp.item_update(it);
+					//mp.active = true;
+				//});
+			}
+		}
+		
+		add(mp);
+		return;
 		
 		//add(new FlxSprite(32, 40, 
 			//MItem.ICONCACHE.get(st.box_bm[0], "accent")));

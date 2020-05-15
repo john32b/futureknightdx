@@ -32,7 +32,7 @@
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="--macro lime._internal.macros.DefineMacro.run()&#xA;--macro openfl._internal.macros.ExtraParams.include()&#xA;--macro flixel.system.macros.FlxDefines.run()&#xA;-dce std&#xA;-swf-version 20&#xA;--no-output " />
+    <option additional="--macro lime._internal.macros.DefineMacro.run()&#xA;--macro openfl._internal.macros.ExtraParams.include()&#xA;--macro flixel.system.macros.FlxDefines.run()&#xA;-dce std&#xA;-swf-version 40&#xA;--no-output " />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

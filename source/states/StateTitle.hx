@@ -14,7 +14,11 @@
  
 package states;
 
+import djA.types.SimpleRect;
+import tools.KeyCapture;
 import tools.SprDirector;
+
+import djFlixel.core.Dcontrols;
 
 import djFlixel.core.Dtext.DTextStyle;
 import djFlixel.fx.BoxFader;
@@ -57,14 +61,7 @@ class StateTitle extends FlxState
 		title_cols : [1, 2, 11, 15, 6, 18, 21, 5, 8, 25]	// CPC Boy palete codes for title to loop
 	};
 	
-
-	// :: HELP PAGE :
-	var tstyle1:DTextStyle = {c:Pal_CPCBoy.COL[20]};
-	var tstyle2:DTextStyle = {c:Pal_CPCBoy.COL[2]};
-	var help_slides:FlxSlides;
-	
-	
-	
+	// --
 	var stars:StarfieldSimple;
 	var starsTimer:Float = 0;	// Change stars angle on timer
 	
@@ -82,7 +79,7 @@ class StateTitle extends FlxState
 	// --
 	var title_01_spr:FlxSprite;	// Title sprite
 	var title_02_spr:FlxSprite; // DX sprite
-	var title_tickr:FlxTimer;	// Timer for the title flash
+	var title_tick:FlxTimer;	// Timer for the title flash
 	
 	// I want a dynamic function because in some cases I need to check different things
 	var updateFunction:Void->Void;
@@ -117,14 +114,14 @@ class StateTitle extends FlxState
 		var _tb = Assets.getBitmapData(P.im_title, false);
 			_tb = D.bmu.replaceColor(_tb, Pal_CPCBoy.COL[28], P.title_fg);
 		title_01_spr = new FlxSprite(_tb.clone());
-		title_tickr = new FlxTimer();
-		title_tickr.start(P.title_tick, (t)->{
+		title_tick = new FlxTimer();
+		title_tick.start(P.title_tick, (t)->{
 			var l = t.elapsedLoops % P.title_cols.length;
 			title_01_spr.pixels = D.bmu.replaceColor(_tb.clone(), Pal_CPCBoy.COL[31], Pal_CPCBoy.COL[P.title_cols[l]]);
 			title_01_spr.dirty = true;
 			title_02_spr.color = Pal_CPCBoy.COL[P.title_cols[l]];
 		}, 0);
-		title_tickr.active = false;
+		title_tick.active = false;
 
 		
 		// -- With a sprite director you can add and animate sprites easily
@@ -132,56 +129,12 @@ class StateTitle extends FlxState
 		dir0.on(P.im_title_art).v(0);
 		dir0.on('title', title_01_spr).p(0, -20).v(0);
 		dir0.on('dx', title_02_spr).v(0); // Positioned later
-		
-		
-		
-		// --
-		//popup_controller = new FlxSpriteGroup();
-		// - Create it and leave it alone, until the GAMEAPI calls it
-		
-		//infoGroup = new FlxSpriteGroup();
-		//infoGroup.visible = false;
-
-		//// -- Create toast info on connect, now or later
-		//
-		//// In case it was skipped on the preloader?
-		//if (Reg.api.connectStatus == "offline" && Reg.api.SERVICE_NAME != "Offline") {
-			//trace("-- Trying to connect to ONLINE API");
-			//Reg.api.connect();
-		//}
-		//Reg.api.callOnConnect(callback_ApiConnected);
-
-		//// -- Menu
-		//sub_create_menu();
-		//
-		//// --
-		//// -- Pages
-		//pageScrPos = new SimpleCoords(32, 86);
-		//helpPages = new FlxMenuPages(16, 86, 256 + 32, 154);
-		//helpPages.callback_action = function(ev:String) {
-			//if (ev == "change") {
-				//SND.play("cursor");
-			//}else { // must be Back, since nothing else can be triggered
-				//infoGroup.visible = true;
-				//helpPages.visible = false;
-				//menu.showPage("main");
-				//menu.option_highlight("help");
-			//}
-		//};
-		//
-		//sub_createHelp();
-		//
-		//// Start the sequence
-		
+	
 		add(stars);
 		add(dir0);
 		
 		sub_create_menu();
 		
-		//add(groupMisc);
-		//add(menu);
-		//add(helpPages);
-
 		// :: Fade the screen from black and call seq.nextv()
 		pFader = new BoxFader();
 		pFader.setColor(Pal_CPCBoy.COL[0]);
@@ -193,9 +146,6 @@ class StateTitle extends FlxState
 		
 		// --
 		// D.snd.playMusic(Reg.musicVers[Reg.musicVer]);
-		
-		//flag_cheat_step1 = false;
-		
 	}//---------------------------------------------------;	
 	
 	
@@ -224,44 +174,6 @@ class StateTitle extends FlxState
 			updateFunction();
 		}
 		
-		
-		//
-		//// Check for a gamepad at an interval,
-		//// Can only trigger once
-		//if (Controls.poll())
-		//{
-			//showControllerPopup();
-		//}
-		//
-		//// -- CHEATS :: -------------::
-		//
-		//if (!flag_cheat_step1 && FlxG.keys.pressed.ALT && FlxG.keys.pressed.CONTROL && FlxG.keys.pressed.SEMICOLON )
-		//{
-			//trace("Warning: Level Skip, Ready to go.");	
-			//SND.play("fx_exit3");
-			//flag_cheat_step1 = true;
-		//}// --
-		//
-		//if (flag_cheat_step1) 
-		//{
-			//// SKIP TO LEVEL CHEAT
-			//if (FlxG.keys.pressed.CONTROL && FlxG.keys.pressed.L)
-			//{
-				//var lvlToSkip:Int = 0;
-		//
-				//if (FlxG.keys.pressed.TWO) lvlToSkip = 2;
-				//else if (FlxG.keys.pressed.THREE) lvlToSkip = 3;
-				//else if (FlxG.keys.pressed.FOUR) lvlToSkip = 4;
-				//else if (FlxG.keys.pressed.FIVE) lvlToSkip = 5;
-				//else if (FlxG.keys.pressed.SIX) lvlToSkip = 6;
-				//else if (FlxG.keys.pressed.SEVEN) lvlToSkip = 7;
-	//
-				//if (lvlToSkip > 0) {
-					//trace("Warning: Skip to level ",lvlToSkip);
-					//fadeSwitch(new StateMain("skip", lvlToSkip));
-				//}
-			//}
-		//}
 	}//---------------------------------------------------;
 
 
@@ -287,13 +199,13 @@ class StateTitle extends FlxState
 		case 4: // --	show the menu
 			//SND.playFile("title");
 			dir0.on('title').a(0.5).v(1).tween({alpha:1, y:32}, 0.5, { ease:FlxEase.elasticOut } );
-			title_tickr.active = true;
+			title_tick.active = true;
 			seq.next(0.2);
 		case 5:
 			dir0.on('dx').v(1).a(0.5).p(274, 32).tween({alpha:1, y:62}, 0.3, { ease:FlxEase.elasticOut } );
 			seq.next(0.300);
 		case 6:
-			dir0.on('footer', sub_getFooterGroup()).p(0, 20).a(0.3).tween({y:0, alpha:1}, 0.2);
+			dir0.on('footer', sub_get_footer_grp()).p(0, 20).a(0.3).tween({y:0, alpha:1}, 0.2);
 			dir0.on('dx').tween({alpha:1, y:65}, 0.3, { ease:FlxEase.quadOut, type:4 } );
 			menu.goto('main');
 		case 7:
@@ -301,115 +213,12 @@ class StateTitle extends FlxState
 		default:
 		}
 	}//---------------------------------------------------;
-
-	
-	// --
-	// -- Create the help pages
-	function sub_createHelp()
-	{		
-		//var startX = pageScrPos.x;
-		//var startY = pageScrPos.y;
-		//var lineH = 10;
-		//var page:Array<FlxSprite>;
-		//
-		//// PAGE 0,1 CONTROLS
-		//page = helpPages.createPage(0);
-		//page.push(new FlxSprite(startX, startY, "assets/images/help_controller_02.png"));
-		//page = helpPages.createPage(1);
-		//startY = pageScrPos.y;
-		//page.push(new FlxSprite(startX, startY, "assets/images/help_controller_01.png")); startY += 80;
-		//page.push(getStyledTextH("Press a button on a gamepad to activate it.", startX + 20, startY)); 
-//
-		////PAGE - Tiles
-		//page = helpPages.createPage(2);
-		//startY = pageScrPos.y;
-		//spriteLabelX_offset = 32;
-		//spriteLabelY_size = 42;
-		//addSpriteLabelToPage(page, 0, 0, AnimatedTile.getSprite(AnimatedTile.HAZARD), "Hazard", "Avoid!");
-		//addSpriteLabelToPage(page, 0, 1, AnimatedTile.getSprite(AnimatedTile.EXIT), "Exit", "Press up to go through it");
-		//addSpriteLabelToPage(page, 0, 2, AnimatedTile.getSprite(AnimatedTile.WEAPON_2), "Weapon Station", "Press up to change weapons");
-		//
-		////PAGE - Items
-		//page = helpPages.createPage(3);
-		//startY = pageScrPos.y;
-		//spriteLabelX_offset = 12;
-		//spriteLabelY_size = 30;
-		//// -- add items programmatically --
-		//var cc = 0;
-		//for (i in [ItemType.BOMB, ItemType.SUPERBOMB, ItemType.HEALTH, ItemType.CONFUSER]) {
-			//var iData = Item.getItemDataByID(i);
-			//addSpriteLabelToPage(page, 0, cc++, Item.getSprite(i), iData.name, iData.desc);
-		//}
-		//
-		////PAGE - Enemies
-		//page = helpPages.createPage(4);
-		//startY = pageScrPos.y;
-		//spriteLabelX_offset = 24;
-		//spriteLabelY_size = 40;
-		//addSpriteLabelToPage(page, 0, 0, new Enemy().setAsSprite(EnemySprite.GHOST), "Ghost", "");
-		//addSpriteLabelToPage(page, 1, 0, new Enemy().setAsSprite(EnemySprite.SLIME), "Slime", "");
-		//addSpriteLabelToPage(page, 0, 1, new Enemy().setAsSprite(EnemySprite.ROBOT), "Robot", "");
-		//addSpriteLabelToPage(page, 1, 1, new Enemy().setAsSprite(EnemySprite.TURRET), "Turret", "Shoots bullets");
-		//addSpriteLabelToPage(page, 0, 2, new Enemy().setAsSprite(EnemySprite.SKULL),  "Skull", "");
-		//addSpriteLabelToPage(page, 1, 2, new Enemy().setAsSprite(EnemySprite.BIGROBOT1), "Big Robot", "");
 		
-	}//---------------------------------------------------;
-	
-	
-	// -- These vars are for quick hack modifications to positions
-	//var spriteLabelX_offset:Int = 0;
-	//var spriteLabelX_size:Int = 112;
-	//var spriteLabelY_size:Int = 32;
-	// --
-	// -- Add a sprite with some description text to a page
-	function addSpriteLabelToPage(page:Array<FlxSprite>, col:Int, row:Int, spr:FlxSprite, txt1:String = "", txt2:String = "")
-	{
-		//var startY = pageScrPos.y + ( spriteLabelY_size * row );
-		//var startX = spriteLabelX_offset + pageScrPos.x + ( spriteLabelX_size * col );
-		//
-		//spr.setPosition(startX, startY);
-		//page.push(spr);
-		//
-		//startX += Std.int(spr.width) + 8;
-	//
-		//if (txt1 != "")
-		//{
-			//page.push(getStyledTextH(txt1, startX, startY));
-		//}
-		//
-		//if (txt2 != "")
-		//{
-			//page.push(getStyledText(txt2, startX, startY + 12));
-		//}
-	}//---------------------------------------------------;
-	
-	// --
-	inline function getStyledTextH(text:String, x:Float = 0, y:Float = 0 ):FlxText
-	{
-		//var t = new FlxText(x, y, 0, text, 8);
-		//t.color = Palette_DB32.COL_20;
-		//t.borderColor = Palette_DB32.COL_02;
-		//t.borderQuality = 1;
-		//t.borderStyle = FlxTextBorderStyle.OUTLINE_FAST;
-		//return t;
-		return null;
-	}//---------------------------------------------------;	
-	// --
-	inline function getStyledText(text:String, x:Float = 0, y:Float = 0 ):FlxText
-	{
-		//var t = new FlxText(x, y, 0, text, 8);
-		//t.color = Palette_DB32.COL_23;
-		//return t;
-		return null;
-	}//---------------------------------------------------;
-	
-	
-	
 	
 	/** Create footer objects **/
-	function sub_getFooterGroup():FlxSpriteGroup
+	function sub_get_footer_grp():FlxSpriteGroup
 	{
-		var color = Pal_CPCBoy.COL[30];
+		var color = Pal_CPCBoy.COL[31];
 		// Set a horizontal line and infos below it:
 		var line = new FlxSprite(0, 208);
 			line.makeGraphic(FlxG.width - 50, 1, color);
@@ -426,8 +235,8 @@ class StateTitle extends FlxState
 	// -- Creates and Adds the menu
 	function sub_create_menu()
 	{
-		//menu = new FlxMenu(32, 86, 200);
 		menu = new FlxMenu(32, 90, FlxG.width);
+		menu.PARAMS.start_button_fire = true;
 		menu.PARAMS.header_enable = false;
 		menu.PARAMS.line_height = 0;
 		menu.PARAMS.page_anim_parallel = true;
@@ -440,7 +249,6 @@ class StateTitle extends FlxState
 		menu.stI.col_t.accent = Pal_CPCBoy.COL[6];
 		menu.stI.col_t.idle = Pal_CPCBoy.COL[27];
 		menu.stI.col_b.idle = Pal_CPCBoy.COL[1];
-		
 		menu.stL.align = "left";
 		menu.stI.text = { s:16, bt:1, so:[2, 2] };
 		
@@ -452,33 +260,38 @@ class StateTitle extends FlxState
 		
 		menu.createPage("options","options").addM([
 			//"Options:|label",
-			"Sound Effects|toggle",
-			"Graphic Style|list|list=old,new",
+			"Keyboard Redefine|link|keyredef",
+			"Soft Pixels|toggle|id=softpix|c=" + Std.string(D.ANTIALIASING),
 			"Back|link|@back"
 		]);
 		
+		
 		menu.onItemEvent = (a, b)->{
-			
-			D.ctrl.flush();
-			
+			D.ctrl.flush();	// Just in case
 			if (a == fire) {
 				switch(b.ID){
+					case "softpix":
+						D.ANTIALIASING = b.data.c;
+					case "keyredef":
+						menu.close(true);
+						sub_get_keys(()->{
+							menu.open();
+						});
 					case "new_game":
 						FlxG.switchState(new StatePlay());
 						return;
 					case "help":
-						trace("going to help");
 						slides = sub_get_help_slides();
 						menu.close();
 						add(slides);
 						slides.onEvent = (e)->{
-							trace("SLides event", e);
 							if (e == "close"){
 								remove(slides);
 								slides = null;
 								menu.open();
 							}
 						};
+						FlxG.mouse.reset();	// Just in case
 						slides.goto(0);
 					case _:
 				}
@@ -488,26 +301,113 @@ class StateTitle extends FlxState
 		add(menu);
 	}//---------------------------------------------------;
 	
-	// --
+	// :: BUILD and rethrn the help slides
+	// - Controls
+	// - Item description
+	// - Game infos
 	function sub_get_help_slides():FlxSlides
 	{
-		var h = new FlxSlides();
+		var AREA = new SimpleRect(24, 70, 320 - 24 - 24, 170);
+		var COL = Pal_CPCBoy.COL; // Shortcut
+		var st_h1 = {f:'fnt/score.ttf', s:12, c:COL[20], bt:1, bc:COL[1]};
+		var st_p = {f:'fnt/score.ttf', s:6, c:COL[26]};
+		var st_p2 = {f:'fnt/score.ttf', s:6, c:COL[23]};
+		D.text.formatAdd('<r>', COL[6]);
+		D.text.formatAdd('<g>', COL[21]);
+		D.text.fix(); // clear 
+		D.ui.pInit(AREA.x, AREA.y, AREA.w, AREA.h);
 		
-		D.text.fix({f:'fnt/text.ttf', s:16});
+		var h = new FlxSlides({delay:0.08, time:0.12, offset:"-18:0"});
+			h.setArrows(8, AREA.x, AREA.y + AREA.h / 2, AREA.w);
 		
-		// : Joystick present show the gamepad help
+		// : Slide - Gamepad
 		h.newSlide();
-		h.a(new FlxSprite(P.im_gamepad));
-		D.align.screen(h.last);
-		
+		h.a(D.ui.pT("Gamepad Controls", {ta:"c"}, st_h1));
+		h.a(D.ui.p(new FlxSprite(P.im_gamepad), {a:"c"}));
+			
+		// : Slide - Keys
 		h.newSlide();
-		h.a(D.text.get("Keyboard controls", 40, 100));
-		h.a(D.align.down(D.text.get("[A] - JUMP", 40, 100), h.last));
-		h.a(D.align.down(D.text.get("[B] - SHOOT", 40, 100), h.last));
+		D.ui.pCol("120|60,16", -1);
+		h.a(D.ui.pT("Keyboard Controls", {ta:"c"}, st_h1));
+		D.text.fix(st_p);
+		D.ui.pPad(6);
+			// - Build keys
+			var ACTIONS = ['move', 'shoot / <r>cancel<r>', 'jump / <g>ok<g>', 'use item', 'inventory / pause'];
+			var KEYS = [DButton.UP, DButton.X, DButton.A, DButton.Y, DButton.START];
+			for (i in 0...ACTIONS.length) {
+				var keys:String =  i == 0 ? 
+					D.ctrl.getKeymapName(UP) + D.ctrl.getKeymapName(LEFT) + D.ctrl.getKeymapName(DOWN) + D.ctrl.getKeymapName(RIGHT)
+					: D.ctrl.getKeymapName(KEYS[i]);
+				h.a(D.ui.pT('~' + ACTIONS[i], {c:1, ta:"r"}));
+				h.a(D.ui.pT('[' + keys.toLowerCase() + ']', {c:2}));
+			}
+		h.a(D.ui.pT('volume up / down', {c:1, ta:"r"}));
+		h.a(D.ui.pT('[-] [+]', {c:2}));
+		h.a(D.ui.pT('you can redifine in options', {ta:'c', oy:6}, st_p2));
 		
-		D.text.fix();
+		// :: Slide :: General infos
+		h.newSlide();
+		var key_up = D.ctrl.getKeymapName(UP).toLowerCase();
+		var key_ok = D.ctrl.getKeymapName(A).toLowerCase();
+		D.ui.pClear();
+		h.a(D.ui.pT('~press UP <g>[$key_up]<g> to interact with objects', {a:'c', oy:8}));
+			// Create 4 animated tile sprites, place 3 of them in a row NOW
+			var spr:Array<FlxSprite> = [for (i in 0...4) Reg.IM.getSprite(0, 0, 'animtile')];
+			spr[0].animation.add('1', [10, 11], 8);
+			spr[1].animation.add('1', [4, 5, 6, 7], 8);
+			spr[2].animation.add('1', [28, 29], 8);
+			spr[3].animation.add('1', [12, 13], 8);
+			D.ui.pM([spr[0], spr[1], spr[2]]);
+			for (i in 0...4) {
+				spr[i].animation.play('1');
+				if (i < 3) h.a(spr[i]); // do not add [3]
+			}
+		h.a(D.ui.pT('to unlock an exit, you need to \nhave the required item equipped', {ta:'c'}));
+		h.a(D.ui.p(spr[3], {a:'c'}));
+		h.a(D.ui.pT('~from the inventory\npress <g>[$key_ok]<g> on an item to equip it', {ta:'c'}));
+		// ---- page end
+		
 		h.finalize();
+		D.text.fix();
+		D.text.formatClear();
 		return h;
+	}//---------------------------------------------------;
+	
+	
+	function sub_get_keys(onComplete:Void->Void)
+	{
+		// This is the same order as the dcontrols 360 layout
+		var ACTIONS = ['up', 'right', 'down', 'left', 'ok / jump', '', 'cancel / shoot', 'use item', '', 'pause / inventory'];
+		var KEYS = [];	// the actual FlxKeycodes that map to ACTIONS[]		
+		var COL = Pal_CPCBoy.COL; // Shortcut
+		
+		D.text.formatAdd('<m>', COL[24], COL[3]);
+		D.ui.pInit(0, 100);
+		D.ui.PLACE_ADD = true;
+		
+		var txt1 = D.ui.pT('-', {ta:'c'}, {f:'fnt/score.ttf', s:6, c:COL[26], bt:1, bc:COL[2]});
+		var txt2 = D.ui.pT('-', {ta:'c', oy:20}, {f:'fnt/score.ttf', s:6, c:COL[7]});
+		var k = new KeyCapture(ACTIONS);
+		k.onEvent = (a, b)->{
+			if (a == "wait") {
+				D.text.applyMarkup(txt1, "press key for\n<m>[" + b + "]<m>");
+				txt2.visible = false;
+			}else
+			if (a == "error") {
+				txt2.text = "key already defined for " + b;
+				txt2.visible = true;
+				flixel.effects.FlxFlicker.flicker(txt2, 0.5, 0.1);
+			}else
+			if (a == "ok"){
+				D.snd.play('pl_step');
+			}
+			if (a == "complete") {
+				remove(txt1); remove(txt2);
+				D.ctrl.keymap_set(k.KEYMAP);
+				if(onComplete!=null) onComplete();
+			}
+		};
+		k.start();
 	}//---------------------------------------------------;
 	
 }//-- end --//
