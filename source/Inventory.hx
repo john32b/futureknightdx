@@ -37,7 +37,6 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.tweens.misc.VarTween;
 import haxe.EnumTools;
-import states.SubStatePause;
 import tools.GridNav;
 
 import gamesprites.Item;
@@ -405,7 +404,7 @@ class Inventory extends FlxSpriteGroup
 		}else
 		{
 			for (i in str.split(',')) {
-				if (i == 'null') continue;
+				if (i == 'null' || i.length==0) continue;
 				addItem(ITEM_TYPE.createByName(i));
 			}
 		}	

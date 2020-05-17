@@ -72,8 +72,8 @@ class BulletManager extends FlxGroup
 		}
 		
 		var b:Bullet = cast recycle(Bullet);
-		b.init(TYPE, X, Y, FACE);
-		b.manager = this;
+			b.init(TYPE, X, Y, FACE);
+			b.manager = this;
 		return true;
 	}//---------------------------------------------------;
 

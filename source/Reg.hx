@@ -92,7 +92,7 @@ class Reg
 	// >> Called BEFORE FlxGame() is created
 	public static function init_pre()
 	{
-		trace(" == Reg init :PRE:");
+		trace(" -- Reg init :PRE:");
 		D.assets.DYN_FILES = [PATH_JSON, PATH_INI];
 		D.assets.onAssetLoad = onAssetLoad;	
 		D.snd.ROOT_SND = "snd/";
@@ -106,8 +106,18 @@ class Reg
 	// >> Called AFTER FlxGame() is created
 	public static function init_post()
 	{
-		trace(" == Reg init :POST:");
-		D.snd.setVolume("master", 0.2);
+		trace(" -- Reg init :POST:");
+		
+		// -- Restore Settings
+		D.save.setSlot(0);
+		var _LS = D.save.load('settings');
+		if (_LS != null) {
+			trace(" -- Setings Restoring", _LS);
+			D.ANTIALIASING = _LS.aa;
+			D.snd.setVolume("master", _LS.vol);
+		}else{
+			D.snd.setVolume("master", 0.2);
+		}
 		
 		#if debug
 			new Debug();
@@ -123,14 +133,11 @@ class Reg
 		INI = new ConfigFile(D.assets.files.get(PATH_INI));
 		JSON = Json.parse(D.assets.files.get(PATH_JSON));
 			
-		if (++_dtimes == 1)
-		{
+		// DEBUG
+		// HACK : When you press F12 to reload the state, don't re-init the sounds
+		if (++_dtimes == 1) {
 			D.snd.addMetadataNode(JSON.soundFiles);
 		}
-		
-		
-		START_MAP = INI.get('DEBUG', 'startLevel');
-		
 	}//---------------------------------------------------;
 		static var _dtimes:Int = 0; // Asset loaded times
 
@@ -152,39 +159,25 @@ class Reg
 		st.openSubState(new SubStatePause());
 	}//---------------------------------------------------;
 	
-	
-	public static function getSave():String
-	{
-		var s = "";
-	
-		Reg.st.player.health;
-		Reg.st.player.lives;
-		
-		return s;
-	}//---------------------------------------------------;
-	
-	
-	// -- TODO :
+	// -- TODO
 	public static function checkProtection():Bool
 	{
 		return true;
 		// !Reg.api.isURLAllowed()
 	}//---------------------------------------------------;
 	
-	
-	public static function SAVE_GET():Dynamic
+	// --
+	public static function SAVE_SETTINGS()
 	{
-		var OBJ = {
-			ver:VERSION,
-			pl:st.player.SAVE(),
-			inv:st.INV.SAVE(),
-			hud:st.HUD.SAVE(),
-			map:st.map.SAVE()
-		};
-		
-		return OBJ;
-		
+		D.save.setSlot(0);
+		D.save.save('settings', {
+			aa:  D.ANTIALIASING,
+			vol: FlxG.sound.volume
+		});
+		D.save.flush();
+		trace("-- Settings Saved", D.save.load('settings'));
 	}//---------------------------------------------------;
+	
 	
 }//--
 

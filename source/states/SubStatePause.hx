@@ -38,8 +38,6 @@ class SubStatePause extends FlxSubState
 		add(bs1);
 		add(bs2);
 		
-		// :: 
-		
 		
 		// ::
 		var menu = new FlxMenu(64, 48, -1, 6);
@@ -66,7 +64,8 @@ class SubStatePause extends FlxSubState
 			
 			menu.onMenuEvent = (a, b)->{
 				if (a == page && b == "options") {
-				menu.item_update(0, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });	
+				menu.item_update(0, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });
+				menu.item_update(1, (t)->{t.data.c = D.ANTIALIASING; });
 				}
 				else if (a == start) {
 					close();
@@ -111,7 +110,9 @@ class SubStatePause extends FlxSubState
 	// --
 	override public function close():Void 
 	{
+		Reg.SAVE_SETTINGS();
 		D.ctrl.flush();
+		Reg.st.INV.close();
 		super.close();
 	}//---------------------------------------------------;
 	

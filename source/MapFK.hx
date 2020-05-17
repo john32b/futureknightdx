@@ -264,6 +264,10 @@ class MapFK extends TilemapGeneric
 		
 		_scanProcessTiles();	// <- Read FG tiles
 		 
+		// Layer 0 : Background
+		// Layer 1 : Shadows (optional)
+		// Layer 2 : Foreground Tiles
+		
 		layers[0].loadMapFromArray(T.getLayer(LAYER_BG), T.mapW, T.mapH,
 			Reg.IM.getMapTiles(MAP_TYPE, "bg", MAP_COLOR),
 			T.tileW, T.tileH, null, 1, 1, 1);
@@ -806,21 +810,16 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 	
 	
-	
-	
-	
-	
-	
-	
+		
 	
 	/**
 	   - Append the "APPEND" layer to the current map
-	   - also makes it global
+	   - also makes it global (optionally)
 	   @param save Push it to Global State
 	**/
 	public function appendMap(save:Bool = false)
 	{
-		// Make sure it is not already
+		// Make sure it is not already ? no need I guess
 		
 		var data = T.getLayer(LAYER_APPEND);
 		if (data == null) throw '$MAP_FILE does not have a $LAYER_APPEND layer';
@@ -837,6 +836,24 @@ class MapFK extends TilemapGeneric
 
 	}//---------------------------------------------------;
 	
+	/**
+	   Remove the "APPEND" layer from the actual map
+	   - Every tile the layer had, will turn to 0
+	   - USED in the final level, where the boss room needed to be locked and unlocked later
+	**/
+	public function appendRemove()
+	{
+		// TODO
+		var data = T.getLayer(LAYER_APPEND);
+		
+		for (i in 0...data.length) {
+			if (data[i] > 0) {
+				layers[2].setTileByIndex(i, 0, true);
+			}
+		}		
+		
+		trace(">> Removed Extra layer map");
+	}//---------------------------------------------------;
 
 	
 	

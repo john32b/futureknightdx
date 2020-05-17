@@ -40,7 +40,7 @@ class Enemy extends MapSprite
 	
 	static public var PAR = {
 		health 		 : 20,
-		health_chase : 30,
+		health_chase : 24,
 		health_big  : 200,
 		health_long : 120,
 		health_tall	: 240,
@@ -315,6 +315,7 @@ class Enemy extends MapSprite
 				setSize(50, 50);
 				centerOffsets();
 				spawn_origin_set(1);// Always floor bound
+				
 			
 			// :: Worms
 			case 19, 20:

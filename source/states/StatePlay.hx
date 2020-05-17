@@ -54,6 +54,9 @@ class StatePlay extends FlxState
 		
 	//====================================================;
 	
+	/**
+	  Called from the main menu, if force new game, then delete the save here.
+	**/
 	public function new(newGame:Bool = false)
 	{
 		if (newGame) {
@@ -101,11 +104,11 @@ class StatePlay extends FlxState
 		var MAP_TO_LOAD = "";
 		
 		D.save.setSlot(1);
-		// Check version
 		var S = D.save.load('game');
 		if (S != null)
 		{
 			trace("SAVE - Exists OK, loading..", S);
+			// TODO? Check version??
 			player.SAVE(S.pl);
 			INV.SAVE(S.inv);
 			HUD.reset();
@@ -114,12 +117,15 @@ class StatePlay extends FlxState
 			map.SAVE(S.map);
 			
 		}else{
-			trace("SAVE - Does not exists, starting new");
+			trace("SAVE - Does not exist, starting new");
 			MAP_TO_LOAD = Reg.START_MAP;
 			HUD.reset();
 		}
 		
 		#if debug
+			var L = Reg.INI.get('DEBUG', 'startLevel');
+			if (L != null) MAP_TO_LOAD = L;
+		
 			// This is when pressing [f12] to reload the map, spawn to the current level again
 			if (MapFK.LAST_LOADED != "") {
 				trace("Debug: restoring LAST_LOADED to", MapFK.LAST_LOADED);

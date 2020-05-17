@@ -73,8 +73,15 @@ class Debug
 	public function saveDel()
 	{
 		D.save.deleteSave();
-		trace("SAVE deleted OK");
 	}
 	
 	
+	public function map_append()
+	{
+		Reg.st.map.appendMap();
+	}
+	public function map_append_remove()
+	{
+		Reg.st.map.appendRemove();
+	}
 }// --

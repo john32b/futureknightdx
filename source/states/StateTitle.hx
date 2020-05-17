@@ -84,12 +84,16 @@ class StateTitle extends FlxState
 	// I want a dynamic function because in some cases I need to check different things
 	var updateFunction:Void->Void;
 
+	// 
+	var _SAVE_EXISTS:Bool;
+	
 	// -
 	override public function create():Void 
 	{
 		super.create();
 		
-		//FlxG.vcr.stopReplay(); // In case it was called from a replay from the game???
+		D.save.setSlot(1);
+		_SAVE_EXISTS = D.save.exists('game');
 		
 		// -- Data init
 		updateFunction = null;
@@ -252,25 +256,38 @@ class StateTitle extends FlxState
 		menu.stL.align = "left";
 		menu.stI.text = { s:16, bt:1, so:[2, 2] };
 		
-		menu.createPage("main").addM([
-			"Start|link|new_game",
+		var pg = menu.createPage("main").addM([
+			"New Game|link|g_new",
+			"Resume|link|g_res",
 			"Options|link|@options",	// Goto another page
 			"Help|link|help"
 		]);
 		
+		pg.items[0].data.tStyle = {s:8, so:[1, 1], sc:Pal_CPCBoy.COL[31]};	// Alter the font size for the question to fit the screen
+		pg.items[0].data.cfm    = "A save exists, start a new game?:yes:no";
+		
 		menu.createPage("options","options").addM([
-			//"Options:|label",
 			"Keyboard Redefine|link|keyredef",
 			"Volume|range|id=vol|range=0,100|step=5",
 			"Soft Pixels|toggle|id=softpix|c=" + Std.string(D.ANTIALIASING),
 			"Back|link|@back"
 		]);
 		
-		
 		menu.onMenuEvent = (a, b)->{
 			if (a == page && b == "options") {
 				// Alter the first index of the current
 				menu.item_update(1, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });	
+				menu.item_update(2, (t)->{t.data.c = D.ANTIALIASING; });
+			}else
+			if (a == page && b == "main") {
+				menu.item_update(1, (t)->{ t.disabled = !_SAVE_EXISTS; }); // resume
+				menu.item_update(0, (t)->{ // new game
+					if (_SAVE_EXISTS) {
+						t.data.type = 3; // Fullpage Confirmation
+					}else{
+						t.data.type = 1; //
+					}
+				});
 			}
 		};
 		
@@ -278,6 +295,12 @@ class StateTitle extends FlxState
 			D.ctrl.flush();	// Just in case
 			if (a == fire) {
 				switch(b.ID){
+					case "g_res":
+						Reg.SAVE_SETTINGS();
+						FlxG.switchState(new StatePlay(false));
+					case "g_new":
+						Reg.SAVE_SETTINGS();
+						FlxG.switchState(new StatePlay(true));
 					case "vol":
 						FlxG.sound.volume = b.data.c / 100;
 					case "softpix":
@@ -287,9 +310,6 @@ class StateTitle extends FlxState
 						sub_get_keys(()->{
 							menu.open();
 						});
-					case "new_game":
-						FlxG.switchState(new StatePlay());
-						return;
 					case "help":
 						slides = sub_get_help_slides();
 						menu.close();
@@ -317,7 +337,7 @@ class StateTitle extends FlxState
 	// - Game infos
 	function sub_get_help_slides():FlxSlides
 	{
-		var AREA = new SimpleRect(24, 70, 320 - 24 - 24, 170);
+		var AREA = new SimpleRect(28, 70, 320 - 28 - 28, 170);
 		var COL = Pal_CPCBoy.COL; // Shortcut
 		var st_h1 = {f:'fnt/score.ttf', s:12, c:COL[20], bt:1, bc:COL[1]};
 		var st_p = {f:'fnt/score.ttf', s:6, c:COL[26]};
@@ -351,8 +371,9 @@ class StateTitle extends FlxState
 				h.a(D.ui.pT('~' + ACTIONS[i], {c:1, ta:"r"}));
 				h.a(D.ui.pT('[' + keys.toLowerCase() + ']', {c:2}));
 			}
-		h.a(D.ui.pT('volume up / down', {c:1, ta:"r"}));
-		h.a(D.ui.pT('[-] [+]', {c:2}));
+		// DEV: There is a volume bar in the options, don't overcrowd the slides, -- remove --
+		// h.a(D.ui.pT('volume up / down', {c:1, ta:"r"}));
+		// h.a(D.ui.pT('[-] [+]', {c:2}));
 		h.a(D.ui.pT('you can redifine in options', {ta:'c', oy:6}, st_p2));
 		
 		// :: Slide :: General infos
