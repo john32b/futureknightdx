@@ -28,6 +28,7 @@ package;
 
 import djFlixel.D;
 import djFlixel.gfx.pal.Pal_CPCBoy;
+import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.group.FlxSpriteGroup;
 import flixel.FlxSprite;
@@ -36,6 +37,7 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.tweens.misc.VarTween;
 import haxe.EnumTools;
+import states.SubStatePause;
 import tools.GridNav;
 
 import gamesprites.Item;
@@ -79,7 +81,6 @@ class Inventory extends FlxSpriteGroup
 	public var onClose:Void->Void;
 	public var onOpen:Void->Void;
 	
-	
 	// Which group is focused. 0:options, 1:Items
 	public var _grpfoc:Int = 0;	
 	
@@ -99,7 +100,7 @@ class Inventory extends FlxSpriteGroup
 		D.text.fix({f:'fnt/text.ttf', s:16});
 		
 		// --
-		options = D.text.get('options', 146, 5,  {c:Pal_CPCBoy.COL[31]});
+		options = D.text.get('menu', 158, 5,  {c:Pal_CPCBoy.COL[31]});
 		options_bg = new FlxSprite(options.x + 1, options.y + 1);
 		options_bg.makeGraphic(cast options.width - 2, cast options.height - 2, GRID_CURSOR_COLOR);
 		add(options_bg);
@@ -171,7 +172,8 @@ class Inventory extends FlxSpriteGroup
 		handle_cursor_change(grid.index);
 	}//---------------------------------------------------;
 	
-	
+	// Group 0: The Options button
+	// Group 1: The inventory Items
 	function group_focus(g:Int)
 	{
 		_grpfoc = g;
@@ -195,7 +197,8 @@ class Inventory extends FlxSpriteGroup
 		if (_grpfoc == 0)
 		{
 			if (D.ctrl.justPressed(A)){
-				trace("go to options");
+				Reg.openPauseMenu();
+				return;
 			}
 			else if (D.ctrl.justPressed(DOWN)){
 				group_focus(1);
@@ -215,7 +218,6 @@ class Inventory extends FlxSpriteGroup
 			}
 		}
 	
-		
 		// Same with both focus groups
 		if (D.ctrl.justPressed(X) || D.ctrl.justPressed(START)) {
 			D.snd.play("inventory_close");
@@ -390,5 +392,25 @@ class Inventory extends FlxSpriteGroup
 	{
 		if (name == null) text_level.text = ""; else text_level.text = name;
 	}//---------------------------------------------------;
+	
+	
+	
+	public function SAVE(?str:String):String
+	{
+		if (str == null) {
+			var data = "";
+			for (i in 0...ITEMS.length)
+			data += ITEMS[i] + ',';
+			return data.substr(0, -1);	// trim the last
+		}else
+		{
+			for (i in str.split(',')) {
+				if (i == 'null') continue;
+				addItem(ITEM_TYPE.createByName(i));
+			}
+		}	
+		return null;
+	}//---------------------------------------------------;
+	
 	
 }// --

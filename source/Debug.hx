@@ -8,6 +8,7 @@
 
 
 package;
+import djFlixel.D;
 import flixel.FlxG;
 import gamesprites.Item.ITEM_TYPE;
 
@@ -64,8 +65,16 @@ class Debug
 		Reg.st.flash(20);
 	}//---------------------------------------------------;
 	
-	public function appendMap()
+	public function save()
 	{
-		Reg.st.map.appendMap(true);
+		Reg.st.SAVEGAME();
 	}//---------------------------------------------------;
+	
+	public function saveDel()
+	{
+		D.save.deleteSave();
+		trace("SAVE deleted OK");
+	}
+	
+	
 }// --

@@ -4,6 +4,7 @@ import djFlixel.*;
 import djA.types.SimpleRect;
 import djFlixel.core.*;
 import djFlixel.core.Dcontrols;
+import djFlixel.fx.BoxScroller;
 import djFlixel.gfx.pal.*;
 import djFlixel.ui.*;
 import flixel.*;
@@ -65,27 +66,21 @@ class StateTest extends FlxState
 	
 	
 	
-	
-	
 	// --
 	
 	override public function create() 
 	{
 		super.create();
 		
+		// >>> Animated -PAUSED- text at the top and bottom
 		
-		D.ui.pInit();
-		D.ui.pCol("100|100,32");
+
+		add(D.text.get("main state text", 100, 100, {f:'fnt/text.ttf', s:16}));
 		
-		var COL = Pal_CPCBoy.COL; // Shortcut
-		D.text.fix({f:'fnt/amstrad.ttf', s:8, c:COL[23], bt:1, bc:COL[2]});
-		D.ui.FLAG_PLACE_ADD = true;
-		D.ui.pT("TEXT1", {c:1, ta:'center'});
-		D.ui.pT("TEXT2", {c:2, ta:'center'});
-		D.ui.pT("HELLO WORLD 1,2,3,4,5,6,6,7,8,98,7,6,5", {ta:'center',oy:10});
-		D.ui.pT("And another one", {ta:'center', oy:10});
-		D.ui.pT("0001", {c:1,ta:'right'},{c:COL[24]});
-		D.ui.pT("0002", {c:2}, {c:COL[24]});
+		
+		// -- open sub
+		this.openSubState(new SubStatePause());
+		
 		
 		
 		//sub_get_keys(()->{});

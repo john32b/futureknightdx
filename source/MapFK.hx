@@ -75,7 +75,8 @@ class MapFK extends TilemapGeneric
 	public static inline var MAP_FOREST = 1;
 	public static inline var MAP_CASTLE = 2;
 	static inline var TILE_SIZE = 8;
-	static inline var MAP_PATH = "assets/maps/";
+	static inline var MAP_ASSET_PATH = "map/";
+	static inline var MAP_REAL_PATH  = "assets/maps/";	// used in DYN_ASSETS
 	static inline var MAP_EXT = ".tmx";
 	
 	static inline var SHADOW_ALPHA = 0.5;
@@ -139,8 +140,7 @@ class MapFK extends TilemapGeneric
 	
 	// Name of MAPs that have their "append" layer unlocked
 	// Shortname "level_02"
-	var APPLIED_APPENDS:Array<String>;
-	
+	var APPLIED_APPENDS:Array<String>;	
 	
 	// Shadow tile data, constructed from FG tiles when loading the map
 	var sh_data:Array<Int>;
@@ -158,9 +158,9 @@ class MapFK extends TilemapGeneric
 		
 		// - New camera for the map, also this is now the default camera for everything
 		var C = new FlxCamera(DRAW_START_X * 2, DRAW_START_Y * 2, ROOM_WIDTH, ROOM_HEIGHT);
-		cameras = [C];
+		camera = C;
 		FlxG.cameras.add(C);
-		FlxCamera.defaultCameras = [camera];	// < Make all sprites to only draw on that camera
+		FlxCamera.defaultCameras = [C];	// < Make all sprites to only draw on that camera
 		
 		roomTotal = new SimpleCoords();
 		roomCurrent = new SimpleCoords();
@@ -190,51 +190,54 @@ class MapFK extends TilemapGeneric
 		MAP_FILE = d[0];
 		MAP_LOADED_ID = DATA;
 	
-		var filepath = MAP_PATH + d[0] + MAP_EXT;
+		// From map short name to full asset path
+		// e.g. "level_02" -> "maps/level_02.tmx";
+		var assetPath = MAP_ASSET_PATH + d[0] + MAP_EXT;
 		
 		#if (debug && DYN_ASSETS)
 		
 			// on (F12) load this map
 			LAST_LOADED = MAP_LOADED_ID;
 			
-			D.assets.getTextFile(filepath, (mapData)->{
+			D.assets.getTextFile(MAP_REAL_PATH + d[0] + MAP_EXT, (mapData)->{
 				load(mapData, true);
+						// DEV:
 						// Hacky way to make global killed objects work on dynamic assets
-						// This is copy-pasted from TileMapGeneric
-						@:privateAccess T.assetLoaded = filepath;
+						// This is copy-pasted from <TileMapGeneric.hx>
+						@:privateAccess T.assetLoaded = assetPath;
 						for (i in _killed_global) {
 							if (i.indexOf(T.assetLoaded) == 0){
 								var d = i.split(":");
 								_killed.push(Std.parseInt(d[1]));
 							}
 						}
-				// DEV: When loading dynamicaly assetLoaded will be null, but I need a value 
-				//      there for the global items to work
 				
-				if (d[1] != null)  {
-					var exit = EXITS.get(d[1]);
-					if (exit == null) throw 'Exit Name : ${d[1]} does not exist in Map ${d[0]}';
-					PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
-				}else {
-					if (PLAYER_SPAWN == null) throw 'Forgot to specify a player spawn point';
-				}
-				// -- Check if map has unlocked section
-				if (APPLIED_APPENDS.indexOf(MAP_FILE) >= 0) appendMap();
-				onEvent(MapEvent.loadMap);
+					// :: This code is the same as the one below -----------
+					if (d[1] != null)  {
+						var exit = EXITS.get(d[1]);
+						if (exit == null) throw 'Exit Name : ${d[1]} does not exist in Map ${d[0]}';
+						PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
+					}else {
+						if (PLAYER_SPAWN == null) throw 'Forgot to specify a player spawn point';
+					}
+					if (APPLIED_APPENDS.indexOf(MAP_FILE) >= 0) appendMap();
+					onEvent(MapEvent.loadMap);
+					// -----------------------------------------------------
 			});
 		
 		#else
 			
 			// Release: Load map from static assets
-			load(filepath);
+			load(assetPath);
 			
 			if (d[1] != null) {
 				var exit = EXITS.get(d[1]);
 				PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
 			}
-			// -- Check if map has unlocked section
+			// Check if map has unlocked section and apply it
 			if (APPLIED_APPENDS.indexOf(MAP_FILE) >= 0) appendMap();
-			// -- Notify user that the map is ready
+			
+			// Notify main that the map is ready
 			onEvent(MapEvent.loadMap);
 		
 		#end
@@ -291,8 +294,7 @@ class MapFK extends TilemapGeneric
 		
 		// -- INFO and DEV CHECKS
 		#if debug
-			if (!asData) 
-			trace(' === Loaded Map : "$S"');
+			trace(' === Loaded Map : "$MAP_LOADED_ID"');
 			trace(' . TYPE: $MAP_TYPE, NAME: $MAP_NAME');
 			trace(' . MAP : Rooms Total ' , roomTotal);
 			trace(' . MAP : Rooms Current ' , roomCurrent);
@@ -883,5 +885,26 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 		
 	#end
+	
+	public function SAVE(?IN:Dynamic):Dynamic
+	{
+		if (IN != null)
+		{
+			GLOBAL_EXITS_UNLOCKED = IN.unlocked;
+			_killed_global = IN.killed;
+			APPLIED_APPENDS = IN.appends;
+			
+		}else{	
+			return {
+				unlocked: GLOBAL_EXITS_UNLOCKED,
+				killed: _killed_global,
+				appends: APPLIED_APPENDS,
+				levelid: MAP_LOADED_ID // read manually, in statePlay
+			};
+		}
+		
+		return null;
+	}//---------------------------------------------------;
+	
 	
 }// --

@@ -7,6 +7,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import haxe.Json;
 import states.StatePlay;
+import states.SubStatePause;
 
 
 /**
@@ -16,11 +17,9 @@ import states.StatePlay;
 @:publicFields
 class Reg 
 {
-	static inline var VERSION = "1.5";
+	public static inline var VERSION = "1.5";
 	
 	// :: Sounds
-	static var musicVers = ["music_c64", "music_cpc"];
-	static var musicVer:Int = 0; // Store index	
 	
 	// :: External parameters
 	static inline var PATH_JSON = "assets/djflixel.json";
@@ -28,7 +27,6 @@ class Reg
 	
 	// How long to wait on each screen on the banners
 	static inline var BANNER_DELAY:Float = 12;
-	
 	//====================================================;
 	
 	// :: Image Asset Manager
@@ -41,7 +39,6 @@ class Reg
 	static var INI:ConfigFile;
 	static var JSON:Dynamic;
 	
-	
 	// :: DAMAGE VALUES 
 	// I am using this simple naming style, first is who takes damage _ from whom
 	// [INI FILE]
@@ -53,12 +50,11 @@ class Reg
 		max_damage 		: 75,	// Max damage per hit, to enemy + player
 	};
 
-	
 	// :: General Global Parameters 
 	public static var P = {
 		flicker_rate: 0.06,
 		gravity : 410,
-		confuse_time:7	// Seconds
+		confuse_time: 7	// Seconds
 	};
 	
 	// ::
@@ -70,7 +66,6 @@ class Reg
 		
 		item_bomb:"enemy_final",
 		item_confuser:"enemy_final2",
-		
 		item_pickup:"item_pickup",
 		item_equip:"fx_3",	// on inventory select
 		item_use:"fx_5",
@@ -97,12 +92,12 @@ class Reg
 	// >> Called BEFORE FlxGame() is created
 	public static function init_pre()
 	{
-		trace(" == Reg init -pre-");
+		trace(" == Reg init :PRE:");
 		D.assets.DYN_FILES = [PATH_JSON, PATH_INI];
 		D.assets.onAssetLoad = onAssetLoad;	
 		D.snd.ROOT_SND = "snd/";
 		D.snd.ROOT_MSC = "mus/";
-		D.ui.initIcons([8, 12]);
+		D.ui.initIcons([8]);
 		
 		// -- Game things: might be moved:
 		IM = new ImageAssets();
@@ -111,8 +106,8 @@ class Reg
 	// >> Called AFTER FlxGame() is created
 	public static function init_post()
 	{
-		trace(" == Reg init -post-");
-		D.snd.setVolume("master", 0.15);
+		trace(" == Reg init :POST:");
+		D.snd.setVolume("master", 0.2);
 		
 		#if debug
 			new Debug();
@@ -152,6 +147,21 @@ class Reg
 		return a;
 	}//---------------------------------------------------;
 	
+	public static function openPauseMenu()
+	{
+		st.openSubState(new SubStatePause());
+	}//---------------------------------------------------;
+	
+	
+	public static function getSave():String
+	{
+		var s = "";
+	
+		Reg.st.player.health;
+		Reg.st.player.lives;
+		
+		return s;
+	}//---------------------------------------------------;
 	
 	
 	// -- TODO :
@@ -161,7 +171,21 @@ class Reg
 		// !Reg.api.isURLAllowed()
 	}//---------------------------------------------------;
 	
-
+	
+	public static function SAVE_GET():Dynamic
+	{
+		var OBJ = {
+			ver:VERSION,
+			pl:st.player.SAVE(),
+			inv:st.INV.SAVE(),
+			hud:st.HUD.SAVE(),
+			map:st.map.SAVE()
+		};
+		
+		return OBJ;
+		
+	}//---------------------------------------------------;
+	
 }//--
 
 

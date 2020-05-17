@@ -47,8 +47,6 @@ class KeyIndicator extends UIIndicator
 			Y += 32;
 		}
 		
-		
-		trace("Activating key ind >>");
 		setPosition(X, Y);
 		lockPos();
 		revive();

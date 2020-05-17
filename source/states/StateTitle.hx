@@ -14,6 +14,7 @@
  
 package states;
 
+import djA.DataT;
 import djA.types.SimpleRect;
 import tools.KeyCapture;
 import tools.SprDirector;
@@ -45,7 +46,6 @@ import openfl.Assets;
 
 class StateTitle extends FlxState
 {
-	
 	
 	// :: Various State Parameters
 	var P = {
@@ -261,15 +261,25 @@ class StateTitle extends FlxState
 		menu.createPage("options","options").addM([
 			//"Options:|label",
 			"Keyboard Redefine|link|keyredef",
+			"Volume|range|id=vol|range=0,100|step=5",
 			"Soft Pixels|toggle|id=softpix|c=" + Std.string(D.ANTIALIASING),
 			"Back|link|@back"
 		]);
 		
 		
+		menu.onMenuEvent = (a, b)->{
+			if (a == page && b == "options") {
+				// Alter the first index of the current
+				menu.item_update(1, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });	
+			}
+		};
+		
 		menu.onItemEvent = (a, b)->{
 			D.ctrl.flush();	// Just in case
 			if (a == fire) {
 				switch(b.ID){
+					case "vol":
+						FlxG.sound.volume = b.data.c / 100;
 					case "softpix":
 						D.ANTIALIASING = b.data.c;
 					case "keyredef":
@@ -364,8 +374,18 @@ class StateTitle extends FlxState
 			}
 		h.a(D.ui.pT('to unlock an exit, you need to \nhave the required item equipped', {ta:'c'}));
 		h.a(D.ui.p(spr[3], {a:'c'}));
-		h.a(D.ui.pT('~from the inventory\npress <g>[$key_ok]<g> on an item to equip it', {ta:'c'}));
-		// ---- page end
+		h.a(D.ui.pT('~Progress is <g>saved<g> automatically.', {ta:'c', oy: -2}));
+		// :: Slide :: Some Items
+		h.newSlide();
+		D.ui.pCol('40|200,16');
+		h.a(D.ui.pT('SOME ITEMS YOU CAN FIND', {a:'c', oy:8}, {c:COL[21]}));
+		D.ui.pPad(12);
+		h.a(D.ui.p(Reg.IM.getSprite(0, 0, 'items', 1), {c:1, a:'r',oy:4}));
+		h.a(D.ui.pT('~<r>BOMB<r>\nkill enemies and restore HP', {c:2}));
+		D.ui.pClear(false);
+		h.a(D.ui.p(Reg.IM.getSprite(0, 0, 'items', 6), {c:1, a:'r', oy:4}));
+		h.a(D.ui.pT('~<r>CONFUSER<r>\nimmobilize enemies for a while', {c:2}));
+		// -- END SLIDES
 		
 		h.finalize();
 		D.text.fix();
@@ -399,7 +419,7 @@ class StateTitle extends FlxState
 				flixel.effects.FlxFlicker.flicker(txt2, 0.5, 0.1);
 			}else
 			if (a == "ok"){
-				D.snd.play('pl_step');
+				//D.snd.play('pl_step');
 			}
 			if (a == "complete") {
 				remove(txt1); remove(txt2);

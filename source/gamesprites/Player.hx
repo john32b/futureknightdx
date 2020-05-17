@@ -643,10 +643,18 @@ class Player extends FlxSprite
 			update_shoot();
 		}
 
+		
+		if (FlxG.keys.justPressed.ESCAPE)
+		{
+			Reg.openPauseMenu();
+			return;
+		}
+		
 		// Player can open the menu
 		if (D.ctrl.justPressed(DButton.START))
 		{
 			Reg.st.INV.open();
+			return;
 		}
 		
 		// Check Health
@@ -1049,6 +1057,22 @@ class Player extends FlxSprite
 	inline function _idle_stop()
 	{
 		_idle = _idle_stage = 0;
+	}//---------------------------------------------------;
+	
+	
+	public function SAVE(?str:String):String
+	{
+		if (str == null) {
+			var data = '$health,$healthSlow,$lives,$bullet_type';
+			return data;
+		}else{
+			var o = str.split(',');
+			health = Std.parseFloat(o[0]);
+			healthSlow = Std.parseFloat(o[1]);
+			lives = Std.parseInt(o[2]);
+			bullet_type = Std.parseInt(o[3]);
+		}	
+		return null;
 	}//---------------------------------------------------;
 	
 }// --

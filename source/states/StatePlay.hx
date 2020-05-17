@@ -51,6 +51,16 @@ class StatePlay extends FlxState
 	var menu:FlxMenu;
 	
 	var _isflashing = false;
+		
+	//====================================================;
+	
+	public function new(newGame:Bool = false)
+	{
+		if (newGame) {
+			D.save.deleteSlot(1);
+		}
+		super();
+	}//---------------------------------------------------;
 	
 	override public function create():Void 
 	{
@@ -85,25 +95,61 @@ class StatePlay extends FlxState
 		// :: Hud on another camera view
 		HUD = new Hud();
 		add(HUD);
-		HUD.reset();
 		
-		// --
-		HUD.set_text("Welcome to Future Knight DX", 6);
+		// -- Load game here ::
+		
+		var MAP_TO_LOAD = "";
+		
+		D.save.setSlot(1);
+		// Check version
+		var S = D.save.load('game');
+		if (S != null)
+		{
+			trace("SAVE - Exists OK, loading..", S);
+			player.SAVE(S.pl);
+			INV.SAVE(S.inv);
+			HUD.reset();
+			HUD.SAVE(S.hud);
+			MAP_TO_LOAD = S.map.levelid;
+			map.SAVE(S.map);
+			
+		}else{
+			trace("SAVE - Does not exists, starting new");
+			MAP_TO_LOAD = Reg.START_MAP;
+			HUD.reset();
+		}
 		
 		#if debug
+			// This is when pressing [f12] to reload the map, spawn to the current level again
 			if (MapFK.LAST_LOADED != "") {
-				map.loadMap(MapFK.LAST_LOADED);
-				map.camera.flash(0xFF000000, 0.5);
-				return;
+				trace("Debug: restoring LAST_LOADED to", MapFK.LAST_LOADED);
+				MAP_TO_LOAD = MapFK.LAST_LOADED;
 			}
 		#end
 		
 		// : Last thing, load the level, this till trigger the event_map_handler()
-		map.loadMap(Reg.START_MAP);
+		map.loadMap(MAP_TO_LOAD);
 		map.camera.flash(0xFF000000, 0.5);
-		
+		HUD.set_text("Welcome to Future Knight DX", 6);
 	}//---------------------------------------------------;
 		
+	
+	public function SAVEGAME()
+	{
+		D.save.setSlot(1);
+		
+		var OBJ = {
+			ver:Reg.VERSION,
+			pl:player.SAVE(),
+			inv:INV.SAVE(),
+			hud:HUD.SAVE(),
+			map:map.SAVE()
+		};
+		
+		D.save.save('game', OBJ);
+		D.save.flush();
+		trace("GAME SAVED", OBJ);
+	}//---------------------------------------------------;
 	
 	// --
 	override public function update(elapsed:Float):Void 
@@ -348,8 +394,6 @@ class StatePlay extends FlxState
 	{		
 		var item:ITEM_TYPE = Reg.st.HUD.equipped_item;
 		if (item == null) return;
-		
-		trace("ITEM USE : ", item);
 		
 		switch (item) {
 			

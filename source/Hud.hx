@@ -284,5 +284,20 @@ class Hud extends FlxGroup
 	{
 		set_score(_score + c);
 	}//---------------------------------------------------;
+	
+	
+	public function SAVE(?str:String):String
+	{
+		if (str == null) {
+			var data = '$_score,$equipped_item';
+			return data;
+		}else{
+			var o = str.split(',');
+			set_score(Std.parseInt(o[0]));
+			if (o[1] != 'null')
+				item_pickup(ITEM_TYPE.createByName(o[1]));
+		}	
+		return null;
+	}//---------------------------------------------------;
 		
 }// --

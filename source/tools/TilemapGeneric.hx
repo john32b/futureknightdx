@@ -101,8 +101,8 @@ class TilemapGeneric extends FlxGroup
 		
 		_killed = [];
 		
-		// -- Check for global kills and store 
-		if (T.assetLoaded != null) // In case user loads a dynamic map?? Dynamic maps don't have an asset name
+		// -- Check for global kills and store
+		if (T.assetLoaded != null) // In case user loads a dynamic map. Dynamic maps don't have an asset name
 		for (i in _killed_global) {
 			if (i.indexOf(T.assetLoaded) == 0){
 				var d = i.split(":");

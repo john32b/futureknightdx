@@ -21,13 +21,13 @@
 	<source path="source" />
 	
 	<!--<library name="default" type="pak" />-->
-		<assets path="assets" include="*.ini|*.json|*.tmx"/>
+		<assets path="assets" include="*.ini|*.json"/>
 		
 		<assets path="assets/font" include="*.ttf|*.otf|" type="font" rename="fnt"/>
 		<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
 		<assets path="assets/music" type="music" rename="mus"/>
 		<assets path="assets/sounds" type="sound" include="*.mp3" rename="snd"/>
-		
+		<assets path="assets/maps" type="text" include="*.tmx" rename="map"/>
 	
 		
 	<!--Because I am doing bitmap manipulation HTML5 Webgl is buggy, So I am using canvas -->

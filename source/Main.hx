@@ -19,7 +19,8 @@ class Main extends Sprite
 		// :: First thing initialize djFlixel
 		D.init({
 			name:"Future Knight Remake v1.4",
-			debug_keys:true	// Automatic asset reload on F12
+			savename:"fkdx",
+			debug_keys:true		// Automatic asset reload on F12
 		});
 		
 		// :: Do this before creating the game
