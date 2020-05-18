@@ -40,8 +40,11 @@
 package gamesprites;
 
 import djA.DataT;
+import djA.Fsm;
 import djA.types.SimpleVector;
 import djFlixel.D;
+import flixel.tweens.FlxTween;
+import flixel.tweens.misc.VarTween;
 
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -74,8 +77,9 @@ class Enemy_AI
 	public function update(elapsed:Float)
 	{
 	}//---------------------------------------------------;
-	public function softkill()
+	public function softkill():Bool
 	{
+		return true;
 	}//---------------------------------------------------;
 	// --
 	function turnAround()
@@ -122,6 +126,10 @@ class Enemy_AI
 		var ai:Enemy_AI;
 		switch(type)
 		{
+			case "final": 
+				E.startHealth = Enemy.PAR.health_final1;
+				E.spawnTime = -1;	// never respawn
+				ai = new AI_Final_Boss(E);
 			case "move_x": ai = new AI_Move_X(E);
 			case "move_y": ai = new AI_Move_Y(E); 
 			case "bounce": ai = new AI_Bounce(E);
@@ -152,6 +160,102 @@ class Enemy_AI
 	
 }//--
 
+
+enum BOSS_STATE
+{
+	DIE;
+	PHASE1;
+	PHASE2;
+}// --------------------;
+
+class AI_Final_Boss extends Enemy_AI
+{
+	
+	inline static var JITTER_TIME = 0.14;
+	inline static var JITTER_PIX = 3;
+	inline static var JITTER_LOOPS = 16;
+	
+	var fsm:Fsm;
+	var tw:VarTween;
+	
+	var timer:Float = 0;
+	var j0:Int = 0;
+	
+	public function new(E:Enemy)
+	{
+		super(E);
+		trace(" >> New FINAL BOSS");
+		
+		fsm = new Fsm();
+		fsm.addState(BOSS_STATE.DIE, die_enter, die_update);
+		fsm.addState(BOSS_STATE.PHASE1, phase1_enter, phase1_update);
+		fsm.goto(PHASE1);
+	}//---------------------------------------------------;
+	
+	override public function update(elapsed:Float) 
+	{
+		super.update(elapsed);
+		fsm.update();
+	}//---------------------------------------------------;
+	
+	function die_enter()
+	{
+		trace("Entering DIE");
+		timer = 0;
+		j0 = 0;	// jitter times
+	
+		// Hack: Because the enemy is still alive, so it can call the updates()
+		e.health = 9999;	// Make it virtually indestructible
+		// >> Twitch, flash, explode and die
+	}//---------------------------------------------------;
+	
+	function die_update()
+	{
+		if ((timer += FlxG.elapsed) >= JITTER_TIME)
+		{
+			e.x += FlxG.random.int( -JITTER_PIX, JITTER_PIX);
+			e.y += FlxG.random.int( -JITTER_PIX, JITTER_PIX);
+			
+			if (j0 % 3 == 0)
+			{
+				Reg.st.flash(2);
+				D.snd.play("hit_02");
+				// Sound Effect
+			}
+			if (++j0 > JITTER_LOOPS)
+			{
+				D.snd.play("hit_02");
+				timer = -1;	// stop updating
+				e.visible = false;
+				e.alive = false;
+				e.explode();
+				Reg.st.flash(3);
+				Reg.st.handle_boss_die(e);	// Now tell main that the enemy is dead
+			}else{
+				timer = 0;	// jitter again
+			}
+		}
+	}//---------------------------------------------------;
+	
+	function phase1_enter()
+	{
+		trace("Entering phase 1");
+	}//---------------------------------------------------;
+	
+	function phase1_update()
+	{
+		
+	}//---------------------------------------------------;
+	
+	override public function softkill() 
+	{
+		trace("-- Final Boss - SoftKill()");
+		e.alive = true;
+		e.visible = true;
+		fsm.goto(DIE);
+		return false;	// tell enemy class to not explode FX, will do manually later
+	}//---------------------------------------------------;
+}// --
 
 
 /**
@@ -355,6 +459,7 @@ class AI_Bounce extends Enemy_AI
 	{
 		// Visual bug fix. When it dies the particle moves too fast sometimes
 		e.velocity.y = e.velocity.y / 10;
+		return true;
 	}//---------------------------------------------------;
 }// --
 

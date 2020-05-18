@@ -33,6 +33,8 @@ import gamesprites.Enemy_AI;
 
 class Enemy extends MapSprite
 {
+	
+	static inline var ID_FINAL_BOSS = 15;	// 15 editor ID from "editor_entity.png"
 	// :: Some hard coded
 	static inline var ANIM_FPS = 8;
 	static inline var ANIM_FRAMES = 2; 		// Every enemy has 2 frames. In the future I could change it to 3 or 4
@@ -46,6 +48,8 @@ class Enemy extends MapSprite
 		health_tall	: 240,
 		health_worm : 180,
 		health_turret : 600,
+		health_final1 : 100,
+		health_final2 : 200,
 		
 		spawntime: 		3.5,
 		spawntime_big:  6,
@@ -60,8 +64,8 @@ class Enemy extends MapSprite
 	
 	
 	var ai:Enemy_AI;
-	var spawnTime:Float;	// Time to wait for regenerating
-	var _spawnTimer:Float;	// spawnTime counter
+	var spawnTime:Float;	// Time to wait for regenerating. If <0 will never respawn
+	var _spawnTimer:Float;	// spawnTime counter. 
 	
 	var speed:Float;		// The actual speed of the enemy
 	var startHealth:Float;	//
@@ -173,7 +177,6 @@ class Enemy extends MapSprite
 		
 		health -= Damage;
 		
-		
 		if (health <= 0)
 		{
 			D.snd.play("hit_02", 0.7);
@@ -189,38 +192,45 @@ class Enemy extends MapSprite
 	// --
 	public function softKill()
 	{
-		ai.softkill();
-		_explode();
-		_spawnTimer = 0;
-		alive = false;
-		solid = false;
-		visible = false;
-		moves = false;
 		if (_gfxtype > 0) {
 			Reg.st.HUD.score_add(Reg.SCORE.big_enemy_kill);
 		}else{
 			Reg.st.HUD.score_add(Reg.SCORE.enemy_kill);
 		}
+		
+		_spawnTimer = 0;
+		alive = false;
+		solid = false;
+		visible = false;
+		moves = false;
+		
+		if (ai.softkill()) explode();
+
 	}//---------------------------------------------------;
 	
-	/** Kill enemy for good */
-	public function killGlobal()
+	/** 
+	 * - Kill enemy for good 
+	 * - If enemy is Final_boss, just damage it 
+	 **/
+	public function kill_bomb()
 	{
 		if (alive) {
-			softKill();
-		}else{
-			trace("Killing gobal enemy that was dead");
+			if (O.gid == ID_FINAL_BOSS) {
+				hurt(Reg.P_DAM.bomb_damage);
+			}else{
+				softKill();
+				spawnTime = -1;	// Force no respawn
+				Reg.st.map.killObject(O, true);
+			}
 		}
-		spawnTime = -1;
-		Reg.st.map.killObject(O, true);
 	}//---------------------------------------------------;
 	
 	/**
 	   Create Particles and Sound for current Enemy
 	**/
-	function _explode()
+	public function explode()
 	{
-		/// todo, big bosses make another sound?
+		/// TODO: big bosses make another sound?
 		D.snd.playV("en_die");
 		
 		switch(_gfxtype)

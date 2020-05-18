@@ -48,6 +48,7 @@ class Reg
 		from_ceil		: 1,	// [CPC] is 1
 		i_time			: 0.6,	// Player invisibility times after being hit
 		max_damage 		: 75,	// Max damage per hit, to enemy + player
+		bomb_damage		: 250	// Mostyly damage to the final boss. other enemies are insta kill forever
 	};
 
 	// :: General Global Parameters 
@@ -78,6 +79,7 @@ class Reg
 		item_confuser:120,
 		big_enemy_kill:90,
 		enemy_kill:15,
+		final_boss:1500,
 	};
 
 	// All states default BG color,
@@ -121,6 +123,9 @@ class Reg
 		
 		#if debug
 			new Debug();
+			
+			if (Reg.INI.exists('DEBUG', 'startPlay'))
+				FlxG.switchState(new StatePlay());
 		#end
 		
 	}//---------------------------------------------------;

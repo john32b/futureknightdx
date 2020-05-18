@@ -99,10 +99,6 @@ class SubStatePause extends FlxSubState
 	override public function update(elapsed:Float):Void 
 	{
 		super.update(elapsed);
-		if (FlxG.mouse.justPressed)
-		{
-			trace("MOUSE CLICK", FlxG.mouse.x - camera.x/2, FlxG.mouse.y - camera.y/2);
-		}
 		if (FlxG.keys.justPressed.ESCAPE){
 			close();
 		}

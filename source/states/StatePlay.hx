@@ -48,8 +48,6 @@ class StatePlay extends FlxState
 	
 	public var key_ind:KeyIndicator;
 	
-	var menu:FlxMenu;
-	
 	var _isflashing = false;
 		
 	//====================================================;
@@ -283,6 +281,7 @@ class StatePlay extends FlxState
 					ROOMSPR.spawn(en);
 				}
 
+				handle_room(map.roomCurrent.toCSV());
 				
 			// This is called before the new room entities are pushed
 			case scrollStart:
@@ -407,7 +406,14 @@ class StatePlay extends FlxState
 			// :: Kill enemies forever and also enemies that are waiting to be spawned
 			flash(10);
 			HUD.item_pickup();
-			ROOMSPR.enemies_killAll();
+			
+			for (i in ROOMSPR.gr_enemy) {
+				if (i.exists) {
+					cast(i, Enemy).kill_bomb();
+				}
+			}
+			
+			D.snd.play("hit_02", 0.7); // Explosions?
 			D.snd.play(Reg.SND.item_bomb);
 			INV.removeItemWithID(item);
 			HUD.score_add(Reg.SCORE.item_bomb);
@@ -446,5 +452,32 @@ class StatePlay extends FlxState
 		}
 		
 	}//---------------------------------------------------;
+	
+	
+	
+	function handle_room(R:String)
+	{
+		if (map.MAP_NAME == "Henchodroids lair")
+		{
+			if (R == "4,0")
+			{
+				trace("-- BOSS ROOM!");
+				map.appendMap(false);
+			}
+		}
+	}//---------------------------------------------------;
+	
+	// -- Called from enemy sprite when it dies
+	public function handle_boss_die(e:Enemy)
+	{
+		trace("-- Final Boss - Final Handle");
+		// Score
+		HUD.score_add(Reg.SCORE.final_boss);
+		// Remove the side walls
+		map.appendRemove();
+		// Kill forever
+		map.killObject(e.O, true);
+	}//---------------------------------------------------;
+	
 	
 }// --

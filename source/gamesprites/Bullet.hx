@@ -33,8 +33,8 @@ class Bullet extends FlxSprite
 	public inline static var OWNER_PLAYER = 1;
 	public inline static var OWNER_ENEMY = 2;
 	
-	inline static var JITTER_TIME = 0.18;
-	inline static var JITTER_PIX = 1;
+	inline static var JITTER_TIME = 0.05;
+	inline static var JITTER_PIX = 2;
 	inline static var FPS = 10;
 	
 	// All the game bullets:
@@ -42,7 +42,7 @@ class Bullet extends FlxSprite
 		{ anim:"p_1", speed:150, distance:0, 	maxscreen:2, damage:10 , timer:250 },
 		{ anim:"p_2", speed:200, distance:80, 	maxscreen:4, damage:7,  timer:120 },
 		{ anim:"p_3", speed:220, distance:0, 	maxscreen:2, damage:15, timer:250 },
-		{ anim:"e_1", speed:140, distance:0, 	maxscreen:2, damage:10, timer:0   },
+		{ anim:"e_1", speed:110, distance:0, 	maxscreen:2, damage:10, timer:0   },
 		{ anim:"e_2", speed:80,  distance:0, 	maxscreen:4, damage:10, timer:0   }
 	];
 		
@@ -119,7 +119,7 @@ class Bullet extends FlxSprite
 			
 			if ((_timer += elapsed) >= JITTER_TIME)
 			{
-				_timer -= 0;
+				_timer = 0;
 				x += FlxG.random.int( -JITTER_PIX, JITTER_PIX);
 				y += FlxG.random.int( -JITTER_PIX, JITTER_PIX);
 			}
