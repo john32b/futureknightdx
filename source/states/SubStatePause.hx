@@ -83,6 +83,7 @@ class SubStatePause extends FlxSubState
 					case "resume":
 						close();
 					case "quit":
+						Reg.SAVE_SETTINGS();
 						FlxG.switchState(new StateTitle());
 					case "softpix": 
 						D.ANTIALIASING = b.data.c;

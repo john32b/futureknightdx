@@ -41,17 +41,21 @@ package gamesprites;
 
 import djA.DataT;
 import djA.Fsm;
+import djA.types.SimpleRect;
 import djA.types.SimpleVector;
+import flixel.tweens.FlxEase;
+
 import djFlixel.D;
+
 import flixel.tweens.FlxTween;
 import flixel.tweens.misc.VarTween;
-
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.animation.FlxAnimation;
 import flixel.math.FlxAngle;
 
 @:access(gamesprites.Enemy)
+
 class Enemy_AI 
 {
 	// Pixel padding to center of chase target
@@ -77,9 +81,9 @@ class Enemy_AI
 	public function update(elapsed:Float)
 	{
 	}//---------------------------------------------------;
-	public function softkill():Bool
+	public function softkill()
 	{
-		return true;
+		e.explode();
 	}//---------------------------------------------------;
 	// --
 	function turnAround()
@@ -127,7 +131,7 @@ class Enemy_AI
 		switch(type)
 		{
 			case "final": 
-				E.startHealth = Enemy.PAR.health_final1;
+				E.startHealth = Enemy.PAR.health_phase1;
 				E.spawnTime = -1;	// never respawn
 				ai = new AI_Final_Boss(E);
 			case "move_x": ai = new AI_Move_X(E);
@@ -161,12 +165,25 @@ class Enemy_AI
 }//--
 
 
+
+
+
+/** =========================================
+ * 
+ * 
+ * Phase 1, move around and shoot 
+ * Phase 2, vulnerable, must use destruct spell
+ * Phase 3, Last short stage, more aggressive
+ * Die	  , animate die and off
+ * =========================================== */
 enum BOSS_STATE
 {
 	DIE;
 	PHASE1;
 	PHASE2;
+	PHASE3;
 }// --------------------;
+
 
 class AI_Final_Boss extends Enemy_AI
 {
@@ -174,22 +191,42 @@ class AI_Final_Boss extends Enemy_AI
 	inline static var JITTER_TIME = 0.14;
 	inline static var JITTER_PIX = 3;
 	inline static var JITTER_LOOPS = 16;
+	inline static var PHASE2_FLASH = 0.24;
 	
 	var fsm:Fsm;
 	var tw:VarTween;
 	
-	var timer:Float = 0;
-	var j0:Int = 0;
+	var timer:Float = 0;	// General Purpose Timer
+	var r0:Int = 0;			// General Purpose Counter
+	var r1:Int = 0;			// General Purpose
+	
+	// Destination Points:
+	var dp:SimpleRect;
+	
+	// Pointer to a sequence
+	var current_sequence:Array<Int>;
+	var current_speed:Float = 0;
+	var current_delay:Float = 0;
 	
 	public function new(E:Enemy)
 	{
 		super(E);
-		trace(" >> New FINAL BOSS");
 		
+		// -- This is for the slot/grid placement
+		dp = new SimpleRect();
+		dp.w = Std.int(Reg.st.map.ROOM_WIDTH / 3);
+		dp.h = Std.int(Reg.st.map.ROOM_HEIGHT / 3);
+		dp.x = cast (dp.w - e.width) / 2; 
+		dp.y = cast (dp.h - e.height) / 2;
+		
+		// --
 		fsm = new Fsm();
 		fsm.addState(BOSS_STATE.DIE, die_enter, die_update);
 		fsm.addState(BOSS_STATE.PHASE1, phase1_enter, phase1_update);
+		fsm.addState(BOSS_STATE.PHASE2, phase2_enter, phase2_update);
+		fsm.addState(BOSS_STATE.PHASE3, phase3_enter, phase3_update);
 		fsm.goto(PHASE1);
+		
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 
@@ -200,29 +237,38 @@ class AI_Final_Boss extends Enemy_AI
 	
 	function die_enter()
 	{
-		trace("Entering DIE");
-		timer = 0;
-		j0 = 0;	// jitter times
-	
-		// Hack: Because the enemy is still alive, so it can call the updates()
-		e.health = 9999;	// Make it virtually indestructible
-		// >> Twitch, flash, explode and die
+		trace("-- Entering phase (DIE)");
+		e.health = 99999;// Make it virtually indestructible, until It gets killed automatically by a timer
 	}//---------------------------------------------------;
+	
 	
 	function die_update()
 	{
+		//  twitch and flash, and then kill for good
+		//  -
 		if ((timer += FlxG.elapsed) >= JITTER_TIME)
 		{
 			e.x += FlxG.random.int( -JITTER_PIX, JITTER_PIX);
 			e.y += FlxG.random.int( -JITTER_PIX, JITTER_PIX);
 			
-			if (j0 % 3 == 0)
+			if (r0 % 2 == 0)
+			{
+				if (r1 == 0) {
+					e.setColorTransform(1, 1, 1, 1, 180, 180, 180, 0);
+					r1 = 1;
+				}else {
+					e.setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);
+					r1 = 0;
+				}
+			}
+			
+			if (r0 % 3 == 0)
 			{
 				Reg.st.flash(2);
 				D.snd.play("hit_02");
 				// Sound Effect
 			}
-			if (++j0 > JITTER_LOOPS)
+			if (++r0 > JITTER_LOOPS)
 			{
 				D.snd.play("hit_02");
 				timer = -1;	// stop updating
@@ -237,25 +283,215 @@ class AI_Final_Boss extends Enemy_AI
 		}
 	}//---------------------------------------------------;
 	
+	
+	function gotoNext(firstDelay:Float = 0)
+	{
+		r0 ++;
+		if (r0 >= current_sequence.length) {
+			r0 = 0;
+		}
+	
+		var code = current_sequence[r0];
+		if (code == 10) {
+			// shoot 2 bullets,
+			tw = FlxTween.tween(e, {}, 0.4, {
+				onComplete:onTweenCompleteFire,
+				onUpdate:onTweenUpd,
+				type:FlxTweenType.LOOPING
+			});
+			
+		}else
+		{
+			var dest = getCoords(current_sequence[r0]);
+			tw = FlxTween.tween(e, {x:dest.x, y:dest.y}, current_speed, {
+				onComplete:onTweenComplete,
+				onUpdate:onTweenUpd,
+				startDelay:(current_delay + firstDelay),
+				ease:FlxEase.linear
+			});			
+		}
+
+	}//---------------------------------------------------;
+			// It is counter intuitive but it works:
+			function onTweenUpd(_tw:FlxTween)
+			{
+				_tw.active = Reg.st.ROOMSPR.active;
+			}
+			function onTweenCompleteFire(_tw:FlxTween)
+			{
+				if (!Reg.st.player.alive) return;
+				Reg.st.BM.createAt(5, e.x + e.halfWidth, e.y + e.halfHeight, 0);
+				if (_tw.executions == 2) { // Shoot 3 bullets
+					_tw.cancel();
+					gotoNext();
+				}
+			}
+			function onTweenComplete(_tw:FlxTween)
+			{
+				if (!Reg.st.player.alive) return;
+				gotoNext();
+			}//---------------------------------------------------;
+		
+		
+	
 	function phase1_enter()
 	{
-		trace("Entering phase 1");
+		trace("-- Entering phase (1)");
+		current_speed = 1.5;
+		current_delay = 0.22;
+		
+		r0 = -1; // Because it gets ++ at the beginning and I need [0] to be the first
+		timer = 0;
+		current_sequence = [ 0, 2, 0, 2, 0, 2, 8, 6, 3, 5, 3, 1, 5, 7, 3, 1, 5, 7, 4];
+		gotoNext(0);
 	}//---------------------------------------------------;
-	
 	function phase1_update()
 	{
+		// - Shoot every 2 seconds
+		if ((timer += FlxG.elapsed) >= 2.25){
+			timer = 0;
+			// Shoot bullet
+			if (!Reg.st.player.alive) return;
+			Reg.st.BM.createAt(5, e.x + e.halfWidth, e.y + e.halfHeight, 0);
+			// <SOUND>
+		}
+	}//---------------------------------------------------;
+	
+	
+	function phase2_enter()
+	{
+		trace("-- Entering phase (2)");
+		e.solid = true;
+		e.setColorTransform(1, 1, 1, 1, 200, 0, 0, 0);
+		e.health = Enemy.PAR.health_phase2; // No health down when potion used
+		current_speed = 1.1;
+		current_delay = 0.15;
+		
+		r0 = -1; // Because it gets ++ at the beginning and I need [0] to be the first
+		timer = 0;
+		current_sequence = [ 0, 10, 2, 0, 2, 10, 5, 10, 3, 10, 6, 8, 10, 5, 10, 4, 1, 10, 4, 1];
+		
+		Reg.st.flash(2);
+		gotoNext(1);
+	}//---------------------------------------------------;
+	
+	function phase2_update()
+	{
+		// -- Flash RED 
+		if ((timer += FlxG.elapsed) >= JITTER_TIME)	{
+			timer = 0;
+			r1++;
+			if (r1 % 2 == 0) {
+				e.setColorTransform(1, 1, 1, 1, 180, 0, 0, 0);
+			}else{
+				e.setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);
+			}
+		}
+	}//---------------------------------------------------;
+
+	function phase3_enter()
+	{
+		trace("-- Entering phase (3)");
+		e.health = 99999;
+		e.solid = false;
+		Reg.st.HUD.set_text2("The droid is vulnerable. Use destruct now !");
+	}//---------------------------------------------------;
+
+	function phase3_update()
+	{
+		// Just flash
+		if ((timer += FlxG.elapsed) >= JITTER_TIME)
+		{
+			timer = 0;
+			r1++;
+			switch(r1 % 4){
+				case 0:
+					e.setColorTransform(1, 1, 1, 1, 180, 180, 180, 0);
+					e.y += 3;
+				case 1:
+					e.setColorTransform(1, 1, 1, 1, 0, 180, 0, 0);
+					e.y -= 3;
+				case 2:
+					e.setColorTransform(1, 1, 1, 1, 180, 0, 0, 0);
+					e.x -= 3;
+				case _:
+					e.setColorTransform(1, 1, 1, 1, 0, 0, 180, 0);
+					e.x += 3;
+			}
+			
+			if (r1 == 100) // If player didn't use potion just do it over
+			{
+				fsm.goto(PHASE2);
+			}
+		}
+	}//---------------------------------------------------;
+	
+	
+
+	
+	
+	
+	
+	/**
+	   Called everytime phase HP is 0
+	**/
+	override public function softkill() 
+	{
+
+		e.alive = true;
+		e.visible = true;
+		e.solid = true;
+		e.moves = true;
+		
+		tw.cancel();
+		tw.destroy();
+		
+		timer = 0;		// Start timing for the jitter, handled in update
+		r0 = r1 = 0;
+		
+		trace("softkill");
+		
+		if (fsm.currentStateName == PHASE1)
+		{
+			fsm.goto(PHASE2);
+		}else
+		if (fsm.currentStateName == PHASE2)	
+		{
+			fsm.goto(PHASE3);
+		}
 		
 	}//---------------------------------------------------;
 	
-	override public function softkill() 
+	
+	
+	
+	public function getPhase():BOSS_STATE
 	{
-		trace("-- Final Boss - SoftKill()");
-		e.alive = true;
-		e.visible = true;
-		fsm.goto(DIE);
-		return false;	// tell enemy class to not explode FX, will do manually later
+		return cast fsm.currentStateName;
 	}//---------------------------------------------------;
+	
+	
+	/** The area divided into 9 portions
+	 * 0 1 2
+	 * 3 4 5
+	 * 6 7 8
+	**/
+	function getCoords(i:Int):{x:Int, y:Int}
+	{
+		var o = {
+			x:Std.int((i % 3) * dp.w) + dp.x, 
+			y:Std.int(Std.int(i / 3) * dp.h) + dp.y
+		};
+		o.x += Reg.st.map.roomCornerPixel.x;
+		return o;
+	}//---------------------------------------------------;
+	
 }// --
+
+
+
+
+
 
 
 /**
@@ -459,7 +695,7 @@ class AI_Bounce extends Enemy_AI
 	{
 		// Visual bug fix. When it dies the particle moves too fast sometimes
 		e.velocity.y = e.velocity.y / 10;
-		return true;
+		e.explode();
 	}//---------------------------------------------------;
 }// --
 

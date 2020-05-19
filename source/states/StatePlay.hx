@@ -27,8 +27,10 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.effects.FlxFlicker;
-import gamesprites.*;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import gamesprites.*;
+import gamesprites.Enemy_AI.AI_Final_Boss;
 import gamesprites.Item.ITEM_TYPE;
 import openfl.filters.ColorMatrixFilter;
 
@@ -49,7 +51,7 @@ class StatePlay extends FlxState
 	public var key_ind:KeyIndicator;
 	
 	var _isflashing = false;
-		
+	
 	//====================================================;
 	
 	/**
@@ -442,10 +444,30 @@ class StatePlay extends FlxState
 			HUD.set_text2("Does not do anything.");
 			
 			
-		//case DESTRUCT_SPELL:
+		case DESTRUCT_SPELL:
+			for (i in ROOMSPR.gr_enemy) 
+			{
+				var e = cast(i, Enemy);
+				if (i.alive && Std.is(e.ai, AI_Final_Boss))
+				{
+					var ai:AI_Final_Boss = cast(e.ai, AI_Final_Boss);
+					if (ai.getPhase() == PHASE2)
+					{
+						trace("OK -- use the spell");
+					}else{
+						HUD.set_text2("You need to weaken the droid first!");
+					}
+					
+					return;
+				}
+			}
+			
+			HUD.set_text2("Can't use this here");
 				
 			
-		//case RELEASE_SPELL:
+		case RELEASE_SPELL:
+			HUD.set_text2("Can't use this here");
+			
 			
 		case _:
 			HUD.set_text2("Can`t use this here");

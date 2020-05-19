@@ -34,11 +34,12 @@ import gamesprites.Enemy_AI;
 class Enemy extends MapSprite
 {
 	
-	static inline var ID_FINAL_BOSS = 15;	// 15 editor ID from "editor_entity.png"
 	// :: Some hard coded
 	static inline var ANIM_FPS = 8;
 	static inline var ANIM_FRAMES = 2; 		// Every enemy has 2 frames. In the future I could change it to 3 or 4
 	static inline var HURT_I_TIME = 0.1;	// Invinvibility time after being hurt
+	
+	static inline var ID_FINAL_BOSS = 15;	// 15 editor ID from "editor_entity.png"
 	
 	static public var PAR = {
 		health 		 : 20,
@@ -48,8 +49,9 @@ class Enemy extends MapSprite
 		health_tall	: 240,
 		health_worm : 180,
 		health_turret : 600,
-		health_final1 : 100,
-		health_final2 : 200,
+		
+		health_phase1 : 100,
+		health_phase2 : 100,
 		
 		spawntime: 		3.5,
 		spawntime_big:  6,
@@ -61,9 +63,7 @@ class Enemy extends MapSprite
 		speed_bigtall : 1.5,	// seconds between shots
 	};
 	
-	
-	
-	var ai:Enemy_AI;
+	public var ai(default, null):Enemy_AI;
 	var spawnTime:Float;	// Time to wait for regenerating. If <0 will never respawn
 	var _spawnTimer:Float;	// spawnTime counter. 
 	
@@ -183,7 +183,7 @@ class Enemy extends MapSprite
 			softKill();
 		}else{
 			
-			setColorTransform(1, 1, 1, 1, 200, 200, 200, 0);
+			setColorTransform(1, 1, 1, 1, 180, 180, 180, 0);
 			D.snd.play("hit_02");
 			_hurtTimer = HURT_I_TIME;
 		}
@@ -204,12 +204,13 @@ class Enemy extends MapSprite
 		visible = false;
 		moves = false;
 		
-		if (ai.softkill()) explode();
+		ai.softkill(); 	// < responsible for triggering the explode function
+						// . This is because some enemies do not explode right away
 
 	}//---------------------------------------------------;
 	
 	/** 
-	 * - Kill enemy for good 
+	 * - Kill normal enemy for good and delete from the map
 	 * - If enemy is Final_boss, just damage it 
 	 **/
 	public function kill_bomb()
@@ -348,7 +349,6 @@ class Enemy extends MapSprite
 			case _:
 				throw "Invalid GID in The Enemy Type" + i;
 		}
-		
 	}//---------------------------------------------------;
 	
 }// --

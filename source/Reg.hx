@@ -47,8 +47,8 @@ class Reg
 		fall_damage		: 150,
 		from_ceil		: 1,	// [CPC] is 1
 		i_time			: 0.6,	// Player invisibility times after being hit
-		max_damage 		: 75,	// Max damage per hit, to enemy + player
-		bomb_damage		: 250	// Mostyly damage to the final boss. other enemies are insta kill forever
+		max_damage 		: 65,	// Max damage per hit, to enemy + player
+		bomb_damage		: 250	// Mostly damage to the final boss. other enemies are insta kill forever
 	};
 
 	// :: General Global Parameters 

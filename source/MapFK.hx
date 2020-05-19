@@ -877,7 +877,7 @@ class MapFK extends TilemapGeneric
 			if (FlxG.mouse.justPressed)
 			{
 				var MP = FlxG.mouse.getWorldPosition(camera);
-				trace("Clicked at ", MP);
+				trace("Spawning Player at ", MP);
 				Reg.st.player.spawn(MP.x, MP.y);
 				return;
 			}
