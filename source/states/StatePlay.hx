@@ -167,6 +167,11 @@ class StatePlay extends FlxState
 		// Player->Map collisions , in player.update()
 		// Bullet->Map collisions , in BulletManager.update()
 		
+		
+		// DEV: If this was not, collisions would happen even when paused
+		//		e.g. player getting hurt over and over by an enemy, if they overlap and paused.
+		if (!ROOMSPR.active) return;
+		
 		// Player->(Enemies,Items,AnimTiles)
 		FlxG.overlap(player, ROOMSPR, _overlap_player_roomgroup);
 		
@@ -407,7 +412,7 @@ class StatePlay extends FlxState
 		case BOMB1, BOMB2, BOMB3:
 			// :: Kill enemies forever and also enemies that are waiting to be spawned
 			flash(10);
-			HUD.item_pickup();
+		
 			
 			for (i in ROOMSPR.gr_enemy) {
 				if (i.exists) {
@@ -418,18 +423,20 @@ class StatePlay extends FlxState
 			D.snd.play("hit_02", 0.7); // Explosions?
 			D.snd.play(Reg.SND.item_bomb);
 			INV.removeItemWithID(item);
+			HUD.item_pickup();
 			HUD.score_add(Reg.SCORE.item_bomb);
 			
 		case CONFUSER_UNIT:
 			flash(4);
-			HUD.item_pickup();
 			ROOMSPR.enemies_freeze(true);	// Player has timer for restore
 			D.snd.play(Reg.SND.item_confuser);
 			player.confuserTimer = Reg.P.confuse_time;
+			
 			INV.removeItemWithID(item);
+			HUD.item_pickup();
 			HUD.score_add(Reg.SCORE.item_confuser);
 			
-			// Ok the above^ will freeeze ALIVE enemies,
+			// Ok the above^ will freeze ALIVE enemies,
 			// I need to have a flag, so when an enemy is respawed, it will NOT move
 			// respect the global freeze flag ok?
 			
@@ -437,33 +444,31 @@ class StatePlay extends FlxState
 			HUD.set_text2("With this you are able to pick up hot objects");
 				
 		case FLASH_BANG_SPELL:
-			flash(5);
+			flash(4);
+			INV.removeItemWithID(item);
 			HUD.item_pickup();
-				
+			HUD.score_add(Reg.SCORE.item_flashbang);
+			HUD.set_text2("It doesn't affect the aliens.");
+			//TODO, what does this do tho?
+			//<SOUND>
+			
 		case SCEPTER:
 			HUD.set_text2("Does not do anything.");
 			
-			
 		case DESTRUCT_SPELL:
-			for (i in ROOMSPR.gr_enemy) 
-			{
+			for (i in ROOMSPR.gr_enemy) {
 				var e = cast(i, Enemy);
-				if (i.alive && Std.is(e.ai, AI_Final_Boss))
-				{
-					var ai:AI_Final_Boss = cast(e.ai, AI_Final_Boss);
-					if (ai.getPhase() == PHASE2)
-					{
-						trace("OK -- use the spell");
-					}else{
-						HUD.set_text2("You need to weaken the droid first!");
-					}
-					
+				if (i.alive && Std.is(e.ai, AI_Final_Boss)) {
+					if (cast(e.ai, AI_Final_Boss).spell_used()) {
+						INV.removeItemWithID(item);
+						HUD.item_pickup();
+						HUD.score_add(Reg.SCORE.item_destruct);		
+					}	
 					return;
 				}
 			}
 			
 			HUD.set_text2("Can't use this here");
-				
 			
 		case RELEASE_SPELL:
 			HUD.set_text2("Can't use this here");
@@ -476,7 +481,7 @@ class StatePlay extends FlxState
 	}//---------------------------------------------------;
 	
 	
-	
+	// -- AutoCalled whenever a room changes
 	function handle_room(R:String)
 	{
 		if (map.MAP_NAME == "Henchodroids lair")

@@ -85,6 +85,12 @@ class Enemy_AI
 	{
 		e.explode();
 	}//---------------------------------------------------;
+	
+	public function kill()
+	{
+
+	}//---------------------------------------------------;
+	
 	// --
 	function turnAround()
 	{
@@ -185,6 +191,14 @@ enum BOSS_STATE
 }// --------------------;
 
 
+
+
+// -- Phase 1: Move around
+// -- Phase 2: Entered if damaged enough. Move around faster and shoot more
+// -- Phase 3: Flashing and ready to use the destruct spell
+//				Does not last forever, returns to phase 2 and repeats
+// -- DIE : Flash and explode
+// 
 class AI_Final_Boss extends Enemy_AI
 {
 	
@@ -205,8 +219,8 @@ class AI_Final_Boss extends Enemy_AI
 	
 	// Pointer to a sequence
 	var current_sequence:Array<Int>;
-	var current_speed:Float = 0;
-	var current_delay:Float = 0;
+	var current_speed:Float;
+	var current_delay:Float;
 	
 	public function new(E:Enemy)
 	{
@@ -229,10 +243,20 @@ class AI_Final_Boss extends Enemy_AI
 		
 	}//---------------------------------------------------;
 	
+	
+	override public function kill() 
+	{
+		trace("-- Final boss kill()");
+		tw = D.dest.tween(tw);
+	}//---------------------------------------------------;
+	
 	override public function update(elapsed:Float) 
 	{
 		super.update(elapsed);
 		fsm.update();
+		if (tw != null) {
+			tw.active = true;
+		}
 	}//---------------------------------------------------;
 	
 	function die_enter()
@@ -248,11 +272,11 @@ class AI_Final_Boss extends Enemy_AI
 		//  -
 		if ((timer += FlxG.elapsed) >= JITTER_TIME)
 		{
+			timer = 0;
 			e.x += FlxG.random.int( -JITTER_PIX, JITTER_PIX);
 			e.y += FlxG.random.int( -JITTER_PIX, JITTER_PIX);
 			
-			if (r0 % 2 == 0)
-			{
+			if (r0 % 2 == 0) {
 				if (r1 == 0) {
 					e.setColorTransform(1, 1, 1, 1, 180, 180, 180, 0);
 					r1 = 1;
@@ -262,35 +286,31 @@ class AI_Final_Boss extends Enemy_AI
 				}
 			}
 			
-			if (r0 % 3 == 0)
-			{
+			if (r0 % 3 == 0) {
 				Reg.st.flash(2);
 				D.snd.play("hit_02");
-				// Sound Effect
+				D.snd.play('en_spawn');
+				// <SOUND>
 			}
 			if (++r0 > JITTER_LOOPS)
 			{
-				D.snd.play("hit_02");
-				timer = -1;	// stop updating
+				D.snd.play("hit_03");
 				e.visible = false;
 				e.alive = false;
 				e.explode();
 				Reg.st.flash(3);
 				Reg.st.handle_boss_die(e);	// Now tell main that the enemy is dead
-			}else{
-				timer = 0;	// jitter again
 			}
 		}
 	}//---------------------------------------------------;
 	
 	
-	function gotoNext(firstDelay:Float = 0)
+	function gotoNext()
 	{
 		r0 ++;
 		if (r0 >= current_sequence.length) {
 			r0 = 0;
 		}
-	
 		var code = current_sequence[r0];
 		if (code == 10) {
 			// shoot 2 bullets,
@@ -306,7 +326,7 @@ class AI_Final_Boss extends Enemy_AI
 			tw = FlxTween.tween(e, {x:dest.x, y:dest.y}, current_speed, {
 				onComplete:onTweenComplete,
 				onUpdate:onTweenUpd,
-				startDelay:(current_delay + firstDelay),
+				startDelay:current_delay,
 				ease:FlxEase.linear
 			});			
 		}
@@ -315,11 +335,11 @@ class AI_Final_Boss extends Enemy_AI
 			// It is counter intuitive but it works:
 			function onTweenUpd(_tw:FlxTween)
 			{
+				// Will trigger ONCE, when this gets false
 				_tw.active = Reg.st.ROOMSPR.active;
 			}
 			function onTweenCompleteFire(_tw:FlxTween)
 			{
-				if (!Reg.st.player.alive) return;
 				Reg.st.BM.createAt(5, e.x + e.halfWidth, e.y + e.halfHeight, 0);
 				if (_tw.executions == 2) { // Shoot 3 bullets
 					_tw.cancel();
@@ -328,7 +348,6 @@ class AI_Final_Boss extends Enemy_AI
 			}
 			function onTweenComplete(_tw:FlxTween)
 			{
-				if (!Reg.st.player.alive) return;
 				gotoNext();
 			}//---------------------------------------------------;
 		
@@ -337,13 +356,13 @@ class AI_Final_Boss extends Enemy_AI
 	function phase1_enter()
 	{
 		trace("-- Entering phase (1)");
-		current_speed = 1.5;
-		current_delay = 0.22;
+		current_speed = 1.65;
+		current_delay = 0.28;
 		
 		r0 = -1; // Because it gets ++ at the beginning and I need [0] to be the first
 		timer = 0;
 		current_sequence = [ 0, 2, 0, 2, 0, 2, 8, 6, 3, 5, 3, 1, 5, 7, 3, 1, 5, 7, 4];
-		gotoNext(0);
+		gotoNext();
 	}//---------------------------------------------------;
 	function phase1_update()
 	{
@@ -365,14 +384,12 @@ class AI_Final_Boss extends Enemy_AI
 		e.setColorTransform(1, 1, 1, 1, 200, 0, 0, 0);
 		e.health = Enemy.PAR.health_phase2; // No health down when potion used
 		current_speed = 1.1;
-		current_delay = 0.15;
-		
+		current_delay = 0.18;
 		r0 = -1; // Because it gets ++ at the beginning and I need [0] to be the first
 		timer = 0;
 		current_sequence = [ 0, 10, 2, 0, 2, 10, 5, 10, 3, 10, 6, 8, 10, 5, 10, 4, 1, 10, 4, 1];
-		
 		Reg.st.flash(2);
-		gotoNext(1);
+		gotoNext();
 	}//---------------------------------------------------;
 	
 	function phase2_update()
@@ -419,8 +436,7 @@ class AI_Final_Boss extends Enemy_AI
 					e.x += 3;
 			}
 			
-			if (r1 == 100) // If player didn't use potion just do it over
-			{
+			if (r1 == 100) { // If player didn't use potion just do it over
 				fsm.goto(PHASE2);
 			}
 		}
@@ -428,7 +444,24 @@ class AI_Final_Boss extends Enemy_AI
 	
 	
 
-	
+	// -- Called from mainstate when the destruct spell is used 
+	// - Return VALID to use
+	public function spell_used():Bool
+	{
+		trace("- Destruct spell used");
+		
+		if (fsm.currentStateName == BOSS_STATE.PHASE3) 
+		{
+			softkill();
+			Reg.st.HUD.set_text2("Used Destruct.");
+			D.snd.play('en_spawn');
+			return true;
+		}
+		
+		Reg.st.HUD.set_text2("You need to weaken the droid first!");
+		D.snd.play(Reg.SND.error);
+		return false;
+	}//---------------------------------------------------;
 	
 	
 	
@@ -437,19 +470,17 @@ class AI_Final_Boss extends Enemy_AI
 	**/
 	override public function softkill() 
 	{
-
 		e.alive = true;
 		e.visible = true;
 		e.solid = true;
 		e.moves = true;
 		
-		tw.cancel();
-		tw.destroy();
+		tw = D.dest.tween(tw);
 		
 		timer = 0;		// Start timing for the jitter, handled in update
 		r0 = r1 = 0;
 		
-		trace("softkill");
+		trace(" --> Softkill");
 		
 		if (fsm.currentStateName == PHASE1)
 		{
@@ -459,15 +490,12 @@ class AI_Final_Boss extends Enemy_AI
 		{
 			fsm.goto(PHASE3);
 		}
+		else
+		if (fsm.currentStateName == PHASE3) // only called by destruct spell
+		{
+			fsm.goto(DIE);
+		}
 		
-	}//---------------------------------------------------;
-	
-	
-	
-	
-	public function getPhase():BOSS_STATE
-	{
-		return cast fsm.currentStateName;
 	}//---------------------------------------------------;
 	
 	

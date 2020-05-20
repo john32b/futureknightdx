@@ -77,6 +77,8 @@ class Reg
 		enemy_hit:7,
 		item_bomb:150,
 		item_confuser:120,
+		item_flashbang:200,
+		item_destruct:100,
 		big_enemy_kill:90,
 		enemy_kill:15,
 		final_boss:1500,

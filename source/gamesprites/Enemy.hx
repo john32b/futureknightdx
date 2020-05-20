@@ -50,8 +50,8 @@ class Enemy extends MapSprite
 		health_worm : 180,
 		health_turret : 600,
 		
-		health_phase1 : 100,
-		health_phase2 : 100,
+		health_phase1 : 450,
+		health_phase2 : 650,
 		
 		spawntime: 		3.5,
 		spawntime_big:  6,
@@ -207,6 +207,12 @@ class Enemy extends MapSprite
 		ai.softkill(); 	// < responsible for triggering the explode function
 						// . This is because some enemies do not explode right away
 
+	}//---------------------------------------------------;
+	
+	override public function kill():Void 
+	{
+		ai.kill();
+		super.kill();
 	}//---------------------------------------------------;
 	
 	/** 

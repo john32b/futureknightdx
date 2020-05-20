@@ -803,7 +803,7 @@ class MapFK extends TilemapGeneric
 	
 		killObject(e.O, true);
 		e.kill();
-		D.snd.play(Reg.SND.item_use);
+		D.snd.play(Reg.SND.item_append);
 		Reg.st.map.appendMap(true);	
 		Reg.st.flash(15);
 	}//---------------------------------------------------;
