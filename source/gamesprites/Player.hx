@@ -906,6 +906,12 @@ class Player extends FlxSprite
 				_verticalJump = false;	// Help player escape if falls from above
 				fsm.goto(ONAIR);
 				
+			case LASER:
+				hurt(10);
+				x = last.x;
+				if (fsm.currentStateName == ONAIR && velocity.y < 0) {
+					velocity.y = 0;
+				}
 				
 			case KEYHOLE:
 				Reg.st.key_ind.setAt(0, B.x);

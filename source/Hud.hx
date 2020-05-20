@@ -12,6 +12,7 @@ package;
 
 import djFlixel.D;
 import djFlixel.gfx.pal.Pal_CPCBoy;
+import gamesprites.Item;
 
 import flixel.FlxBasic;
 import flixel.FlxCamera;
@@ -175,7 +176,7 @@ class Hud extends FlxGroup
 		
 		if (itemID != null)
 		{
-			var ITD = Game.ITEM_DATA.get(itemID);
+			var ITD = Item.ITEM_DATA.get(itemID);
 			set_text(ITD.desc, true, TEXT_TIME_ITEM);
 			set_item_icon(ITD.icon);
 			static_run();

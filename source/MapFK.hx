@@ -35,6 +35,7 @@ package;
 import MapTiles.FG_TILE_TYPE;
 import MapTiles.EDITOR_TILE;
 import djA.DataT;
+import gamesprites.Item;
 
 import gamesprites.Item.ITEM_TYPE;
 import gamesprites.AnimatedTile;
@@ -727,7 +728,7 @@ class MapFK extends TilemapGeneric
 			{
 				case ["item", _ ] :
 					var item = EnumTools.createByName(ITEM_TYPE, d[1]);
-					var itemName = Game.ITEM_DATA[item].name;
+					var itemName = Item.ITEM_DATA[item].name;
 					
 					if (Reg.st.HUD.equipped_item != item)
 					{
@@ -781,7 +782,7 @@ class MapFK extends TilemapGeneric
 	
 	
 	// - Called from player, pressing up on any keyhole
-	// Check and processes
+	// - Check and process
 	public function keyhole_activate(e:AnimatedTile)
 	{
 		trace("-- Activating KEYHOLE ");
@@ -794,18 +795,29 @@ class MapFK extends TilemapGeneric
 		if (Reg.st.HUD.equipped_item != item)
 		{
 			D.snd.play(Reg.SND.error);
-			Reg.st.HUD.set_text2("You can use a " + Game.ITEM_DATA[item].name + " here");
+			Reg.st.HUD.set_text2("You can use the " + Item.ITEM_DATA[item].name + " here");
 			return;
 		}
 		
+		Reg.st.flash(15);
+		
+		// - Remove the item and kill the tile :
 		Reg.st.INV.removeItemWithID(item);
 		Reg.st.HUD.item_pickup(null);
-	
 		killObject(e.O, true);
 		e.kill();
-		D.snd.play(Reg.SND.item_append);
-		Reg.st.map.appendMap(true);	
-		Reg.st.flash(15);
+		D.snd.play(Reg.SND.item_keyhole);
+		
+		// -- Check if it is the final keyhole of the final level,
+		if (e.O.type == "final")
+		{
+			// the final key needs something else
+			Reg.st.ROOMSPR.removeLasers();
+			
+		}else{
+			// default, just append the map
+			Reg.st.map.appendMap(true);	
+		}
 	}//---------------------------------------------------;
 	
 	

@@ -69,7 +69,8 @@ class Reg
 		item_confuser:"enemy_final2",
 		item_pickup:"item_pickup",
 		item_equip:"fx_3",	// on inventory select
-		item_use:"fx_5",
+		
+		item_keyhole:"fx_5",	// Used with "platform key", "bridge spell", "release spell"
 	};
 	
 	

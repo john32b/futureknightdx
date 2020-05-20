@@ -53,6 +53,7 @@ class ImageAssets
 		"static" => {im:"im/hud_static.png", tw:64, th:24, col:false},
 		"huditem" => {im:"im/hud_items.png", tw:17, th:17, col:false},
 		"keys" => {im:"im/ts_keys.png", tw:16, th:16, col:false},
+		"friend" => {im:"im/ts_friend.png", tw:26, th:28, col:true},
 	];
 	
 	

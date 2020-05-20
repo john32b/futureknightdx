@@ -511,6 +511,7 @@ class AI_Final_Boss extends Enemy_AI
 			y:Std.int(Std.int(i / 3) * dp.h) + dp.y
 		};
 		o.x += Reg.st.map.roomCornerPixel.x;
+		o.y += Reg.st.map.roomCornerPixel.y;
 		return o;
 	}//---------------------------------------------------;
 	

@@ -129,4 +129,18 @@ class RoomSprites extends FlxGroup
 		}
 	}//---------------------------------------------------;
 	
+	
+	public function removeLasers()
+	{
+		for (i in gr_anim)
+		{
+			if (!i.alive) continue;
+			var tile = cast(i, AnimatedTile);
+			if (tile.type == LASER) {
+				tile.kill();
+				trace("Removed Laser");
+			}
+		}
+	}//---------------------------------------------------;
+	
 }// --

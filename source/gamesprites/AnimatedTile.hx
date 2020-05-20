@@ -12,6 +12,7 @@ enum AnimTileType
 	EXIT(locked:Bool);
 	DECO;
 	KEYHOLE;
+	LASER;	
 }
 
 
@@ -31,7 +32,7 @@ class AnimatedTile extends MapSprite
 		animation.add('_DECO_5', [14, 15, 16, 17], 7);
 		animation.add('_DECO_6', [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 26, 27, 26, 27, 26, 27, 26, 27], 6);
 		animation.add('_KEYHOLE_1', [28, 29], 6);
-		animation.add('_KEYHOLE_2', [30, 31], 6);
+		animation.add('_LASER', [30, 31], 20);
 	}//---------------------------------------------------;
 	
 	override public function spawn(o:TiledObject, gid:Int):Void 
@@ -64,12 +65,20 @@ class AnimatedTile extends MapSprite
 				offset.set(0, 15);
 				setSize(32, 9);	// 8 pixels is GFX, 1 pixels empty to the top.
 				spawn_origin_set(1);
-			case 7, 8:
+			case 7:
 				anim = "_KEYHOLE_" + (gid - 6);
 				type = AnimTileType.KEYHOLE;
 				setSize(24, 21);
 				offset.set(7, 4);
 				spawn_origin_set(0);
+				
+			case 8:
+				anim = "_LASER";
+				type = AnimTileType.LASER;
+				setSize(8, 32);
+				offset.set(12, 0);
+				spawn_origin_set(0);
+				
 			case _:
 				anim = "_DECO_" + gid;
 				type = AnimTileType.DECO;

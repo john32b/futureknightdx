@@ -486,7 +486,7 @@ class StatePlay extends FlxState
 	{
 		if (map.MAP_NAME == "Henchodroids lair")
 		{
-			if (R == "4,0")
+			if (R == "4,1")
 			{
 				trace("-- BOSS ROOM!");
 				map.appendMap(false);

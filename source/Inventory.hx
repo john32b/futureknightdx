@@ -380,7 +380,7 @@ class Inventory extends FlxSpriteGroup
 		// The item ID the cursor is pointing to
 		var i = get_current_item();
 		if (i != null){
-			text.text = Game.ITEM_DATA.get(i).name;
+			text.text = Item.ITEM_DATA.get(i).name;
 		}else{
 			text.text = "";
 		}
