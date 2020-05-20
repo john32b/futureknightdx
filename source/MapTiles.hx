@@ -35,6 +35,7 @@ enum EDITOR_TILE {
 	ENEMY;
 	ITEM;
 	ANIM;	// > This has sub ids. Specifics defined in <AnimatedTile.hx>
+	FRIEND;
 }
 
 
@@ -95,7 +96,8 @@ class MapTiles
 		ENEMY => [1, 20],
 		PLAYER => [25, 1],
 		ANIM => [26, 8],	// Animtiles will pused in <AnimatedTile.hx> and handled from there
-		ITEM => [34, 14]
+		ITEM => [34, 14],
+		FRIEND => [24,1]
 	];
 	
 	
@@ -103,6 +105,9 @@ class MapTiles
 	// ^ they are included in `EDUTOR_ENTITY` but I need it here as well
 	public static var EDITOR_HAZARD = 29;
 	public static var EDITOR_EXIT   = 26;
+	
+	
+	public static var EDITOR_FINAL  = 15;
 	
 	
 	/**

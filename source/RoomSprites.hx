@@ -82,7 +82,12 @@ class RoomSprites extends FlxGroup
 				s = gr_anim.recycle(AnimatedTile);
 			case EDITOR_TILE.ENEMY:
 				s = gr_enemy.recycle(Enemy);
+			case EDITOR_TILE.FRIEND:
+				s = gr_anim.recycle(AnimatedTile);
+				cast(s, AnimatedTile).setFriend(en);
+				return;
 			case _: 
+				
 				//trace('Error ${data.type} cannot be spawned from <RoomSprites>');
 				return;
 		}
@@ -130,17 +135,30 @@ class RoomSprites extends FlxGroup
 	}//---------------------------------------------------;
 	
 	
-	public function removeLasers()
+	public function getAnimTiles(type:AnimTileType):Array<AnimatedTile>
 	{
-		for (i in gr_anim)
-		{
+		var ar:Array<AnimatedTile> = [];
+		for (i in gr_anim) {
 			if (!i.alive) continue;
 			var tile = cast(i, AnimatedTile);
-			if (tile.type == LASER) {
-				tile.kill();
-				trace("Removed Laser");
+			if (tile.type == type) ar.push(tile);
+		}
+		return ar;
+	}//---------------------------------------------------;
+	
+	
+	// Return the boss if it exists in this room, null for not found
+	public function getFinalBoss():Enemy
+	{
+		for (i in gr_enemy)
+		{
+			if (!i.alive) continue;
+			var en = cast(i, Enemy);
+			if (en.O.gid == MapTiles.EDITOR_FINAL) {
+				return en;
 			}
 		}
+		return null;
 	}//---------------------------------------------------;
 	
 }// --

@@ -748,16 +748,7 @@ class MapFK extends TilemapGeneric
 					
 					Reg.st.INV.removeItemWithID(item);
 					
-					
 					D.snd.play(Reg.SND.exit_unlock);
-					
-					//FlxG.signals.postUpdate.addOnce(()->{
-						//loadMap(e.O.prop.goto);
-						//D.snd.play(Reg.SND.exit_travel);
-					//});
-					//
-					//return;
-						
 					
 				case _: trace("Error: Syntax Error", d); return;
 			}
@@ -811,8 +802,17 @@ class MapFK extends TilemapGeneric
 		// -- Check if it is the final keyhole of the final level,
 		if (e.O.type == "final")
 		{
-			// the final key needs something else
-			Reg.st.ROOMSPR.removeLasers();
+			// Kill lasers
+			for (laser in Reg.st.ROOMSPR.getAnimTiles(LASER))
+			{
+				laser.kill();
+				Reg.st.map.killObject(laser.O, true);
+				trace("Removed Lasers globally");
+			}
+			
+			// Change friend animation
+			var fr = Reg.st.ROOMSPR.getAnimTiles(FRIEND);
+				fr[0].friendAnim2();
 			
 		}else{
 			// default, just append the map
@@ -834,17 +834,13 @@ class MapFK extends TilemapGeneric
 		
 		var data = T.getLayer(LAYER_APPEND);
 		if (data == null) throw '$MAP_FILE does not have a $LAYER_APPEND layer';
-		
 		for (i in 0...data.length) {
 			if (data[i] > 0) {
 				layers[2].setTileByIndex(i, data[i], true);
 			}
 		}
-		
 		if (save) APPLIED_APPENDS.push(MAP_FILE);
-		
 		trace(">> Appended Extra Layer Map");
-
 	}//---------------------------------------------------;
 	
 	/**
@@ -854,21 +850,17 @@ class MapFK extends TilemapGeneric
 	**/
 	public function appendRemove()
 	{
-		// TODO
 		var data = T.getLayer(LAYER_APPEND);
-		
 		for (i in 0...data.length) {
 			if (data[i] > 0) {
 				layers[2].setTileByIndex(i, 0, true);
 			}
 		}		
-		
 		trace(">> Removed Extra layer map");
 	}//---------------------------------------------------;
 
 	
 	
-		
 	// Get a string id of an exit in this map
 	// USED IN: GLOBAL_EXITS_UNLOCKED []
 	function get_exit_uid(e:TiledObject)

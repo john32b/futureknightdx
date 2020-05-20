@@ -137,6 +137,21 @@ class StatePlay extends FlxState
 		map.loadMap(MAP_TO_LOAD);
 		map.camera.flash(0xFF000000, 0.5);
 		HUD.set_text("Welcome to Future Knight DX", 6);
+		
+		
+		
+		#if debug
+		
+		if (Reg.INI.exists('DEBUG', 'startItems'))
+		{
+			INV.addItem(ITEM_TYPE.BOMB1);
+			INV.addItem(ITEM_TYPE.RELEASE_SPELL);
+			INV.addItem(ITEM_TYPE.DESTRUCT_SPELL);
+			INV.addItem(ITEM_TYPE.CONFUSER_UNIT);
+		}
+		
+		#end
+		
 	}//---------------------------------------------------;
 		
 	
@@ -456,23 +471,20 @@ class StatePlay extends FlxState
 			HUD.set_text2("Does not do anything.");
 			
 		case DESTRUCT_SPELL:
-			for (i in ROOMSPR.gr_enemy) {
-				var e = cast(i, Enemy);
-				if (i.alive && Std.is(e.ai, AI_Final_Boss)) {
-					if (cast(e.ai, AI_Final_Boss).spell_used()) {
-						INV.removeItemWithID(item);
-						HUD.item_pickup();
-						HUD.score_add(Reg.SCORE.item_destruct);		
-					}	
-					return;
-				}
+			var en = ROOMSPR.getFinalBoss();
+			if (en == null) {
+				HUD.set_text2("Can't use this here");
+				return;
 			}
-			
-			HUD.set_text2("Can't use this here");
+			// Boss exists: I need its AI object
+			if (cast(en.ai, AI_Final_Boss).spell_used()) {
+					INV.removeItemWithID(item);
+					HUD.item_pickup();
+					HUD.score_add(Reg.SCORE.item_destruct);		
+			}	
 			
 		case RELEASE_SPELL:
 			HUD.set_text2("Can't use this here");
-			
 			
 		case _:
 			HUD.set_text2("Can`t use this here");
@@ -486,10 +498,12 @@ class StatePlay extends FlxState
 	{
 		if (map.MAP_NAME == "Henchodroids lair")
 		{
-			if (R == "4,1")
-			{
-				trace("-- BOSS ROOM!");
-				map.appendMap(false);
+			if (R == "4,1") {
+				// Only add walls, if there is a boss there
+				if (ROOMSPR.getFinalBoss() != null) {
+					trace("-- BOSS ROOM ! adding map data");
+					map.appendMap(false);
+				}
 			}
 		}
 	}//---------------------------------------------------;

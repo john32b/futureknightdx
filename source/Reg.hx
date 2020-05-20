@@ -129,6 +129,7 @@ class Reg
 			
 			if (Reg.INI.exists('DEBUG', 'startPlay'))
 				FlxG.switchState(new StatePlay());
+				
 		#end
 		
 	}//---------------------------------------------------;

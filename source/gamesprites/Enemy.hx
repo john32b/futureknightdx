@@ -39,8 +39,6 @@ class Enemy extends MapSprite
 	static inline var ANIM_FRAMES = 2; 		// Every enemy has 2 frames. In the future I could change it to 3 or 4
 	static inline var HURT_I_TIME = 0.1;	// Invinvibility time after being hurt
 	
-	static inline var ID_FINAL_BOSS = 15;	// 15 editor ID from "editor_entity.png"
-	
 	static public var PAR = {
 		health 		 : 20,
 		health_chase : 24,
@@ -50,8 +48,8 @@ class Enemy extends MapSprite
 		health_worm : 180,
 		health_turret : 600,
 		
-		health_phase1 : 450,
-		health_phase2 : 650,
+		health_phase1 : 450,	// 450
+		health_phase2 : 650,	// 650
 		
 		spawntime: 		3.5,
 		spawntime_big:  6,
@@ -222,7 +220,7 @@ class Enemy extends MapSprite
 	public function kill_bomb()
 	{
 		if (alive) {
-			if (O.gid == ID_FINAL_BOSS) {
+			if (O.gid == MapTiles.EDITOR_FINAL) {
 				hurt(Reg.P_DAM.bomb_damage);
 			}else{
 				softKill();

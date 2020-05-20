@@ -12,7 +12,8 @@ enum AnimTileType
 	EXIT(locked:Bool);
 	DECO;
 	KEYHOLE;
-	LASER;	
+	LASER;
+	FRIEND;
 }
 
 
@@ -33,7 +34,36 @@ class AnimatedTile extends MapSprite
 		animation.add('_DECO_6', [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 26, 27, 26, 27, 26, 27, 26, 27], 6);
 		animation.add('_KEYHOLE_1', [28, 29], 6);
 		animation.add('_LASER', [30, 31], 20);
+		animation.add('_FR1', [32, 33], 10);
+		animation.add('_FR2', [33, 34], 8);
 	}//---------------------------------------------------;
+	
+	// HACK:
+	// Use the animated tile class to present the friend sprite
+	// This is the easiest, because animTiles are already managed
+	public function setFriend(o:TiledObject)
+	{
+		super.spawn(o, 0);
+		setSize(14, 23);
+		offset.set(8, 9);
+		type = AnimTileType.FRIEND;
+		spawn_origin_set(1);
+		spawn_origin_move();
+		
+		// Ok this is rare but check if lasers are on when spawning:
+		if(Reg.st.ROOMSPR.getAnimTiles(LASER).length>0)
+			animation.play("_FR1", true);
+		else
+			animation.play("_FR2", true);
+		
+	}//---------------------------------------------------;
+	
+	
+	public function friendAnim2()
+	{
+		animation.play("_FR2", true);
+	}//---------------------------------------------------;
+	
 	
 	override public function spawn(o:TiledObject, gid:Int):Void 
 	{

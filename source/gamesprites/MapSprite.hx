@@ -71,7 +71,7 @@ class MapSprite extends FlxSprite
 	/**
 	   Based on TILEDDATA of this object, set the SPAWN ORIGIN point of a sprite to:
 		- the Center of the BIG TILE (32x32 pixel based)
-		- the nearest floor 
+		- the nearest floor (x is first fixed to the 32x32 tile)
 	   @param	type 0:Center, 1:Floor
 	   @return  If (type==1) returns the FLOOR Y TILE it landed on
 	**/
