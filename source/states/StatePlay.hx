@@ -20,8 +20,10 @@
 package states;
 
 import djFlixel.D;
+import djFlixel.fx.BoxFader;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.other.StepTimer;
+import djFlixel.tool.DelayCall;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -39,18 +41,13 @@ import djFlixel.ui.FlxMenu;
 class StatePlay extends FlxState
 {
 	public var map:MapFK;
-	
 	public var player:Player;
-	
 	public var ROOMSPR:RoomSprites;
 	public var PM:ParticleManager;
 	public var BM:BulletManager;
 	public var INV:Inventory;
 	public var HUD:Hud;
-	
 	public var key_ind:KeyIndicator;
-	
-	var _isflashing = false;
 	
 	//====================================================;
 	
@@ -139,7 +136,6 @@ class StatePlay extends FlxState
 		HUD.set_text("Welcome to Future Knight DX", 6);
 		
 		
-		
 		#if debug
 		
 		if (Reg.INI.exists('DEBUG', 'startItems'))
@@ -148,6 +144,7 @@ class StatePlay extends FlxState
 			INV.addItem(ITEM_TYPE.RELEASE_SPELL);
 			INV.addItem(ITEM_TYPE.DESTRUCT_SPELL);
 			INV.addItem(ITEM_TYPE.CONFUSER_UNIT);
+			INV.addItem(ITEM_TYPE.PLATFORM_KEY);
 		}
 		
 		#end
@@ -169,7 +166,7 @@ class StatePlay extends FlxState
 		
 		D.save.save('game', OBJ);
 		D.save.flush();
-		trace("GAME SAVED", OBJ);
+		trace("-- GAME SAVED", OBJ);
 	}//---------------------------------------------------;
 	
 	// --
@@ -350,9 +347,10 @@ class StatePlay extends FlxState
 	// -- Called from player
 	public function on_player_no_lives()
 	{
-		FlxG.switchState(new StateGameover());
+		new DelayCall(()->{
+			FlxG.switchState(new StateGameover());
+		}, 0.5);
 	}//---------------------------------------------------;
-	
 	
 	
 	
@@ -414,6 +412,9 @@ class StatePlay extends FlxState
 		s.start(0, TICKS, -0.1);
 		_isflashing = true;
 	}//---------------------------------------------------;
+	var _isflashing = false;
+	
+	
 	
 	
 	// -- Called by player, activates current equipped item if any
@@ -426,8 +427,11 @@ class StatePlay extends FlxState
 			
 		case BOMB1, BOMB2, BOMB3:
 			// :: Kill enemies forever and also enemies that are waiting to be spawned
+			// :: Give health
+			
 			flash(10);
-		
+			
+			player.fullHealth();
 			
 			for (i in ROOMSPR.gr_enemy) {
 				if (i.exists) {
@@ -510,10 +514,10 @@ class StatePlay extends FlxState
 		}
 	}//---------------------------------------------------;
 	
-	// -- Called from enemy sprite when it dies
+	// -- Called from final boss sprite when it dies
+	//    I don't know. I could call all these in the enemy itself?
 	public function handle_boss_die(e:Enemy)
 	{
-		trace("-- Final Boss - Final Handle");
 		// Score
 		HUD.score_add(Reg.SCORE.final_boss);
 		// Remove the side walls
@@ -521,6 +525,5 @@ class StatePlay extends FlxState
 		// Kill forever
 		map.killObject(e.O, true);
 	}//---------------------------------------------------;
-	
 	
 }// --

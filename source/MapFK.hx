@@ -767,6 +767,7 @@ class MapFK extends TilemapGeneric
 		FlxG.signals.postUpdate.addOnce(()->{
 			loadMap(e.O.prop.goto);
 			D.snd.playV(Reg.SND.exit_travel);
+			Reg.st.SAVEGAME();
 		});
 		
 	}//---------------------------------------------------;

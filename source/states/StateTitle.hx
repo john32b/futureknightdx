@@ -201,7 +201,7 @@ class StateTitle extends FlxState
 			dir0.on(P.im_title_art).tween({ alpha:0 }, 0.2);
 			seq.next(0.1);
 		case 4: // --	show the menu
-			//SND.playFile("title");
+			D.snd.playV('title');
 			dir0.on('title').a(0.5).v(1).tween({alpha:1, y:32}, 0.5, { ease:FlxEase.elasticOut } );
 			title_tick.active = true;
 			seq.next(0.2);
@@ -274,6 +274,12 @@ class StateTitle extends FlxState
 		]);
 		
 		menu.onMenuEvent = (a, b)->{
+		if (a == pageCall) {
+				D.snd.playV('cursor_ok');
+			}else
+			if (a == back){
+				D.snd.playV('cursor_back');
+			}else				
 			if (a == page && b == "options") {
 				// Alter the first index of the current
 				menu.item_update(1, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });	
@@ -296,11 +302,9 @@ class StateTitle extends FlxState
 			if (a == fire) {
 				switch(b.ID){
 					case "g_res":
-						Reg.SAVE_SETTINGS();
-						FlxG.switchState(new StatePlay(false));
+						startGame(false);
 					case "g_new":
-						Reg.SAVE_SETTINGS();
-						FlxG.switchState(new StatePlay(true));
+						startGame(true);
 					case "vol":
 						FlxG.sound.volume = b.data.c / 100;
 					case "softpix":
@@ -315,10 +319,15 @@ class StateTitle extends FlxState
 						menu.close();
 						add(slides);
 						slides.onEvent = (e)->{
-							if (e == "close"){
-								remove(slides);
-								slides = null;
-								menu.open();
+							switch(e){
+								case "close":
+									remove(slides);
+									slides = null;
+									menu.open();
+									D.snd.playV('cursor_back');
+								case "next", "previous":
+									D.snd.playV('cursor_tick');
+								case _:
 							}
 						};
 						FlxG.mouse.reset();	// Just in case
@@ -326,6 +335,19 @@ class StateTitle extends FlxState
 					case _:
 				}
 			}
+			
+			// SOUNDS: 
+			switch(a) {
+				case fire:
+					D.snd.playV('cursor_ok');
+					return;
+				case focus:
+					D.snd.playV('cursor_tick');
+					return;
+				case _:
+			}
+			
+			
 		};
 		
 		add(menu);
@@ -438,9 +460,10 @@ class StateTitle extends FlxState
 				txt2.text = "key already defined for " + b;
 				txt2.visible = true;
 				flixel.effects.FlxFlicker.flicker(txt2, 0.5, 0.1);
+				D.snd.playV('gen_no');
 			}else
 			if (a == "ok"){
-				//D.snd.play('pl_step');
+				D.snd.playV('cursor_ok');
 			}
 			if (a == "complete") {
 				remove(txt1); remove(txt2);
@@ -449,6 +472,16 @@ class StateTitle extends FlxState
 			}
 		};
 		k.start();
+	}//---------------------------------------------------;
+	
+	
+	function startGame(forceNew:Bool)
+	{
+		menu.unfocus();
+		Reg.SAVE_SETTINGS();
+		pFader.fadeColor(0xFF000000, ()->{
+			FlxG.switchState(new StatePlay(forceNew));
+		});
 	}//---------------------------------------------------;
 	
 }//-- end --//

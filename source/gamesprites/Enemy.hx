@@ -48,8 +48,8 @@ class Enemy extends MapSprite
 		health_worm : 180,
 		health_turret : 600,
 		
-		health_phase1 : 450,	// 450
-		health_phase2 : 650,	// 650
+		health_phase1 : 500,
+		health_phase2 : 750,
 		
 		spawntime: 		3.5,
 		spawntime_big:  6,

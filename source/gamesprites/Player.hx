@@ -244,12 +244,14 @@ class Player extends FlxSprite
 			if (lives == 0)
 			{
 				Reg.st.on_player_no_lives();
+				active = false;
 			}else
 			{
 				Reg.st.ROOMSPR.enemies_freeze(false);
 				confuserTimer = 0;	// just in case it was active
 				revive();
 				physics_start();
+				Reg.st.SAVEGAME();
 				fsm.goto(ONFLOOR);
 			}
 		}
@@ -736,14 +738,17 @@ class Player extends FlxSprite
 	override public function revive():Void 
 	{
 		super.revive();
-		
+		fullHealth();
+		_htick = 0;
+		if (lives < START_LIVES) FlxFlicker.flicker(this, I_TIME_REVIVE, Reg.P.flicker_rate);
+	}//---------------------------------------------------;
+	
+	
+	public function fullHealth()
+	{
 		health = START_HEALTH;
 		healthSlow = health;
 		Reg.st.HUD.set_health(health);
-		_htick = 0;
-		
-		if (lives < START_LIVES) FlxFlicker.flicker(this, I_TIME_REVIVE, Reg.P.flicker_rate);
-		
 	}//---------------------------------------------------;
 	
 	/**
