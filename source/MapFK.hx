@@ -748,7 +748,7 @@ class MapFK extends TilemapGeneric
 					
 					Reg.st.INV.removeItemWithID(item);
 					
-					D.snd.play(Reg.SND.exit_unlock);
+					D.snd.playV(Reg.SND.exit_unlock);
 					
 				case _: trace("Error: Syntax Error", d); return;
 			}
@@ -766,7 +766,7 @@ class MapFK extends TilemapGeneric
 		
 		FlxG.signals.postUpdate.addOnce(()->{
 			loadMap(e.O.prop.goto);
-			D.snd.play(Reg.SND.exit_travel);
+			D.snd.playV(Reg.SND.exit_travel);
 		});
 		
 	}//---------------------------------------------------;
@@ -797,7 +797,7 @@ class MapFK extends TilemapGeneric
 		Reg.st.HUD.item_pickup(null);
 		killObject(e.O, true);
 		e.kill();
-		D.snd.play(Reg.SND.item_keyhole);
+		D.snd.playV(Reg.SND.item_keyhole);
 		
 		// -- Check if it is the final keyhole of the final level,
 		if (e.O.type == "final")

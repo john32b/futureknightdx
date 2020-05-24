@@ -40,8 +40,8 @@ class Enemy extends MapSprite
 	static inline var HURT_I_TIME = 0.1;	// Invinvibility time after being hurt
 	
 	static public var PAR = {
-		health 		 : 20,
-		health_chase : 24,
+		health 		 : 20,	// (2 bullets, 4 bullets, 2 bullets)
+		health_chase : 30,	// (3 bullets, 5 bullets, 2 bullets)
 		health_big  : 200,
 		health_long : 120,
 		health_tall	: 240,
@@ -61,16 +61,27 @@ class Enemy extends MapSprite
 		speed_bigtall : 1.5,	// seconds between shots
 	};
 	
+	static public var SND = {
+		hit:["en_hit_1", "en_hit_2", "en_hit_3"],
+		die:["en_die_1", "en_die_2"],
+		big_die:["big_die_1", "big_die_2"]
+	};
+	
+	// Precalculated to avoid width/2 all the time.
+	public var halfWidth:Int = 0;
+	public var halfHeight:Int = 0;
+	
+	// Every enemy has an AI driver
 	public var ai(default, null):Enemy_AI;
+	
+	
 	var spawnTime:Float;	// Time to wait for regenerating. If <0 will never respawn
 	var _spawnTimer:Float;	// spawnTime counter. 
 	
 	var speed:Float;		// The actual speed of the enemy
 	var startHealth:Float;	//
 	
-	// Precalculated to avoid width/2 all the time.
-	public var halfWidth:Int = 0;
-	public var halfHeight:Int = 0;
+
 	
 	// GFXType, used for creating appropriate explosions
 	// 0:Normal, 1:Big, 2:Long, 3:Worm
@@ -177,12 +188,12 @@ class Enemy extends MapSprite
 		
 		if (health <= 0)
 		{
-			D.snd.play("hit_02", 0.7);
+			D.snd.play(SND.hit[0], 0.7);
 			softKill();
 		}else{
 			
+			D.snd.playR(SND.hit);
 			setColorTransform(1, 1, 1, 1, 180, 180, 180, 0);
-			D.snd.play("hit_02");
 			_hurtTimer = HURT_I_TIME;
 		}
 	}//---------------------------------------------------;
@@ -232,11 +243,14 @@ class Enemy extends MapSprite
 	
 	/**
 	   Create Particles and Sound for current Enemy
+	   - This is called by the enemyAI
 	**/
 	public function explode()
 	{
-		/// TODO: big bosses make another sound?
-		D.snd.playV("en_die");
+		// NOTE:
+		// Normal sound + if enemy is big extra explosion sound:
+		
+		D.snd.playR(SND.die);
 		
 		switch(_gfxtype)
 		{
@@ -245,14 +259,17 @@ class Enemy extends MapSprite
 				Reg.st.PM.createAt(0, x + halfWidth - 11, y + halfHeight + 12, velocity.x, velocity.y, PAL_COLOR);
 				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight - 12, velocity.x, velocity.y, PAL_COLOR);
 				Reg.st.PM.createAt(0, x + halfWidth + 11, y + halfHeight + 12, velocity.x, velocity.y, PAL_COLOR);
+				D.snd.playR(SND.big_die);
 				
 			case 2: // 2 in height
 				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight - 12, velocity.x, velocity.y, PAL_COLOR);
 				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight + 12, velocity.x, velocity.y, PAL_COLOR);
+				D.snd.playR(SND.big_die);
 				
 			case 3: // 3 in width
 				for(i in 0...3) // (0,1,2)
 				Reg.st.PM.createAt(0, (x + 11) + (i * 22), y + halfHeight, velocity.x, velocity.y, PAL_COLOR);
+				D.snd.playR(SND.big_die);
 				
 			case _: // 1 particle or default
 				Reg.st.PM.createAt(0, x + halfWidth, y + halfHeight, velocity.x, velocity.y, PAL_COLOR);

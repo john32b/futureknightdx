@@ -19,6 +19,10 @@ class SubStatePause extends FlxSubState
 	{
 		super.create();
 		
+		
+		// When I close this at the end, it appears for 1 frame then closes, so close it now
+		Reg.st.INV.close();
+		
 		camera = Reg.st.camera;
 		
 		var COL = Pal_CPCBoy.COL;
@@ -63,6 +67,12 @@ class SubStatePause extends FlxSubState
 			]);
 			
 			menu.onMenuEvent = (a, b)->{
+				if (a == pageCall) {
+					D.snd.playV('cursor_ok');
+				}else
+				if (a == back){
+					D.snd.playV('cursor_back');
+				}else
 				if (a == page && b == "options") {
 				menu.item_update(0, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });
 				menu.item_update(1, (t)->{t.data.c = D.ANTIALIASING; });
@@ -76,19 +86,34 @@ class SubStatePause extends FlxSubState
 			}//---------------------------------------------------;
 			
 			menu.onItemEvent = (a, b)->{
+
 				if (a == fire) switch(b.ID)
 				{
+					case "softpix": 
+						D.ANTIALIASING = b.data.c;
 					case "vol":
 						FlxG.sound.volume = b.data.c / 100;
 					case "resume":
 						close();
+						return;
 					case "quit":
 						Reg.SAVE_SETTINGS();
 						FlxG.switchState(new StateTitle());
-					case "softpix": 
-						D.ANTIALIASING = b.data.c;
+						return;
 					case _:
 				}
+				
+				// SOUNDS: 
+				switch(a) {
+					case fire:
+						D.snd.playV('cursor_ok');
+						return;
+					case focus:
+						D.snd.playV('cursor_tick');
+						return;
+					case _:
+				}
+				
 			};
 			
 			add(menu);
@@ -109,7 +134,7 @@ class SubStatePause extends FlxSubState
 	{
 		Reg.SAVE_SETTINGS();
 		D.ctrl.flush();
-		Reg.st.INV.close();
+		D.snd.playV('cursor_back');
 		super.close();
 	}//---------------------------------------------------;
 	

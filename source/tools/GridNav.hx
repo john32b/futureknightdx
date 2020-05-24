@@ -21,8 +21,12 @@
 				item.y = pos.y;
 		}
 		
-		grid.length 	==	length number of boxes
+		grid.length ==	length number of boxes
 		grid.index == current selected index
+		
+		// You should then send the grid object a direction with
+		grid.cursor_move(1,0);	// for right
+		// and this will callback the onCursorChange() function
 		
 **/
 

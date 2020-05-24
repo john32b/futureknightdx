@@ -56,6 +56,11 @@ class Inventory extends FlxSpriteGroup
 	static        var GRID_CURSOR_COLOR = Pal_CPCBoy.COL[30];
 	static inline var TWEEN_TIME = 0.05;
 	
+	var SND = {
+		tick:"cursor_tick",
+		ok:"cursor_ok"
+	}
+	
 	var box_items:Array<Item> = [];
 	var cursor:FlxSprite;
 	var grid:GridNav;
@@ -127,6 +132,7 @@ class Inventory extends FlxSpriteGroup
 		grid.onEscape = (d)->{
 			if (d == FlxObject.UP){
 				group_focus(0);
+				D.snd.play(SND.tick, 0.5);
 			}
 		};
 	
@@ -168,7 +174,10 @@ class Inventory extends FlxSpriteGroup
 		
 		// LAST:
 		// - Fire to place the cursor. Must be called after setPosition()
-		handle_cursor_change(grid.index);
+		// This is the same code as 'handle_cursor_change(grid.index);' but without the sound call
+			var p = grid.get_current_pos();
+			cursor.setPosition(x + GRID_X + p.x - 1, y + GRID_Y + p.y - 1);
+			_refresh_text();
 	}//---------------------------------------------------;
 	
 	// Group 0: The Options button
@@ -197,10 +206,12 @@ class Inventory extends FlxSpriteGroup
 		{
 			if (D.ctrl.justPressed(A)){
 				Reg.openPauseMenu();
+				D.snd.play(SND.ok, 0.5);
 				return;
 			}
 			else if (D.ctrl.justPressed(DOWN)){
 				group_focus(1);
+				D.snd.play(SND.tick,0.5);
 			}
 		}else
 		{
@@ -213,13 +224,14 @@ class Inventory extends FlxSpriteGroup
 			if (D.ctrl.justPressed(A)) {
 				if (ITEMS[grid.index] != null) {
 					if (onItemSelect != null) onItemSelect(ITEMS[grid.index]);
+					D.snd.play(SND.ok, 0.5);
 				}
 			}
 		}
 	
 		// Same with both focus groups
 		if (D.ctrl.justPressed(X) || D.ctrl.justPressed(START)) {
-			D.snd.play("inventory_close");
+			D.snd.play("inv_close");
 			close();
 		}
 		
@@ -256,12 +268,13 @@ class Inventory extends FlxSpriteGroup
 			active = true;
 		}});
 		
-		D.snd.play("inventory_open");
+		D.snd.play("inv_open");
 		group_focus(1);
 		if (onOpen != null) onOpen();
 	}//---------------------------------------------------;
 	// --
 	// No sound, Because sometimes I don't need to 
+	// Sound is played at the button handler
 	public function close()
 	{
 		if (!isOpen || _tween != null) return;
@@ -373,6 +386,7 @@ class Inventory extends FlxSpriteGroup
 		var p = grid.get_current_pos();
 		cursor.setPosition(x + GRID_X + p.x - 1, y + GRID_Y + p.y - 1);
 		_refresh_text();
+		D.snd.play(SND.tick, 0.5);
 	}//---------------------------------------------------;
 	
 	function _refresh_text()

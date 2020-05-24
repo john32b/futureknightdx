@@ -252,7 +252,7 @@ class StatePlay extends FlxState
 					if (INV.addItem(item.item_id))
 					{
 						// Pick up OK
-						D.snd.play(Reg.SND.item_pickup);
+						D.snd.playV(Reg.SND.item_pickup);
 						HUD.item_pickup(item.item_id);
 						item.killExtra();
 					}else{
@@ -435,8 +435,9 @@ class StatePlay extends FlxState
 				}
 			}
 			
-			D.snd.play("hit_02", 0.7); // Explosions?
-			D.snd.play(Reg.SND.item_bomb);
+			// Enemy hit sound + bomb off
+			D.snd.play("en_hit_3", 0.7); 
+			D.snd.playV(Reg.SND.item_bomb);
 			INV.removeItemWithID(item);
 			HUD.item_pickup();
 			HUD.score_add(Reg.SCORE.item_bomb);
@@ -444,7 +445,7 @@ class StatePlay extends FlxState
 		case CONFUSER_UNIT:
 			flash(4);
 			ROOMSPR.enemies_freeze(true);	// Player has timer for restore
-			D.snd.play(Reg.SND.item_confuser);
+			D.snd.playV(Reg.SND.item_confuser);
 			player.confuserTimer = Reg.P.confuse_time;
 			
 			INV.removeItemWithID(item);
@@ -463,9 +464,8 @@ class StatePlay extends FlxState
 			INV.removeItemWithID(item);
 			HUD.item_pickup();
 			HUD.score_add(Reg.SCORE.item_flashbang);
+			D.snd.playV(Reg.SND.item_flash);
 			HUD.set_text2("It doesn't affect the aliens.");
-			//TODO, what does this do tho?
-			//<SOUND>
 			
 		case SCEPTER:
 			HUD.set_text2("Does not do anything.");
@@ -477,10 +477,12 @@ class StatePlay extends FlxState
 				return;
 			}
 			// Boss exists: I need its AI object
+			// Sound handled in routine()
 			if (cast(en.ai, AI_Final_Boss).spell_used()) {
 					INV.removeItemWithID(item);
 					HUD.item_pickup();
-					HUD.score_add(Reg.SCORE.item_destruct);		
+					HUD.score_add(Reg.SCORE.item_destruct);	
+					
 			}	
 			
 		case RELEASE_SPELL:

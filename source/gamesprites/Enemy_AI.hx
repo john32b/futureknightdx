@@ -288,13 +288,13 @@ class AI_Final_Boss extends Enemy_AI
 			
 			if (r0 % 3 == 0) {
 				Reg.st.flash(2);
-				D.snd.play("hit_02");
-				D.snd.play('en_spawn');
-				// <SOUND>
+				D.snd.playR(Enemy.SND.big_die);
+				D.snd.play('fb_cry');
 			}
 			if (++r0 > JITTER_LOOPS)
 			{
-				D.snd.play("hit_03");
+				D.snd.playR(Enemy.SND.die);	// hit
+				D.snd.playV('fb_expl');		// final blow hit
 				e.visible = false;
 				e.alive = false;
 				e.explode();
@@ -341,6 +341,7 @@ class AI_Final_Boss extends Enemy_AI
 			function onTweenCompleteFire(_tw:FlxTween)
 			{
 				Reg.st.BM.createAt(5, e.x + e.halfWidth, e.y + e.halfHeight, 0);
+				D.snd.play('fb_shoot');
 				if (_tw.executions == 2) { // Shoot 3 bullets
 					_tw.cancel();
 					gotoNext();
@@ -359,6 +360,8 @@ class AI_Final_Boss extends Enemy_AI
 		current_speed = 1.65;
 		current_delay = 0.28;
 		
+		D.snd.play('fb_cry');
+		
 		r0 = -1; // Because it gets ++ at the beginning and I need [0] to be the first
 		timer = 0;
 		current_sequence = [ 0, 2, 0, 2, 0, 2, 8, 6, 3, 5, 3, 1, 5, 7, 3, 1, 5, 7, 4];
@@ -372,7 +375,7 @@ class AI_Final_Boss extends Enemy_AI
 			// Shoot bullet
 			if (!Reg.st.player.alive) return;
 			Reg.st.BM.createAt(5, e.x + e.halfWidth, e.y + e.halfHeight, 0);
-			// <SOUND>
+			D.snd.play('fb_shoot');
 		}
 	}//---------------------------------------------------;
 	
@@ -383,6 +386,7 @@ class AI_Final_Boss extends Enemy_AI
 		e.solid = true;
 		e.setColorTransform(1, 1, 1, 1, 200, 0, 0, 0);
 		e.health = Enemy.PAR.health_phase2; // No health down when potion used
+		D.snd.playV('fb_aggr');
 		current_speed = 1.1;
 		current_delay = 0.18;
 		r0 = -1; // Because it gets ++ at the beginning and I need [0] to be the first
@@ -412,6 +416,7 @@ class AI_Final_Boss extends Enemy_AI
 		e.health = 99999;
 		e.solid = false;
 		Reg.st.HUD.set_text2("The droid is vulnerable. Use destruct now !");
+		D.snd.playV('fb_vuln');
 	}//---------------------------------------------------;
 
 	function phase3_update()
@@ -454,7 +459,7 @@ class AI_Final_Boss extends Enemy_AI
 		{
 			softkill();
 			Reg.st.HUD.set_text2("Used Destruct.");
-			D.snd.play('en_spawn');
+			D.snd.playV(Reg.SND.item_destruct);
 			return true;
 		}
 		
@@ -554,7 +559,7 @@ class AI_Turret extends Enemy_AI
 			_timer = 0;
 			if (!Reg.st.player.alive) return;
 			Reg.st.BM.createAt(_bullet, e.x + e.halfWidth, e.y + e.halfHeight, 0);
-			// <SOUND>
+			D.snd.play('fb_shoot', 0.3);
 		}
 	}//---------------------------------------------------;
 	

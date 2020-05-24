@@ -34,13 +34,16 @@ class KeyIndicator extends UIIndicator
 	   @param	type 0:Arrow UP | todo more?
 	   @param	X Pixel position
 	**/
-	public function setAt(type:Int, X:Float = 0)
+	public function setAt(T:AnimatedTile)
 	{
 		lastTime = FlxG.game.ticks;
 		if (alive) return;
 		
-		X = (Std.int(X / 32) * 32) + 16;
+		var X = (Std.int(T.x / 32) * 32) + 16;
+		//var Y = Reg.st.player.y - (frameHeight / 2);
+		
 		var Y = Reg.st.player.y - (frameHeight / 2);
+		var Y = T.y - (frameHeight / 2);
 		
 		if ( (Y - frameHeight / 2) < Reg.st.map.roomCornerPixel.y)
 		{
@@ -51,7 +54,7 @@ class KeyIndicator extends UIIndicator
 		lockPos();
 		revive();
 		setEnabled();
-		animation.frameIndex = type;
+		animation.frameIndex = 0;
 	}//---------------------------------------------------;
 		
 	override public function update(elapsed:Float):Void 

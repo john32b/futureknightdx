@@ -114,7 +114,7 @@ class BulletManager extends FlxGroup
 		if (B._phasing || !B.alive) return false;
 		if (A.allowCollisions == FlxObject.ANY) {
 			killBullet(B, true);
-			D.snd.play("hit_01");
+			D.snd.play(Bullet.SND.wall, 0.8);
 			return true;
 		}
 		return false;	

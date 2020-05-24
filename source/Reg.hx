@@ -19,8 +19,6 @@ class Reg
 {
 	public static inline var VERSION = "1.5";
 	
-	// :: Sounds
-	
 	// :: External parameters
 	static inline var PATH_JSON = "assets/djflixel.json";
 	static inline var PATH_INI  = "assets/test.ini";
@@ -31,9 +29,6 @@ class Reg
 	
 	// :: Image Asset Manager
 	public static var IM:ImageAssets;
-
-	// This is for quick access to game elements
-	public static var st:StatePlay;
 
 	// :: External Parameters parsed objects
 	static var INI:ConfigFile;
@@ -60,17 +55,20 @@ class Reg
 	
 	// ::
 	public static var SND = {
-		exit_unlock:"fx_2",	// long vibrato effect medium
-		exit_travel:"fx_1",
-		error:"error",
-		weapon_get:"fx_3",
+		exit_unlock:"exit_unlock",	// long vibrato effect medium
+		exit_travel:"exit_go",
 		
-		item_bomb:"enemy_final",
-		item_confuser:"enemy_final2",
-		item_pickup:"item_pickup",
-		item_equip:"fx_3",	// on inventory select
+		error:"gen_no",
+		weapon_get:"gen_tick",
 		
-		item_keyhole:"fx_5",	// Used with "platform key", "bridge spell", "release spell"
+		item_equip:"gen_tick",	// on inventory select
+		item_pickup:"it_pick",
+		item_bomb:"it_bomb",
+		item_confuser:"it_confuser",
+		item_flash:"it_confuser",
+		item_destruct:"it_destruct",
+		
+		item_keyhole:"map_key",	// Used with "platform key", "bridge spell", "release spell"
 	};
 	
 	
@@ -90,6 +88,9 @@ class Reg
 	
 	// This is the first level that a new game will start with
 	public static var START_MAP = 'level_01';
+	
+	// This is for quick access to game elements
+	public static var st:StatePlay;
 	
 	//====================================================;
 	//====================================================;
@@ -143,10 +144,7 @@ class Reg
 		JSON = Json.parse(D.assets.files.get(PATH_JSON));
 			
 		// DEBUG
-		// HACK : When you press F12 to reload the state, don't re-init the sounds
-		if (++_dtimes == 1) {
-			D.snd.addMetadataNode(JSON.soundFiles);
-		}
+		D.snd.addSoundInfos(JSON.sounds);
 	}//---------------------------------------------------;
 		static var _dtimes:Int = 0; // Asset loaded times
 

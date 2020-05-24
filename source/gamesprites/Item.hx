@@ -60,7 +60,7 @@ class Item extends MapSprite
 			SAFE_PASS => { name:"Safe Pass", desc:"It says `Safe pass`", icon:6},
 			EXIT_PASS => { name:"Exit Pass", desc:"Looks like an exit pass", icon:7 },			
 			SECURO_KEY => { name:"Securo Key", desc:"This is a Securo key", icon:9 },
-			PLATFORM_KEY => { name:"Platform Key", desc:"You have a platform key", icon:10 },
+			PLATFORM_KEY => { name:"Platform Key", desc:"You have a platform key", icon:10 },	// Use on keylock
 			BRIDGE_SPELL => { name:"Bridge Spell", desc:"This is a Bridge spell", icon:11 },
 			FLASH_BANG_SPELL => { name:"Flash-Bang Spell", desc:"A Flash-Bang spell!", icon:13 },
 			RELEASE_SPELL => { name:"Release Spell", desc:"You found the Release spell", icon:13 },
@@ -127,7 +127,6 @@ class Item extends MapSprite
 		y = -1 + SPAWN_POS.y+ Math.sin(inc) * BOUNCE;
 		inc += STEP;
 	}//---------------------------------------------------;
-	
 	
 	
 	public function cant_pick_up()

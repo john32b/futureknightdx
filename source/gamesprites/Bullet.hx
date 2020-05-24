@@ -37,11 +37,16 @@ class Bullet extends FlxSprite
 	inline static var JITTER_PIX = 2;
 	inline static var FPS = 10;
 	
+	public static var SND = {
+		wall:"bl_hit"
+	};
+	
+	
 	// All the game bullets:
 	public static var TYPES:Array<BulletType> = [
 		{ anim:"p_1", speed:150, distance:0, 	maxscreen:2, damage:10, timer:250 }, // dps = 40 per 1
-		{ anim:"p_2", speed:200, distance:82, 	maxscreen:4, damage:6,  timer:135 }, // dps = 44 per 1
-		{ anim:"p_3", speed:240, distance:0, 	maxscreen:2, damage:18, timer:420 }, // dps = 40 per 1
+		{ anim:"p_2", speed:200, distance:82, 	maxscreen:4, damage:6,  timer:135 }, // dps = 44 per 1 ( but it is shorter )
+		{ anim:"p_3", speed:240, distance:0, 	maxscreen:2, damage:18, timer:450 }, // dps = 40 per 1
 		{ anim:"e_1", speed:110, distance:0, 	maxscreen:2, damage:10, timer:0   },
 		{ anim:"e_2", speed:80,  distance:0, 	maxscreen:4, damage:10, timer:0   },
 		{ anim:"e_2", speed:70,  distance:0, 	maxscreen:3, damage:10, timer:0   }

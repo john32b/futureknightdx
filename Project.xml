@@ -26,7 +26,8 @@
 		<assets path="assets/font" include="*.ttf|*.otf|" type="font" rename="fnt"/>
 		<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
 		<assets path="assets/music" type="music" rename="mus"/>
-		<assets path="assets/sounds" type="sound" include="*.mp3" rename="snd"/>
+		<!--<assets path="assets/sounds" type="sound" include="*.mp3" rename="snd"/>-->
+		<assets path="assets/soundsNew" type="sound" include="*.mp3" rename="snd"/>
 		<assets path="assets/maps" type="text" include="*.tmx" rename="map"/>
 	
 		

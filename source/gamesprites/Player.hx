@@ -59,20 +59,19 @@ enum PlayerState
 class Player extends FlxSprite
 {
 
-	static inline var SPEED = 70;	// Movement velocity
-	static inline var JUMP = 220;	// Minus Velocity on the Y axis
+	inline static var SPEED = 70;	// Movement velocity
+	inline static var JUMP = 220;	// Minus Velocity on the Y axis
 	
-	static inline var START_HEALTH = 999;
-	static inline var START_LIVES  = 3;
+	inline static var START_HEALTH = 999;
+	inline static var START_LIVES  = 3;
 	
-	static inline var COLOR_COMBO = "blue";
+	inline static var COLOR_COMBO = "blue";
 	
-	static inline var I_TIME_REVIVE = 1.4;
+	inline static var I_TIME_REVIVE = 1.4;			// Invincible time after being revived
+	inline static var INTERACT_MIN_TIME = 350;		// Minimum time allowed to interact with an animated tile (exit or weapon)
 	
-	static inline var INTERACT_MIN_TIME = 350;		// Minimum time allowed to interact with an animated tile (exit or weapon)
-	
-	static inline var HEALTH_TICK = 0.05;			// Refresh life every this much
-	static inline var HEALTH_LOSS = 2;				// Loss per tick
+	inline static var HEALTH_TICK = 0.05;			// Refresh life every this much
+	inline static var HEALTH_LOSS = 2;				// Loss per tick
 	
 	inline static var BOUND_W = 8; 					// Bounding box 
 	inline static var BOUND_H = 22;
@@ -80,7 +79,7 @@ class Player extends FlxSprite
 	inline static var BOUND_OFF_Y = 4;
 	inline static var BOUND_CROUCH_OFF = 4;			// Make top side this much smaller when crouching
 	
-	inline static var BULLET_X_PAD = 2;				// Push this much away from player when shooting (default is right at bounding box)
+	inline static var BULLET_X_PAD = 2;				// Push this much away from player when shooting (from bounding box)
 	
 	inline static var LADDER_SNAP_Y = 8;			// Move player this much downwards when mounts a ladder
 	inline static var LADDER_MOUNT_PIXELS = 4;		// For this many traveled pixels the mount frame will be displayd
@@ -93,7 +92,7 @@ class Player extends FlxSprite
 	inline static var FALL_DAMAGE_TIME = 3;			// Stun for 3 seconds
 	inline static var DEAD_TIME = 4;				// Stay in the dead animation for 4 seconds
 	 
-	// Precalculated to avoid width/2 all the time
+	// Precalculated to avoid divisions in realtime
 	public var halfWidth:Int;
 	public var halfHeight:Int;
 	
@@ -135,18 +134,19 @@ class Player extends FlxSprite
 	
 	var _interact_time:Int;			// Short pause between interacting with ANIMTILE elements. IN TICKS, NOT MS
 	
+	var _color:String;				// Keep the current color combo e.g. "blue"
+	
 	// - Sounds
 	var snd =  {
-		walk:"pl_walk",		// ok
-		jump:"pl_jump2",	// ok
-		climb:"pl_climb",	// ok
-		slide:"pl_slide",	// ok
-		land:"pl_land",		// ok
-		step:"pl_step",		// ok
-		die:"pl_die",	
-		hurt:"pl_hurt",		// ok
-		shoot:"pl_shoot",	// ok
-		ceil:"pl_ceil"		// ok
+		shoot:["pl_shoot_1", "pl_shoot_2"],
+		jump:["pl_jump_1", "pl_jump_2"],
+		climb:"pl_climb",
+		slide:"pl_slide",
+		land:"pl_land",
+		step:"pl_step",
+		ceil:"pl_ceil",
+		hurt:"pl_hurt",
+		die:"pl_die"	
 	}
 
 	// --
@@ -182,7 +182,6 @@ class Player extends FlxSprite
 		maxVelocity.y = MAX_FALLSPEED;
 		maxVelocity.x = SPEED;
 		
-		// Graphics
 		Reg.IM.loadGraphic(this, 'player', COLOR_COMBO);
 		
 		setFacingFlip(FlxObject.LEFT, true, false);
@@ -378,7 +377,7 @@ class Player extends FlxSprite
 		{
 			health -= Reg.P_DAM.from_ceil;
 			if (health < 0) health = 0;
-			D.snd.playV(snd.ceil);
+			D.snd.play(snd.ceil);
 			if (_sndTemp != null){
 				_sndTemp.stop();
 			}
@@ -397,7 +396,7 @@ class Player extends FlxSprite
 			if (justTouched(FlxObject.FLOOR))	// landed
 			{
 				velocity.set(0, 0);
-				D.snd.playV(snd.land);
+				D.snd.play(snd.land);
 				// DEV: Sometimes (y) is 9.99999999, so I need to round it
 				last.y = y = Math.ceil(y);
 
@@ -576,7 +575,7 @@ class Player extends FlxSprite
 				animation.play("jump");
 			}
 			
-			_sndTemp = D.snd.playV(snd.jump);
+			_sndTemp = D.snd.playR(snd.jump);
 			fsm.goto(ONAIR);
 			return;	// <- prevent the update portion to be called later in this function;
 			
@@ -683,7 +682,7 @@ class Player extends FlxSprite
 		_shoot_allow = false;
 		physics_stop();
 		animation.play("die");
-		D.snd.playV(snd.die);
+		D.snd.play(snd.die);
 		Reg.st.ROOMSPR.enemies_freeze(true);
 		fsm.goto(DEAD);
 	}//---------------------------------------------------;
@@ -705,7 +704,7 @@ class Player extends FlxSprite
 			if (Reg.st.BM.createAt(bullet_type, X, y + halfHeight, facing))
 			{
 				// bullet shot OK
-				D.snd.playV(snd.shoot);
+				D.snd.playR(snd.shoot);
 				_shoot_time = FlxG.game.ticks;
 				
 				if (_idle_stage > 0) {
@@ -895,7 +894,6 @@ class Player extends FlxSprite
 		
 		switch(B.type)
 		{
-			
 			case HAZARD:
 				// Can't hit a hazard on the way up / Don't hit same hazard more than once
 				if (velocity.y < 0) return;	
@@ -914,14 +912,14 @@ class Player extends FlxSprite
 				}
 				
 			case KEYHOLE:
-				Reg.st.key_ind.setAt(0, B.x);
+				Reg.st.key_ind.setAt(B);
 				if (_interact_anim_request()) 
 				{
 					Reg.st.map.keyhole_activate(B);
 				}
 			
 			case WEAPON(i):
-				Reg.st.key_ind.setAt(0, B.x);
+				Reg.st.key_ind.setAt(B);
 				if (_interact_anim_request()) 
 				{
 					// Cycle between 0,1,2
@@ -932,7 +930,7 @@ class Player extends FlxSprite
 				}
 				
 			case EXIT(locked):
-				Reg.st.key_ind.setAt(0, B.x);
+				Reg.st.key_ind.setAt(B);
 				if (_interact_anim_request()) 
 				{
 					// > This will check if exit is locked etc, also will unlock and go to the new map.
