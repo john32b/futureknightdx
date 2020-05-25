@@ -71,6 +71,7 @@ class StatePlay extends FlxState
 		Reg.add_border();
 	
 		map = new MapFK();	// < WARNING : This creates a camera and makes it default
+			map.onEvent = on_map_event;
 		ROOMSPR = new RoomSprites();
 		player = new Player();
 		PM = new ParticleManager();
@@ -81,8 +82,6 @@ class StatePlay extends FlxState
 			INV.onOpen = pause;
 			INV.onItemSelect = on_inventory_select;
 
-		map.onEvent = event_map_handler;
-		
 		// :: Ordering
 		add(map);
 		add(ROOMSPR);
@@ -96,7 +95,7 @@ class StatePlay extends FlxState
 		HUD = new Hud();
 		add(HUD);
 		
-		// -- Load game here ::
+		// -- Elements added, load map/game
 		
 		var MAP_TO_LOAD = "";
 		
@@ -130,14 +129,13 @@ class StatePlay extends FlxState
 			}
 		#end
 		
-		// : Last thing, load the level, this till trigger the event_map_handler()
+		// : Last thing, load the level, this till trigger the on_map_event()
 		map.loadMap(MAP_TO_LOAD);
 		map.camera.flash(0xFF000000, 0.5);
 		HUD.set_text("Welcome to Future Knight DX", 6);
 		
 		
 		#if debug
-		
 		if (Reg.INI.exists('DEBUG', 'startItems'))
 		{
 			INV.addItem(ITEM_TYPE.BOMB1);
@@ -146,12 +144,10 @@ class StatePlay extends FlxState
 			INV.addItem(ITEM_TYPE.CONFUSER_UNIT);
 			INV.addItem(ITEM_TYPE.PLATFORM_KEY);
 		}
-		
 		#end
 		
 	}//---------------------------------------------------;
 		
-	
 	public function SAVEGAME()
 	{
 		D.save.setSlot(1);
@@ -168,7 +164,24 @@ class StatePlay extends FlxState
 		D.save.flush();
 		trace("-- GAME SAVED", OBJ);
 	}//---------------------------------------------------;
+		
+	// --
+	public function pause()
+	{
+		ROOMSPR.active = false;
+		player.active = false;
+		PM.active = false;
+		BM.active = false;
+	}//---------------------------------------------------;
 	
+	// --
+	public function resume()
+	{
+		ROOMSPR.active = true;
+		player.active = true;
+		PM.active = true;
+		BM.active = true;
+	}//---------------------------------------------------;
 	// --
 	override public function update(elapsed:Float):Void 
 	{
@@ -260,159 +273,12 @@ class StatePlay extends FlxState
 					
 					
 			case AnimatedTile:
-				// Animated Tiles: Weapon
+				// Let the player sprite handle this
 				player.event_anim_tile(player, cast b);
 				
 			case _:
 		}
 	}//---------------------------------------------------;
-	
-	
-	
-	// --
-	function event_map_handler(ev:MapFK.MapEvent)
-	{
-		switch(ev) 
-		{
-			case loadMap: 
-				// Map has just loaded. Tilemap Created, Entities and Tiles Processed
-				ROOMSPR.reset();
-				BM.reset();
-				PM.reset();
-				key_ind.kill();
-				
-				if (map.PLAYER_SPAWN != null) 
-				{
-					var sp = map.PLAYER_SPAWN;
-					player.spawn(sp.x, sp.y);	// Do this first thing, then the enemies, since some enemies rely on player pos
-					map.camera_teleport_to_room_containing(sp.x, sp.y);	// This will trigger enemy creation
-				}else{
-					throw "No player spawn point";
-				}
-				
-				INV.set_level_name(map.MAP_NAME);
-				
-			case roomEntities(b): 
-				// These entities are to be set in the current room
-				// DEV: I don't need to get player. ROOMSPR will ignore it
-				for (en in b)  
-				{
-					ROOMSPR.spawn(en);
-				}
-
-				handle_room(map.roomCurrent.toCSV());
-				
-			// This is called before the new room entities are pushed
-			case scrollStart:
-				PM.kill();
-				BM.kill();
-				for (e in ROOMSPR) e.active = false;
-				player.active = false;
-				ROOMSPR.stashSave();
-				
-			case scrollEnd:
-				key_ind.kill();
-				ROOMSPR.stashKill();
-				for (e in ROOMSPR) e.active = true;
-				player.active = true;
-		}
-	}//---------------------------------------------------;
-	
-	// --
-	public function pause()
-	{
-		ROOMSPR.active = false;
-		player.active = false;
-		PM.active = false;
-		BM.active = false;
-	}//---------------------------------------------------;
-	
-	// --
-	public function resume()
-	{
-		ROOMSPR.active = true;
-		player.active = true;
-		PM.active = true;
-		BM.active = true;
-	}//---------------------------------------------------;
-	
-	
-	function on_inventory_select(id:ITEM_TYPE)
-	{
-		INV.close();
-		HUD.item_pickup(id);
-	}//---------------------------------------------------;
-	
-	
-	// -- Called from player
-	public function on_player_no_lives()
-	{
-		new DelayCall(()->{
-			FlxG.switchState(new StateGameover());
-		}, 0.5);
-	}//---------------------------------------------------;
-	
-	
-	
-	/**
-	   - Do a flash of the whole map/camera
-	   @param	TICKS How many changes in color, 5 is a full cycle. You can do as much as you want
-	   @param   callback Optional onComplete
-	**/
-	public function flash(TICKS:Int = 10, ?callback:Void->Void)
-	{
-		if (_isflashing) return; // should never happen in normal gameplay
-	
-		var MAT:Array<Array<Float>> = [
-		
-			[	// black and white
-				1, 0, 0, 0, 0,
-				1, 0, 0, 0, 0,
-				1, 0, 0, 0, 0,
-				0, 0, 0, 1, 0
-			],	
-			[
-				1, 0, 0, 0, 128,
-				0, 0, 0, 0, 0,
-				0, 0, 1, 0, -128,
-				0, 0, 0, 1, 0
-			],		
-			[
-				0, 0, 0, 0, 0,
-				0, 1, 0, 0, 128,
-				0, 0, 1, 0, -128,
-				0, 0, 0, 1, 0
-			],
-			[
-				1, 1, 0, 0, 0,
-				0, 1, 0, 0, -128,
-				0, 0, 1, 0, 128,
-				0, 0, 0, 1, 0
-			],
-			[
-				1, 1, 0, 0, 128,
-				0, 1, 1, 0, -20,
-				1, 0, 1, 0, 20,
-				0, 0, 0, 1, 0
-			],			
-		];
-		
-		// type 0, and type 1
-		var s = new StepTimer((t, f)->{
-			if (f){
-				_isflashing = false;
-				map.camera.setFilters([]);
-				if (callback != null) callback();
-				return;
-			}
-			var f = MAT[t % MAT.length];	
-			map.camera.setFilters([new ColorMatrixFilter(f)]);
-		});	
-		
-		s.start(0, TICKS, -0.1);
-		_isflashing = true;
-	}//---------------------------------------------------;
-	var _isflashing = false;
 	
 	
 	
@@ -428,9 +294,7 @@ class StatePlay extends FlxState
 		case BOMB1, BOMB2, BOMB3:
 			// :: Kill enemies forever and also enemies that are waiting to be spawned
 			// :: Give health
-			
 			flash(10);
-			
 			player.fullHealth();
 			
 			for (i in ROOMSPR.gr_enemy) {
@@ -525,5 +389,133 @@ class StatePlay extends FlxState
 		// Kill forever
 		map.killObject(e.O, true);
 	}//---------------------------------------------------;
+	
+	// --
+	function on_map_event(ev:MapFK.MapEvent)
+	{
+		switch(ev) 
+		{
+			case loadMap: 
+				// Map has just loaded. Tilemap Created, Entities and Tiles Processed
+				ROOMSPR.reset();
+				BM.reset();
+				PM.reset();
+				key_ind.kill();
+				
+				if (map.PLAYER_SPAWN != null) 
+				{
+					var sp = map.PLAYER_SPAWN;
+					player.spawn(sp.x, sp.y);	// Do this first thing, then the enemies, since some enemies rely on player pos
+					map.camera_teleport_to_room_containing(sp.x, sp.y);	// This will trigger enemy creation
+				}else{
+					throw "No player spawn point";
+				}
+				
+				INV.set_level_name(map.MAP_NAME);
+				
+			case roomEntities(b): 
+				// These entities are to be set in the current room
+				// DEV: I don't need to get player. ROOMSPR will ignore it
+				for (en in b)  
+				{
+					ROOMSPR.spawn(en);
+				}
+
+				handle_room(map.roomCurrent.toCSV());
+				
+			// This is called before the new room entities are pushed
+			case scrollStart:
+				PM.kill();
+				BM.kill();
+				for (e in ROOMSPR) e.active = false;
+				player.active = false;
+				ROOMSPR.stashSave();
+				
+			case scrollEnd:
+				key_ind.kill();
+				ROOMSPR.stashKill();
+				for (e in ROOMSPR) e.active = true;
+				player.active = true;
+		}
+	}//---------------------------------------------------;
+	
+	
+	function on_inventory_select(id:ITEM_TYPE)
+	{
+		INV.close();
+		HUD.item_pickup(id);
+	}//---------------------------------------------------;
+	
+	
+	
+	// -- Called from player
+	public function on_player_no_lives()
+	{
+		new DelayCall(()->{
+			FlxG.switchState(new StateGameover());
+		}, 1.5);
+	}//---------------------------------------------------;
+	
+
+	/**
+	   - Do a flash of the whole map/camera
+	   @param	TICKS How many changes in color, 5 is a full cycle. You can do as much as you want
+	   @param   callback Optional onComplete
+	**/
+	public function flash(TICKS:Int = 10, ?callback:Void->Void)
+	{
+		if (_isflashing) return; // should never happen in normal gameplay
+	
+		var MAT:Array<Array<Float>> = [
+		
+			[	// black and white
+				1, 0, 0, 0, 0,
+				1, 0, 0, 0, 0,
+				1, 0, 0, 0, 0,
+				0, 0, 0, 1, 0
+			],	
+			[
+				1, 0, 0, 0, 128,
+				0, 0, 0, 0, 0,
+				0, 0, 1, 0, -128,
+				0, 0, 0, 1, 0
+			],		
+			[
+				0, 0, 0, 0, 0,
+				0, 1, 0, 0, 128,
+				0, 0, 1, 0, -128,
+				0, 0, 0, 1, 0
+			],
+			[
+				1, 1, 0, 0, 0,
+				0, 1, 0, 0, -128,
+				0, 0, 1, 0, 128,
+				0, 0, 0, 1, 0
+			],
+			[
+				1, 1, 0, 0, 128,
+				0, 1, 1, 0, -20,
+				1, 0, 1, 0, 20,
+				0, 0, 0, 1, 0
+			],			
+		];
+		
+		// type 0, and type 1
+		var s = new StepTimer((t, f)->{
+			if (f){
+				_isflashing = false;
+				map.camera.setFilters([]);
+				if (callback != null) callback();
+				return;
+			}
+			var f = MAT[t % MAT.length];	
+			map.camera.setFilters([new ColorMatrixFilter(f)]);
+		});	
+		
+		s.start(0, TICKS, -0.1);
+		_isflashing = true;
+	}//---------------------------------------------------;
+	var _isflashing = false;
+	
 	
 }// --

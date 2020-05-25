@@ -644,6 +644,8 @@ class Player extends FlxSprite
 			update_shoot();
 		}
 
+		// The following code, should not happen when player is dead
+		if (!alive) return;
 		
 		if (FlxG.keys.justPressed.ESCAPE)
 		{

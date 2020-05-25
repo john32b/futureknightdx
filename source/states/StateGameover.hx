@@ -15,7 +15,6 @@ class StateGameover extends FlxState
 	static inline var FREEZE_TIME = 3;
 	static inline var EXIT_TIME = 10;
 	var _timer:Float = 0;
-
 	var pf:BoxFader;
 	
 	override public function create():Void 

@@ -126,8 +126,7 @@ class MapFK extends TilemapGeneric
 	
 	var MAP_FILE = "";		// The short name of the loaded map. e.g. "level_01"
 	var MAP_COLOR = "";		// Color id, check "ImageAssets.D_COL_NAME"
-	var MAP_COLOR_FG = "";	// ladder colors
-	
+	var MAP_COLOR_FG = "";	// Ladder + FG Tiles colors
 	var MAP_LOADED_ID = "";	// Combo of MAP:EXIT of the current map loaded.
 	
 	// Pointer? of all the exit TileObjects in this map
@@ -144,9 +143,9 @@ class MapFK extends TilemapGeneric
 	
 	// Shadow tile data, constructed from FG tiles when loading the map
 	var sh_data:Array<Int>;
-	
-	
+
 	#if debug
+		// Used to for F12 quickloading
 		public static var LAST_LOADED = "";
 	#end
 	

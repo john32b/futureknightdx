@@ -230,15 +230,18 @@ class Enemy extends MapSprite
 	 **/
 	public function kill_bomb()
 	{
-		if (alive) {
-			if (O.gid == MapTiles.EDITOR_FINAL) {
-				hurt(Reg.P_DAM.bomb_damage);
-			}else{
-				softKill();
-				spawnTime = -1;	// Force no respawn
-				Reg.st.map.killObject(O, true);
-			}
+		if (O.gid == MapTiles.EDITOR_FINAL && alive) {
+			hurt(Reg.P_DAM.bomb_damage);
+			return;
 		}
+				
+		// Normal enemy:
+		if (alive) {
+			softKill();
+		}
+		
+		spawnTime = -1;	// Force no respawn
+		Reg.st.map.killObject(O, true);
 	}//---------------------------------------------------;
 	
 	/**
