@@ -6,7 +6,7 @@
 	- Loads and Creates the TileMap
 	- Handles camera scrolling
 	- Reads room entities and pushes them to user for creation
-	- Follows Player (from Reg.st.player global) and scrolls rooms
+	- Follows Player (from player global) and scrolls rooms
 	- Offers some tile checks functions to be used from Sprites
 	
 	
@@ -35,6 +35,8 @@ package;
 import MapTiles.FG_TILE_TYPE;
 import MapTiles.EDITOR_TILE;
 import djA.DataT;
+import djFlixel.other.StepTimer;
+import flash.filters.ColorMatrixFilter;
 import gamesprites.Item;
 
 import gamesprites.Item.ITEM_TYPE;
@@ -75,18 +77,19 @@ class MapFK extends TilemapGeneric
 	public static inline var MAP_SPACE = 0;
 	public static inline var MAP_FOREST = 1;
 	public static inline var MAP_CASTLE = 2;
-	static inline var TILE_SIZE = 8;
+	
 	static inline var MAP_ASSET_PATH = "map/";
 	static inline var MAP_REAL_PATH  = "assets/maps/";	// used in DYN_ASSETS
 	static inline var MAP_EXT = ".tmx";
-	
-	static inline var SHADOW_ALPHA = 0.5;
 	
 	// The layer names as declared in TILED 
 	static inline var LAYER_BG 			= 'Background';
 	static inline var LAYER_APPEND 		= 'Append';
 	static inline var LAYER_PLATFORM 	= 'Platforms';
 	static inline var LAYER_ENTITIES 	= 'Entities';
+	
+	static inline var TILE_SIZE = 8;
+	static inline var SHADOW_ALPHA = 0.5;
 	
 	// DEV: 8 BIG tiles (easier to grasp) Every big tile is 4 normal tiles
 	inline static var ROOM_TILE_WIDTH:Int  = 8 * 4;	// How many tiles make up a room view
@@ -95,12 +98,12 @@ class MapFK extends TilemapGeneric
 	static inline var DRAW_START_X:Int = 32;  	// Pixels from screen left to draw map
 	static inline var DRAW_START_Y:Int = 26;  	// Pixels from screen top to draw map
 	
+	public var ROOM_WIDTH  = TILE_SIZE * ROOM_TILE_WIDTH; 
+	public var ROOM_HEIGHT = TILE_SIZE * ROOM_TILE_HEIGHT; 
+	
 	// :: CAMERA
 	static var CAMERA_TRANSITION_TIME = 0.23;
 	static var CAMERA_EASE:EaseFunction = FlxEase.smootherStepOut;
-	
-	public var ROOM_WIDTH  = TILE_SIZE * ROOM_TILE_WIDTH; 
-	public var ROOM_HEIGHT = TILE_SIZE * ROOM_TILE_HEIGHT; 
 	
 	// How many rooms on the x/y axis
 	public var roomTotal(default, null):SimpleCoords;
@@ -123,7 +126,6 @@ class MapFK extends TilemapGeneric
 	// Set this to load the appropriate BG+FG Tiles
 	public var MAP_NAME = "";		// Game map name . e.g. "Control Room", This is read from the tmx file
 	var MAP_TYPE = 0;				// 0:Space, 1:Forest, 2:Castle. Used in controlling graphic and tile properties
-	
 	var MAP_FILE = "";		// The short name of the loaded map. e.g. "level_01"
 	var MAP_COLOR = "";		// Color id, check "ImageAssets.D_COL_NAME"
 	var MAP_COLOR_FG = "";	// Ladder + FG Tiles colors
@@ -143,7 +145,10 @@ class MapFK extends TilemapGeneric
 	
 	// Shadow tile data, constructed from FG tiles when loading the map
 	var sh_data:Array<Int>;
-
+	
+	// Pointer to the player. Needed for 
+	var player:Player;
+	
 	#if debug
 		// Used to for F12 quickloading
 		public static var LAST_LOADED = "";
@@ -151,9 +156,14 @@ class MapFK extends TilemapGeneric
 	
 	//====================================================;
 	
-	public function new() 
+	/**
+	   @param	P Pointer to a player.
+	**/
+	public function new(P:Player) 
 	{
 		super(3);	// Two layers, BG and Platforms
+		
+		player = P;
 		
 		// - New camera for the map, also this is now the default camera for everything
 		var C = new FlxCamera(DRAW_START_X * 2, DRAW_START_Y * 2, ROOM_WIDTH, ROOM_HEIGHT);
@@ -243,8 +253,9 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 
 	
-	/** Don't call this from main, use loadLevel(),
-	    Call this directly when you want to load a map array (debugging)
+	/**
+	  - Loads map, creates tile layers, and reads/processes map data
+	  - Don't call this from main, use loadLevel(),
 		! NOTE !
 		- Does not call `onEvent(MapEvent.loadMap)` need to call it later
 	 */
@@ -395,15 +406,15 @@ class MapFK extends TilemapGeneric
 		onEvent(MapEvent.scrollEnd);
 		
 		#if debug
-			// Place player
-			if (!Reg.st.player.alive)
+			// Player is dead when debug keys change rooms.
+			if (!player.alive) 
 			{
 				for (tx in 0...ROOM_TILE_WIDTH)
 				for (ty in 0...ROOM_TILE_HEIGHT)
 				{
 					if (getCol(roomCornerTile.x + tx, roomCornerTile.y + ty) == 0)
 					{
-						Reg.st.player.spawn((roomCornerTile.x + tx) * TILE_SIZE, (roomCornerTile.y + ty) * TILE_SIZE);
+						player.spawn((roomCornerTile.x + tx) * TILE_SIZE, (roomCornerTile.y + ty) * TILE_SIZE);
 						return;
 					}
 				}
@@ -554,14 +565,14 @@ class MapFK extends TilemapGeneric
 	{
 		if (Std.is(b, Player)) {
 			var t = cast (a, flixel.tile.FlxTile);
-			Reg.st.player.event_slide_tile(cast a, FlxObject.LEFT);
+			player.event_slide_tile(cast a, FlxObject.LEFT);
 		}
 	}//---------------------------------------------------;
 	function _tilecol_slide_right(a:FlxObject,b:FlxObject)
 	{
 		if (Std.is(b, Player)) {
 			var t = cast (a, flixel.tile.FlxTile);
-			Reg.st.player.event_slide_tile(cast a, FlxObject.RIGHT);
+			player.event_slide_tile(cast a, FlxObject.RIGHT);
 		}
 	}//---------------------------------------------------;	
 	
@@ -575,20 +586,20 @@ class MapFK extends TilemapGeneric
 		
 		#if debug
 			_update_debug();
-			if (!Reg.st.player.alive) return;	// Do not track player for debug purposes
+			if (!player.alive) return;	// Do not track player for debug purposes
 		#end
 		
 		// Camera Track Player ::
-		if (Reg.st.player.x + 4 > roomCornerPixel.x + ROOM_WIDTH){
+		if (player.x + 4 > roomCornerPixel.x + ROOM_WIDTH){
 			camera_move_rel(1, 0);
 		}else
-		if (Reg.st.player.x + 4 < roomCornerPixel.x){
+		if (player.x + 4 < roomCornerPixel.x){
 			camera_move_rel( -1, 0);
 		}else
-		if (Reg.st.player.y + 8 > roomCornerPixel.y + ROOM_HEIGHT){
+		if (player.y + 8 > roomCornerPixel.y + ROOM_HEIGHT){
 			camera_move_rel(0, 1);
 		}else
-		if (Reg.st.player.y + 8 < roomCornerPixel.y){
+		if (player.y + 8 < roomCornerPixel.y){
 			camera_move_rel(0, -1);
 		}
 		
@@ -790,7 +801,7 @@ class MapFK extends TilemapGeneric
 			return;
 		}
 		
-		Reg.st.flash(15);
+		Reg.st.map.flash(15);
 		
 		// - Remove the item and kill the tile :
 		Reg.st.INV.removeItemWithID(item);
@@ -877,12 +888,12 @@ class MapFK extends TilemapGeneric
 		
 		if (FlxG.keys.pressed.SHIFT)
 		{
-			//Reg.st.player._teleport(FlxG.mouse.x, FlxG.mouse.y);
+			//player._teleport(FlxG.mouse.x, FlxG.mouse.y);
 			if (FlxG.mouse.justPressed)
 			{
 				var MP = FlxG.mouse.getWorldPosition(camera);
 				trace("Spawning Player at ", MP);
-				Reg.st.player.spawn(MP.x, MP.y);
+				player.spawn(MP.x, MP.y);
 				return;
 			}
 			
@@ -898,7 +909,7 @@ class MapFK extends TilemapGeneric
 				vec.y = 1;
 			}
 			if (camera_move_rel(vec.x, vec.y)){
-				Reg.st.player.alive = false; // Skip auto-positioning in update()
+				player.alive = false; // Skip auto-positioning in update()
 			}
 		}
 		
@@ -926,5 +937,66 @@ class MapFK extends TilemapGeneric
 		return null;
 	}//---------------------------------------------------;
 	
+	
+	
+	/**
+	   - Do a flash of the whole map/camera
+	   @param	TICKS How many changes in color, 5 is a full cycle. You can do as much as you want
+	   @param   callback Optional onComplete
+	**/
+	public function flash(TICKS:Int = 10, ?callback:Void->Void)
+	{
+		if (_isflashing) return; // should never happen in normal gameplay
+	
+		var MAT:Array<Array<Float>> = [
+		
+			[	// black and white
+				1, 0, 0, 0, 0,
+				1, 0, 0, 0, 0,
+				1, 0, 0, 0, 0,
+				0, 0, 0, 1, 0
+			],	
+			[
+				1, 0, 0, 0, 128,
+				0, 0, 0, 0, 0,
+				0, 0, 1, 0, -128,
+				0, 0, 0, 1, 0
+			],		
+			[
+				0, 0, 0, 0, 0,
+				0, 1, 0, 0, 128,
+				0, 0, 1, 0, -128,
+				0, 0, 0, 1, 0
+			],
+			[
+				1, 1, 0, 0, 0,
+				0, 1, 0, 0, -128,
+				0, 0, 1, 0, 128,
+				0, 0, 0, 1, 0
+			],
+			[
+				1, 1, 0, 0, 128,
+				0, 1, 1, 0, -20,
+				1, 0, 1, 0, 20,
+				0, 0, 0, 1, 0
+			],			
+		];
+		
+		// type 0, and type 1
+		var s = new StepTimer((t, f)->{
+			if (f){
+				_isflashing = false;
+				camera.setFilters([]);
+				if (callback != null) callback();
+				return;
+			}
+			var f = MAT[t % MAT.length];	
+			camera.setFilters([new ColorMatrixFilter(f)]);
+		});	
+		
+		s.start(0, TICKS, -0.1);
+		_isflashing = true;
+	}//---------------------------------------------------;
+	var _isflashing = false;
 	
 }// --

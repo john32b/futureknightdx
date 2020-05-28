@@ -57,17 +57,14 @@ class Reg
 	public static var SND = {
 		exit_unlock:"exit_unlock",	// long vibrato effect medium
 		exit_travel:"exit_go",
-		
 		error:"gen_no",
 		weapon_get:"gen_tick",
-		
 		item_equip:"gen_tick",	// on inventory select
 		item_pickup:"it_pick",
 		item_bomb:"it_bomb",
 		item_confuser:"it_confuser",
 		item_flash:"it_confuser",
 		item_destruct:"it_destruct",
-		
 		item_keyhole:"map_key",	// Used with "platform key", "bridge spell", "release spell"
 	};
 	
@@ -127,10 +124,8 @@ class Reg
 		
 		#if debug
 			new Debug();
-			
 			if (Reg.INI.exists('DEBUG', 'startPlay'))
 				FlxG.switchState(new StatePlay());
-				
 		#end
 		
 	}//---------------------------------------------------;

@@ -475,13 +475,23 @@ class StateTitle extends FlxState
 	}//---------------------------------------------------;
 	
 	
-	function startGame(forceNew:Bool)
+	function startGame(newGame:Bool)
 	{
 		menu.unfocus();
 		Reg.SAVE_SETTINGS();
-		pFader.fadeColor(0xFF000000, ()->{
-			FlxG.switchState(new StatePlay(forceNew));
-		});
+		
+		if (newGame)
+		{
+			D.save.deleteSlot(1);
+			D.save.flush();
+			pFader.fadeColor(0xFF000000, ()->{
+				FlxG.switchState(new StateIntro());
+			});	
+		}else{
+			pFader.fadeColor(0xFF000000, ()->{
+				FlxG.switchState(new StatePlay());
+			});				
+		}
 	}//---------------------------------------------------;
 	
 }//-- end --//

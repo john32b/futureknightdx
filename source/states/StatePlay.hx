@@ -22,7 +22,6 @@ package states;
 import djFlixel.D;
 import djFlixel.fx.BoxFader;
 import djFlixel.gfx.pal.Pal_CPCBoy;
-import djFlixel.other.StepTimer;
 import djFlixel.tool.DelayCall;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -34,7 +33,6 @@ import flixel.util.FlxColor;
 import gamesprites.*;
 import gamesprites.Enemy_AI.AI_Final_Boss;
 import gamesprites.Item.ITEM_TYPE;
-import openfl.filters.ColorMatrixFilter;
 
 import djFlixel.ui.FlxMenu;
 
@@ -51,17 +49,6 @@ class StatePlay extends FlxState
 	
 	//====================================================;
 	
-	/**
-	  Called from the main menu, if force new game, then delete the save here.
-	**/
-	public function new(newGame:Bool = false)
-	{
-		if (newGame) {
-			D.save.deleteSlot(1);
-		}
-		super();
-	}//---------------------------------------------------;
-	
 	override public function create():Void 
 	{
 		super.create();
@@ -70,10 +57,10 @@ class StatePlay extends FlxState
 		bgColor = Reg.BG_COLOR;
 		Reg.add_border();
 	
-		map = new MapFK();	// < WARNING : This creates a camera and makes it default
+		player = new Player();
+		map = new MapFK(player);	// < WARNING : This creates a camera and makes it default
 			map.onEvent = on_map_event;
 		ROOMSPR = new RoomSprites();
-		player = new Player();
 		PM = new ParticleManager();
 		BM = new BulletManager();
 		key_ind = new KeyIndicator(); 
@@ -98,6 +85,7 @@ class StatePlay extends FlxState
 		// -- Elements added, load map/game
 		
 		var MAP_TO_LOAD = "";
+		var _isNew = false;
 		
 		D.save.setSlot(1);
 		var S = D.save.load('game');
@@ -116,6 +104,7 @@ class StatePlay extends FlxState
 			trace("SAVE - Does not exist, starting new");
 			MAP_TO_LOAD = Reg.START_MAP;
 			HUD.reset();
+			_isNew = true;
 		}
 		
 		#if debug
@@ -123,7 +112,7 @@ class StatePlay extends FlxState
 			if (L != null) MAP_TO_LOAD = L;
 		
 			// This is when pressing [f12] to reload the map, spawn to the current level again
-			if (MapFK.LAST_LOADED != "") {
+			if (MapFK.LAST_LOADED != "" && MapFK.LAST_LOADED != 'intro') {
 				trace("Debug: restoring LAST_LOADED to", MapFK.LAST_LOADED);
 				MAP_TO_LOAD = MapFK.LAST_LOADED;
 			}
@@ -132,8 +121,15 @@ class StatePlay extends FlxState
 		// : Last thing, load the level, this till trigger the on_map_event()
 		map.loadMap(MAP_TO_LOAD);
 		map.camera.flash(0xFF000000, 0.5);
-		HUD.set_text("Welcome to Future Knight DX", 6);
 		
+		D.snd.play("teleport2", 0.5);
+		
+		if (_isNew)
+		{
+			HUD.set_text("Teleportation successful. Find Amelia.", true, 7);
+			map.flash(3);
+			FlxFlicker.flicker(player, 0.5, 0.04, true);
+		}
 		
 		#if debug
 		if (Reg.INI.exists('DEBUG', 'startItems'))
@@ -294,7 +290,7 @@ class StatePlay extends FlxState
 		case BOMB1, BOMB2, BOMB3:
 			// :: Kill enemies forever and also enemies that are waiting to be spawned
 			// :: Give health
-			flash(10);
+			map.flash(10);
 			player.fullHealth();
 			
 			for (i in ROOMSPR.gr_enemy) {
@@ -311,7 +307,7 @@ class StatePlay extends FlxState
 			HUD.score_add(Reg.SCORE.item_bomb);
 			
 		case CONFUSER_UNIT:
-			flash(4);
+			map.flash(4);
 			ROOMSPR.enemies_freeze(true);	// Player has timer for restore
 			D.snd.playV(Reg.SND.item_confuser);
 			player.confuserTimer = Reg.P.confuse_time;
@@ -328,7 +324,7 @@ class StatePlay extends FlxState
 			HUD.set_text2("With this you are able to pick up hot objects");
 				
 		case FLASH_BANG_SPELL:
-			flash(4);
+			map.flash(4);
 			INV.removeItemWithID(item);
 			HUD.item_pickup();
 			HUD.score_add(Reg.SCORE.item_flashbang);
@@ -366,6 +362,7 @@ class StatePlay extends FlxState
 	// -- AutoCalled whenever a room changes
 	function handle_room(R:String)
 	{
+		trace("new room ", R);
 		if (map.MAP_NAME == "Henchodroids lair")
 		{
 			if (R == "4,1") {
@@ -455,67 +452,6 @@ class StatePlay extends FlxState
 			FlxG.switchState(new StateGameover());
 		}, 1.5);
 	}//---------------------------------------------------;
-	
-
-	/**
-	   - Do a flash of the whole map/camera
-	   @param	TICKS How many changes in color, 5 is a full cycle. You can do as much as you want
-	   @param   callback Optional onComplete
-	**/
-	public function flash(TICKS:Int = 10, ?callback:Void->Void)
-	{
-		if (_isflashing) return; // should never happen in normal gameplay
-	
-		var MAT:Array<Array<Float>> = [
-		
-			[	// black and white
-				1, 0, 0, 0, 0,
-				1, 0, 0, 0, 0,
-				1, 0, 0, 0, 0,
-				0, 0, 0, 1, 0
-			],	
-			[
-				1, 0, 0, 0, 128,
-				0, 0, 0, 0, 0,
-				0, 0, 1, 0, -128,
-				0, 0, 0, 1, 0
-			],		
-			[
-				0, 0, 0, 0, 0,
-				0, 1, 0, 0, 128,
-				0, 0, 1, 0, -128,
-				0, 0, 0, 1, 0
-			],
-			[
-				1, 1, 0, 0, 0,
-				0, 1, 0, 0, -128,
-				0, 0, 1, 0, 128,
-				0, 0, 0, 1, 0
-			],
-			[
-				1, 1, 0, 0, 128,
-				0, 1, 1, 0, -20,
-				1, 0, 1, 0, 20,
-				0, 0, 0, 1, 0
-			],			
-		];
-		
-		// type 0, and type 1
-		var s = new StepTimer((t, f)->{
-			if (f){
-				_isflashing = false;
-				map.camera.setFilters([]);
-				if (callback != null) callback();
-				return;
-			}
-			var f = MAT[t % MAT.length];	
-			map.camera.setFilters([new ColorMatrixFilter(f)]);
-		});	
-		
-		s.start(0, TICKS, -0.1);
-		_isflashing = true;
-	}//---------------------------------------------------;
-	var _isflashing = false;
 	
 	
 }// --

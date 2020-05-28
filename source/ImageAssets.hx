@@ -54,6 +54,7 @@ class ImageAssets
 		"huditem" => {im:"im/hud_items.png", tw:17, th:17, col:false},
 		"keys" => {im:"im/ts_keys.png", tw:16, th:16, col:false},
 		"friend" => {im:"im/ts_friend.png", tw:26, th:28, col:true},
+		"teleporter" => {im:"im/ts_teleport.png", tw:52, th:42, col:false}
 	];
 	
 	

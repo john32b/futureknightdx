@@ -287,7 +287,7 @@ class AI_Final_Boss extends Enemy_AI
 			}
 			
 			if (r0 % 3 == 0) {
-				Reg.st.flash(2);
+				Reg.st.map.flash(2);
 				D.snd.playR(Enemy.SND.big_die);
 				D.snd.play('fb_cry');
 			}
@@ -298,7 +298,7 @@ class AI_Final_Boss extends Enemy_AI
 				e.visible = false;
 				e.alive = false;
 				e.explode();
-				Reg.st.flash(3);
+				Reg.st.map.flash(3);
 				Reg.st.handle_boss_die(e);	// Now tell main that the enemy is dead
 			}
 		}
@@ -392,7 +392,7 @@ class AI_Final_Boss extends Enemy_AI
 		r0 = -1; // Because it gets ++ at the beginning and I need [0] to be the first
 		timer = 0;
 		current_sequence = [ 0, 10, 2, 0, 2, 10, 5, 10, 3, 10, 6, 8, 10, 5, 10, 4, 1, 10, 4, 1];
-		Reg.st.flash(2);
+		Reg.st.map.flash(2);
 		gotoNext();
 	}//---------------------------------------------------;
 	
