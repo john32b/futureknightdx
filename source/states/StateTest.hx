@@ -55,13 +55,6 @@ class StateTest extends FlxState
 	override public function update(elapsed:Float):Void 
 	{
 		super.update(elapsed);
-		if (FlxG.keys.justPressed.ENTER) {
-		}
-		
-		if (FlxG.keys.justPressed.I){
-			// add a random item
-			//if (!INV.addItem(cast Std.random(10) + 1)) trace("Cannot add item");
-		}
 	}//---------------------------------------------------;
 	
 	
@@ -73,17 +66,15 @@ class StateTest extends FlxState
 		super.create();
 		
 		// >>> Animated -PAUSED- text at the top and bottom
-		
 
 		add(D.text.get("main state text", 100, 100, {f:'fnt/text.ttf', s:16}));
 		
-		
 		// -- open sub
-		this.openSubState(new SubStatePause());
-		
-		
+		//this.openSubState(new SubStatePause());
 		
 		//sub_get_keys(()->{});
+		
+		
 		return;
 		
 		

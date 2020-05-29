@@ -124,10 +124,7 @@ class Reg
 		
 		#if debug
 			new Debug();
-			if (Reg.INI.exists('DEBUG', 'startPlay'))
-				FlxG.switchState(new StatePlay());
 		#end
-		
 	}//---------------------------------------------------;
 	
 	// Whenever D.assets gets reloaded, I need to reparse the data into the objects

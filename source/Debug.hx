@@ -11,6 +11,7 @@ package;
 import djFlixel.D;
 import flixel.FlxG;
 import gamesprites.Item.ITEM_TYPE;
+import states.StatePlay;
 
 class Debug 
 {
@@ -18,6 +19,9 @@ class Debug
 	public function new() 
 	{
 		FlxG.console.registerObject("D", this);
+		
+		if (Reg.INI.exists('DEBUG', 'startPlay'))
+			FlxG.switchState(new StatePlay());
 	}//---------------------------------------------------;
 
 	public function pl_kill()

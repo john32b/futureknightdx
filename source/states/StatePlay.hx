@@ -110,7 +110,6 @@ class StatePlay extends FlxState
 		#if debug
 			var L = Reg.INI.get('DEBUG', 'startLevel');
 			if (L != null) MAP_TO_LOAD = L;
-		
 			// This is when pressing [f12] to reload the map, spawn to the current level again
 			if (MapFK.LAST_LOADED != "" && MapFK.LAST_LOADED != 'intro') {
 				trace("Debug: restoring LAST_LOADED to", MapFK.LAST_LOADED);
@@ -130,17 +129,6 @@ class StatePlay extends FlxState
 			map.flash(3);
 			FlxFlicker.flicker(player, 0.5, 0.04, true);
 		}
-		
-		#if debug
-		if (Reg.INI.exists('DEBUG', 'startItems'))
-		{
-			INV.addItem(ITEM_TYPE.BOMB1);
-			INV.addItem(ITEM_TYPE.RELEASE_SPELL);
-			INV.addItem(ITEM_TYPE.DESTRUCT_SPELL);
-			INV.addItem(ITEM_TYPE.CONFUSER_UNIT);
-			INV.addItem(ITEM_TYPE.PLATFORM_KEY);
-		}
-		#end
 		
 	}//---------------------------------------------------;
 		
@@ -362,7 +350,6 @@ class StatePlay extends FlxState
 	// -- AutoCalled whenever a room changes
 	function handle_room(R:String)
 	{
-		trace("new room ", R);
 		if (map.MAP_NAME == "Henchodroids lair")
 		{
 			if (R == "4,1") {
@@ -440,9 +427,8 @@ class StatePlay extends FlxState
 	function on_inventory_select(id:ITEM_TYPE)
 	{
 		INV.close();
-		HUD.item_pickup(id);
+		if (HUD.equipped_item != id) HUD.item_pickup(id);
 	}//---------------------------------------------------;
-	
 	
 	
 	// -- Called from player

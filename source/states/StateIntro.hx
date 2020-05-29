@@ -1,6 +1,7 @@
 package states;
 import djFlixel.D;
 import djFlixel.fx.BoxFader;
+import djFlixel.fx.StarfieldSimple;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.other.FlxSequencer;
 import djFlixel.tool.DelayCall;
@@ -28,6 +29,20 @@ class StateIntro extends FlxState
 		var textst1 = {f:'fnt/score.ttf', s:6, c:Pal_CPCBoy.COL[24], bc:Pal_CPCBoy.COL[31], bt:2};
 		var textst2 = {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[26], a:'center' };
 		
+		// :: STARS
+		var stars = new StarfieldSimple(FlxG.width, FlxG.height, [	
+			Pal_CPCBoy.COL[0],
+			Pal_CPCBoy.COL[7],
+			Pal_CPCBoy.COL[20],
+			Pal_CPCBoy.COL[24]
+		]);
+		stars.WIDE_PIXEL = true;
+		stars.STAR_SPEED = 0.4;
+		add(stars);
+		
+		Reg.add_border();
+		
+		// --
 		var t1 = D.text.get('INCOMING DISTRESS SIGNAL', textst1);
 			D.align.screen(t1);
 			add(t1);
@@ -74,7 +89,7 @@ class StateIntro extends FlxState
 		map = new MapFK(pl);
 		map.onEvent = (e)-> { if (e == loadMap) P_01(); };
 		map.loadMap('intro');
-		add(map);		
+		add(map);
 	}//---------------------------------------------------;
 	
 	function P_01()
