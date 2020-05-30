@@ -62,7 +62,7 @@ class SubStatePause extends FlxSubState
 			
 			menu.createPage("options","OPTIONS").addM([
 				"Volume|range|id=vol|range=0,100|step=5",
-				"Soft Pixels|toggle|id=softpix|c=" + Std.string(D.ANTIALIASING),
+				"Soft Pixels|toggle|id=softpix|c=false",
 				"Back|link|@back"
 			]);
 			
@@ -75,7 +75,7 @@ class SubStatePause extends FlxSubState
 				}else
 				if (a == page && b == "options") {
 				menu.item_update(0, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });
-				menu.item_update(1, (t)->{t.data.c = D.ANTIALIASING; });
+				menu.item_update(1, (t)->{t.data.c = D.SMOOTHING; });
 				}
 				else if (a == start) {
 					close();
@@ -90,7 +90,7 @@ class SubStatePause extends FlxSubState
 				if (a == fire) switch(b.ID)
 				{
 					case "softpix": 
-						D.ANTIALIASING = b.data.c;
+						D.SMOOTHING = b.data.c;
 					case "vol":
 						FlxG.sound.volume = b.data.c / 100;
 					case "resume":

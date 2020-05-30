@@ -29,7 +29,7 @@
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="flixel=4.7.0&#xA;lime=7.7.0&#xA;hscript=2.4.0&#xA;djFL=0.1.0&#xA;openfl=8.9.6&#xA;native-trace&#xA;next&#xA;DYN_ASSETS&#xA;tools=7.7.0&#xA;flash-use-stage&#xA;no-compilation&#xA;openfl-flash&#xA;FLX_NO_TOUCH&#xA;SHOOT_HOLD&#xA;fdb&#xA;openfl-disable-handle-error&#xA;DJFLX_VER=0.4.0-DEV&#xA;web" />
+    <option directives="flixel=4.7.0&#xA;lime=7.7.0&#xA;hscript=2.4.0&#xA;djFL=0.1.0&#xA;openfl=8.9.6&#xA;native-trace&#xA;next&#xA;tools=7.7.0&#xA;flash-use-stage&#xA;no-compilation&#xA;openfl-flash&#xA;FLX_NO_TOUCH&#xA;SHOOT_HOLD&#xA;fdb&#xA;openfl-disable-handle-error&#xA;DJFLX_VER=0.4.0-DEV&#xA;web" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />

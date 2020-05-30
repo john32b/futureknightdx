@@ -104,7 +104,7 @@ class SprDirector extends FlxGroup
 		return this;
 	}
 	
-	/** Visible use (1 or 0) it is shorter then true/false */
+	/** Visible use (1 or 0) it is shorter than true/false */
 	public function v(b:Float):SprDirector
 	{
 		_last.visible = (b==1);

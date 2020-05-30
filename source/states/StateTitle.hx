@@ -45,8 +45,7 @@ import openfl.display.BitmapData;
 import openfl.Assets;
 
 class StateTitle extends FlxState
-{
-	
+{	
 	// :: Various State Parameters
 	var P = {
 		im_title_art: "im/game_art.png",
@@ -269,7 +268,7 @@ class StateTitle extends FlxState
 		menu.createPage("options","options").addM([
 			"Keyboard Redefine|link|keyredef",
 			"Volume|range|id=vol|range=0,100|step=5",
-			"Soft Pixels|toggle|id=softpix|c=" + Std.string(D.ANTIALIASING),
+			"Soft Pixels|toggle|id=softpix|c=false",	// this is going to be altered every time
 			"Back|link|@back"
 		]);
 		
@@ -283,15 +282,17 @@ class StateTitle extends FlxState
 			if (a == page && b == "options") {
 				// Alter the first index of the current
 				menu.item_update(1, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });	
-				menu.item_update(2, (t)->{t.data.c = D.ANTIALIASING; });
+				menu.item_update(2, (t)->{t.data.c = D.SMOOTHING; });
 			}else
 			if (a == page && b == "main") {
 				menu.item_update(1, (t)->{ t.disabled = !_SAVE_EXISTS; }); // resume
 				menu.item_update(0, (t)->{ // new game
-					if (_SAVE_EXISTS) {
-						t.data.type = 3; // Fullpage Confirmation
+					if (_SAVE_EXISTS) { // Fullpage Confirmation
+						// <HACK>
+						// t.data.type = 3; errors on <HASHLINK>. why wtf.
+						Reflect.setProperty(t.data, "type", 3);
 					}else{
-						t.data.type = 1; //
+						Reflect.setProperty(t.data, "type", 1);
 					}
 				});
 			}
@@ -308,7 +309,7 @@ class StateTitle extends FlxState
 					case "vol":
 						FlxG.sound.volume = b.data.c / 100;
 					case "softpix":
-						D.ANTIALIASING = b.data.c;
+						D.SMOOTHING = b.data.c;
 					case "keyredef":
 						menu.close(true);
 						sub_get_keys(()->{
@@ -437,6 +438,7 @@ class StateTitle extends FlxState
 	}//---------------------------------------------------;
 	
 	
+	/** Redefine keys, sprites and functionality */
 	function sub_get_keys(onComplete:Void->Void)
 	{
 		// This is the same order as the dcontrols 360 layout
@@ -468,6 +470,11 @@ class StateTitle extends FlxState
 			if (a == "complete") {
 				remove(txt1); remove(txt2);
 				D.ctrl.keymap_set(k.KEYMAP);
+				D.save.setSlot(0);
+				D.save.save('keys', k.KEYMAP);
+				D.save.flush();
+				trace("- SAVED key configuration", k.KEYMAP);
+				
 				if(onComplete!=null) onComplete();
 			}
 		};

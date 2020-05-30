@@ -26,8 +26,10 @@
 		<assets path="assets/font" include="*.ttf|*.otf|" type="font" rename="fnt"/>
 		<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
 		<assets path="assets/music" type="music" rename="mus"/>
-		<assets path="assets/sounds" type="sound" include="*.mp3" rename="snd"/>
 		<assets path="assets/maps" type="text" include="*.tmx" rename="map"/>
+		
+		<assets path="assets/sound_mp3" type="sound" include="*.mp3" rename="snd" if="flash"/>
+		<assets path="assets/sound_ogg" type="sound" include="*.ogg" rename="snd" unless="flash"/>
 	
 		
 	<!--Because I am doing bitmap manipulation HTML5 Webgl is buggy, So I am using canvas -->
@@ -42,7 +44,7 @@
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 	
 	<!--:: GAME DEFINES ::-->
-	<haxedef name="DYN_ASSETS" if="debug" unless="html5"/>
+	<haxedef name="DYN_ASSETS" if="debug && flash"/>
 	<haxedef name="SHOOT_HOLD"/>
 	<!--<haxedef name="CLASSIC_LADDER"/>-->
 

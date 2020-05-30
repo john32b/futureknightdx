@@ -14,7 +14,6 @@ import states.SubStatePause;
  * Various Parameters
  * - Everything is public
  */
-@:publicFields
 class Reg 
 {
 	public static inline var VERSION = "1.5";
@@ -25,14 +24,15 @@ class Reg
 	
 	// How long to wait on each screen on the banners
 	static inline var BANNER_DELAY:Float = 12;
+	
 	//====================================================;
 	
 	// :: Image Asset Manager
 	public static var IM:ImageAssets;
 
 	// :: External Parameters parsed objects
-	static var INI:ConfigFile;
-	static var JSON:Dynamic;
+	public static var INI:ConfigFile;
+	public static var JSON:Dynamic;
 	
 	// :: DAMAGE VALUES 
 	// I am using this simple naming style, first is who takes damage _ from whom
@@ -81,7 +81,7 @@ class Reg
 	};
 
 	// All states default BG color,
-	static var BG_COLOR:Int = 0xFF000000;
+	public static var BG_COLOR:Int = 0xFF000000;
 	
 	// This is the first level that a new game will start with
 	public static var START_MAP = 'level_01';
@@ -116,10 +116,15 @@ class Reg
 		var _LS = D.save.load('settings');
 		if (_LS != null) {
 			trace(" -- Setings Restoring", _LS);
-			D.ANTIALIASING = _LS.aa;
+			D.SMOOTHING = _LS.aa;
 			D.snd.setVolume("master", _LS.vol);
-		}else{
-			D.snd.setVolume("master", 0.2);
+		}
+		
+		// -- Restore keys
+		var _LK = D.save.load('keys');
+		if (_LK != null) {
+			trace(" -- Keys Restoring", _LK);
+			D.ctrl.keymap_set(_LK);
 		}
 		
 		#if debug
@@ -170,7 +175,7 @@ class Reg
 	{
 		D.save.setSlot(0);
 		D.save.save('settings', {
-			aa:  D.ANTIALIASING,
+			aa:  D.SMOOTHING,
 			vol: FlxG.sound.volume
 		});
 		D.save.flush();

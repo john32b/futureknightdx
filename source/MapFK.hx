@@ -168,7 +168,9 @@ class MapFK extends TilemapGeneric
 		// - New camera for the map, also this is now the default camera for everything
 		var C = new FlxCamera(DRAW_START_X * 2, DRAW_START_Y * 2, ROOM_WIDTH, ROOM_HEIGHT);
 		camera = C;
-		camera.antialiasing = D.ANTIALIASING;
+		#if (flash || canvas)
+		camera.antialiasing = D.SMOOTHING;
+		#end
 		FlxG.cameras.add(C);
 		FlxCamera.defaultCameras = [C];	// < Make all sprites to only draw on that camera
 		

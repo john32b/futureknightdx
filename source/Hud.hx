@@ -94,7 +94,9 @@ class Hud extends FlxGroup
 			bg.frameWidth  + 1,									// IN GAME PIXELS
 			bg.frameHeight + 1									// IN GAME PIXELS
 		);
-		camera.antialiasing = D.ANTIALIASING;
+		#if (flash || canvas)
+		camera.antialiasing = D.SMOOTHING;
+		#end
 		FlxG.cameras.add(camera);
 		
 		// > after creating the camera

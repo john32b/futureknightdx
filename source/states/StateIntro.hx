@@ -27,17 +27,18 @@ class StateIntro extends FlxState
 	{
 		super.create();
 		var textst1 = {f:'fnt/score.ttf', s:6, c:Pal_CPCBoy.COL[24], bc:Pal_CPCBoy.COL[31], bt:2};
-		var textst2 = {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[26], a:'center' };
+		var textst2 = {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[26], a:'center',bc:Pal_CPCBoy.COL[1] };
 		
 		// :: STARS
 		var stars = new StarfieldSimple(FlxG.width, FlxG.height, [	
 			Pal_CPCBoy.COL[0],
-			Pal_CPCBoy.COL[7],
-			Pal_CPCBoy.COL[20],
-			Pal_CPCBoy.COL[24]
+			Pal_CPCBoy.COL[31],
+			Pal_CPCBoy.COL[30],
+			Pal_CPCBoy.COL[29]
 		]);
 		stars.WIDE_PIXEL = true;
 		stars.STAR_SPEED = 0.4;
+		stars.STAR_ANGLE = 90;
 		add(stars);
 		
 		Reg.add_border();
@@ -52,7 +53,7 @@ class StateIntro extends FlxState
 			t2.style = textst2;
 			t2.height;
 			D.align.screen(t2);
-			t2.y -= 40;
+			t2.y -= 40; // Flxautotext when screen center, the height is just one line, so compensate
 
 		var SEQ = new FlxSequencer(); 
 		SEQ.onStep = (c)->{
@@ -87,13 +88,14 @@ class StateIntro extends FlxState
 		pl = new Player();
 		// --
 		map = new MapFK(pl);
+		add(map);
 		map.onEvent = (e)-> { if (e == loadMap) P_01(); };
 		map.loadMap('intro');
-		add(map);
 	}//---------------------------------------------------;
 	
 	function P_01()
 	{
+		// Position datas
 		obj = map.T.getObjMap('Entities');
 		
 		// -- Teleporter sprite
