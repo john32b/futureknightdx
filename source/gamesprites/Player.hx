@@ -243,7 +243,7 @@ class Player extends FlxSprite
 			
 			if (lives == 0)
 			{
-				Reg.st.on_player_no_lives();
+				Reg.st.handle_player_no_lives();
 				active = false;
 			}else
 			{
@@ -943,6 +943,10 @@ class Player extends FlxSprite
 					// > This will check if exit is locked etc, also will unlock and go to the new map.
 					Reg.st.map.exit_activate(B);
 				}
+				
+			case FRIEND:
+				Reg.st.handle_rescue_friend();
+				
 			case _:
 		}
 	

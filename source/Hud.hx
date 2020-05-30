@@ -35,17 +35,11 @@ typedef ItemHudInfo = {
 
 class Hud extends FlxGroup
 {
-
-	static inline var TEXT_TIME_GENERAL = 4;	// seconds
+	static inline var TEXT_TIME_GENERAL = 5;	// seconds
 	static inline var TEXT_TIME_ITEM 	= 6;	// seconds
-	
-	static inline var HUD_SCREEN_X = 25; // (320-270)/2 (screenwidth-graphicwidth) / 2 
-	static inline var FONT_HEALTH = "fnt/digital.otf";
-	static inline var FONT_SCORE  = "fnt/score.ttf";
-	static inline var FONT_TEXT   = "fnt/text.ttf";
-	
-	static inline var TEXT_BLINK_TIME = 0.4;
-	static inline var LIVES_BLINK_TIME = 1;
+	static inline var HUD_SCREEN_X 		= 25; 	// (320-270)/2 (screenwidth-graphicwidth) / 2 
+	static inline var TEXT_BLINK_TIME 	= 0.4;
+	static inline var LIVES_BLINK_TIME 	= 1;
 	
 	// -----
 	var _health:Int = 0;	// Current displayed health (not actual player health)
@@ -68,10 +62,10 @@ class Hud extends FlxGroup
 	public var equipped_item(default, null):ITEM_TYPE = null;
 	
 	//====================================================;
+	
 	override public function update(elapsed:Float):Void 
 	{
 		super.update(elapsed);
-		
 		if (_timer_text > 0) {
 			if ((_timer_text -= elapsed) < 0) {
 				text_info.text = "";
@@ -103,11 +97,11 @@ class Hud extends FlxGroup
 		add(bg);
 			
 		// --
-		text_info = D.text.get("", 16, 6, {f:FONT_TEXT, s:16, c:Pal_CPCBoy.COL[27]});
+		text_info = D.text.get("", 16, 6, {f:"fnt/text.ttf", s:16, c:Pal_CPCBoy.COL[27]});
 			add(text_info);
-		text_health = D.text.get("", 202, 32, {f:FONT_HEALTH, s:18, c:Pal_CPCBoy.COL[27]} );
+		text_health = D.text.get("", 202, 32, {f:"fnt/digital.otf", s:18, c:Pal_CPCBoy.COL[27]} );
 			add(text_health);
-		text_score = D.text.get("", 30, 30, {f:FONT_SCORE, s:6, c:Pal_CPCBoy.COL[22]});
+		text_score = D.text.get("", 30, 30, {f:"fnt/score.ttf", s:6, c:Pal_CPCBoy.COL[22]});
 			add(text_score);
 		
 		// --
@@ -162,7 +156,6 @@ class Hud extends FlxGroup
 		
 		equipped_item = null;
 	}//---------------------------------------------------;
-
 	
 	
 	public function bullet_pickup(bullet:Int)

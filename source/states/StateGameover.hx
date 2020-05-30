@@ -23,6 +23,7 @@ class StateGameover extends FlxState
 		
 		trace(":: Gameover State");
 		
+		D.snd.stopMusic();
 		D.snd.playV('gameover');
 		
 		// -- Stars
@@ -35,9 +36,6 @@ class StateGameover extends FlxState
 		stars.WIDE_PIXEL = true;
 		stars.STAR_SPEED = 1.9;
 		add(stars);
-		
-		pf = new BoxFader();
-		add(pf);
 		
 		
 		// --
@@ -52,6 +50,9 @@ class StateGameover extends FlxState
 		var tx1 = D.text.get("GAME OVER", 0, 0, {s:12, f:"fnt/score.ttf"});
 		D.align.downCenter(tx1, pl, 4);
 		add(tx1);
+		
+		pf = new BoxFader();
+		add(pf);
 		
 		// --
 		Reg.add_border();

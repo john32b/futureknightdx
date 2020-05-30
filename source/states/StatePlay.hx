@@ -21,7 +21,6 @@ package states;
 
 import djFlixel.D;
 import djFlixel.fx.BoxFader;
-import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.tool.DelayCall;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -355,7 +354,7 @@ class StatePlay extends FlxState
 			if (R == "4,1") {
 				// Only add walls, if there is a boss there
 				if (ROOMSPR.getFinalBoss() != null) {
-					trace("-- BOSS ROOM ! adding map data");
+					HUD.set_text2("It's the Henchodroid! You must defeat it.");
 					map.appendMap(false);
 				}
 			}
@@ -372,6 +371,29 @@ class StatePlay extends FlxState
 		map.appendRemove();
 		// Kill forever
 		map.killObject(e.O, true);
+	}//---------------------------------------------------;
+	
+	// -- Called from player
+	public function handle_rescue_friend()
+	{
+		pause();
+		D.snd.playV('title');
+		var bf = new BoxFader();
+		add(bf);
+		new DelayCall(()->{
+			bf.fadeColor(0xFF000000, ()->{ FlxG.switchState(new StateEnd()); } , {delayPost:2});
+		}, 2);
+	}//---------------------------------------------------;
+	
+	
+	// -- Called from player
+	public function handle_player_no_lives()
+	{
+		var bf = new BoxFader();
+		add(bf);
+		new DelayCall(()->{
+			bf.fadeColor(0xFF000000, ()->{FlxG.switchState(new StateGameover()); });
+		}, 1.5);
 	}//---------------------------------------------------;
 	
 	// --
@@ -423,20 +445,10 @@ class StatePlay extends FlxState
 		}
 	}//---------------------------------------------------;
 	
-	
 	function on_inventory_select(id:ITEM_TYPE)
 	{
 		INV.close();
 		if (HUD.equipped_item != id) HUD.item_pickup(id);
-	}//---------------------------------------------------;
-	
-	
-	// -- Called from player
-	public function on_player_no_lives()
-	{
-		new DelayCall(()->{
-			FlxG.switchState(new StateGameover());
-		}, 1.5);
 	}//---------------------------------------------------;
 	
 	

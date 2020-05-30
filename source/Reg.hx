@@ -16,14 +16,14 @@ import states.SubStatePause;
  */
 class Reg 
 {
-	public static inline var VERSION = "1.5";
+	public static inline var VERSION = "1.4";
 	
 	// :: External parameters
 	static inline var PATH_JSON = "assets/djflixel.json";
 	static inline var PATH_INI  = "assets/test.ini";
 	
 	// How long to wait on each screen on the banners
-	static inline var BANNER_DELAY:Float = 12;
+	public static inline var BANNER_DELAY:Float = 12;
 	
 	//====================================================;
 	
@@ -102,7 +102,7 @@ class Reg
 		D.snd.ROOT_MSC = "mus/";
 		D.ui.initIcons([8]);
 		
-		// -- Game things: might be moved:
+		// -- Game things:
 		IM = new ImageAssets();
 	}//---------------------------------------------------;
 	

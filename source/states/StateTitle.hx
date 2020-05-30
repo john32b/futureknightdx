@@ -52,9 +52,7 @@ class StateTitle extends FlxState
 		im_title : "im/title_01.png",
 		im_dx : "im/title_02.png",
 		im_gamepad: "im/controller_help.png",
-		
 		art_delay : 4.0,	// Wait this much on the graphic,
-		
 		title_fg : Pal_CPCBoy.COL[24],
 		title_tick: 0.125,
 		title_cols : [1, 2, 11, 15, 6, 18, 21, 5, 8, 25]	// CPC Boy palete codes for title to loop
@@ -91,6 +89,8 @@ class StateTitle extends FlxState
 	{
 		super.create();
 		
+		bgColor = Reg.BG_COLOR;
+		
 		D.save.setSlot(1);
 		_SAVE_EXISTS = D.save.exists('game');
 		
@@ -98,7 +98,8 @@ class StateTitle extends FlxState
 		updateFunction = null;
 		
 		// --
-		seq = new FlxSequencer(sequence_title_start);
+		seq = new FlxSequencer();
+		seq.onStep = sequence_title_start;
 		add(seq);
 
 		// :: STARS
@@ -148,7 +149,7 @@ class StateTitle extends FlxState
 		Reg.add_border();
 		
 		// --
-		// D.snd.playMusic(Reg.musicVers[Reg.musicVer]);
+		D.snd.playMusic('FK_Title');
 	}//---------------------------------------------------;	
 	
 	
@@ -347,8 +348,6 @@ class StateTitle extends FlxState
 					return;
 				case _:
 			}
-			
-			
 		};
 		
 		add(menu);

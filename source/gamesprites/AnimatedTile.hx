@@ -46,6 +46,7 @@ class AnimatedTile extends MapSprite
 		super.spawn(o, 0);
 		setSize(14, 23);
 		offset.set(8, 9);
+		flipX = true;
 		type = AnimTileType.FRIEND;
 		spawn_origin_set(1);
 		spawn_origin_move();
@@ -71,6 +72,7 @@ class AnimatedTile extends MapSprite
 		
 		offset.set(0, 0);
 		setSize(32, 32);	// < ReSetting size and offset back to normal
+		flipX = false;
 		
 		var anim = "";
 		switch(gid)

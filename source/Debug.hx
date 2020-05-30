@@ -46,7 +46,9 @@ class Debug
 	
 	public function item_add(i:Int)
 	{
-		FlxG.log.notice('Adding item $i');
+		var item = ITEM_TYPE.createByIndex(i);
+		trace("Adding item ",item);
+		Reg.st.INV.addItem(item);
 	}//---------------------------------------------------;
 	
 	public function load(lData:String)
@@ -78,14 +80,11 @@ class Debug
 		Reg.st.map.appendRemove();
 	}
 	
-	
 	public function showKilled()
 	{
-	
 		trace("List globally killed entities");
 		var kg = @:privateAccess Reg.st.map._killed_global;
 		trace(kg);
-		
 	}//---------------------------------------------------;
 	
 }// --

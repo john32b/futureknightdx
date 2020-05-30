@@ -18,7 +18,6 @@ using Lambda;
 
 class StateIntro extends FlxState
 {
-
 	var pl:Player;
 	var map:MapFK;
 	var obj:Map<String,TiledObject>;
@@ -26,8 +25,8 @@ class StateIntro extends FlxState
 	override public function create() 
 	{
 		super.create();
-		var textst1 = {f:'fnt/score.ttf', s:6, c:Pal_CPCBoy.COL[24], bc:Pal_CPCBoy.COL[31], bt:2};
-		var textst2 = {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[26], a:'center',bc:Pal_CPCBoy.COL[1] };
+		var textst1 = {f:'fnt/score.ttf', s:6, c:Pal_CPCBoy.COL[24], bc:Pal_CPCBoy.COL[2], bt:2};
+		var textst2 = {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[26], a:'center',bc:Pal_CPCBoy.COL[2] };
 		
 		// :: STARS
 		var stars = new StarfieldSimple(FlxG.width, FlxG.height, [	
