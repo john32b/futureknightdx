@@ -7,13 +7,14 @@ import openfl.display.Sprite;
 class Main extends Sprite
 {
 	inline static var FPS = 40;
-	//inline static var START_STATE = states.StateAmstrad;
+	inline static var START_STATE = states.StateAmstrad;
 	//inline static var START_STATE = states.StateTitle;
 	//inline static var START_STATE = states.StateGameover;
 	//inline static var START_STATE = states.StateEnd;
-	inline static var START_STATE = states.StatePlay;
+	//inline static var START_STATE = states.StatePlay;
 	//inline static var START_STATE = states.StateIntro;
 	//inline static var START_STATE = states.StateEngineTest;
+	//inline static var START_STATE = states.StateTest;
 	//
 	public function new() 
 	{

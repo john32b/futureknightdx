@@ -1,6 +1,6 @@
 package states;
 import djFlixel.D;
-import djFlixel.fx.BoxScroller;
+import djFlixel.gfx.BoxScroller;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.ui.FlxMenu;
 import flixel.FlxG;

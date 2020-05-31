@@ -290,8 +290,11 @@ class Hud extends FlxGroup
 		}else{
 			var o = str.split(',');
 			set_score(Std.parseInt(o[0]));
-			if (o[1] != 'null')
+			if (o[1] != 'null') {
 				item_pickup(ITEM_TYPE.createByName(o[1]));
+				set_text("");
+				fx_static.visible = false;
+			}
 		}	
 		return null;
 	}//---------------------------------------------------;

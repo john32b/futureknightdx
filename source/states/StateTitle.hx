@@ -14,19 +14,19 @@
  
 package states;
 
-import djA.DataT;
-import djA.types.SimpleRect;
 import tools.KeyCapture;
 import tools.SprDirector;
 
-import djFlixel.core.Dcontrols;
+import djA.DataT;
+import djA.types.SimpleRect;
 
+import djFlixel.D;
+import djFlixel.core.Dcontrols;
 import djFlixel.core.Dtext.DTextStyle;
-import djFlixel.fx.BoxFader;
-import djFlixel.fx.StarfieldSimple;
+import djFlixel.gfx.BoxFader;
+import djFlixel.gfx.StarfieldSimple;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.other.FlxSequencer;
-import djFlixel.D;
 import djFlixel.ui.FlxMenu;
 import djFlixel.ui.FlxSlides;
 import djFlixel.ui.VList;
@@ -131,7 +131,7 @@ class StateTitle extends FlxState
 		// :: Fade the screen from black and call seq.nextv()
 		pFader = new BoxFader();
 		pFader.setColor(Pal_CPCBoy.COL[0]);
-		pFader.fadeOff(seq.nextV, {time:0.33});
+		pFader.fadeOff(seq.nextV, {time:0.3});
 		add(pFader);
 		
 		// :: Border
@@ -473,11 +473,11 @@ class StateTitle extends FlxState
 		Reg.SAVE_SETTINGS();
 		if (newGame) {
 			D.save.deleteSlot(1);
-			pFader.fadeColor(0xFF000000, ()->{
+			pFader.fadeColor(()->{
 				FlxG.switchState(new StateIntro());
 			});	
 		}else{
-			pFader.fadeColor(0xFF000000, ()->{
+			pFader.fadeColor(()->{
 				FlxG.switchState(new StatePlay());
 			});				
 		}

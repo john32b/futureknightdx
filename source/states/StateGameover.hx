@@ -2,8 +2,8 @@ package states;
 
 import djFlixel.D;
 import djFlixel.core.Dcontrols;
-import djFlixel.fx.BoxFader;
-import djFlixel.fx.StarfieldSimple;
+import djFlixel.gfx.BoxFader;
+import djFlixel.gfx.StarfieldSimple;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -15,7 +15,6 @@ class StateGameover extends FlxState
 	static inline var FREEZE_TIME = 3;
 	static inline var EXIT_TIME = 10;
 	var _timer:Float = 0;
-	var pf:BoxFader;
 	
 	override public function create():Void 
 	{
@@ -29,9 +28,9 @@ class StateGameover extends FlxState
 		// -- Stars
 		var stars = new StarfieldSimple(FlxG.width, FlxG.height, [	
 			Pal_CPCBoy.COL[0],
+			Pal_CPCBoy.COL[3],
 			Pal_CPCBoy.COL[7],
-			Pal_CPCBoy.COL[20],
-			Pal_CPCBoy.COL[24]
+			Pal_CPCBoy.COL[6]
 		]);
 		stars.WIDE_PIXEL = true;
 		stars.STAR_SPEED = 1.9;
@@ -50,9 +49,6 @@ class StateGameover extends FlxState
 		var tx1 = D.text.get("GAME OVER", 0, 0, {s:12, f:"fnt/score.ttf"});
 		D.align.downCenter(tx1, pl, 4);
 		add(tx1);
-		
-		pf = new BoxFader();
-		add(pf);
 		
 		// --
 		Reg.add_border();
@@ -78,9 +74,6 @@ class StateGameover extends FlxState
 	
 	function exit()
 	{
-		_timer = 0;
-		pf.fadeColor(0xFF000000, ()->{
-			FlxG.switchState(new StateTitle());
-		});
+		FlxG.switchState(new StateTitle());
 	}//---------------------------------------------------;
 }// --

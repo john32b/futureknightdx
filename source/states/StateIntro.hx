@@ -1,10 +1,10 @@
 package states;
 import djFlixel.D;
-import djFlixel.fx.BoxFader;
-import djFlixel.fx.StarfieldSimple;
+import djFlixel.gfx.BoxFader;
+import djFlixel.gfx.StarfieldSimple;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.other.FlxSequencer;
-import djFlixel.tool.DelayCall;
+import djFlixel.other.DelayCall;
 import djFlixel.ui.FlxAutoText;
 import djfl.util.TiledMap;
 import flixel.FlxG;
@@ -139,7 +139,7 @@ class StateIntro extends FlxState
 	{
 		var b = new BoxFader();
 		add(b);
-		b.fadeColor(0xFF000000, P_05, {delayPost:1});
+		b.fadeColor(P_05, {delayPost:1});
 	}//---------------------------------------------------;
 	
 	function P_05()

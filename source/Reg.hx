@@ -50,7 +50,7 @@ class Reg
 	public static var P = {
 		flicker_rate: 0.06,
 		gravity : 410,
-		confuse_time: 7	// Seconds
+		confuse_time: 8	// Seconds
 	};
 	
 	// ::

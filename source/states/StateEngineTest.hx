@@ -9,8 +9,6 @@
 package states;
 
 import djFlixel.D;
-import djFlixel.fx.BoxFader;
-import djFlixel.tool.DelayCall;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;

@@ -991,7 +991,6 @@ class MapFK extends TilemapGeneric
 			var f = MAT[t % MAT.length];	
 			camera.setFilters([new ColorMatrixFilter(f)]);
 		});	
-		
 		s.start(0, TICKS, -0.1);
 		_isflashing = true;
 	}//---------------------------------------------------;

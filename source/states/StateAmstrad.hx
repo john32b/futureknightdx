@@ -9,8 +9,8 @@
 package states;
 
 import djFlixel.D;
-import djFlixel.fx.RainbowStripes;
 import djFlixel.gfx.pal.Pal_CPCBoy;
+import djFlixel.gfx.RainbowStripes;
 import djFlixel.ui.FlxAutoText;
 import djFlixel.other.FlxSequencer;
 import flixel.FlxG;

@@ -9,10 +9,9 @@ package states;
 
 import djFlixel.D;
 import djFlixel.core.Dcontrols;
-import djFlixel.fx.BoxFader;
+import djFlixel.gfx.BoxFader;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.other.FlxSequencer;
-import djFlixel.tool.DelayCall;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -101,7 +100,7 @@ class StateEnd extends FlxState
 					t1.text = "";
 					var pf = new BoxFader();
 					add(pf);
-					pf.fadeColor(0xFF000000, ()->{
+					pf.fadeColor(()->{
 						FlxG.switchState(new StateTitle());
 					});
 				case _:

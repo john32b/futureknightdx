@@ -20,8 +20,8 @@
 package states;
 
 import djFlixel.D;
-import djFlixel.fx.BoxFader;
-import djFlixel.tool.DelayCall;
+import djFlixel.gfx.BoxFader;
+import djFlixel.other.DelayCall;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -198,7 +198,7 @@ class StatePlay extends FlxState
 		switch(Type.getClass(b))
 		{
 			case Enemy:
-					if (!b.alive) return;
+					if (!a.alive || !b.alive) return;
 					if (FlxFlicker.isFlickering(player)) return;
 					var dam = Math.min(b.health, Reg.P_DAM.max_damage);
 					// Note, if enemy/player is flickering, hurt() will deal with it
@@ -363,7 +363,7 @@ class StatePlay extends FlxState
 		var bf = new BoxFader();
 		add(bf);
 		new DelayCall(()->{
-			bf.fadeColor(0xFF000000, ()->{ FlxG.switchState(new StateEnd()); } , {delayPost:2});
+			bf.fadeColor(()->{FlxG.switchState(new StateEnd()); } , {delayPost:2});
 		}, 2);
 	}//---------------------------------------------------;
 	
@@ -374,7 +374,7 @@ class StatePlay extends FlxState
 		var bf = new BoxFader();
 		add(bf);
 		new DelayCall(()->{
-			bf.fadeColor(0xFF000000, ()->{FlxG.switchState(new StateGameover()); });
+			bf.fadeColor(()->{FlxG.switchState(new StateGameover()); });
 		}, 1.5);
 	}//---------------------------------------------------;
 	
@@ -430,7 +430,9 @@ class StatePlay extends FlxState
 	function on_inventory_select(id:ITEM_TYPE)
 	{
 		INV.close();
-		if (HUD.equipped_item != id) HUD.item_pickup(id);
+		if (HUD.equipped_item != id) {
+			HUD.item_pickup(id);
+		}
 	}//---------------------------------------------------;
 	
 }// --
