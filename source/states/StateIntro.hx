@@ -54,30 +54,27 @@ class StateIntro extends FlxState
 			D.align.screen(t2);
 			t2.y -= 40; // Flxautotext when screen center, the height is just one line, so compensate
 
-		var SEQ = new FlxSequencer(); 
-		SEQ.onStep = (c)->{
-			switch(c){
+		add(new FlxSequencer((seq)-> {
+			switch(seq.step){
 				case 1:
 				FlxFlicker.flicker(t1, 2, 0.4, true, true, null, (_)->{
 					D.snd.playV('exit_unlock');
 				});
-				SEQ.next(3.5);
+				seq.next(3.5);
 				case 2:
 				remove(t1);
 				add(t2);
 				t2.setText(Reg.INI.get('text', 'intro'));
-				t2.onComplete = SEQ.nextV;
+				t2.onComplete = seq.nextV;
 				case 3:
-				SEQ.next(2);
+				seq.next(2);
 				case 4:
 				remove(t2);
-				remove(SEQ);
+				remove(seq);
 				P_00();
 				case _:
 			}
-		};
-		add(SEQ);
-		SEQ.next();
+		},0));
 	}//---------------------------------------------------;
 	
 	
@@ -113,22 +110,21 @@ class StateIntro extends FlxState
 		add(pl);
 		
 		// -- Tween the player to reach the teleporter :
-		FlxTween.tween(pl, {x:obj['p1'].x}, 1.8, {onComplete:(_)->P_02()});
+		FlxTween.tween(pl, {x:obj['p1'].x}, 1.8, {onComplete:P_02});
 		D.snd.playV('teleport1');
 	}//---------------------------------------------------;
 	
-	function P_02()
+	function P_02(_)
 	{
 		pl.animation.play('wave');
-		FlxTween.tween(pl, {y:obj['p1'].y}, 2, {onComplete:(_)->P_03(), startDelay:1.4});
+		FlxTween.tween(pl, {y:obj['p1'].y}, 2, {onComplete:P_03, startDelay:1.4});
 		new DelayCall(()->{
 			map.flash(2);
 			D.snd.play('en_hit_1');
-		}
-		, 0.8);
+		} , 0.8);
 	}//---------------------------------------------------;
 		
-	function P_03()
+	function P_03(_)
 	{
 		map.flash(10);
 		D.snd.play('en_hit_2');
@@ -148,7 +144,6 @@ class StateIntro extends FlxState
 	
 	function P_05()
 	{
-		// TODO, newgamestate
 		FlxG.switchState(new StatePlay());
 	}//---------------------------------------------------;
 

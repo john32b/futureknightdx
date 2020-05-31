@@ -251,7 +251,7 @@ class Player extends FlxSprite
 				confuserTimer = 0;	// just in case it was active
 				revive();
 				physics_start();
-				Reg.st.SAVEGAME();
+				Reg.SAVE_GAME();
 				fsm.goto(ONFLOOR);
 			}
 		}

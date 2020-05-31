@@ -171,6 +171,7 @@ class ImageAssets
 	}//---------------------------------------------------;
 
 	/**
+	   Get Map Asset from (type) (fg/bg). E.g. "im/tiles_fg_1.png"
 	   @param	type 0:Space, 1:Forest, 2:Castle
 	   @param	layer bg , fg
 	   @param	O Colors
@@ -205,18 +206,19 @@ class ImageAssets
 		{
 			source = cache.get(assetName + "_" + C);
 			
-			if (source == null)
-			{
-				source = Assets.getBitmapData(assetName, false);
+			trace("Getting assetName - CACHE -", assetName, C);
+			if (source == null) {
+				trace(" -- creating --");
+				source = Assets.getBitmapData(assetName).clone();
 				if (C != null) D.bmu.replaceColors(source, T_COL, D_COL_NAME[C]);
 				cache.set(assetName + "_" + C, source);
 			}
-			
 			return source.clone();
 			
 		}else
 		{
-			source = Assets.getBitmapData(assetName, false);
+			trace("Getting assetName - NOCACHE -", assetName);
+			source = Assets.getBitmapData(assetName).clone();
 			if (C != null) D.bmu.replaceColors(source, T_COL, D_COL_NAME[C]);
 			return source;
 		}

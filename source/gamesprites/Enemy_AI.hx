@@ -554,7 +554,7 @@ class AI_Turret extends Enemy_AI
 	
 	override public function update(elapsed:Float) 
 	{
-		if ((_timer += elapsed) > Enemy.PAR.speed_turret)
+		if ((_timer += elapsed) > _waitTime)
 		{
 			_timer = 0;
 			if (!Reg.st.player.alive) return;
@@ -567,7 +567,7 @@ class AI_Turret extends Enemy_AI
 	{
 		super.respawn();
 		// Randomize the start time, so turrets will not fire at the same time
-		_timer = Enemy.PAR.speed_turret * Math.random() * 0.85;
+		_timer = (Math.random() * _waitTime) * 1.2;
 	}//---------------------------------------------------;
 	
 }// --

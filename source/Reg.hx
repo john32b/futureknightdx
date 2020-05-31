@@ -95,7 +95,7 @@ class Reg
 	// >> Called BEFORE FlxGame() is created
 	public static function init_pre()
 	{
-		trace(" -- Reg init :PRE:");
+		trace(" >>> Reg init (PRE) ");
 		D.assets.DYN_FILES = [PATH_JSON, PATH_INI];
 		D.assets.onAssetLoad = onAssetLoad;	
 		D.snd.ROOT_SND = "snd/";
@@ -109,7 +109,7 @@ class Reg
 	// >> Called AFTER FlxGame() is created
 	public static function init_post()
 	{
-		trace(" -- Reg init :POST:");
+		trace(" >>> Reg init (POST) ");
 		
 		// -- Restore Settings
 		D.save.setSlot(0);
@@ -170,6 +170,7 @@ class Reg
 		// !Reg.api.isURLAllowed()
 	}//---------------------------------------------------;
 	
+	
 	// --
 	public static function SAVE_SETTINGS()
 	{
@@ -180,6 +181,35 @@ class Reg
 		});
 		D.save.flush();
 		trace("-- Settings Saved", D.save.load('settings'));
+	}//---------------------------------------------------;
+	
+	// --
+	public static function SAVE_GAME()
+	{
+		D.save.setSlot(1);
+		var OBJ = {
+			ver:Reg.VERSION,
+			pl:st.player.SAVE(),
+			inv:st.INV.SAVE(),
+			hud:st.HUD.SAVE(),
+			map:st.map.SAVE()
+		};
+		
+		D.save.save('game', OBJ);
+		D.save.flush();
+		trace("-- GAME SAVED", OBJ);
+	}//---------------------------------------------------;
+		
+	public static function SAVE_EXISTS():Bool
+	{
+		D.save.setSlot(1);
+		return D.save.exists('game');
+	}//---------------------------------------------------;
+			
+	public static function LOAD_GAME():Dynamic
+	{
+		D.save.setSlot(1);
+		return D.save.load('game');
 	}//---------------------------------------------------;
 	
 	

@@ -13,7 +13,7 @@ class Main extends Sprite
 	//inline static var START_STATE = states.StateEnd;
 	//inline static var START_STATE = states.StatePlay;
 	//inline static var START_STATE = states.StateIntro;
-	//inline static var START_STATE = states.StateTest;
+	//inline static var START_STATE = states.StateEngineTest;
 	//
 	public function new() 
 	{

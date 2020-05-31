@@ -81,8 +81,6 @@ class StateTitle extends FlxState
 	// I want a dynamic function because in some cases I need to check different things
 	var updateFunction:Void->Void;
 
-	// 
-	var _SAVE_EXISTS:Bool;
 	
 	// -
 	override public function create():Void 
@@ -90,9 +88,6 @@ class StateTitle extends FlxState
 		super.create();
 		
 		bgColor = Reg.BG_COLOR;
-		
-		D.save.setSlot(1);
-		_SAVE_EXISTS = D.save.exists('game');
 		
 		// -- Data init
 		updateFunction = null;
@@ -286,9 +281,10 @@ class StateTitle extends FlxState
 				menu.item_update(2, (t)->{t.data.c = D.SMOOTHING; });
 			}else
 			if (a == page && b == "main") {
-				menu.item_update(1, (t)->{ t.disabled = !_SAVE_EXISTS; }); // resume
+				var S = Reg.SAVE_EXISTS();
+				menu.item_update(1, (t)->{ t.disabled = !S; }); // resume
 				menu.item_update(0, (t)->{ // new game
-					if (_SAVE_EXISTS) { // Fullpage Confirmation
+					if (S) { // Fullpage Confirmation
 						// <HACK>
 						// t.data.type = 3; errors on <HASHLINK>. why wtf.
 						Reflect.setProperty(t.data, "type", 3);
@@ -489,7 +485,6 @@ class StateTitle extends FlxState
 		if (newGame)
 		{
 			D.save.deleteSlot(1);
-			D.save.flush();
 			pFader.fadeColor(0xFF000000, ()->{
 				FlxG.switchState(new StateIntro());
 			});	

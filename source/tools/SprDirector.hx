@@ -1,10 +1,10 @@
 /** 
 
   = Quickly add /images/sprites/text to the scene In one Go
-  and set attribute like position, alpha, tween.
+    and set attributes like position, alpha, tween.
   
   = Works best for UI elements, the benefit is that you
-  can declare many sprites without having to declare them as variables
+    can declare many sprites without having to declare them as variables
  
   = EXAMPLE =
   

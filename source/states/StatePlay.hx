@@ -52,17 +52,17 @@ class StatePlay extends FlxState
 	{
 		super.create();
 		
-		Reg.st = this;
 		bgColor = Reg.BG_COLOR;
+		Reg.st = this;
 		Reg.add_border();
 	
 		player = new Player();
 		map = new MapFK(player);	// < WARNING : This creates a camera and makes it default
 			map.onEvent = on_map_event;
 		ROOMSPR = new RoomSprites();
+		key_ind = new KeyIndicator(); 
 		PM = new ParticleManager();
 		BM = new BulletManager();
-		key_ind = new KeyIndicator(); 
 		INV = new Inventory();
 			INV.onClose = resume;
 			INV.onOpen = pause;
@@ -77,21 +77,18 @@ class StatePlay extends FlxState
 		add(key_ind);
 		add(INV);
 		
-		// :: Hud on another camera view
+		// :: Creating the Hud will automatically create a camera, so do this last
 		HUD = new Hud();
 		add(HUD);
 		
-		// -- Elements added, load map/game
-		
+		// --
 		var MAP_TO_LOAD = "";
 		var _isNew = false;
 		
-		D.save.setSlot(1);
-		var S = D.save.load('game');
-		if (S != null)
-		{
+		// -- Load game or new game
+		var S = Reg.LOAD_GAME();
+		if (S != null) {
 			trace("SAVE - Exists OK, loading..", S);
-			// TODO? Check version??
 			player.SAVE(S.pl);
 			INV.SAVE(S.inv);
 			HUD.reset();
@@ -106,22 +103,25 @@ class StatePlay extends FlxState
 			_isNew = true;
 		}
 		
+		// : Override the starting map when debugging
 		#if debug
 			var L = Reg.INI.get('DEBUG', 'startLevel');
 			if (L != null) MAP_TO_LOAD = L;
 			// This is when pressing [f12] to reload the map, spawn to the current level again
-			if (MapFK.LAST_LOADED != "" && MapFK.LAST_LOADED != 'intro') {
-				trace("Debug: restoring LAST_LOADED to", MapFK.LAST_LOADED);
-				MAP_TO_LOAD = MapFK.LAST_LOADED;
+			if (D.DEBUG_RELOADED) {
+				if (MapFK.LAST_LOADED.substr(0, 5) == "level") { // I don't want to reload "intro,end"
+					trace("Debug: [F12] Reload level", MapFK.LAST_LOADED);
+					MAP_TO_LOAD = MapFK.LAST_LOADED;
+				}
 			}
 		#end
 		
 		// : Last thing, load the level, this till trigger the on_map_event()
 		map.loadMap(MAP_TO_LOAD);
 		map.camera.flash(0xFF000000, 0.5);
-		
 		D.snd.play("teleport2", 0.5);
 		
+		// : This should appear at the first level, (when no save exists)
 		if (_isNew)
 		{
 			HUD.set_text("Teleportation successful. Find Amelia.", true, 7);
@@ -131,22 +131,6 @@ class StatePlay extends FlxState
 		
 	}//---------------------------------------------------;
 		
-	public function SAVEGAME()
-	{
-		D.save.setSlot(1);
-		
-		var OBJ = {
-			ver:Reg.VERSION,
-			pl:player.SAVE(),
-			inv:INV.SAVE(),
-			hud:HUD.SAVE(),
-			map:map.SAVE()
-		};
-		
-		D.save.save('game', OBJ);
-		D.save.flush();
-		trace("-- GAME SAVED", OBJ);
-	}//---------------------------------------------------;
 		
 	// --
 	public function pause()
@@ -450,6 +434,5 @@ class StatePlay extends FlxState
 		INV.close();
 		if (HUD.equipped_item != id) HUD.item_pickup(id);
 	}//---------------------------------------------------;
-	
 	
 }// --

@@ -32,7 +32,6 @@ typedef ItemHudInfo = {
 	icon:Int	// There are 10 unique item icons for the HUD (1-10) values
 }
 
-
 class Hud extends FlxGroup
 {
 	static inline var TEXT_TIME_GENERAL = 5;	// seconds

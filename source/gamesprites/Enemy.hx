@@ -57,7 +57,7 @@ class Enemy extends MapSprite
 		speed : 50,
 		speed_big : 30,
 		speed_long : 35,
-		speed_turret  : 2.5,	// seconds between shots
+		speed_turret  : 2.3,	// seconds between shots
 		speed_bigtall : 1.5,	// seconds between shots
 	};
 	
@@ -74,14 +74,10 @@ class Enemy extends MapSprite
 	// Every enemy has an AI driver
 	public var ai(default, null):Enemy_AI;
 	
-	
+	var _spawnTimer:Float;	// SpawnTime counter. 
 	var spawnTime:Float;	// Time to wait for regenerating. If <0 will never respawn
-	var _spawnTimer:Float;	// spawnTime counter. 
-	
 	var speed:Float;		// The actual speed of the enemy
-	var startHealth:Float;	//
-	
-
+	var startHealth:Float;
 	
 	// GFXType, used for creating appropriate explosions
 	// 0:Normal, 1:Big, 2:Long, 3:Worm

@@ -63,7 +63,7 @@ class Debug
 	
 	public function save()
 	{
-		Reg.st.SAVEGAME();
+		Reg.SAVE_GAME();
 	}//---------------------------------------------------;
 	
 	public function saveDel()

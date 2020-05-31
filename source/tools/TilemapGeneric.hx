@@ -113,7 +113,8 @@ class TilemapGeneric extends FlxGroup
 		width = T.mapW * T.tileW;
 		height = T.mapH * T.tileH;
 		
-		// :: Useful in dynamnic bitmaps, but for assets it will destroy them forever
+		//:: Useful in dynamic bitmaps, but for assets it will destroy them forever
+		//:: This causes problems, do not activate.
 		//if (layers[0].graphic != null ) { 
 			//for (l in layers) {
 				//l.graphic.bitmap.dispose(); 

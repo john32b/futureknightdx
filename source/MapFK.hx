@@ -149,10 +149,8 @@ class MapFK extends TilemapGeneric
 	// Pointer to the player. Needed for 
 	var player:Player;
 	
-	#if debug
-		// Used to for F12 quickloading
-		public static var LAST_LOADED = "";
-	#end
+	// The last map loaded, global var. Used for when F12 reloading 
+	public static var LAST_LOADED = "";
 	
 	//====================================================;
 	
@@ -208,9 +206,7 @@ class MapFK extends TilemapGeneric
 		
 		#if (debug && DYN_ASSETS)
 		
-			// on (F12) load this map
 			LAST_LOADED = MAP_LOADED_ID;
-			
 			D.assets.getTextFile(MAP_REAL_PATH + d[0] + MAP_EXT, (mapData)->{
 				load(mapData, true);
 						// DEV:
@@ -314,7 +310,6 @@ class MapFK extends TilemapGeneric
 			trace(' === Loaded Map : "$MAP_LOADED_ID"');
 			trace(' . TYPE: $MAP_TYPE, NAME: $MAP_NAME');
 			trace(' . MAP : Rooms Total ' , roomTotal);
-			trace(' . MAP : Rooms Current ' , roomCurrent);
 			trace(' . MAP COLORS', MAP_COLOR, MAP_COLOR_FG);
 			//T.debug_info();
 			trace('--------------------------------------');
@@ -780,7 +775,7 @@ class MapFK extends TilemapGeneric
 		FlxG.signals.postUpdate.addOnce(()->{
 			loadMap(e.O.prop.goto);
 			D.snd.playV(Reg.SND.exit_travel);
-			Reg.st.SAVEGAME();
+			Reg.SAVE_GAME();
 		});
 		
 	}//---------------------------------------------------;
