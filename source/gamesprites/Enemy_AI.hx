@@ -296,8 +296,8 @@ class AI_Final_Boss extends Enemy_AI
 				D.snd.playR(Enemy.SND.die);	// hit
 				D.snd.playV('fb_expl');		// final blow hit
 				e.visible = false;
-				e.alive = false;
 				e.explode();
+				e.kill();
 				Reg.st.map.flash(3);
 				Reg.st.handle_boss_die(e);	// Now tell main that the enemy is dead
 			}
@@ -467,7 +467,6 @@ class AI_Final_Boss extends Enemy_AI
 		D.snd.play(Reg.SND.error);
 		return false;
 	}//---------------------------------------------------;
-	
 	
 	
 	/**

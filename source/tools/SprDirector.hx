@@ -21,14 +21,11 @@ import flixel.group.FlxGroup;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxTween.TweenOptions;
 
-
 @:dce
 class SprDirector extends FlxGroup
 {
 	var map:Map<String,FlxSprite>;
-	
 	var _last:FlxSprite;
-	
 	public function new() 
 	{
 		super();

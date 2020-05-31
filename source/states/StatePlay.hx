@@ -159,7 +159,6 @@ class StatePlay extends FlxState
 		// Player->Map collisions , in player.update()
 		// Bullet->Map collisions , in BulletManager.update()
 		
-		
 		// DEV: If this was not, collisions would happen even when paused
 		//		e.g. player getting hurt over and over by an enemy, if they overlap and paused.
 		if (!ROOMSPR.active) return;
@@ -174,7 +173,6 @@ class StatePlay extends FlxState
 		FlxG.overlap(ROOMSPR.gr_enemy, BM, _overlap_enemy_bullet);
 
 	}//---------------------------------------------------;
-	
 	
 	
 	

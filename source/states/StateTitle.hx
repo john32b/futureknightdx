@@ -48,14 +48,14 @@ class StateTitle extends FlxState
 {	
 	// :: Various State Parameters
 	var P = {
-		im_title_art: "im/game_art.png",
-		im_title : "im/title_01.png",
-		im_dx : "im/title_02.png",
-		im_gamepad: "im/controller_help.png",
-		art_delay : 4.0,	// Wait this much on the graphic,
-		title_fg : Pal_CPCBoy.COL[24],
-		title_tick: 0.125,
-		title_cols : [1, 2, 11, 15, 6, 18, 21, 5, 8, 25]	// CPC Boy palete codes for title to loop
+		im_title_art: 	"im/game_art.png",
+		im_title : 		"im/title_01.png",
+		im_dx : 		"im/title_02.png",
+		im_gamepad: 	"im/controller_help.png",
+		title_fg 	: Pal_CPCBoy.COL[24],
+		title_tick	: 0.125,
+		title_cols 	: [1, 2, 11, 15, 6, 18, 21, 5, 8, 25],	// CPC Boy palete codes for title to loop
+		art_delay : 4.0	// Wait this much on the graphic,
 	};
 	
 	// --
@@ -67,21 +67,15 @@ class StateTitle extends FlxState
 	var pFader:BoxFader;
 	var seq:FlxSequencer;
 	
-	// The main menu
 	var menu:FlxMenu;
-	
-	// Help slides
-	var slides:FlxSlides;
+	var slides:FlxSlides;		// Help Slides
 	
 	// --
-	var title_01_spr:FlxSprite;	// Title sprite
-	var title_02_spr:FlxSprite; // DX sprite
 	var title_tick:FlxTimer;	// Timer for the title flash
 	
 	// I want a dynamic function because in some cases I need to check different things
 	var updateFunction:Void->Void;
 
-	
 	// -
 	override public function create():Void 
 	{
@@ -109,10 +103,10 @@ class StateTitle extends FlxState
 			
 		
 		// :: Setup the animated Title stuff
-		title_02_spr = new FlxSprite(P.im_dx);
 		var _tb = Assets.getBitmapData(P.im_title, false);
 			_tb = D.bmu.replaceColor(_tb, Pal_CPCBoy.COL[28], P.title_fg);
-		title_01_spr = new FlxSprite(_tb.clone());
+		var title_01_spr = new FlxSprite(_tb.clone());
+		var title_02_spr = new FlxSprite(P.im_dx);
 		title_tick = new FlxTimer();
 		title_tick.start(P.title_tick, (t)->{
 			var l = t.elapsedLoops % P.title_cols.length;
@@ -122,8 +116,7 @@ class StateTitle extends FlxState
 		}, 0);
 		title_tick.active = false;
 
-		
-		// -- With a sprite director you can add and animate sprites easily
+		// :: With a sprite director you can add and animate sprites easily
 		dir0 = new SprDirector();		
 		dir0.on(P.im_title_art).v(0);
 		dir0.on('title', title_01_spr).p(0, -20).v(0);
@@ -132,6 +125,7 @@ class StateTitle extends FlxState
 		add(stars);
 		add(dir0);
 		
+		// --
 		sub_create_menu();
 		
 		// :: Fade the screen from black and call seq.nextv()
@@ -143,10 +137,9 @@ class StateTitle extends FlxState
 		// :: Border
 		Reg.add_border();
 		
-		// --
+		// ::
 		D.snd.playMusic('FK_Title');
 	}//---------------------------------------------------;	
-	
 	
 	// --
 	override public function update(elapsed:Float):Void 
@@ -168,8 +161,7 @@ class StateTitle extends FlxState
 		}
 		
 		// --
-		if (updateFunction != null) 
-		{
+		if (updateFunction != null) {
 			updateFunction();
 		}
 		
@@ -207,8 +199,6 @@ class StateTitle extends FlxState
 			dir0.on('footer', sub_get_footer_grp()).p(0, 20).a(0.3).tween({y:0, alpha:1}, 0.2);
 			dir0.on('dx').tween({alpha:1, y:65}, 0.3, { ease:FlxEase.quadOut, type:4 } );
 			menu.goto('main');
-		case 7:
-
 		default:
 		}
 	}//---------------------------------------------------;
@@ -358,7 +348,7 @@ class StateTitle extends FlxState
 		var AREA = new SimpleRect(28, 70, 320 - 28 - 28, 170);
 		var COL = Pal_CPCBoy.COL; // Shortcut
 		var st_h1 = {f:'fnt/score.ttf', s:12, c:COL[20], bt:1, bc:COL[1]};
-		var st_p = {f:'fnt/score.ttf', s:6, c:COL[26]};
+		var st_p  = {f:'fnt/score.ttf', s:6, c:COL[26]};
 		var st_p2 = {f:'fnt/score.ttf', s:6, c:COL[23]};
 		D.text.formatAdd('<r>', COL[6]);
 		D.text.formatAdd('<g>', COL[21]);
@@ -481,9 +471,7 @@ class StateTitle extends FlxState
 	{
 		menu.unfocus();
 		Reg.SAVE_SETTINGS();
-		
-		if (newGame)
-		{
+		if (newGame) {
 			D.save.deleteSlot(1);
 			pFader.fadeColor(0xFF000000, ()->{
 				FlxG.switchState(new StateIntro());

@@ -206,9 +206,7 @@ class ImageAssets
 		{
 			source = cache.get(assetName + "_" + C);
 			
-			trace("Getting assetName - CACHE -", assetName, C);
 			if (source == null) {
-				trace(" -- creating --");
 				source = Assets.getBitmapData(assetName).clone();
 				if (C != null) D.bmu.replaceColors(source, T_COL, D_COL_NAME[C]);
 				cache.set(assetName + "_" + C, source);
@@ -217,7 +215,6 @@ class ImageAssets
 			
 		}else
 		{
-			trace("Getting assetName - NOCACHE -", assetName);
 			source = Assets.getBitmapData(assetName).clone();
 			if (C != null) D.bmu.replaceColors(source, T_COL, D_COL_NAME[C]);
 			return source;

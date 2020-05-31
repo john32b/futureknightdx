@@ -925,9 +925,9 @@ class MapFK extends TilemapGeneric
 			
 		}else{	
 			return {
-				unlocked: GLOBAL_EXITS_UNLOCKED,
-				killed: _killed_global,
-				appends: APPLIED_APPENDS,
+				unlocked: GLOBAL_EXITS_UNLOCKED.copy(),
+				killed: _killed_global.copy(),
+				appends: APPLIED_APPENDS.copy(),
 				levelid: MAP_LOADED_ID // read manually, in statePlay
 			};
 		}
