@@ -67,11 +67,11 @@ class StateEnd extends FlxState
 		
 		
 		// -- Display Some Texts
-		D.ui.pInit(0, 40, map.ROOM_WIDTH, map.ROOM_HEIGHT);
+		D.align.pInit(0, 40, map.ROOM_WIDTH, map.ROOM_HEIGHT);
 		var st_p = {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[26], bc:Pal_CPCBoy.COL[1], bt:2, bs:1};
 		var st_p2 = {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[15], bc:Pal_CPCBoy.COL[1], bt:2, bs:1};
-		var t1 = D.ui.pT('', {ta:"c"}, st_p);
-		var t2 = D.ui.pT('', {ta:"c"}, st_p2);
+		var t1 = D.align.pT('', {ta:"c"}, st_p);
+		var t2 = D.align.pT('', {ta:"c"}, st_p2);
 		
 		add(new FlxSequencer((seq)->{
 			switch(seq.step){

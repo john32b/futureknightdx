@@ -136,7 +136,7 @@ class Reg
 	// Then the state will be reset automatically
 	static function onAssetLoad()
 	{
-		trace(" -- Reg Dynamic Asset Load");
+		trace(" -- Reg : Handle Dynamic Asset Reload.");
 		INI = new ConfigFile(D.assets.files.get(PATH_INI));
 		JSON = Json.parse(D.assets.files.get(PATH_JSON));
 			

@@ -129,6 +129,7 @@ class StatePlay extends FlxState
 			FlxFlicker.flicker(player, 0.5, 0.04, true);
 		}
 		
+		D.snd.stopMusic();
 	}//---------------------------------------------------;
 		
 		
@@ -277,13 +278,19 @@ class StatePlay extends FlxState
 			
 		case CONFUSER_UNIT:
 			map.flash(4);
-			ROOMSPR.enemies_freeze(true);	// Player has timer for restore
 			D.snd.playV(Reg.SND.item_confuser);
-			player.confuserTimer = Reg.P.confuse_time;
-			
 			INV.removeItemWithID(item);
 			HUD.item_pickup();
 			HUD.score_add(Reg.SCORE.item_confuser);
+			
+			// NEW: if it is the boss, do nothing but also tell
+			if (ROOMSPR.getFinalBoss() != null) {
+				HUD.set_text2("It does not affect it.");
+				return;
+			}
+			
+			ROOMSPR.enemies_freeze(true);	// Player has timer for restore
+			player.confuserTimer = Reg.P.confuse_time;
 			
 			// Ok the above^ will freeze ALIVE enemies,
 			// I need to have a flag, so when an enemy is respawed, it will NOT move

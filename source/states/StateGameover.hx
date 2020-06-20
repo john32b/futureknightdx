@@ -4,6 +4,7 @@ import djFlixel.D;
 import djFlixel.core.Dcontrols;
 import djFlixel.gfx.BoxFader;
 import djFlixel.gfx.StarfieldSimple;
+import djFlixel.gfx.TextBouncer;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -12,7 +13,7 @@ import flixel.FlxState;
 
 class StateGameover extends FlxState
 {
-	static inline var FREEZE_TIME = 3;
+	static inline var FREEZE_TIME = 4;
 	static inline var EXIT_TIME = 10;
 	var _timer:Float = 0;
 	
@@ -46,9 +47,10 @@ class StateGameover extends FlxState
 		add(pl);
 		
 		// --
-		var tx1 = D.text.get("GAME OVER", 0, 0, {s:12, f:"fnt/score.ttf"});
-		D.align.downCenter(tx1, pl, 4);
-		add(tx1);
+		var tb = new TextBouncer("GAME OVER", 78, 108, 
+			{s:12, f:"fnt/score.ttf", bc:Pal_CPCBoy.COL[2], c:Pal_CPCBoy.COL[26], bs:2, bt:2});
+		add(tb);
+		tb.start();
 		
 		// --
 		Reg.add_border();

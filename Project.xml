@@ -13,10 +13,12 @@
 	<set name="BUILD_DIR" value="a:\fktest\" />
 	
 	<haxelib name="flixel"/>
-	<haxelib name="djFL"/>	<!-- in development -->
+	<haxelib name="djFlixel"/>
 	
-	<include path="C:/home/code/HT/djFlixel/source/" />	
+	<haxelib name="djFL"/>	<!-- in development -->
 	<source path="C:/Mega/projects/djA/" />
+	
+	<!--<include path="C:/home/code/HT/djFlixel/source/" />	-->
 	
 	<source path="source" />
 	

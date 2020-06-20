@@ -353,22 +353,23 @@ class StateTitle extends FlxState
 		D.text.formatAdd('<r>', COL[6]);
 		D.text.formatAdd('<g>', COL[21]);
 		D.text.fix(); // clear 
-		D.ui.pInit(AREA.x, AREA.y, AREA.w, AREA.h);
+		var AL = D.align;
+		AL.pInit(AREA.x, AREA.y, AREA.w, AREA.h);
 		
 		var h = new FlxSlides({delay:0.08, time:0.12, offset:"-18:0"});
 			h.setArrows(8, AREA.x, AREA.y + AREA.h / 2, AREA.w);
 		
 		// : Slide - Gamepad
 		h.newSlide();
-		h.a(D.ui.pT("Gamepad Controls", {ta:"c"}, st_h1));
-		h.a(D.ui.p(new FlxSprite(P.im_gamepad), {a:"c"}));
+		h.a(AL.pT("Gamepad Controls", {ta:"c"}, st_h1));
+		h.a(AL.p(new FlxSprite(P.im_gamepad), {a:"c"}));
 			
 		// : Slide - Keys
 		h.newSlide();
-		D.ui.pCol("120|60,16", -1);
-		h.a(D.ui.pT("Keyboard Controls", {ta:"c"}, st_h1));
+		AL.pCol("120|60,16", -1);
+		h.a(AL.pT("Keyboard Controls", {ta:"c"}, st_h1));
 		D.text.fix(st_p);
-		D.ui.pPad(6);
+		AL.pPad(6);
 			// - Build keys
 			var ACTIONS = ['move', 'shoot / <r>cancel<r>', 'jump / <g>ok<g>', 'use item', 'inventory / pause'];
 			var KEYS = [DButton.UP, DButton.X, DButton.A, DButton.Y, DButton.START];
@@ -376,44 +377,44 @@ class StateTitle extends FlxState
 				var keys:String =  i == 0 ? 
 					D.ctrl.getKeymapName(UP) + D.ctrl.getKeymapName(LEFT) + D.ctrl.getKeymapName(DOWN) + D.ctrl.getKeymapName(RIGHT)
 					: D.ctrl.getKeymapName(KEYS[i]);
-				h.a(D.ui.pT('~' + ACTIONS[i], {c:1, ta:"r"}));
-				h.a(D.ui.pT('[' + keys.toLowerCase() + ']', {c:2}));
+				h.a(AL.pT('~' + ACTIONS[i], {c:1, ta:"r"}));
+				h.a(AL.pT('[' + keys.toLowerCase() + ']', {c:2}));
 			}
 		// DEV: There is a volume bar in the options, don't overcrowd the slides, -- remove --
-		// h.a(D.ui.pT('volume up / down', {c:1, ta:"r"}));
-		// h.a(D.ui.pT('[-] [+]', {c:2}));
-		h.a(D.ui.pT('you can redifine in options', {ta:'c', oy:6}, st_p2));
+		// h.a(AL.pT('volume up / down', {c:1, ta:"r"}));
+		// h.a(AL.pT('[-] [+]', {c:2}));
+		h.a(AL.pT('you can redifine in options', {ta:'c', oy:6}, st_p2));
 		
 		// :: Slide :: General infos
 		h.newSlide();
 		var key_up = D.ctrl.getKeymapName(UP).toLowerCase();
 		var key_ok = D.ctrl.getKeymapName(A).toLowerCase();
-		D.ui.pClear();
-		h.a(D.ui.pT('~press UP <g>[$key_up]<g> to interact with objects', {a:'c', oy:8}));
+		AL.pClear();
+		h.a(AL.pT('~press UP <g>[$key_up]<g> to interact with objects', {a:'c', oy:8}));
 			// Create 4 animated tile sprites, place 3 of them in a row NOW
 			var spr:Array<FlxSprite> = [for (i in 0...4) Reg.IM.getSprite(0, 0, 'animtile')];
 			spr[0].animation.add('1', [10, 11], 8);
 			spr[1].animation.add('1', [4, 5, 6, 7], 8);
 			spr[2].animation.add('1', [28, 29], 8);
 			spr[3].animation.add('1', [12, 13], 8);
-			D.ui.pM([spr[0], spr[1], spr[2]]);
+			AL.pM([spr[0], spr[1], spr[2]]);
 			for (i in 0...4) {
 				spr[i].animation.play('1');
 				if (i < 3) h.a(spr[i]); // do not add [3]
 			}
-		h.a(D.ui.pT('to unlock an exit, you need to \nhave the required item equipped', {ta:'c'}));
-		h.a(D.ui.p(spr[3], {a:'c'}));
-		h.a(D.ui.pT('~Progress is <g>saved<g> automatically.', {ta:'c', oy: -2}));
+		h.a(AL.pT('to unlock an exit, you need to \nhave the required item equipped', {ta:'c'}));
+		h.a(AL.p(spr[3], {a:'c'}));
+		h.a(AL.pT('~Progress is <g>saved<g> automatically.', {ta:'c', oy: -2}));
 		// :: Slide :: Some Items
 		h.newSlide();
-		D.ui.pCol('40|200,16');
-		h.a(D.ui.pT('SOME ITEMS YOU CAN FIND', {a:'c', oy:8}, {c:COL[21]}));
-		D.ui.pPad(12);
-		h.a(D.ui.p(Reg.IM.getSprite(0, 0, 'items', 1), {c:1, a:'r',oy:4}));
-		h.a(D.ui.pT('~<r>BOMB<r>\nkill enemies and restore HP', {c:2}));
-		D.ui.pClear(false);
-		h.a(D.ui.p(Reg.IM.getSprite(0, 0, 'items', 6), {c:1, a:'r', oy:4}));
-		h.a(D.ui.pT('~<r>CONFUSER<r>\nimmobilize enemies for a while', {c:2}));
+		AL.pCol('40|200,16');
+		h.a(AL.pT('SOME ITEMS YOU CAN FIND', {a:'c', oy:8}, {c:COL[21]}));
+		AL.pPad(12);
+		h.a(AL.p(Reg.IM.getSprite(0, 0, 'items', 1), {c:1, a:'r',oy:4}));
+		h.a(AL.pT('~<r>BOMB<r>\nkill enemies and restore HP', {c:2}));
+		AL.pClear(false);
+		h.a(AL.p(Reg.IM.getSprite(0, 0, 'items', 6), {c:1, a:'r', oy:4}));
+		h.a(AL.pT('~<r>CONFUSER<r>\nimmobilize enemies for a while', {c:2}));
 		// -- END SLIDES
 		
 		h.finalize();
@@ -432,11 +433,11 @@ class StateTitle extends FlxState
 		var COL = Pal_CPCBoy.COL; // Shortcut
 		
 		D.text.formatAdd('<m>', COL[24], COL[3]);
-		D.ui.pInit(0, 100);
-		D.ui.PLACE_ADD = true;
+		D.align.pInit(0, 100);
+		D.align.PLACE_ADD = true;
 		
-		var txt1 = D.ui.pT('-', {ta:'c'}, {f:'fnt/score.ttf', s:6, c:COL[26], bt:1, bc:COL[2]});
-		var txt2 = D.ui.pT('-', {ta:'c', oy:20}, {f:'fnt/score.ttf', s:6, c:COL[7]});
+		var txt1 = D.align.pT('-', {ta:'c'}, {f:'fnt/score.ttf', s:6, c:COL[26], bt:1, bc:COL[2]});
+		var txt2 = D.align.pT('-', {ta:'c', oy:20}, {f:'fnt/score.ttf', s:6, c:COL[7]});
 		var k = new KeyCapture(ACTIONS);
 		k.onEvent = (a, b)->{
 			if (a == "wait") {

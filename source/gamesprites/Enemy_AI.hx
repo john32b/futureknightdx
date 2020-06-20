@@ -556,6 +556,7 @@ class AI_Turret extends Enemy_AI
 		if ((_timer += elapsed) > _waitTime)
 		{
 			_timer = 0;
+			if (Reg.st.player.confuserTimer > 0) return;
 			if (!Reg.st.player.alive) return;
 			Reg.st.BM.createAt(_bullet, e.x + e.halfWidth, e.y + e.halfHeight, 0);
 			D.snd.play('fb_shoot', 0.3);
@@ -566,7 +567,7 @@ class AI_Turret extends Enemy_AI
 	{
 		super.respawn();
 		// Randomize the start time, so turrets will not fire at the same time
-		_timer = (Math.random() * _waitTime) * 1.2;
+		_timer = Math.random() * _waitTime * 0.8;
 	}//---------------------------------------------------;
 	
 }// --
@@ -602,9 +603,9 @@ class AI_BigChase extends Enemy_AI
 **/
 class AI_BigBounce extends AI_Move_X
 {
-	static inline var BOUNCE_HEIGHT = 32;			// pixel
+	static inline var BOUNCE_HEIGHT = 32; // pixels
 	
-	var Y:Float;		// Start PI
+	var Y:Float; // Start PI
 	var distpi:Float;
 	var L:Float;
 	
