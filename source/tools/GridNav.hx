@@ -1,12 +1,10 @@
-/**
- * 
+/**********************************************************************
  General Purpose GRID NAVIGATON
  ==============================
  - Api/Library Agnostic
  - Handles box placement and cursor navigation
  - Must be implemented by something else
  
-
  USAGE:
  ------
 	var grid = new GridNav(3,2);	
@@ -28,7 +26,7 @@
 		grid.cursor_move(1,0);	// for right
 		// and this will callback the onCursorChange() function
 		
-**/
+**********************************************************************/
 
 
 package tools;

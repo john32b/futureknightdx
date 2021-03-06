@@ -1,6 +1,6 @@
 package;
 
-import djA.ConfigFile;
+import djA.cfg.ConfigFileB;
 import djFlixel.D;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -31,7 +31,7 @@ class Reg
 	public static var IM:ImageAssets;
 
 	// :: External Parameters parsed objects
-	public static var INI:ConfigFile;
+	public static var INI:ConfigFileB;
 	public static var JSON:Dynamic;
 	
 	// :: DAMAGE VALUES 
@@ -137,7 +137,7 @@ class Reg
 	static function onAssetLoad()
 	{
 		trace(" -- Reg : Handle Dynamic Asset Reload.");
-		INI = new ConfigFile(D.assets.files.get(PATH_INI));
+		INI = new ConfigFileB(D.assets.files.get(PATH_INI));
 		JSON = Json.parse(D.assets.files.get(PATH_JSON));
 			
 		// DEBUG

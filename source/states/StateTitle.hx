@@ -350,6 +350,7 @@ class StateTitle extends FlxState
 		var st_h1 = {f:'fnt/score.ttf', s:12, c:COL[20], bt:1, bc:COL[1]};
 		var st_p  = {f:'fnt/score.ttf', s:6, c:COL[26]};
 		var st_p2 = {f:'fnt/score.ttf', s:6, c:COL[23]};
+		D.text.formatClear();
 		D.text.formatAdd('<r>', COL[6]);
 		D.text.formatAdd('<g>', COL[21]);
 		D.text.fix(); // clear 
@@ -419,7 +420,6 @@ class StateTitle extends FlxState
 		
 		h.finalize();
 		D.text.fix();
-		D.text.formatClear();
 		return h;
 	}//---------------------------------------------------;
 	
@@ -431,7 +431,7 @@ class StateTitle extends FlxState
 		var ACTIONS = ['up', 'right', 'down', 'left', 'ok / jump', '', 'cancel / shoot', 'use item', '', 'pause / inventory'];
 		var KEYS = [];	// the actual FlxKeycodes that map to ACTIONS[]		
 		var COL = Pal_CPCBoy.COL; // Shortcut
-		
+		D.text.formatClear();
 		D.text.formatAdd('<m>', COL[24], COL[3]);
 		D.align.pInit(0, 100);
 		D.align.PLACE_ADD = true;

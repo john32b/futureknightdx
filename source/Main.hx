@@ -15,6 +15,7 @@ class Main extends Sprite
 	//inline static var START_STATE = states.StateIntro;
 	//inline static var START_STATE = states.StateEngineTest;
 	inline static var START_STATE = states.StateAmstrad;
+	
 	//
 	public function new() 
 	{
@@ -32,7 +33,7 @@ class Main extends Sprite
 		
 		// :: Start the game after loading the dynamic assets (they were defined in Reg.init_pre)
 		D.assets.reload( ()->{
-			trace("asset reloaded");
+			trace("Assets Loaded, Staring game ..");
 			addChild(new FlxGame(320, 240, START_STATE, 2, FPS, FPS, true));
 			Reg.init_post();
 		});

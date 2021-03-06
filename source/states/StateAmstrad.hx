@@ -41,7 +41,7 @@ class StateAmstrad extends FlxState
 		
 		Reg.add_border();
 		
-		var snd_load:FlxSound;
+		var snd_load:FlxSound = null;
 		add(new FlxSequencer((seq)->{
 			switch(seq.step) {
 				case 1:
