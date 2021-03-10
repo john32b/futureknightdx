@@ -15,23 +15,62 @@
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
-    <class path="C:\HaxeToolkit\haxe\lib\flixel\4,7,0" />
+    <class path="C:\HaxeToolkit\haxe\lib\flixel\4,8,1" />
     <class path="C:\HaxeToolkit\haxe\lib\lime\7,8,0\src" />
-    <class path="C:\Mega\projects\djFlixel+\source" />
+    <class path="C:\HaxeToolkit\haxe\lib\hscript\2,4,0" />
+    <class path="C:\Mega\projects\djFlixel+\source\src" />
     <class path="C:\mega\projects\djFL\source" />
-    <class path="C:\HaxeToolkit\haxe\lib\openfl\8,9,7\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\lib" />
     <class path="C:\Mega\projects\djA\source" />
-    <class path="C:\HaxeToolkit\haxe\lib\openfl\8,9,7\externs\flash" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\application\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\assets\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\bitmapdata\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\displayobject\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\errors\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\eventdispatcher\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\externalinterface\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\filereference\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\filters\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\geom\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\graphics\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\input\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\loader\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\movieclip\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\printing\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\renderer-cairo\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\renderer-canvas\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\renderer-core\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\renderer-dom\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\renderer-flash\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\renderer-stage3d\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\security\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\sensors\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\shader\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\sharedobject\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\socket\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\sound\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\stage\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\stage3d\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\system\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\telemetry\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\textfield\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\tilemap\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\urlloader\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\urlrequest\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\urlstream\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\utils\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\packages\video\src" />
+    <class path="C:\HaxeToolkit\haxe\lib\openfl\9,0,2\externs\flash" />
     <class path="source" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="flixel=4.7.0&#xA;lime=7.8.0&#xA;djFlixel=0.4.0&#xA;djFL=0.1.0&#xA;openfl=8.9.7&#xA;djA=0.1.0&#xA;next&#xA;DYN_ASSETS&#xA;tools=7.8.0&#xA;no-compilation&#xA;openfl-flash&#xA;FLX_NO_TOUCH&#xA;SHOOT_HOLD&#xA;openfl-disable-handle-error&#xA;DJFLX_VER=0.4.0&#xA;web" />
+    <option directives="flixel=4.8.1&#xA;lime=7.8.0&#xA;hscript=2.4.0&#xA;djFlixel=0.4.2&#xA;djFL=0.1.0&#xA;openfl=9.0.2&#xA;djA=0.1.0&#xA;next&#xA;DYN_ASSETS&#xA;tools=7.8.0&#xA;no-compilation&#xA;openfl-flash&#xA;FLX_NO_TOUCH&#xA;SHOOT_HOLD&#xA;openfl-disable-handle-error&#xA;DJFLX_VER=0.4.2&#xA;web" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="--macro lime._internal.macros.DefineMacro.run()&#xA;--macro openfl._internal.macros.ExtraParams.include()&#xA;--macro flixel.system.macros.FlxDefines.run()&#xA;-dce std&#xA;-swf-version 40&#xA;--no-output " />
+    <option additional="--macro lime._internal.macros.DefineMacro.run()&#xA;--macro openfl._internal.ExtraParams.include()&#xA;--macro flixel.system.macros.FlxDefines.run()&#xA;-dce std&#xA;-swf-version 40&#xA;--no-output " />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

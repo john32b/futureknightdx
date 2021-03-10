@@ -30,7 +30,6 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.group.FlxGroup;
 import flixel.tile.FlxTilemap;
-import lime.graphics.opengl.ext.IMG_program_binary;
 
 
 class TilemapGeneric extends FlxGroup

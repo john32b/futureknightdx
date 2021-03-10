@@ -86,7 +86,7 @@ class StateEnd extends FlxState
 					seq.next(1);
 				case 3:
 					t1.text = "DX Version";
-					t2.text = "John Dimi 2020";
+					t2.text = "John32B 2021";
 					seq.next(5);
 				case 4:
 					FlxFlicker.flicker(t1, 1);

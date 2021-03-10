@@ -2,25 +2,6 @@
    FUTURE KNIGHT INVENTORY
    ----------------------
    
-	- This class can be generalized easily, just copy paste the entire thing?
-
-	EXAMPLE:
-	--------
-	
-	INV = new Inventory();
-	add(INV);
-	INV.onItemSelect = (id)->{
-		// remove item
-		INV.removeItemWithID(id);
-		INV.sortItems();
-	}
-	//--
-	if (FlxG.keys.justPressed.ENTER) {
-		INV.toggle();
-	}
-	// --
-	INV.addItem(ITEM_ID_HEALTH);
-	
 ================================================= */
 
 

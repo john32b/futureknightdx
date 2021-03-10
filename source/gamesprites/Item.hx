@@ -3,14 +3,18 @@
 	FUTURE KNIGHT ITEM
 	===================
 	
-	== Graphics:
+	= Item Graphics: {
 		Size = 20x20 
 		Total = 12
+	}
 		
+	- Item Types defined here (ITEM_TYPE)
+	
+	- Item Sprite for placing on the MAP
 	- Bouncing up and down using a very simple sin() on the y axis
-
-**/
-
+	- For USING ITEMS , see StatePlay.use_current_item()
+	
+************************************************************/
 
 package gamesprites;
 
@@ -23,7 +27,7 @@ import haxe.EnumTools;
 
 // This is ALSO the itemID as it is on the EDITOR
 // Item ID = FRAME = EDITORID
-// This enum is to be set on the tiled map as exit requirements
+// - Place as Exit Requirements on an "exit" tile on the TILED Editor | custom properties " req: item:EXIT_PASS "
 enum ITEM_TYPE
 {
 	NONE; // 0
@@ -44,10 +48,8 @@ enum ITEM_TYPE
 }//---------------------------------------------------;
 
 
-
 class Item extends MapSprite
 {
-	
 	// Note: BOMB1,BOMB2,BOMB3, all will get the data key => BOMB
 	// Icon Number is what <hud_items.png> index - 4
 	public static var ITEM_DATA:Map<ITEM_TYPE,Hud.ItemHudInfo> = [
@@ -68,8 +70,8 @@ class Item extends MapSprite
 			SCEPTER => { name:"Scepter", desc:"You've found the scepter!", icon:15 }, 
 	];
 	
-	inline static var BOUNCE = 2; // pixels bounce
-	inline static var STEP = 0.12;
+	inline static var BOUNCE = 2; 	// Vertical Pixel bounce on the Map
+	inline static var STEP = 0.12;	// Bounce Speed
 	
 	public var item_id:ITEM_TYPE;
 

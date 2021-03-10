@@ -527,7 +527,7 @@ class Player extends FlxSprite
 		// because haxeflixel doesnot support to mirror a specific animation frame. So no spin for now
 		if (_idle >= IDLE_STEP_TIME)
 		{
-			_idle_stop();
+			_idle = 0;
 			if (++_idle_stage < 3){
 				animation.play("wave");
 			}else{
@@ -893,6 +893,7 @@ class Player extends FlxSprite
 	
 	/**
 	   == Overlap Check Handler with Animated Tiles ==
+	   :: Auto-Called from main, whenever Player Overlaps with an Animated Tile
 	**/
 	public function event_anim_tile(A:Player, B:AnimatedTile)
 	{
@@ -1058,7 +1059,7 @@ class Player extends FlxSprite
 		
 		if (D.ctrl.justPressed(UP)) 
 		{
-			if (_idle_stage > 0) animation.play('idle');
+			if (_idle_stage > 0) animation.play('idle'); // rare
 			_idle_stop();
 			if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return false;
 			_interact_time = FlxG.game.ticks;

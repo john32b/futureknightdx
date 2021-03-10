@@ -20,7 +20,6 @@ package;
 
 import djFlixel.D;
 import djFlixel.gfx.pal.Pal_CPCBoy;
-import djFlixel.gfx.pal.Pal_DB32;
 import djfl.util.Atlas;
 import flixel.FlxSprite;
 import openfl.display.BitmapData;

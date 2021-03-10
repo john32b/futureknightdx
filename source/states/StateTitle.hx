@@ -213,7 +213,7 @@ class StateTitle extends FlxState
 			line.makeGraphic(FlxG.width - 50, 1, color);
 			D.align.screen(line, 'c', '');
 		var txt_ver = D.text.get("ver " + Reg.VERSION, {c:color});
-		var txt_by  = D.text.get("by John Dimi", {c:color});
+		var txt_by  = D.text.get("by John32B", {c:color});
 		D.align.inLine(line.x, line.y, line.width, [txt_ver, txt_by], 'j');
 		var grp = new FlxSpriteGroup();
 			grp.add(txt_by); grp.add(txt_ver); grp.add(line);
