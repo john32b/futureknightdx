@@ -5,7 +5,6 @@ import djFlixel.D;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import haxe.Json;
 import states.StatePlay;
 import states.SubStatePause;
 
@@ -19,7 +18,6 @@ class Reg
 	public static inline var VERSION = "1.4";
 	
 	// :: External parameters
-	static inline var PATH_JSON = "assets/djflixel.json";
 	static inline var PATH_INI  = "assets/test.ini";
 	
 	// How long to wait on each screen on the banners
@@ -32,7 +30,6 @@ class Reg
 
 	// :: External Parameters parsed objects
 	public static var INI:ConfigFileB;
-	public static var JSON:Dynamic;
 	
 	// :: DAMAGE VALUES 
 	// I am using this simple naming style, first is who takes damage _ from whom
@@ -96,7 +93,7 @@ class Reg
 	public static function init_pre()
 	{
 		trace(" >>> Reg init (PRE) ");
-		D.assets.DYN_FILES = [PATH_JSON, PATH_INI];
+		D.assets.DYN_FILES = [PATH_INI];
 		D.assets.onAssetLoad = onAssetLoad;	
 		D.snd.ROOT_SND = "snd/";
 		D.snd.ROOT_MSC = "mus/";
@@ -138,12 +135,10 @@ class Reg
 	{
 		trace(" -- Reg : Handle Dynamic Asset Reload.");
 		INI = new ConfigFileB(D.assets.files.get(PATH_INI));
-		JSON = Json.parse(D.assets.files.get(PATH_JSON));
 			
 		// DEBUG
-		D.snd.addSoundInfos(JSON.sounds);
+		D.snd.addSoundInfos(INI.getObj('sounds_vol'));
 	}//---------------------------------------------------;
-		static var _dtimes:Int = 0; // Asset loaded times
 
 		
 	// Quickly add the monitor border. And set it to be drawn at one camera only
