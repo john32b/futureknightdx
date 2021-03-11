@@ -9,7 +9,7 @@
  
  CAMERA TIP:
  ----------
- - You can create a new camera for the tilemap and have all the sprites follow the camera
+ - You can create a new camera for the tilemap and have all the sprites use that camera
  - First create a new camera. e.g.:
    	var CAM = new FlxCamera(DRAW_START_X, DRAW_START_Y, ROOM_WIDTH, ROOM_HEIGHT);
 	camera = CAM;
@@ -60,7 +60,7 @@ class TilemapGeneric extends FlxGroup
 	// Globally Killed Objects.
 	// Keeps the _killed objects across loading maps
 	// When loading maps, <_killed> will be constructed with this data
-	// Format Stored = "assetmap::object.ID" e.g. "level01.tmx:";
+	// Format Stored = "assetmap::object.ID" e.g. "map/level_14.tmx:297";
 	var _killed_global:Array<String>;
 	
 	public function new(numLayers:Int = 1)
@@ -100,7 +100,8 @@ class TilemapGeneric extends FlxGroup
 		
 		_killed = [];
 		
-		// -- Check for global kills and store
+		// :: Restore any Killed Objects for this map.
+		//    Puts the Object ID back to _killed arrat
 		if (T.assetLoaded != null) // In case user loads a dynamic map. Dynamic maps don't have an asset name
 		for (i in _killed_global) {
 			if (i.indexOf(T.assetLoaded) == 0){
@@ -128,9 +129,7 @@ class TilemapGeneric extends FlxGroup
 	}//---------------------------------------------------;
 	
 	/**
-	   Flag an object as "killed" so in the next "get_objectTiles" function it
-	   will not get passed to the array.
-	   
+	   Flag an object as "killed" So in the next "get_objectTiles" function it will not get passed
 	   @param	o The Object to kill
 	   @param	global If TRUE, then it will stay killed in all map loads. False will only stay dead until map is reloaded
 	**/
@@ -152,8 +151,9 @@ class TilemapGeneric extends FlxGroup
 	
 	/**
 	   Get a list of Tiled Objects by Checking CENTER POINTS, or (X,Y) of objects ONLY
-	   Returns TILE OBJECTS Only (not polygons, text,etc )
-	   DEV : SEARCHES ALL OBJECTS, no quad_tree yet. If there are less han ~20 entities per map, and you
+	   @return TILE OBJECTS Only (not polygons, text, etc )
+	   
+	   DEV : SEARCHES ALL OBJECTS, no quad_tree yet. If there are few entities per map, and you
 	         don't call this at every frame. THIS IS OK FOR NOW. Don't worry.
 	   @param id Name of the Object Layer
 	**/

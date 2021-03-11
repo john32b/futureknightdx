@@ -720,11 +720,11 @@ class MapFK extends TilemapGeneric
 		return true;
 	}//---------------------------------------------------;
 	
-	// - Called from player, pressing up an any exit
+	// - Called from player, pressing up on any exit
 	// Note: The animatedTile, has all the data I need to know
 	public function exit_activate(e:AnimatedTile)
 	{
-		trace("-- Activating Exit --", e.type);
+		trace("> Activating Exit :", e.type);
 		
 		var locked = e.type.getParameters()[0];
 
@@ -737,6 +737,7 @@ class MapFK extends TilemapGeneric
 				case ["item", _ ] :
 					var item = EnumTools.createByName(ITEM_TYPE, d[1]);
 					var itemName = Item.ITEM_DATA[item].name;
+					trace(" Requires Item " , item.getName());
 					
 					if (Reg.st.HUD.equipped_item != item)
 					{
@@ -745,9 +746,10 @@ class MapFK extends TilemapGeneric
 						return;
 					}
 					
+					trace(" Unlocked ..");
+					
 					GLOBAL_EXITS_UNLOCKED.push(get_exit_uid(e.O));
 					
-					trace("YOU HAVE THE ITEM. EXIT UNLOCK KNOW", GLOBAL_EXITS_UNLOCKED);
 					// Do not return, it will unlock the exit later ->
 					
 					// Remove the currently selected
@@ -762,8 +764,7 @@ class MapFK extends TilemapGeneric
 			}
 		}// -- (locked)
 		
-		
-		// :: GOTO EXIT TARGET 
+		// :: Go to the Exit Target
 		
 		#if debug
 			if (e.O.prop.goto == null) {
@@ -785,7 +786,7 @@ class MapFK extends TilemapGeneric
 	// - Check and process
 	public function keyhole_activate(e:AnimatedTile)
 	{
-		trace("-- Activating KEYHOLE ");
+		trace("> Activating KEYHOLE ");
 		
 		var item = EnumTools.createByName(ITEM_TYPE, e.O.name);
 		#if debug
@@ -799,7 +800,7 @@ class MapFK extends TilemapGeneric
 			return;
 		}
 		
-		Reg.st.map.flash(15);
+		flash(15);
 		
 		// - Remove the item and kill the tile :
 		Reg.st.INV.removeItemWithID(item);
@@ -808,7 +809,8 @@ class MapFK extends TilemapGeneric
 		e.kill();
 		D.snd.playV(Reg.SND.item_keyhole);
 		
-		// -- Check if it is the final keyhole of the final level,
+		// :: Special Occation
+		//    Check if it is the final keyhole of the final level
 		if (e.O.type == "final")
 		{
 			// Kill lasers
@@ -816,7 +818,7 @@ class MapFK extends TilemapGeneric
 			{
 				laser.kill();
 				Reg.st.map.killObject(laser.O, true);
-				trace("Removed Lasers globally");
+				trace("Removed Lasers, stored globally");
 			}
 			
 			// Change friend animation
@@ -824,7 +826,7 @@ class MapFK extends TilemapGeneric
 				fr[0].friendAnim2();
 			
 		}else{
-			// default, just append the map
+			// Normal Keyhole -- Append the "APPEND" layer 
 			Reg.st.map.appendMap(true);	
 		}
 	}//---------------------------------------------------;
@@ -833,8 +835,7 @@ class MapFK extends TilemapGeneric
 		
 	
 	/**
-	   - Append the "APPEND" layer to the current map
-	   - also makes it global (optionally)
+	   Append the "APPEND" layer to the current map
 	   @param save Push it to Global State
 	**/
 	public function appendMap(save:Bool = false)

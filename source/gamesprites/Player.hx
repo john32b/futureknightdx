@@ -901,7 +901,7 @@ class Player extends FlxSprite
 				_verticalJump = false;	// Help player escape if falls from above
 				fsm.goto(ONAIR);
 				
-			case LASER:
+			case LASER:	// This is the laser field on the final screen
 				hurt(10);
 				x = last.x;
 				if (fsm.currentStateName == ONAIR && velocity.y < 0) {
