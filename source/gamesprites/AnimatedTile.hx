@@ -41,6 +41,7 @@ class AnimatedTile extends MapSprite
 	// HACK:
 	// Use the animated tile class to present the friend sprite
 	// This is the easiest, because animTiles are already managed
+	// @called when spawning from RoomSprites.spawn
 	public function setFriend(o:TiledObject)
 	{
 		super.spawn(o, 0);

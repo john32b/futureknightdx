@@ -5,11 +5,6 @@
 	It is read from the TiledEditor Objects <type> field | check `EnemyAI_getAI()
 	Some types can have extra parameters, (defined in the TiledObject) as parameters
 		
-	
-	NOTES:
-	--------------
-		- Parameter in REG object
-	
 	AI TYPES:
 	--------------
 	
@@ -36,7 +31,6 @@
 	
 **/
 
-
 package gamesprites;
 
 import djA.DataT;
@@ -54,11 +48,12 @@ import flixel.FlxObject;
 import flixel.animation.FlxAnimation;
 import flixel.math.FlxAngle;
 
-@:access(gamesprites.Enemy)
 
+// - This is to be extended into specific behavior classes
+@:access(gamesprites.Enemy)
 class Enemy_AI 
 {
-	// Pixel padding to center of chase target
+	// Pixel offset from center of chase target
 	static inline var CHASE_CORRECTION = 2;
 	
 	var e:Enemy;
@@ -88,7 +83,6 @@ class Enemy_AI
 	
 	public function kill()
 	{
-
 	}//---------------------------------------------------;
 	
 	// --
@@ -130,78 +124,28 @@ class Enemy_AI
 			e.velocity.y = 0;
 	}//---------------------------------------------------;
 	
-	// From TILED MAP enemy type to an AI
-	public static function getAI(type:String, E:Enemy):Enemy_AI
-	{
-		var ai:Enemy_AI;
-		switch(type)
-		{
-			case "final": 
-				E.startHealth = Enemy.PAR.health_phase1;
-				E.spawnTime = -1;	// never respawn
-				ai = new AI_Final_Boss(E);
-			case "move_x": ai = new AI_Move_X(E);
-			case "move_y": ai = new AI_Move_Y(E); 
-			case "bounce": ai = new AI_Bounce(E);
-			case "chase": 
-				E.startHealth = Enemy.PAR.health_chase;
-				ai = new AI_Chase(E); 
-			case "big_chase" : 
-				E.startHealth = Enemy.PAR.health_big;
-				E.spawnTime = Enemy.PAR.spawntime_big;
-				E.speed = Enemy.PAR.speed_big;
-				ai = new AI_BigChase(E); 
-			case "big_tall" :
-				E.startHealth = Enemy.PAR.health_tall;
-				E.spawnTime = Enemy.PAR.spawntime_big;
-				ai = new AI_Turret(E, 1);
-			case "big_bounce": 
-				E.startHealth = Enemy.PAR.health_long;
-				E.speed = Enemy.PAR.speed_long;
-				ai = new AI_BigBounce(E); 
-			case "turret" : 
-				E.startHealth = Enemy.PAR.health_turret;
-				ai = new AI_Turret(E);
-			case _: 
-				ai = new Enemy_AI(E);
-		}
-		return ai;
-	}//---------------------------------------------------;
-	
 }//--
 
 
-
-
-
-/** =========================================
- * 
- * 
- * Phase 1, move around and shoot 
- * Phase 2, vulnerable, must use destruct spell
- * Phase 3, Last short stage, more aggressive
- * Die	  , animate die and off
- * =========================================== */
+// FINAL BOSS PHASES
+// ===================== 
+// Phase 1: Move around
+// Phase 2: Entered if damaged enough. Move around faster and shoot more
+// Phase 3: Flashing and ready to use the destruct spell
+//				Does not last forever, returns to phase 2 and repeats
+// DIE : Flash and explode
+// 
 enum BOSS_STATE
 {
 	DIE;
 	PHASE1;
 	PHASE2;
 	PHASE3;
-}// --------------------;
+}
 
 
-
-
-// -- Phase 1: Move around
-// -- Phase 2: Entered if damaged enough. Move around faster and shoot more
-// -- Phase 3: Flashing and ready to use the destruct spell
-//				Does not last forever, returns to phase 2 and repeats
-// -- DIE : Flash and explode
-// 
 class AI_Final_Boss extends Enemy_AI
 {
-	
 	inline static var JITTER_TIME = 0.14;
 	inline static var JITTER_PIX = 3;
 	inline static var JITTER_LOOPS = 16;
@@ -214,10 +158,12 @@ class AI_Final_Boss extends Enemy_AI
 	var r0:Int = 0;			// General Purpose Counter
 	var r1:Int = 0;			// General Purpose
 	
-	// Destination Points:
+	// Destination Point Helpers
 	var dp:SimpleRect;
 	
-	// Pointer to a sequence
+	// The Sequence that the boss is going to execute
+	// 0-8 moves to this spot of the playarea. 10: Shoots bullets
+	// When the sequence is over, it loops
 	var current_sequence:Array<Int>;
 	var current_speed:Float;
 	var current_delay:Float;
@@ -243,7 +189,6 @@ class AI_Final_Boss extends Enemy_AI
 		
 	}//---------------------------------------------------;
 	
-	
 	override public function kill() 
 	{
 		trace("-- Final boss kill()");
@@ -255,21 +200,21 @@ class AI_Final_Boss extends Enemy_AI
 		super.update(elapsed);
 		fsm.update();
 		if (tw != null) {
-			tw.active = true;
+			tw.active = true; // I don't remember why I did this
 		}
 	}//---------------------------------------------------;
 	
+	// This is the phase when the boss is Animating to Die
 	function die_enter()
 	{
 		trace("-- Entering phase (DIE)");
-		e.health = 99999;// Make it virtually indestructible, until It gets killed automatically by a timer
+		e.health = 99999; // Make it virtually indestructible, until It gets killed automatically by a timer
 	}//---------------------------------------------------;
 	
 	
+	// Twitch and flash, and then kill for good
 	function die_update()
 	{
-		//  twitch and flash, and then kill for good
-		//  -
 		if ((timer += FlxG.elapsed) >= JITTER_TIME)
 		{
 			timer = 0;
@@ -291,27 +236,29 @@ class AI_Final_Boss extends Enemy_AI
 				D.snd.playR(Enemy.SND.big_die);
 				D.snd.play('fb_cry');
 			}
-			if (++r0 > JITTER_LOOPS)
-			{
+			
+			if (++r0 > JITTER_LOOPS) {
 				D.snd.playR(Enemy.SND.die);	// hit
 				D.snd.playV('fb_expl');		// final blow hit
 				e.visible = false;
 				e.explode();
 				e.kill();
 				Reg.st.map.flash(3);
-				Reg.st.handle_boss_die(e);	// Now tell main that the enemy is dead
+				Reg.st.HUD.score_add(Reg.SCORE.final_boss);
+				Reg.st.map.appendRemove();	// Remove the side walls
+				Reg.st.map.killObject(e.O, true);	// Kill forever
 			}
 		}
 	}//---------------------------------------------------;
 	
-	
+	// - Go to the next step of the animation sequence.
 	function gotoNext()
 	{
-		r0 ++;
-		if (r0 >= current_sequence.length) {
+		if (++r0 >= current_sequence.length) {
 			r0 = 0;
 		}
 		var code = current_sequence[r0];
+		
 		if (code == 10) {
 			// shoot 2 bullets,
 			tw = FlxTween.tween(e, {}, 0.4, {
@@ -352,16 +299,13 @@ class AI_Final_Boss extends Enemy_AI
 				gotoNext();
 			}//---------------------------------------------------;
 		
-		
 	
 	function phase1_enter()
 	{
 		trace("-- Entering phase (1)");
 		current_speed = 1.65;
 		current_delay = 0.28;
-		
 		D.snd.play('fb_cry');
-		
 		r0 = -1; // Because it gets ++ at the beginning and I need [0] to be the first
 		timer = 0;
 		current_sequence = [ 0, 2, 0, 2, 0, 2, 8, 6, 3, 5, 3, 1, 5, 7, 3, 1, 5, 7, 4];
@@ -385,7 +329,7 @@ class AI_Final_Boss extends Enemy_AI
 		trace("-- Entering phase (2)");
 		e.solid = true;
 		e.setColorTransform(1, 1, 1, 1, 200, 0, 0, 0);
-		e.health = Enemy.PAR.health_phase2; // No health down when potion used
+		e.health = Enemy.PAR.health_phase2;
 		D.snd.playV('fb_aggr');
 		current_speed = 1.1;
 		current_delay = 0.18;
@@ -401,8 +345,7 @@ class AI_Final_Boss extends Enemy_AI
 		// -- Flash RED 
 		if ((timer += FlxG.elapsed) >= JITTER_TIME)	{
 			timer = 0;
-			r1++;
-			if (r1 % 2 == 0) {
+			if (++r1 % 2 == 0) {
 				e.setColorTransform(1, 1, 1, 1, 180, 0, 0, 0);
 			}else{
 				e.setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);
@@ -413,7 +356,7 @@ class AI_Final_Boss extends Enemy_AI
 	function phase3_enter()
 	{
 		trace("-- Entering phase (3)");
-		e.health = 99999;
+		e.health = 99999;	// Make it impossible to defeat
 		e.solid = false;
 		Reg.st.HUD.set_text2("The droid is vulnerable. Use destruct now !");
 		D.snd.playV('fb_vuln');
@@ -421,12 +364,11 @@ class AI_Final_Boss extends Enemy_AI
 
 	function phase3_update()
 	{
-		// Just flash
+		// Just flash and random move x,y at every tick
 		if ((timer += FlxG.elapsed) >= JITTER_TIME)
 		{
 			timer = 0;
-			r1++;
-			switch(r1 % 4){
+			switch (++r1 % 4){
 				case 0:
 					e.setColorTransform(1, 1, 1, 1, 180, 180, 180, 0);
 					e.y += 3;
@@ -449,13 +391,13 @@ class AI_Final_Boss extends Enemy_AI
 	
 	
 
-	// -- Called from mainstate when the destruct spell is used 
-	// - Return VALID to use
+	// @called from PlayState.use_current_item when the destruct spell is used 
+	// @return if it was used or not.
 	public function spell_used():Bool
 	{
 		trace("- Destruct spell used");
 		
-		if (fsm.currentStateName == BOSS_STATE.PHASE3) 
+		if (fsm.currentStateName == PHASE3) 
 		{
 			softkill();
 			Reg.st.HUD.set_text2("Used Destruct.");
@@ -470,7 +412,8 @@ class AI_Final_Boss extends Enemy_AI
 	
 	
 	/**
-	   Called everytime phase HP is 0
+	   Called everytime HP is 0
+	   Overrides normal softkill, and switches Phases
 	**/
 	override public function softkill() 
 	{
@@ -486,20 +429,14 @@ class AI_Final_Boss extends Enemy_AI
 		
 		trace(" --> Softkill");
 		
-		if (fsm.currentStateName == PHASE1)
+		switch (cast(fsm.currentStateName,BOSS_STATE))
 		{
-			fsm.goto(PHASE2);
-		}else
-		if (fsm.currentStateName == PHASE2)	
-		{
-			fsm.goto(PHASE3);
+			case PHASE1: fsm.goto(PHASE2);
+			case PHASE2: fsm.goto(PHASE3);
+			case PHASE3: fsm.goto(DIE); // > Only called by destruct spell.
+			default:
+				// Should never happen
 		}
-		else
-		if (fsm.currentStateName == PHASE3) // only called by destruct spell
-		{
-			fsm.goto(DIE);
-		}
-		
 	}//---------------------------------------------------;
 	
 	
@@ -538,8 +475,11 @@ class AI_Turret extends Enemy_AI
 	var _bullet = 3;	// 3 is phasing, 4 is non phasing
 	var _waitTime:Float;
 	
-	// Type 0=Turret, 1=Tall Big
-	public function new(e:Enemy, type:Int = 0)
+	/**
+	   @param	e Enemy
+	   @param	type 0:Turret , 1:Tall Big Robot
+	**/
+	public function new(e:Enemy, type:Int)
 	{
 		super(e);
 		if (type == 0) {

@@ -83,7 +83,7 @@ class Enemy extends MapSprite
 	// 0:Normal, 1:Big, 2:Long, 3:Worm
 	var _gfxtype:Int = 0;
 	
-	// Time since last hurt. I count so it doesn't get hurt at each frame. Counts down to 0
+	// Time since last hurt. This is so an enemy can't get hurt at each frame. Counts down to 0
 	var _hurtTimer:Float = 0;
 	
 	// This is the palette coloring of the enemy. e.g. "red", "yellow"
@@ -143,9 +143,38 @@ class Enemy extends MapSprite
 		halfWidth = Std.int(width / 2);
 		halfHeight = Std.int(height / 2);
 		
-		// :: AI
-		// This will also set the health/spawntime of some enemy types
-		ai = Enemy_AI.getAI(o.type, this);
+		// :: Set Enemy AI, and parameters depending on `type`
+		switch(o.type)
+		{
+			case "move_x": ai = new AI_Move_X(this);
+			case "move_y": ai = new AI_Move_Y(this); 
+			case "bounce": ai = new AI_Bounce(this);
+			case "final":  // Final Boss
+				startHealth = PAR.health_phase1;
+				spawnTime = -1;	// Boss can never respawn, And will be killed for good when is dead
+				ai = new AI_Final_Boss(this);
+			case "chase": 
+				startHealth = PAR.health_chase;
+				ai = new AI_Chase(this); 
+			case "big_chase" : 
+				startHealth = PAR.health_big;
+				spawnTime = PAR.spawntime_big;
+				speed = PAR.speed_big;
+				ai = new AI_BigChase(this);
+			case "big_tall" :
+				startHealth = PAR.health_tall;
+				spawnTime = PAR.spawntime_big;
+				ai = new AI_Turret(this, 1);
+			case "big_bounce": 
+				startHealth = PAR.health_long;
+				speed = PAR.speed_long;
+				ai = new AI_BigBounce(this);
+			case "turret" : 
+				startHealth = Enemy.PAR.health_turret;
+				ai = new AI_Turret(this, 0);
+			case _: 
+				ai = new Enemy_AI(this); // Immobile
+		}
 		
 		// :: Lastly check for overrides from TILED
 		if (o.prop != null && o.prop.speed != null)
@@ -194,7 +223,9 @@ class Enemy extends MapSprite
 		}
 	}//---------------------------------------------------;
 	
-	// --
+	// - This is the function to call when an enemy is destroyed in gameplay
+	// - Score, Explosion, and Prepare to be respawned
+	// - Note the Final Boss does not call this
 	public function softKill()
 	{
 		if (_gfxtype > 0) {
@@ -214,6 +245,7 @@ class Enemy extends MapSprite
 
 	}//---------------------------------------------------;
 	
+	// -- This is for killing an enemy internally. When it is to be removed
 	override public function kill():Void 
 	{
 		ai.kill();

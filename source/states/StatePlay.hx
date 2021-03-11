@@ -323,12 +323,11 @@ class StatePlay extends FlxState
 				return;
 			}
 			// Boss exists: I need its AI object
-			// Sound handled in routine()
+			// Sound handled in there
 			if (cast(en.ai, AI_Final_Boss).spell_used()) {
 					INV.removeItemWithID(item);
 					HUD.item_pickup();
 					HUD.score_add(Reg.SCORE.item_destruct);	
-					
 			}	
 			
 		case RELEASE_SPELL:
@@ -358,19 +357,6 @@ class StatePlay extends FlxState
 			}
 		}
 	}//---------------------------------------------------;
-	
-	// -- @called from final boss sprite when it dies
-	//    DEV: I don't know. I could call all these from there??
-	public function handle_boss_die(e:Enemy)
-	{
-		// Score
-		HUD.score_add(Reg.SCORE.final_boss);
-		// Remove the side walls
-		map.appendRemove();
-		// Kill forever
-		map.killObject(e.O, true);
-	}//---------------------------------------------------;
-	
 	
 	// -- @called from player, handles special events
 	function on_player_events(name:String)
