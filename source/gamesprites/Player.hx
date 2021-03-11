@@ -68,7 +68,7 @@ class Player extends FlxSprite
 	inline static var COLOR_COMBO = "blue";
 	
 	inline static var I_TIME_REVIVE = 1.4;			// Invincible time after being revived
-	inline static var INTERACT_MIN_TIME = 350;		// Minimum time allowed to interact with an animated tile (exit or weapon)
+	inline static var INTERACT_MIN_TIME = 350;		// Minimum time allowed between interactions with an animated tile (exit or weapon)
 	
 	inline static var HEALTH_TICK = 0.05;			// Refresh life every this much
 	inline static var HEALTH_LOSS = 2;				// Loss per tick
@@ -161,10 +161,8 @@ class Player extends FlxSprite
 	// This is the one that when reaches ZERO, the player will die
 	var healthSlow:Float;
 	
-	// Confuser is active when this is >0. Will count down to 0 and restore enemies
-	// DEV: I am checking this here with the player, because I want to share the confuser
-	//      timer with the player active state. i.e. don't count the timer when inventory is open
-	public var confuserTimer:Float;
+	// Link to a function managing some player events [die,die_final,revive,friend]
+	public var pushEvent:String->Void;
 	
 	// -----------------------------------------------------------------------;
 	public function new() 
@@ -243,12 +241,10 @@ class Player extends FlxSprite
 			
 			if (lives == 0)
 			{
-				Reg.st.handle_player_no_lives();
+				pushEvent('die_final');
 				active = false;
 			}else
 			{
-				Reg.st.ROOMSPR.enemies_freeze(false);
-				confuserTimer = 0;	// just in case it was active
 				revive();
 				physics_start();
 				Reg.SAVE_GAME();
@@ -669,12 +665,6 @@ class Player extends FlxSprite
 			}
 		}
 		
-		// Check confuser
-		if (confuserTimer > 0) {
-			if ((confuserTimer -= elapsed) <= 0) {
-				Reg.st.ROOMSPR.enemies_freeze(false);
-			}
-		}
 	}//---------------------------------------------------;
 	
 	
@@ -687,8 +677,8 @@ class Player extends FlxSprite
 		physics_stop();
 		animation.play("die");
 		D.snd.play(snd.die);
-		Reg.st.ROOMSPR.enemies_freeze(true);
 		fsm.goto(DEAD);
+		pushEvent('die');
 	}//---------------------------------------------------;
 	
 	/**
@@ -736,13 +726,14 @@ class Player extends FlxSprite
 		FlxFlicker.flicker(this, Reg.P_DAM.i_time, Reg.P.flicker_rate);
 	}//---------------------------------------------------;
 	
-	// -- Revives when dead, also at the first time for initialization
+	// -- Revives when dead
 	override public function revive():Void 
 	{
 		super.revive();
 		fullHealth();
 		_htick = 0;
 		if (lives < START_LIVES) FlxFlicker.flicker(this, I_TIME_REVIVE, Reg.P.flicker_rate);
+		pushEvent('revive');
 	}//---------------------------------------------------;
 	
 	
@@ -761,14 +752,12 @@ class Player extends FlxSprite
 	{
 		alive = true;
 		
-		confuserTimer = 0;	// Deactivate confuser
-		
 		// > Do not touch slowHealth, as it could be counting down, even if changing levels
 		
 		// :: Position ::
 		_snapToFloor(X, Y);
 		
-		// Reset physics with a stop,start
+		// Reset physics with a stop/start to initialize vars
 		physics_stop();
 		physics_start();
 		
@@ -946,7 +935,7 @@ class Player extends FlxSprite
 				}
 				
 			case FRIEND:
-				Reg.st.handle_rescue_friend();
+				pushEvent('friend');
 				
 			case _:
 		}
@@ -1033,9 +1022,11 @@ class Player extends FlxSprite
 		_sndTick += FlxG.elapsed;
 	}//---------------------------------------------------;
 	
-		
-	// -- Code BORROWED from <MapSprite.hx>
-	// X,Y are world coordinates
+	/**
+	   Snaps Player to the Floor.
+	   @param	X World Coordinates
+	   @param	Y World Coordinates
+	**/
 	function _snapToFloor(X:Float, Y:Float)
 	{
 		var SP_TILE = new SimpleCoords(Std.int(X / 32) * 4 , Std.int(Y / 32) * 4);
@@ -1049,10 +1040,12 @@ class Player extends FlxSprite
 		}
 	}//---------------------------------------------------;
 	
-	
-	// -- Check if player is on floor and can interact with animated tile
-	// - Takes into account timings etc
-	// - Produces INTERACT symbol
+	/**
+	   Request Interaction with an ANIMATED TILE
+	   - Basically checks if player is allowed to trigger the TILE
+		- Checks Buffer time between interactions
+		- Player on floor
+	**/
 	function _interact_anim_request():Bool
 	{
 		if (fsm.currentStateName != ONFLOOR) return false;

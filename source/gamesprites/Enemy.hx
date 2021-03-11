@@ -166,8 +166,8 @@ class Enemy extends MapSprite
 		animation.play('main', true);
 		ai.respawn();	// The AI will actually place it
 		
-		// Check confuser active
-		if (Reg.st.player.confuserTimer > 0) {
+		// Check if confuser is active
+		if (Reg.st.ROOMSPR.counter > 0) {
 			moves = false;
 		}
 		

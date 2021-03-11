@@ -17,12 +17,14 @@ ROOM SPRITES MANAGER
 
 package;
 
+import djFlixel.D;
 import flixel.FlxBasic;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup;
 import djfl.util.TiledMap;
 import djfl.util.TiledMap.TiledObject;
 import MapTiles.EDITOR_TILE;
+import flixel.util.FlxDestroyUtil;
 import gamesprites.AnimatedTile;
 import gamesprites.Enemy;
 import gamesprites.Item;
@@ -41,6 +43,10 @@ class RoomSprites extends FlxGroup
 	
 	// Sub Groups. Holds all the inner groups
 	var sg:Array<FlxTypedGroup<MapSprite>>;
+	
+	// Counts down, mainly used for Confuser Item Effect, where the aliens stop moving for a bit
+	// -- Direct Access set to >0 to start counting down to 0, when it reaches 0 it will unfreeze enemies
+	public var counter:Float = 0;
 		
 	//====================================================;
 	
@@ -61,7 +67,9 @@ class RoomSprites extends FlxGroup
 		stash = [];	
 	}//---------------------------------------------------;
 	
-	
+	/**
+	   Creates/Spawns an Entity, based off an EntityData (fed from the Map)
+	**/
 	public function spawn(en:TiledObject)
 	{
 		var data = MapTiles.translateEditorEntity(en.gid);
@@ -102,7 +110,7 @@ class RoomSprites extends FlxGroup
 			// DEV: I need to check for (exists) because else it will also put in the killed sprites
 			// 		and the new ones when they get created, they would be already in the stash
 			//		and would be destroyed on stashkill()
-			//      -- I am logging this because I has an issue --
+			//      -- I am logging this because I had an issue --
 			if (i.exists) stash.push(i);
 		}
 	}//---------------------------------------------------;
@@ -122,8 +130,13 @@ class RoomSprites extends FlxGroup
 			i.kill();
 		}
 		stash = [];
+		counter = 0;
 	}//---------------------------------------------------;
-		
+	
+	/**
+	   Freeze all enemies.
+	   @param	freeze True to Freeze. False to Unfreeze
+	**/
 	public function enemies_freeze(freeze:Bool)
 	{
 		for (i in gr_enemy)
@@ -133,7 +146,6 @@ class RoomSprites extends FlxGroup
 			}
 		}
 	}//---------------------------------------------------;
-	
 	
 	public function getAnimTiles(type:AnimTileType):Array<AnimatedTile>
 	{
@@ -146,6 +158,18 @@ class RoomSprites extends FlxGroup
 		return ar;
 	}//---------------------------------------------------;
 	
+	
+	override public function update(elapsed:Float):Void 
+	{
+		super.update(elapsed);
+		// This should not be called when the game is paused.
+		if (counter > 0) {
+			if ((counter -= elapsed) <= 0) {
+				enemies_freeze(false);
+				counter = 0;
+			}
+		}
+	}//---------------------------------------------------;
 	
 	// Return the boss if it exists in this room, null for not found
 	public function getFinalBoss():Enemy

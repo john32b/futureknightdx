@@ -3,7 +3,8 @@
    Specialized UI Indicator for button prompts
    
    - setAt(Frame,X,Y) to activate
-   - It will auto-kill when not got a call in <KILL_CHECK_TIME>
+   
+   
    
 -----------------------------------------------**/
   
@@ -30,9 +31,11 @@ class KeyIndicator extends UIIndicator
 	}//---------------------------------------------------;
 
 	/**
-	   Show the indicator, the Y position is autocalculated 
-	   @param	type 0:Arrow UP | todo more?
-	   @param	X Pixel position
+	   It places the '^' indicator right above an Animated Tile
+	   - Can be called every frame of the overlap.
+	   - Once it is no longer called, it will auto kill()
+	   @called by Player.event_anim_tile();
+	   @param	T The Animated Tile this indicator should align to
 	**/
 	public function setAt(T:AnimatedTile)
 	{
@@ -40,11 +43,9 @@ class KeyIndicator extends UIIndicator
 		if (alive) return;
 		
 		var X = (Std.int(T.x / 32) * 32) + 16;
-		//var Y = Reg.st.player.y - (frameHeight / 2);
-		
-		var Y = Reg.st.player.y - (frameHeight / 2);
 		var Y = T.y - (frameHeight / 2);
 		
+		// If it is offscreen lower it a bit
 		if ( (Y - frameHeight / 2) < Reg.st.map.roomCornerPixel.y)
 		{
 			Y += 32;

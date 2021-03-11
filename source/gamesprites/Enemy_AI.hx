@@ -556,7 +556,7 @@ class AI_Turret extends Enemy_AI
 		if ((_timer += elapsed) > _waitTime)
 		{
 			_timer = 0;
-			if (Reg.st.player.confuserTimer > 0) return;
+			if (Reg.st.ROOMSPR.counter > 0) return;	// Confuser is active. Do not shoot.
 			if (!Reg.st.player.alive) return;
 			Reg.st.BM.createAt(_bullet, e.x + e.halfWidth, e.y + e.halfHeight, 0);
 			D.snd.play('fb_shoot', 0.3);

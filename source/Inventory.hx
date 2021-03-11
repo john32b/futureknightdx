@@ -234,7 +234,9 @@ class Inventory extends FlxSpriteGroup
 	{
 		return visible = Value;
 	}//---------------------------------------------------;
-	// --
+	
+	// @called directly from player when pressed the button
+	// - This will callback `onOpen`, which is handled by StatePlay
 	public function open()
 	{
 		if (isOpen || _tween != null) return;
@@ -243,7 +245,7 @@ class Inventory extends FlxSpriteGroup
 		
 		y = SCREEN_Y_OFF;
 		_tween = FlxTween.tween(this, {y:SCREEN_Y}, TWEEN_TIME, { onComplete:(_)->{
-			// DEV: I need to destroy and null, because it will not immediately be nulled
+			// DEV: I need to destroy and null. So that I can check for `null` later
 			_tween.destroy();
 			_tween = null;
 			active = true;

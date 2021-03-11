@@ -135,13 +135,12 @@ class Reg
 	{
 		trace(" -- Reg : Handle Dynamic Asset Reload.");
 		INI = new ConfigFileB(D.assets.files.get(PATH_INI));
-			
-		// DEBUG
 		D.snd.addSoundInfos(INI.getObj('sounds_vol'));
 	}//---------------------------------------------------;
 
 		
-	// Quickly add the monitor border. And set it to be drawn at one camera only
+	/** Adds the "AMSTRAD CPC" border to the current state
+	**/
 	public static function add_border():FlxSprite
 	{
 		var st = FlxG.state;

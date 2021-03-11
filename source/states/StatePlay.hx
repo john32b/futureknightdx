@@ -12,7 +12,6 @@
 	- I am making the MAP camera as the default camera for all sprites to be drawn on (flxcamera.defaultcameras)
 	- Then the HUD uses its own camera, and all of the HUD objects are specified to use the HUD camera
 	- The inventory and pause menu open inside the map camera
-	- That's it, it works. The flixel camera system is just annoying, Why can't I just have layers?
 
 ========================================= **/
 
@@ -37,17 +36,21 @@ import djFlixel.ui.FlxMenu;
 
 class StatePlay extends FlxState
 {
-	public var map:MapFK;
+	public var map:MapFK;				// MAP loading, drawing
 	public var player:Player;
-	public var ROOMSPR:RoomSprites;
+	public var ROOMSPR:RoomSprites;		// Enemies; Animated; Items
 	public var PM:ParticleManager;
 	public var BM:BulletManager;
 	public var INV:Inventory;
 	public var HUD:Hud;
-	public var key_ind:KeyIndicator;
+	public var key_ind:KeyIndicator;	// A special sprite that goes on top of some sprites, when players sits on front of them
 	
 	//====================================================;
 	
+	/**
+	   - Will always load a previously saved game
+	   - For NEW GAME, delete the save beforehand
+	**/
 	override public function create():Void 
 	{
 		super.create();
@@ -57,7 +60,8 @@ class StatePlay extends FlxState
 		Reg.add_border();
 	
 		player = new Player();
-		map = new MapFK(player);	// < WARNING : This creates a camera and makes it default
+			player.pushEvent = on_player_events;
+		map = new MapFK(player);	// << DEV WARNING : This creates a camera and makes it default. So mind the ordering.
 			map.onEvent = on_map_event;
 		ROOMSPR = new RoomSprites();
 		key_ind = new KeyIndicator(); 
@@ -68,7 +72,7 @@ class StatePlay extends FlxState
 			INV.onOpen = pause;
 			INV.onItemSelect = on_inventory_select;
 
-		// :: Ordering
+		// :: Layer Ordering
 		add(map);
 		add(ROOMSPR);
 		add(player);
@@ -83,7 +87,7 @@ class StatePlay extends FlxState
 		
 		// --
 		var MAP_TO_LOAD = "";
-		var _isNew = false;
+		var _isNew = false;	// Is it a new game
 		
 		// -- Load game or new game
 		var S = Reg.LOAD_GAME();
@@ -129,11 +133,14 @@ class StatePlay extends FlxState
 			FlxFlicker.flicker(player, 0.5, 0.04, true);
 		}
 		
-		D.snd.stopMusic();
+		D.snd.stopMusic(); /// TODO < : MUSIC!
 	}//---------------------------------------------------;
 		
 		
-	// --
+	/**
+	   Usually called when the inventory opens
+	   - Can by called on its own
+	**/
 	public function pause()
 	{
 		ROOMSPR.active = false;
@@ -142,7 +149,9 @@ class StatePlay extends FlxState
 		BM.active = false;
 	}//---------------------------------------------------;
 	
-	// --
+	/**
+	   Called when the inventory closes
+	**/
 	public function resume()
 	{
 		ROOMSPR.active = true;
@@ -248,8 +257,7 @@ class StatePlay extends FlxState
 	
 	
 	
-	
-	// -- Called by player, activates current equipped item if any
+	// -- @called by player, activates current equipped item if any
 	public function use_current_item()
 	{		
 		var item:ITEM_TYPE = Reg.st.HUD.equipped_item;
@@ -289,12 +297,10 @@ class StatePlay extends FlxState
 				return;
 			}
 			
-			ROOMSPR.enemies_freeze(true);	// Player has timer for restore
-			player.confuserTimer = Reg.P.confuse_time;
+			ROOMSPR.enemies_freeze(true);
+			ROOMSPR.counter  = Reg.P.confuse_time;
 			
-			// Ok the above^ will freeze ALIVE enemies,
-			// I need to have a flag, so when an enemy is respawed, it will NOT move
-			// respect the global freeze flag ok?
+			// DEV: For enemies that are softKilled, when they respawn, they will respect the freeze timer
 			
 		case GLOVE:
 			HUD.set_text2("With this you are able to pick up hot objects");
@@ -334,8 +340,11 @@ class StatePlay extends FlxState
 		
 	}//---------------------------------------------------;
 	
-	
-	// -- AutoCalled whenever a room changes
+	/**
+	   AutoCalled whenever a room changes
+	   - Special checks, like is this the final boss room? etc
+	   @param	R Room Coordinates, 'x,y'
+	**/
 	function handle_room(R:String)
 	{
 		if (map.MAP_NAME == "Henchodroids lair")
@@ -350,8 +359,8 @@ class StatePlay extends FlxState
 		}
 	}//---------------------------------------------------;
 	
-	// -- Called from final boss sprite when it dies
-	//    I don't know. I could call all these in the enemy itself?
+	// -- @called from final boss sprite when it dies
+	//    DEV: I don't know. I could call all these from there??
 	public function handle_boss_die(e:Enemy)
 	{
 		// Score
@@ -362,37 +371,54 @@ class StatePlay extends FlxState
 		map.killObject(e.O, true);
 	}//---------------------------------------------------;
 	
-	// -- Called from player
-	public function handle_rescue_friend()
+	
+	// -- @called from player, handles special events
+	function on_player_events(name:String)
 	{
-		pause();
-		D.snd.playV('title');
-		var bf = new BoxFader();
-		add(bf);
-		new DelayCall(()->{
-			bf.fadeColor(()->{FlxG.switchState(new StateEnd()); } , {delayPost:2});
-		}, 2);
+		switch (name)
+		{
+			case "revive": // Called after reviving from dead
+				Reg.st.ROOMSPR.enemies_freeze(false);
+				
+			case "die":	// Every time player dies
+				Reg.st.ROOMSPR.counter = 0;
+				Reg.st.ROOMSPR.enemies_freeze(true);
+			
+			case "die_final": // After being dead, this is sent when no more lives left
+				var bf = new BoxFader();
+				add(bf);
+				new DelayCall(()->{
+					bf.fadeColor(()->{FlxG.switchState(new StateGameover()); });
+				}, 1.5);
+			
+			case "friend":
+				pause();
+				D.snd.playV('title');
+				var bf = new BoxFader();
+				add(bf);
+				new DelayCall(()->{
+					bf.fadeColor(()->{FlxG.switchState(new StateEnd()); } , {delayPost:2});
+				}, 2);
+				
+			default:
+		}
+		
 	}//---------------------------------------------------;
 	
 	
-	// -- Called from player
-	public function handle_player_no_lives()
-	{
-		var bf = new BoxFader();
-		add(bf);
-		new DelayCall(()->{
-			bf.fadeColor(()->{FlxG.switchState(new StateGameover()); });
-		}, 1.5);
-	}//---------------------------------------------------;
-	
-	// --
+	/**
+	   Handles MAP EVENTS as they occur
+	   - loadMap : Map has just loaded. Tilemap Created, Entities and Tiles Processed
+	   - roomEntities(EntityDataArray) : These entities exist in the current room. I need to create sprites based off this data
+	   - scrollStart : This is called before the new room entities are pushed
+	   - scrollEnd : New room has scrolled into the view
+	**/
 	function on_map_event(ev:MapFK.MapEvent)
 	{
 		switch(ev) 
 		{
 			case loadMap: 
-				// Map has just loaded. Tilemap Created, Entities and Tiles Processed
-				ROOMSPR.reset();
+				ROOMSPR.reset();	// Will clear all sprites and reset any timers
 				BM.reset();
 				PM.reset();
 				key_ind.kill();
@@ -408,32 +434,31 @@ class StatePlay extends FlxState
 				
 				INV.set_level_name(map.MAP_NAME);
 				
-			case roomEntities(b): 
-				// These entities are to be set in the current room
-				// DEV: I don't need to get player. ROOMSPR will ignore it
+			case roomEntities(b):
+				
 				for (en in b)  
 				{
 					ROOMSPR.spawn(en);
+					// DEV: When the new sprites spawn, they are inactive, (ROOMSPR is inactive)
 				}
-
+				
+				// Extra, handle special rooms:
 				handle_room(map.roomCurrent.toCSV());
 				
-			// This is called before the new room entities are pushed
 			case scrollStart:
 				PM.kill();
 				BM.kill();
-				for (e in ROOMSPR) e.active = false;
-				player.active = false;
-				ROOMSPR.stashSave();
+				ROOMSPR.active = player.active = false;
+				ROOMSPR.stashSave(); // < All sprites put to a stash, they are to be removed when the room stops scrolling later
 				
 			case scrollEnd:
 				key_ind.kill();
-				ROOMSPR.stashKill();
-				for (e in ROOMSPR) e.active = true;
-				player.active = true;
+				ROOMSPR.stashKill(); // < Kill all the sprites that were stashed earlier
+				ROOMSPR.active = player.active = true;
 		}
 	}//---------------------------------------------------;
 	
+	/** Inventory , an item was selected */
 	function on_inventory_select(id:ITEM_TYPE)
 	{
 		INV.close();
