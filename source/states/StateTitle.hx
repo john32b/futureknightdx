@@ -251,7 +251,8 @@ class StateTitle extends FlxState
 		menu.createPage("options","options").addM([
 			"Keyboard Redefine|link|keyredef",
 			"Volume|range|id=vol|range=0,100|step=5",
-			"Soft Pixels|toggle|id=softpix|c=false",	// this is going to be altered every time
+			//"Soft Pixels|toggle|id=softpix|c=false", // Decided to always have soft pixels
+			"Border|toggle|id=bord|c=false", // Starting state will be re-written later
 			"Back|link|@back"
 		]);
 		
@@ -262,10 +263,12 @@ class StateTitle extends FlxState
 			if (a == back){
 				D.snd.playV('cursor_back');
 			}else				
-			if (a == page && b == "options") {
+			if (a == page && b == "options") {	// Options page just came on
+				
 				// Alter the first index of the current
-				menu.item_update(1, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });	
-				menu.item_update(2, (t)->{t.data.c = D.SMOOTHING; });
+				menu.item_update(1, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });
+				menu.item_update(2, (t)->{t.data.c = Reg.border.visible;});
+				//menu.item_update(2, (t)->{t.data.c = D.SMOOTHING; }); // Old second index
 			}else
 			if (a == page && b == "main") {
 				var S = Reg.SAVE_EXISTS();
@@ -294,6 +297,8 @@ class StateTitle extends FlxState
 						FlxG.sound.volume = b.data.c / 100;
 					case "softpix":
 						D.SMOOTHING = b.data.c;
+					case "bord":
+						Reg.border.visible = b.data.c;
 					case "keyredef":
 						menu.close(true);
 						sub_get_keys(()->{

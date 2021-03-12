@@ -26,6 +26,7 @@ class Main extends Sprite
 		D.init({
 			name:"Future Knight Remake " + Reg.VERSION,
 			savename:"fkdx",
+			smoothing:true,
 			debug_keys:true		// Automatic asset reload on F12
 		});
 		
@@ -36,27 +37,30 @@ class Main extends Sprite
 		D.assets.reload( ()->{
 			trace("Assets Loaded, Staring game ..");
 			addChild(new flixel.FlxGame(320, 240, START_STATE, 2, FPS, FPS, false));
-			Reg.init_post();
 			
 			// -- Add a border/overlay
 			// TODO::
-			border = new Bitmap(flixel.system.FlxAssets.getBitmapData(Reg.IM.STATIC.overlay_scr));
-			border.smoothing = true;
-			border.pixelSnapping = "never";
-			addChild(border);
+			var b = new Bitmap(flixel.system.FlxAssets.getBitmapData(Reg.IM.STATIC.overlay_scr));
+			Reg.border = b;
+			b.smoothing = true;
+			b.pixelSnapping = "never";
+			addChild(b);
 			FlxG.signals.gameResized.add(onResize);
 			onResize(0, 0);	// Force a border size fix
+			
+			// --
+			Reg.init_post();
 		});
 		
 	}//---------------------------------------------------;
 	
-	var border:Bitmap;
 	function onResize(w:Int,h:Int)
 	{
-		border.x = FlxG.scaleMode.offset.x;
-		border.y = FlxG.scaleMode.offset.y;
-		border.width = FlxG.scaleMode.gameSize.x;
-		border.height = FlxG.scaleMode.gameSize.y;
-	}
+		var b = Reg.border;
+		b.x = FlxG.scaleMode.offset.x;
+		b.y = FlxG.scaleMode.offset.y;
+		b.width = FlxG.scaleMode.gameSize.x;
+		b.height = FlxG.scaleMode.gameSize.y;
+	}//---------------------------------------------------;
 	
 }//--end class--

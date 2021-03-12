@@ -62,7 +62,8 @@ class SubStatePause extends FlxSubState
 			
 			menu.createPage("options","OPTIONS").addM([
 				"Volume|range|id=vol|range=0,100|step=5",
-				"Soft Pixels|toggle|id=softpix|c=false",
+				//"Soft Pixels|toggle|id=softpix|c=false",
+				"Border|toggle|id=bord|c=false", // Starting state will be re-written later
 				"Back|link|@back"
 			]);
 			
@@ -75,7 +76,8 @@ class SubStatePause extends FlxSubState
 				}else
 				if (a == page && b == "options") {
 				menu.item_update(0, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });
-				menu.item_update(1, (t)->{t.data.c = D.SMOOTHING; });
+				menu.item_update(1, (t)->{t.data.c = Reg.border.visible;});
+				//menu.item_update(1, (t)->{t.data.c = D.SMOOTHING; });
 				}
 				else if (a == start) {
 					close();
@@ -91,6 +93,8 @@ class SubStatePause extends FlxSubState
 				{
 					case "softpix": 
 						D.SMOOTHING = b.data.c;
+					case "bord":
+						Reg.border.visible = b.data.c;		
 					case "vol":
 						FlxG.sound.volume = b.data.c / 100;
 					case "resume":

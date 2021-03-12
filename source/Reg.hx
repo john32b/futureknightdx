@@ -5,6 +5,8 @@ import djFlixel.D;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.system.scaleModes.PixelPerfectScaleMode;
+import openfl.display.Bitmap;
 import states.StatePlay;
 import states.SubStatePause;
 
@@ -86,6 +88,8 @@ class Reg
 	// This is for quick access to game elements
 	public static var st:StatePlay;
 	
+	public static var border:Bitmap;
+	
 	//====================================================;
 	//====================================================;
 	
@@ -113,9 +117,13 @@ class Reg
 		var _LS = D.save.load('settings');
 		if (_LS != null) {
 			trace(" -- Setings Restoring", _LS);
-			D.SMOOTHING = _LS.aa;
+			//D.SMOOTHING = _LS.aa;
+			border.visible = _LS.bord;
 			D.snd.setVolume("master", _LS.vol);
 		}
+		
+		FlxG.scaleMode = new PixelPerfectScaleMode();	// This makes the HL target graphics nice.
+		FlxG.sound.soundTrayEnabled = false;
 		
 		// -- Restore keys
 		var _LK = D.save.load('keys');
@@ -172,7 +180,7 @@ class Reg
 	{
 		D.save.setSlot(0);
 		D.save.save('settings', {
-			aa:  D.SMOOTHING,
+			bord:  border.visible,
 			vol: FlxG.sound.volume
 		});
 		D.save.flush();
