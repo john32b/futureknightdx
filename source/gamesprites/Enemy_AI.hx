@@ -308,7 +308,7 @@ class AI_Final_Boss extends Enemy_AI
 		D.snd.play('fb_cry');
 		r0 = -1; // Because it gets ++ at the beginning and I need [0] to be the first
 		timer = 0;
-		current_sequence = [ 0, 2, 0, 2, 0, 2, 8, 6, 3, 5, 3, 1, 5, 7, 3, 1, 5, 7, 4];
+		current_sequence = [ 0, 2, 0, 2, 8, 6, 3, 5, 3, 1, 5, 7, 3, 1, 5, 7, 4];
 		gotoNext();
 	}//---------------------------------------------------;
 	function phase1_update()
@@ -335,7 +335,7 @@ class AI_Final_Boss extends Enemy_AI
 		current_delay = 0.18;
 		r0 = -1; // Because it gets ++ at the beginning and I need [0] to be the first
 		timer = 0;
-		current_sequence = [ 0, 10, 2, 0, 2, 10, 5, 10, 3, 10, 6, 8, 10, 5, 10, 4, 1, 10, 4, 1];
+		current_sequence = [ 0, 10, 2, 10, 5, 10, 3, 10, 6, 8, 10, 5, 10, 4, 1, 10, 4, 1];
 		Reg.st.map.flash(2);
 		gotoNext();
 	}//---------------------------------------------------;
