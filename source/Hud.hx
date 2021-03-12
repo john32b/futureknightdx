@@ -90,7 +90,7 @@ class Hud extends FlxGroup
 		#if (flash || canvas)
 		camera.antialiasing = D.SMOOTHING;
 		#end
-		FlxG.cameras.add(camera);
+		FlxG.cameras.add(camera, false);	// false means not a default camera. Only this group will draw on this camera
 		
 		// > after creating the camera
 		add(bg);
@@ -128,8 +128,7 @@ class Hud extends FlxGroup
 	
 	override public function add(O:FlxBasic):FlxBasic 
 	{
-		O.cameras = [camera];
-		if (Std.is(O, FlxSprite)){
+		if (Std.isOfType(O, FlxSprite)){
 			var a = cast(O, FlxSprite);
 			a.moves = false;
 			a.solid = false;

@@ -39,8 +39,6 @@ class StateAmstrad extends FlxState
 		var rainbow = new RainbowStripes();
 		add(rainbow);
 		
-		Reg.add_border();
-		
 		var snd_load:FlxSound = null;
 		add(new FlxSequencer((seq)->{
 			switch(seq.step) {

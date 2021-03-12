@@ -32,9 +32,9 @@ class StateEnd extends FlxState
 		trace(":: End State");
 		D.snd.stopMusic();
 		// --
-		Reg.add_border();
 		pl = new Player();
 		map = new MapFK(pl);
+		FlxG.cameras.reset(map.camera);
 		add(map);
 		map.onEvent = (e)-> { if (e == loadMap) P01(); };
 		map.loadMap('end');

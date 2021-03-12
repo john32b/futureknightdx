@@ -147,6 +147,11 @@ class RoomSprites extends FlxGroup
 		}
 	}//---------------------------------------------------;
 	
+	/**
+	   Get all AnimatedTiles of a Type
+	   @param	type see AnimTileType.hx
+	   @return Array that can by empty
+	**/
 	public function getAnimTiles(type:AnimTileType):Array<AnimatedTile>
 	{
 		var ar:Array<AnimatedTile> = [];

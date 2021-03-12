@@ -40,8 +40,6 @@ class StateIntro extends FlxState
 		stars.STAR_ANGLE = 90;
 		add(stars);
 		
-		Reg.add_border();
-		
 		// --
 		var t1 = D.text.get('INCOMING DISTRESS SIGNAL', textst1);
 			D.align.screen(t1);
@@ -84,6 +82,8 @@ class StateIntro extends FlxState
 		pl = new Player();
 		// --
 		map = new MapFK(pl);
+		FlxG.cameras.reset(map.camera);	// << Make the default camera
+		
 		add(map);
 		map.onEvent = (e)-> { if (e == loadMap) P_01(); };
 		map.loadMap('intro');

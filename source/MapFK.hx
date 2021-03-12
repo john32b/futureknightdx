@@ -9,9 +9,7 @@
 	- Follows Player (from player global) and scrolls rooms
 	- Offers some tile checks functions to be used from Sprites
 	
-	
-	- EXIT HANDLER 
-		. handle exits
+	- Handles EXITS, since exit tiles are part of the MAP afterall
 	
 	DEBUG:
 	========
@@ -19,13 +17,11 @@
 	- Press (SHIFT + DIRECTION) to scroll to new rooms
 	- Press (SHIFT + MOUSE) to position player
 	
-	
 	LAYERS
 	======
 	0: Background
 	1: Shadows
 	2: FG Tiles / Collision
-	
 	
 **/
 
@@ -164,13 +160,11 @@ class MapFK extends TilemapGeneric
 		player = P;
 		
 		// - New camera for the map, also this is now the default camera for everything
-		var C = new FlxCamera(DRAW_START_X * 2, DRAW_START_Y * 2, ROOM_WIDTH, ROOM_HEIGHT);
-		camera = C;
+		camera = new FlxCamera(DRAW_START_X * 2, DRAW_START_Y * 2, ROOM_WIDTH, ROOM_HEIGHT);
+		
 		#if (flash || canvas)
 		camera.antialiasing = D.SMOOTHING;
 		#end
-		FlxG.cameras.add(C);
-		FlxCamera.defaultCameras = [C];	// < Make all sprites to only draw on that camera
 		
 		roomTotal = new SimpleCoords();
 		roomCurrent = new SimpleCoords();
@@ -380,8 +374,9 @@ class MapFK extends TilemapGeneric
 		if (roomcurrent_set(roomCurrent.x + x, roomCurrent.y + y))
 		{
 			if (tweenCamera != null){
-				tweenCamera.cancel();
+				tweenCamera.cancel(); // Should never should happen, but check
 			}
+				
 			onEvent(MapEvent.scrollStart);
 			roomcurrent_pushEntities();
 			tweenCamera = FlxTween.tween(camera.scroll, {
@@ -404,7 +399,8 @@ class MapFK extends TilemapGeneric
 		onEvent(MapEvent.scrollEnd);
 		
 		#if debug
-			// Player is dead when debug keys change rooms.
+			// Player is dead when used debug keys to change rooms
+			// Positions player in an open area
 			if (!player.alive) 
 			{
 				for (tx in 0...ROOM_TILE_WIDTH)
@@ -418,9 +414,6 @@ class MapFK extends TilemapGeneric
 				}
 			}
 		#end
-		
-		// DEV:
-		// User responsible to freeeze/unfreeze, kill/reapawn
 	}//---------------------------------------------------;
 
 	
@@ -561,14 +554,14 @@ class MapFK extends TilemapGeneric
 	// -- Send player a slide collision event
 	function _tilecol_slide_left(a:FlxObject,b:FlxObject)
 	{
-		if (Std.is(b, Player)) {
+		if (Std.isOfType(b, Player)) {
 			var t = cast (a, flixel.tile.FlxTile);
 			player.event_slide_tile(cast a, FlxObject.LEFT);
 		}
 	}//---------------------------------------------------;
 	function _tilecol_slide_right(a:FlxObject,b:FlxObject)
 	{
-		if (Std.is(b, Player)) {
+		if (Std.isOfType(b, Player)) {
 			var t = cast (a, flixel.tile.FlxTile);
 			player.event_slide_tile(cast a, FlxObject.RIGHT);
 		}
@@ -868,7 +861,6 @@ class MapFK extends TilemapGeneric
 		}		
 		trace(">> Removed Extra layer map");
 	}//---------------------------------------------------;
-
 	
 	
 	// Get a string id of an exit in this map
@@ -881,13 +873,15 @@ class MapFK extends TilemapGeneric
 	
 	#if debug
 	
+	/**
+	   Debug Keys
+	   . Shift + Click - teleport player
+	   . Shift + Direction Keys - Change Room
+	**/
 	function _update_debug()
 	{
-		// Click somewhere to put player there
-		
 		if (FlxG.keys.pressed.SHIFT)
 		{
-			//player._teleport(FlxG.mouse.x, FlxG.mouse.y);
 			if (FlxG.mouse.justPressed)
 			{
 				var MP = FlxG.mouse.getWorldPosition(camera);
@@ -907,8 +901,8 @@ class MapFK extends TilemapGeneric
 			}else if (D.ctrl.justPressed(DButton.DOWN)) {
 				vec.y = 1;
 			}
-			if (camera_move_rel(vec.x, vec.y)){
-				player.alive = false; // Skip auto-positioning in update()
+			if (camera_move_rel(vec.x, vec.y)) {
+				player.alive = false; // Keep track of whether debug keys were used to scroll
 			}
 		}
 		

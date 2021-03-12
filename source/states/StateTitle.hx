@@ -134,9 +134,6 @@ class StateTitle extends FlxState
 		pFader.fadeOff(seq.nextV, {time:0.3});
 		add(pFader);
 		
-		// :: Border
-		Reg.add_border();
-		
 		// ::
 		D.snd.playMusic('FK_Title');
 	}//---------------------------------------------------;	

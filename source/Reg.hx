@@ -141,15 +141,17 @@ class Reg
 		
 	/** Adds the "AMSTRAD CPC" border to the current state
 	**/
-	public static function add_border():FlxSprite
+	@:deprecated("I can't get it to work, after the recent update. Use a global overlay")
+	public static function add_border()
 	{
 		var st = FlxG.state;
-		var a = new FlxSprite(0, 0, IM.STATIC.overlay_scr);
-			a.scrollFactor.set(0, 0);
-			a.active = false;
-			a.camera = st.camera;
-		st.add(a);
-		return a;
+		var bord = new FlxSprite(0, 0, IM.STATIC.overlay_scr);
+		bord.scrollFactor.set(0, 0);
+		bord.active = false;
+		bord.camera = new flixel.FlxCamera();
+		FlxG.cameras.add(bord.camera, false);
+		st.add(bord);
+		trace(">> Added border");
 	}//---------------------------------------------------;
 	
 	public static function openPauseMenu()

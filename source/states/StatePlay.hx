@@ -36,7 +36,7 @@ import djFlixel.ui.FlxMenu;
 
 class StatePlay extends FlxState
 {
-	public var map:MapFK;				// MAP loading, drawing
+	public var map:MapFK;				// MAP Sprite + Logic
 	public var player:Player;
 	public var ROOMSPR:RoomSprites;		// Enemies; Animated; Items
 	public var PM:ParticleManager;
@@ -57,12 +57,14 @@ class StatePlay extends FlxState
 		
 		bgColor = Reg.BG_COLOR;
 		Reg.st = this;
-		Reg.add_border();
 	
 		player = new Player();
-			player.pushEvent = on_player_events;
-		map = new MapFK(player);	// << DEV WARNING : This creates a camera and makes it default. So mind the ordering.
-			map.onEvent = on_map_event;
+		player.pushEvent = on_player_events;
+		
+		map = new MapFK(player);
+		map.onEvent = on_map_event;
+		FlxG.cameras.reset(map.camera);	// << Make the map camera default for everything from now on
+			
 		ROOMSPR = new RoomSprites();
 		key_ind = new KeyIndicator(); 
 		PM = new ParticleManager();
@@ -73,7 +75,7 @@ class StatePlay extends FlxState
 			INV.onItemSelect = on_inventory_select;
 
 		// :: Layer Ordering
-		add(map);
+		add(map); 
 		add(ROOMSPR);
 		add(player);
 		add(PM);

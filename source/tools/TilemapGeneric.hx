@@ -9,16 +9,13 @@
  
  CAMERA TIP:
  ----------
- - You can create a new camera for the tilemap and have all the sprites use that camera
- - First create a new camera. e.g.:
-   	var CAM = new FlxCamera(DRAW_START_X, DRAW_START_Y, ROOM_WIDTH, ROOM_HEIGHT);
-	camera = CAM;
+ - If you want the Map Camera to be a specific size, and have sprites draw onto it
+ - First create a new camera
+    camera = new FlxCamera(DRAW_START_X, DRAW_START_Y, ROOM_WIDTH, ROOM_HEIGHT);
+ - Then Reset all game cameras to it
+    FlxG.cameras.reset(map.camera);	
+ - You can create other cameras after this, like a HUD
 	
- - Then you can either make this the `default` camera or make all sprites to use this camera
-	FlxCamera.defaultCameras = [CAM];
-	// or
-	player.cameras = [CAM]
- 
  ===============================*/
 
 package tools ;

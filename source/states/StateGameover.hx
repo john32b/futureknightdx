@@ -52,9 +52,6 @@ class StateGameover extends FlxState
 		add(tb);
 		tb.start();
 		
-		// --
-		Reg.add_border();
-		
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float):Void 
