@@ -32,12 +32,17 @@ class KeyCapture extends FlxBasic
 	// complete -> read KEYMAP manually
 	public var onEvent:String->String->Void;
 	
-	var c = 0; // current key being processed
-	
-	// This is the KEYMAP that will be built when all keys are captures
+	// This is the KEYMAP that will be built when all keys are captures.
 	public var KEYMAP(default, null):Array<FlxKey>;
+	
+	// e.g. ['up', 'right', 'down', 'left', 'ok / jump']
 	var NAMES:Array<String>;
 	
+	var keyname:String; // Current key name
+	
+	/**
+	   @param	kn The names of the keys to get, In sequence | e.g. ['up', 'right', 'down', 'left', 'ok / jump']
+	**/
 	public function new(kn:Array<String>)
 	{
 		super();
@@ -45,10 +50,8 @@ class KeyCapture extends FlxBasic
 		NAMES = kn;
 	}//---------------------------------------------------;
 	
-	
 	public function start()
 	{
-		c = 0;
 		FlxG.keys.reset();
 		FlxG.state.add(this);
 		waitNextKey();
@@ -59,17 +62,24 @@ class KeyCapture extends FlxBasic
 	// - if end of string, send complete event
 	function waitNextKey()
 	{
-		while (NAMES[c] == null || NAMES[c].length == 0)
+		if (NAMES.length == 0)
 		{
-			c++;
-			if (c >= NAMES.length) {
-				FlxG.state.remove(this);
-				onEvent('complete', '');
-				return;
-			}
+			FlxG.state.remove(this);
+			onEvent('complete', '');
+			return;
 		}
 		
-		onEvent('wait', NAMES[c]);
+		keyname = NAMES.shift();
+		if (keyname == null || keyname.length == 0)
+		{
+			KEYMAP.push( -1);
+			trace("HOLE KEY >>");
+			waitNextKey();
+			
+		}else{
+			onEvent('wait', keyname);
+		}
+		
 	}//---------------------------------------------------;
 	
 	
@@ -78,22 +88,15 @@ class KeyCapture extends FlxBasic
 		super.update(elapsed);
 		var k = FlxG.keys.firstJustPressed();
 		if ( k > 0) {
-			
 			FlxG.keys.reset();
 			var key:FlxKey = cast k;
-			
-			// -- Check if key valid
-			
-			if (KEYMAP.indexOf(key) >= 0)
-			{
-				onEvent('error', NAMES[KEYMAP.indexOf(key)]);
+			// -- Check if is not already defined
+			if (KEYMAP.indexOf(key) >= 0)  {
+				onEvent('error', keyname);
 				return;
 			}
-			
-			KEYMAP[c] = key;
-			onEvent('ok', NAMES[c]);
-			
-			c++;
+			KEYMAP.push(key);
+			onEvent('ok', keyname);
 			waitNextKey(); // > wait next or complete
 		}
 	}//---------------------------------------------------;

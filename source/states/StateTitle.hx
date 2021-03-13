@@ -301,9 +301,7 @@ class StateTitle extends FlxState
 						Reg.border.visible = b.data.c;
 					case "keyredef":
 						menu.close(true);
-						sub_get_keys(()->{
-							menu.open();
-						});
+						sub_get_keys( ()->menu.open() );
 					case "help":
 						slides = sub_get_help_slides();
 						menu.close();
@@ -426,13 +424,18 @@ class StateTitle extends FlxState
 	}//---------------------------------------------------;
 	
 	
-	/** Redefine keys, sprites and functionality */
+	/**
+	   Redefine Keys 
+	   - Asks for keys
+	   - Sets in D.ctrl and Saves Settings
+	**/
 	function sub_get_keys(onComplete:Void->Void)
 	{
-		// This is the same order as the dcontrols 360 layout
+		// This is the same order as the Dcontrols 360 layout
 		var ACTIONS = ['up', 'right', 'down', 'left', 'ok / jump', '', 'cancel / shoot', 'use item', '', 'pause / inventory'];
-		var KEYS = [];	// the actual FlxKeycodes that map to ACTIONS[]		
-		var COL = Pal_CPCBoy.COL; // Shortcut
+		var KEYS = [];	// The actual FlxKeycodes that map to ACTIONS[]		
+		var COL = Pal_CPCBoy.COL; // Quick typing
+		
 		D.text.formatClear();
 		D.text.formatAdd('<m>', COL[24], COL[3]);
 		D.align.pInit(0, 100);
@@ -440,6 +443,7 @@ class StateTitle extends FlxState
 		
 		var txt1 = D.align.pT('-', {ta:'c'}, {f:'fnt/score.ttf', s:6, c:COL[26], bt:1, bc:COL[2]});
 		var txt2 = D.align.pT('-', {ta:'c', oy:20}, {f:'fnt/score.ttf', s:6, c:COL[7]});
+		
 		var k = new KeyCapture(ACTIONS);
 		k.onEvent = (a, b)->{
 			if (a == "wait") {

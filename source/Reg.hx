@@ -20,7 +20,7 @@ class Reg
 	public static inline var VERSION = "1.4";
 	
 	// :: External parameters
-	static inline var PATH_INI  = "assets/test.ini";
+	static inline var PATH_INI  = "assets/fkdx.ini";
 	
 	// How long to wait on each screen on the banners
 	public static inline var BANNER_DELAY:Float = 12;
