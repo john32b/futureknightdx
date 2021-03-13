@@ -1,3 +1,8 @@
+/**
+   - A quick GameOver screen
+   - It WILL delete the savegame.
+**/
+
 package states;
 
 import djFlixel.D;
@@ -51,6 +56,10 @@ class StateGameover extends FlxState
 			{s:12, f:"fnt/score.ttf", bc:Pal_CPCBoy.COL[2], c:Pal_CPCBoy.COL[26], bs:2, bt:2});
 		add(tb);
 		tb.start();
+		
+		// --
+		D.save.deleteSlot(1);
+		trace("Save Slot (1) Deleted");
 		
 	}//---------------------------------------------------;
 	

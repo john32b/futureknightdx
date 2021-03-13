@@ -2,6 +2,7 @@
 	- When player completes the game
 	- End sequence
 	- Some data on map file "end.tmx"
+	- DELETES THE SAVEGAME!!!!
 ===================================== **/
 
 
@@ -38,7 +39,10 @@ class StateEnd extends FlxState
 		add(map);
 		map.onEvent = (e)-> { if (e == loadMap) P01(); };
 		map.loadMap('end');
+		
 		// --
+		D.save.deleteSlot(1);
+		trace("Save Slot (1) Deleted");
 	}//---------------------------------------------------;
 	
 	function P01()

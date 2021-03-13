@@ -112,6 +112,10 @@ class Reg
 	{
 		trace(" >>> Reg init (POST) ");
 		
+		#if debug
+			new Debug();
+		#end
+		
 		// -- Restore Settings
 		D.save.setSlot(0);
 		var _LS = D.save.load('settings');
@@ -131,10 +135,7 @@ class Reg
 			trace(" -- Keys Restoring", _LK);
 			D.ctrl.keymap_set(_LK);
 		}
-		
-		#if debug
-			new Debug();
-		#end
+
 	}//---------------------------------------------------;
 	
 	// Whenever D.assets gets reloaded, I need to reparse the data into the objects

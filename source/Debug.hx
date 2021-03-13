@@ -22,6 +22,11 @@ class Debug
 		
 		if (Reg.INI.exists('DEBUG', 'startPlay'))
 			FlxG.switchState(new StatePlay());
+			
+		if (Reg.INI.exists('DEBUG', 'delsave')){
+			D.save.deleteSave();
+			trace("INI File Trigger > Save Deleted");
+		}
 	}//---------------------------------------------------;
 
 	public function pl_kill()
