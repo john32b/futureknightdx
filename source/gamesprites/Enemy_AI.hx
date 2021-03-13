@@ -155,8 +155,8 @@ class AI_Final_Boss extends Enemy_AI
 	var tw:VarTween;
 	
 	var timer:Float = 0;	// General Purpose Timer
-	var r0:Int = 0;			// General Purpose Counter
-	var r1:Int = 0;			// General Purpose
+	var r0:Int = 0;			// General Purpose Counter. Used with current_sequence[]
+	var r1:Int = 0;			// General Purpose. Used to calculate MODS, like jittering and flashing
 	
 	// Destination Point Helpers
 	var dp:SimpleRect;
@@ -259,10 +259,20 @@ class AI_Final_Boss extends Enemy_AI
 		}
 		var code = current_sequence[r0];
 		
-		if (code == 10) {
-			// shoot 2 bullets,
-			tw = FlxTween.tween(e, {}, 0.4, {
-				onComplete:onTweenCompleteFire,
+		if (code == 10) { // shoot 2 bullets,
+			
+			// DEV: All I want here is a timer, but I am doing this with a tween, since the tween is managed already
+			// I am using (this.timer->0) because it needs a value there. All I care is the oncomplete function.
+			
+			tw = FlxTween.tween(this, {timer:0}, 0.4, {
+				onComplete:(_)->{
+					Reg.st.BM.createAt(5, e.x + e.halfWidth, e.y + e.halfHeight, 0);
+					D.snd.play('fb_shoot');
+					if (tw.executions == 2) { // Shoot 2 bullets (0,1,2)
+						tw.cancel();
+						gotoNext();
+					}
+				},
 				onUpdate:onTweenUpd,
 				type:FlxTweenType.LOOPING
 			});
@@ -271,34 +281,21 @@ class AI_Final_Boss extends Enemy_AI
 		{
 			var dest = getCoords(current_sequence[r0]);
 			tw = FlxTween.tween(e, {x:dest.x, y:dest.y}, current_speed, {
-				onComplete:onTweenComplete,
+				onComplete:(_)->gotoNext(),
 				onUpdate:onTweenUpd,
 				startDelay:current_delay,
 				ease:FlxEase.linear
 			});			
 		}
-
 	}//---------------------------------------------------;
-			// It is counter intuitive but it works:
-			function onTweenUpd(_tw:FlxTween)
-			{
-				// Will trigger ONCE, when this gets false
-				_tw.active = Reg.st.ROOMSPR.active;
-			}
-			function onTweenCompleteFire(_tw:FlxTween)
-			{
-				Reg.st.BM.createAt(5, e.x + e.halfWidth, e.y + e.halfHeight, 0);
-				D.snd.play('fb_shoot');
-				if (_tw.executions == 2) { // Shoot 3 bullets
-					_tw.cancel();
-					gotoNext();
-				}
-			}
-			function onTweenComplete(_tw:FlxTween)
-			{
-				gotoNext();
-			}//---------------------------------------------------;
-		
+	function onTweenUpd(_tw:FlxTween)
+	{
+		// - I AM linking the active state of the RoomSprites to the Tween
+		// It is q quick way to make the tween pause when the inventory is open.
+		_tw.active = Reg.st.ROOMSPR.active;
+	}//---------------------------------------------------;
+	
+	
 	
 	function phase1_enter()
 	{
