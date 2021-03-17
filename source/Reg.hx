@@ -5,6 +5,7 @@ import djFlixel.D;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.system.FlxAssets;
 import flixel.system.scaleModes.PixelPerfectScaleMode;
 import openfl.display.Bitmap;
 import states.StatePlay;
@@ -116,6 +117,15 @@ class Reg
 			new Debug();
 		#end
 		
+		// -- Add the border
+		var b = border = new Bitmap(FlxAssets.getBitmapData(Reg.IM.STATIC.overlay_scr), "always", true);
+		FlxG.game.addChild(b);
+		#if FLX_DEBUG
+		FlxG.game.swapChildren(b, FlxG.game.debugger); // Put the debugger on top of the overlay
+		#end
+		FlxG.signals.gameResized.add(onResize);
+		onResize(0, 0);
+		
 		// -- Restore Settings
 		D.save.setSlot(0);
 		var _LS = D.save.load('settings');
@@ -135,7 +145,7 @@ class Reg
 			trace(" -- Keys Restoring", _LK);
 			D.ctrl.keymap_set(_LK);
 		}
-
+		
 	}//---------------------------------------------------;
 	
 	// Whenever D.assets gets reloaded, I need to reparse the data into the objects
@@ -148,6 +158,12 @@ class Reg
 	}//---------------------------------------------------;
 
 		
+	static function onResize(w:Int,h:Int)
+	{
+		border.width = FlxG.scaleMode.gameSize.x;
+		border.height = FlxG.scaleMode.gameSize.y;
+	}//---------------------------------------------------;
+	
 	/** Adds the "AMSTRAD CPC" border to the current state
 	**/
 	@:deprecated("I can't get it to work, after the recent update. Use a global overlay")

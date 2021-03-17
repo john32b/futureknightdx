@@ -1,10 +1,12 @@
 /**
    Graphic Notes
-   - All bullets face right
+   - All bullets face right in the tilesheet
    - 20x20 
-**/
    
-
+   + Bullets are created by the BulletManager ( StatePlay.BM )
+   
+**/
+  
 
 package gamesprites;
 
@@ -57,7 +59,7 @@ class Bullet extends FlxSprite
 	
 	// ------------------------
 	
-	// This is set from the manager
+	// Points to the manager this bullet belongs to
 	var manager:BulletManager;
 		
 	// :: These are autoset on  `init()` ::

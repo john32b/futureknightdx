@@ -1,14 +1,10 @@
 /**
    FUTURE KNIGHT PLAYER CLASS
    -========================-
-  - Current version 2020, (updated from 2015 version)
-  - Tries to emulate the original game but with some improvements
-  
+  - Tries to emulate the original game (1986) but with some improvements
   
   = NOTES:
-	- Invincinble when flickering
-	
-
+	- Invincible when flickering
   
   = Changes from the CPC version
 	- Moves a bit faster
@@ -16,13 +12,6 @@
 	- Can latch on ladders on air
 	- Can drop off ladders
 	
-	
-  = Interactions :
-	- Reads physics parameters from <REG>
-	- Uses <Reg.st.map> for tile checking
-	- Is being sent <event_collide_slide> from the map
-	- Graphic declared in <Reg.hx>
-  
 ======================================== */
 
 package gamesprites;

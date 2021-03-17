@@ -5,7 +5,6 @@ Future Knight Image Assets
 
 - Declare all image tilesets along with metadata
 - Colorizes some assets, the sprite should not have to worry about colorizing assets
-- CACHE? I don't really need it. (TODO)
 
 == Color Templates Should be 4 colors
 	Based on the Aseprite CPC BOY palette
@@ -67,8 +66,7 @@ class ImageAssets
 	];
 	
 	
-	// This MAP will be translated on NEW() --from CPC_INDEX to REAL COLOR--
-	// - Check "_DRAFT_DESIGN.ase"
+	// Color Names to Color Combinations
 	var D_COL_NAME:Map<String,Array<Int>> = [
 	
 		// SPRITE COLORS:
