@@ -45,6 +45,9 @@ class StatePlay extends FlxState
 	public var HUD:Hud;
 	public var key_ind:KeyIndicator;	// A special sprite that goes on top of some sprites, when players sits on front of them
 	
+	
+	public var minimap:MiniMap;
+	
 	//====================================================;
 	
 	/**
@@ -73,6 +76,8 @@ class StatePlay extends FlxState
 			INV.onClose = resume;
 			INV.onOpen = pause;
 			INV.onItemSelect = on_inventory_select;
+			
+		minimap = new MiniMap();
 
 		// :: Layer Ordering
 		add(map); 
@@ -82,6 +87,7 @@ class StatePlay extends FlxState
 		add(BM);
 		add(key_ind);
 		add(INV);
+		add(minimap);
 		
 		// :: Creating the Hud will automatically create a camera, so do this last
 		HUD = new Hud();
@@ -113,12 +119,10 @@ class StatePlay extends FlxState
 		#if debug
 			var L = Reg.INI.get('DEBUG', 'startLevel');
 			if (L != null) MAP_TO_LOAD = L;
-			// This is when pressing [f12] to reload the map, spawn to the current level again
+			
+			// This is when pressing [f12] to reload the current map I am in again.
 			if (D.DEBUG_RELOADED) {
-				if (MapFK.LAST_LOADED.substr(0, 5) == "level") { // I don't want to reload "intro,end"
-					trace("Debug: [F12] Reload level", MapFK.LAST_LOADED);
-					MAP_TO_LOAD = MapFK.LAST_LOADED;
-				}
+				MAP_TO_LOAD = Debug.LAST_MAP_LOADED;
 			}
 		#end
 		
@@ -266,6 +270,13 @@ class StatePlay extends FlxState
 		if (item == null) return;
 		
 		switch (item) {
+			
+		case MAP:
+			if (!minimap.open())
+			{
+				// The minimap is not available for this region
+				HUD.set_text2("No use, this map is for the spaceship.");
+			}
 			
 		case BOMB1, BOMB2, BOMB3:
 			// :: Kill enemies forever and also enemies that are waiting to be spawned

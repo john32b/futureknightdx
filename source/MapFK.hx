@@ -120,12 +120,13 @@ class MapFK extends TilemapGeneric
 	var tweenCamera:VarTween;
 	
 	// Set this to load the appropriate BG+FG Tiles
-	public var MAP_NAME = "";		// Game map name . e.g. "Control Room", This is read from the tmx file
-	var MAP_TYPE = 0;				// 0:Space, 1:Forest, 2:Castle. Used in controlling graphic and tile properties
-	var MAP_FILE = "";		// The short name of the loaded map. e.g. "level_01"
+	public var MAP_NAME(default, null) = "";		// Game map name . e.g. "Control Room", This is read from the tmx file
+	public var MAP_FILE(default, null) = "";		// The short name of the loaded map. e.g. "level_01"
+	
+	var MAP_LOADED_ID = "";	// Combo of MAP:EXIT of the current map loaded.
+	var MAP_TYPE = 0;		// 0:Space, 1:Forest, 2:Castle. Used in controlling graphic and tile properties
 	var MAP_COLOR = "";		// Color id, check "ImageAssets.D_COL_NAME"
 	var MAP_COLOR_FG = "";	// Ladder + FG Tiles colors
-	var MAP_LOADED_ID = "";	// Combo of MAP:EXIT of the current map loaded.
 	
 	// Pointer? of all the exit TileObjects in this map
 	// ExitName->TiledObject
@@ -144,9 +145,6 @@ class MapFK extends TilemapGeneric
 	
 	// Pointer to the player. Needed for 
 	var player:Player;
-	
-	// The last map loaded, global var. Used for when F12 reloading 
-	public static var LAST_LOADED = "";
 	
 	//====================================================;
 	
@@ -196,12 +194,12 @@ class MapFK extends TilemapGeneric
 	
 		// From map short name to full asset path
 		// e.g. "level_02" -> "maps/level_02.tmx";
-		var assetPath = MAP_ASSET_PATH + d[0] + MAP_EXT;
+		var assetPath = MAP_ASSET_PATH + MAP_FILE + MAP_EXT;
 		
 		#if (debug && DYN_ASSETS)
 		
-			LAST_LOADED = MAP_LOADED_ID;
-			D.assets.getTextFile(MAP_REAL_PATH + d[0] + MAP_EXT, (mapData)->{
+			Debug.LAST_MAP_LOADED = MAP_LOADED_ID;
+			D.assets.getTextFile(MAP_REAL_PATH + MAP_FILE + MAP_EXT, (mapData)->{
 				load(mapData, true);
 						// DEV:
 						// Hacky way to make global killed objects work on dynamic assets
@@ -217,7 +215,7 @@ class MapFK extends TilemapGeneric
 					// :: This code is the same as the one below -----------
 					if (d[1] != null)  {
 						var exit = EXITS.get(d[1]);
-						if (exit == null) throw 'Exit Name : ${d[1]} does not exist in Map ${d[0]}';
+						if (exit == null) throw 'Exit Name : ${d[1]} does not exist in Map ${MAP_FILE}';
 						PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
 					}else {
 						if (PLAYER_SPAWN == null) throw 'Forgot to specify a player spawn point';

@@ -25,13 +25,18 @@ import flixel.effects.FlxFlicker;
 import haxe.EnumTools;
 
 
-// This is ALSO the itemID as it is on the EDITOR
-// Item ID = FRAME = EDITORID
-// - Place as Exit Requirements on an "exit" tile on the TILED Editor | custom properties " req: item:EXIT_PASS "
+/**
+
+	Item Definitions
+	- Ordering Matters!
+      . The order must be the same as the sprite image `ts_items` 
+	  . And the same order in 'editor_entity'
+	  . Remember `MapTiles.hx` translates Editor ID  -> Real Item ID
+**/
 enum ITEM_TYPE
 {
-	NONE; // 0
-	BOMB1;
+	NONE; 	// 0
+	BOMB1;	
 	BOMB2;
 	BOMB3;
 	GLOVE;
@@ -45,13 +50,14 @@ enum ITEM_TYPE
 	RELEASE_SPELL;
 	DESTRUCT_SPELL; 
 	SCEPTER;
+	MAP;		// 15
 }//---------------------------------------------------;
 
 
 class Item extends MapSprite
 {
 	// Note: BOMB1,BOMB2,BOMB3, all will get the data key => BOMB
-	// Icon Number is what <hud_items.png> index - 4
+	// 
 	public static var ITEM_DATA:Map<ITEM_TYPE,Hud.ItemHudInfo> = [
 	
 			BOMB1 => { name:"Bomb", desc:"This is a bomb!", icon:5 },
@@ -68,6 +74,7 @@ class Item extends MapSprite
 			RELEASE_SPELL => { name:"Release Spell", desc:"You found the Release spell", icon:13 },
 			DESTRUCT_SPELL => { name:"Destruct Spell", desc:"You have found the Destruct Spell", icon:14 },
 			SCEPTER => { name:"Scepter", desc:"You've found the scepter!", icon:15 }, 
+			MAP => { name:"Map", desc:"You found a map", icon:16 }
 	];
 	
 	inline static var BOUNCE = 2; 	// Vertical Pixel bounce on the Map

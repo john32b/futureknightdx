@@ -88,36 +88,31 @@ class MapTiles
 	public static var FG_START_DRAW = [2, 5, 5];
 	
 	
-	
-	// TILE ID as they are in the EditorEntity layer
+	// TILE ID as they are in the EditorEntity layer "editor_entity.png"
 	// These apply for all MAP_TYPES
 	// :: "tiletype" => [start_index, ?range]
 	public static var EDITOR_ENTITY(default, null):Map < EDITOR_TILE, Array<Int> > = [
 		ENEMY => [1, 20],
 		PLAYER => [25, 1],
-		ANIM => [26, 8],	// Animtiles will pused in <AnimatedTile.hx> and handled from there
-		ITEM => [34, 14],
+		ANIM => [26, 8],	// Animtiles will pushed to <AnimatedTile.hx> and handled from there
+		ITEM => [34, 15],
 		FRIEND => [24,1]
 	];
 	
 	
-	// Also declare these for easy access.
-	// ^ they are included in `EDUTOR_ENTITY` but I need it here as well
+	// These globals are just for quick reference.
 	public static var EDITOR_HAZARD = 29;
 	public static var EDITOR_EXIT   = 26;
-	
-	
-	public static var EDITOR_FINAL  = 15;
-	
+	public static var EDITOR_FINAL  = 15;	// Final Boss
 	
 	/**
 	   From EDITOR_ENTITY.PNG index (the index used in TILED editor)
-	   => to {type , index} type is EDITOR_ENUM and index starts with 0
-	   , read from 'EDITOR_ENTITY' array
+	   => to {type , index} type is EDITOR_TILE and INDEX starts with 0
+	   , reads from 'EDITOR_ENTITY' array
 	   e.g. GID:100 would translate to {GID:1,TYPE:ANIMATED_TILE}
-	   @param	gid As it is on the Tled Object GID
+	   @called by RoomSprites.spawn(), when it needs to create objects for Animated Tile IDs it gets
+	   @param	gid . Raw data, as it is on the Tiled Object GID
 	**/
-	   
 	public static function translateEditorEntity(gid:Int):{type:EDITOR_TILE, gid:Int}
 	{
 		for (k => v in EDITOR_ENTITY)
@@ -134,6 +129,13 @@ class MapTiles
 	}//---------------------------------------------------;
 	
 	
+	/**
+	   Checks if a tileID from the collision layer is of a specific type 
+	   @param	gid Tile ID to check
+	   @param	map MapID, 0:spaceship, 1:forest, 2:dungeon
+	   @param	type SOFT; SLIDE_LEFT; SLIDE_RIGHT; LADDER; LADDER_TOP; HAZARD_TILE;
+	   @return
+	**/
 	public inline static function fgTileIsType(gid:Int, map:Int, type:FG_TILE_TYPE):Bool
 	{
 		return ( 

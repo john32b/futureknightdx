@@ -13,9 +13,13 @@ import flixel.FlxG;
 import gamesprites.Item.ITEM_TYPE;
 import states.StatePlay;
 
+
 class Debug 
 {
-
+	
+	// Written by MAPFK. Used for when reloading maps
+	static public var LAST_MAP_LOADED:String = "";
+	
 	public function new() 
 	{
 		FlxG.console.registerObject("D", this);

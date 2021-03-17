@@ -33,7 +33,8 @@ class ImageAssets
 		overlay_scr:"im/monitor_overlay.png",
 		hud_inventory:"im/hud_inventory.png",
 		hud_bottom:"im/hud_bg.png",
-		tiles_shadow:"im/tiles_sh.png"
+		tiles_shadow:"im/tiles_sh.png",
+		minimap:"im/minimap.png"
 	};
 	
 	static var GFX:Map<String,{im:String,tw:Int,th:Int,col:Bool}> = [
