@@ -39,16 +39,17 @@ class Reg
 	// [INI FILE]
 	public static var P_DAM = {
 		from_hazard		: 30,	// [CPC] is 30
-		fall_damage		: 150,
+		fall_damage		: 90,
 		from_ceil		: 1,	// [CPC] is 1
 		i_time			: 0.6,	// Player invisibility times after being hit
-		max_damage 		: 65,	// Max damage per hit, to enemy + player
+		max_damage 		: 60,	// Maximum amount of damage per hit, to enemy or player. 
+								// This is because entities take damage equal to the health of the other entity when collided
 		bomb_damage		: 250	// Mostly damage to the final boss. other enemies are insta kill forever
 	};
 
 	// :: General Global Parameters 
 	public static var P = {
-		flicker_rate: 0.06,
+		flicker_rate: 0.06,	// Used for player and HUD text
 		gravity : 410,
 		confuse_time: 8	// Seconds
 	};

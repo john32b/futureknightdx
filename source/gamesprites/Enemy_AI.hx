@@ -3,7 +3,6 @@
 	--------------
 	Every enemy has an AI component
 	It is read from the TiledEditor Objects <type> field | check `EnemyAI_getAI()
-	Some types can have extra parameters, (defined in the TiledObject) as parameters
 		
 	AI TYPES:
 	--------------

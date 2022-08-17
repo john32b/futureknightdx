@@ -59,7 +59,7 @@ class Player extends FlxSprite
 	inline static var I_TIME_REVIVE = 1.4;			// Invincible time after being revived
 	inline static var INTERACT_MIN_TIME = 350;		// Minimum time allowed between interactions with an animated tile (exit or weapon)
 	
-	inline static var HEALTH_TICK = 0.05;			// Refresh life every this much
+	inline static var HEALTH_TICK = 0.05;			// Refresh life counter every this many seconds
 	inline static var HEALTH_LOSS = 2;				// Loss per tick
 	
 	inline static var BOUND_W = 8; 					// Bounding box 
@@ -71,7 +71,7 @@ class Player extends FlxSprite
 	inline static var BULLET_X_PAD = 2;				// Push this much away from player when shooting (from bounding box)
 	
 	inline static var LADDER_SNAP_Y = 8;			// Move player this much downwards when mounts a ladder
-	inline static var LADDER_MOUNT_PIXELS = 4;		// For this many traveled pixels the mount frame will be displayd
+	inline static var LADDER_MOUNT_PIXELS = 4;		// For this many traveled pixels the mount frame will be displayed
 	inline static var SLIDE_MOUNT_PIXELS_Y_ON = 4;	// Offset when mounting the slide
 	inline static var SLIDE_MOUNT_PIXELS_Y_OFF = 8;	// Offset to check when getting off
 	inline static var SOUND_TICK_WALK  = 0.2857;	// This is ANIMATION FRAMES (1/FPS) * TOTAL_FRAMES
@@ -517,7 +517,7 @@ class Player extends FlxSprite
 				animation.play("wave");
 			}else{
 				animation.play("dance");
-				/// OK also start taking damage like the CPC
+				/// Also start taking damage like the CPC?? -- not implemented --
 			}
 		}
 		

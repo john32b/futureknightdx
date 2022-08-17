@@ -235,10 +235,8 @@ class Enemy extends MapSprite
 		}
 		
 		_spawnTimer = 0;
-		alive = false;
-		solid = false;
-		visible = false;
-		moves = false;
+		// DEV: Could I just do active=false?
+		alive = solid = visible = moves = false;
 		
 		ai.softkill(); 	// < responsible for triggering the explode function
 						// . This is because some enemies do not explode right away
