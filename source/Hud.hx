@@ -102,10 +102,19 @@ class Hud extends FlxGroup
 			add(text_health);
 		text_score = D.text.get("", 30, 30, {f:"fnt/score.ttf", s:6, c:Pal_CPCBoy.COL[22]});
 			add(text_score);
+			
+			
+		// -- Some per target positioning tweaks
+		
+		#if hl
+			text_info.y -= 1;
+		#end
+		
 		
 		// --
 		el_bullet = Reg.IM.getSprite(107, 29, "huditem", 1);
 			add(el_bullet);
+			
 		el_item = Reg.IM.getSprite(145, 29, "huditem", 7);
 			add(el_item);
 			

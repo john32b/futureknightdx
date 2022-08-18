@@ -93,26 +93,27 @@ class Reg
 	public static var border:Bitmap;
 	
 	//====================================================;
-	//====================================================;
 	
-	// >> Called BEFORE FlxGame() is created
-	public static function init_pre()
+	// Gets called once After FLXGame and before first State
+	public static function init()
 	{
-		trace(" >>> Reg init (PRE) ");
-		D.assets.DYN_FILES = [PATH_INI];
-		D.assets.onAssetLoad = onAssetLoad;	
-		D.snd.ROOT_SND = "snd/";
-		D.snd.ROOT_MSC = "mus/";
+		trace(" >>> Reg init() ");
+		
+		
+		#if html5
+			// Font size fix
+			D.text.HTML_FORCE_LEADING.set('fnt/text.ttf', [16, -8]);
+			D.text.HTML_FORCE_LEADING.set('fnt/amstrad.ttf', [8, -8]);
+		#end
+		
+		
 		D.ui.initIcons([8]);
+		D.assets.HOT_LOAD = [PATH_INI];
+		D.assets.onLoad = onAssetLoad;
+		D.assets.loadNow();
 		
 		// -- Game things:
 		IM = new ImageAssets();
-	}//---------------------------------------------------;
-	
-	// >> Called AFTER FlxGame() is created
-	public static function init_post()
-	{
-		trace(" >>> Reg init (POST) ");
 		
 		#if debug
 			new Debug();
@@ -131,10 +132,10 @@ class Reg
 		D.save.setSlot(0);
 		var _LS = D.save.load('settings');
 		if (_LS != null) {
-			trace(" -- Setings Restoring", _LS);
 			//D.SMOOTHING = _LS.aa;
 			border.visible = _LS.bord;
 			D.snd.setVolume("master", _LS.vol);
+			trace(" -- Settings Restored", _LS);
 		}
 		
 		FlxG.scaleMode = new PixelPerfectScaleMode();	// This makes the HL target graphics nice.
@@ -143,11 +144,12 @@ class Reg
 		// -- Restore keys
 		var _LK = D.save.load('keys');
 		if (_LK != null) {
-			trace(" -- Keys Restoring", _LK);
 			D.ctrl.keymap_set(_LK);
+			trace(" -- Keys Restored", _LK);
 		}
 		
 	}//---------------------------------------------------;
+	
 	
 	// Whenever D.assets gets reloaded, I need to reparse the data into the objects
 	// Then the state will be reset automatically

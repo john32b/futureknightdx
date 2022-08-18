@@ -7,7 +7,6 @@ import djA.types.SimpleRect;
 import djFlixel.D;
 import djFlixel.core.Dcontrols;
 import djFlixel.core.Dtext.DTextStyle;
-import djFlixel.gfx.BoxFader;
 import djFlixel.gfx.StarfieldSimple;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.other.FlxSequencer;

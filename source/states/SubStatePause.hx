@@ -3,6 +3,7 @@ import djFlixel.D;
 import djFlixel.gfx.BoxScroller;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.ui.FlxMenu;
+import djFlixel.ui.MPlug_Header;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
@@ -19,9 +20,8 @@ class SubStatePause extends FlxSubState
 	{
 		super.create();
 		
-		
 		// When I close this at the end, it appears for 1 frame then closes, so close it now
-		Reg.st.INV.close();
+		Reg.st.INV.close(true);
 		
 		camera = Reg.st.camera;
 		
@@ -45,27 +45,43 @@ class SubStatePause extends FlxSubState
 		
 		// ::
 		var menu = new FlxMenu(64, 48, -1, 6);
-			menu.stI.col_t.focus = Pal_CPCBoy.COL[24];
-			menu.stI.col_t.accent = Pal_CPCBoy.COL[6];
-			menu.stI.col_t.idle = Pal_CPCBoy.COL[27];
-			menu.stI.col_b.idle = Pal_CPCBoy.COL[1];
-			menu.stL.align = "center";
-			menu.stI.text = { f:'fnt/score.ttf', s:6, bt:1, so:[2, 2] };
-			menu.stHeader = { f:'fnt/score.ttf', s:6, c:COL[23], bt:2, bc:COL[1]};
-			menu.PARAMS.header_offset_y = -4;
+		
+			menu.overlayStyle({
+				align:"center",
+				item:{
+					text:{
+						f:'fnt/score.ttf', s:6, bt:1, so:[2, 2]
+					},
+					col_t:{
+						focus:Pal_CPCBoy.COL[24],
+						accent:Pal_CPCBoy.COL[24],
+						idle:Pal_CPCBoy.COL[27]
+					},
+					col_b:{
+						idle:Pal_CPCBoy.COL[1]
+					}
+				}
+			});
 			
-			menu.createPage("main", "PAUSED").addM([
-				"resume|link|resume",
-				"options|link|@options",
-				"quit|link|!quit|cfm=Quit to the main menu?:yes:no"
-			]);
+			menu.plug(new MPlug_Header({
+				offsetY: -4,
+				text:{f:'fnt/score.ttf', s:6, c:COL[23], bt:2, bc:COL[1], a:"center"}
+			}));
 			
-			menu.createPage("options","OPTIONS").addM([
-				"Volume|range|id=vol|range=0,100|step=5",
-				//"Soft Pixels|toggle|id=softpix|c=false",
-				"Border|toggle|id=bord|c=false", // Starting state will be re-written later
-				"Back|link|@back"
-			]);
+			
+			menu.createPage("main", "PAUSED").add("
+				-| resume  | link | resume
+				-| options | link | @options
+				-| quit    | link | quit | ?fs=Quit to main menu?:yes:no
+			");
+			
+			
+			menu.createPage("options", "OPTIONS").add("
+				-| Volume         | range | vol | 0,100 | step=5
+				-| Border Toggle  | toggle| bord | c=false
+				-| Back           | link  | @back
+			");
+			//"-| Soft Pixels  |toggle |  softpix | c=false ",
 			
 			menu.onMenuEvent = (a, b)->{
 				if (a == pageCall) {
@@ -75,9 +91,8 @@ class SubStatePause extends FlxSubState
 					D.snd.playV('cursor_back');
 				}else
 				if (a == page && b == "options") {
-				menu.item_update(0, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });
-				menu.item_update(1, (t)->{t.data.c = Reg.border.visible;});
-				//menu.item_update(1, (t)->{t.data.c = D.SMOOTHING; });
+					menu.item_update(0, (t)->t.set(Std.int(FlxG.sound.volume * 100)));
+					menu.item_update(1, (t)->t.set(Reg.border.visible));
 				}
 				else if (a == start) {
 					close();
@@ -92,11 +107,11 @@ class SubStatePause extends FlxSubState
 				if (a == fire) switch(b.ID)
 				{
 					case "softpix": 
-						D.SMOOTHING = b.data.c;
+						D.SMOOTHING = b.get();
 					case "bord":
-						Reg.border.visible = b.data.c;		
+						Reg.border.visible = b.get();		
 					case "vol":
-						FlxG.sound.volume = b.data.c / 100;
+						FlxG.sound.volume = cast(b.get(),Int) / 100;
 					case "resume":
 						close();
 						return;

@@ -8,20 +8,23 @@
 	<echo value="Building FKDX"/>
 	
 	<!-- APPLICATION SETTINGS -->
-	<app title="FutureKnightDX" version="1.4" package="" company="JohnDimi" />
+	<app title="FutureKnightDX" version="1.4" package="" company="John32B" />
 	<!--<app preloader="flixel.system.FlxBasePreloader"/>-->
 	<!--<app preloader="NoPreloader" unless="FLASHONLINE"/>-->
 	<app main="Main" file="FutureKnightDX" path="bin\" />
 	
-		<app path="a:/fktest/" if="ramdisk"/>
-		<echo value=" .building to ramdisk" if="ramdisk"/>
-	
 	<window width="640" height="480" fps="40" background="#000000" hardware="true" vsync="true" />
 	
 	<haxelib name="flixel"/>
-	<haxelib name="djFlixel"/>
+
 	<haxelib name="djFL"/>
 	<haxelib name="djA"/>
+	<haxelib name="djFlixel"/>
+		<!-- djflixel defines -->
+		<haxedef name="HOT_RELOAD"/>
+		<haxedef name="DJFLX_SND" value="snd/" />
+		<haxedef name="DJFLX_MUS" value="mus/" />
+	
 	
 	<!--<include path="C:/home/code/HT/djFlixel/source/" />	-->
 	
@@ -42,7 +45,7 @@
 	
 		
 	<!--Because I am doing bitmap manipulation HTML5 Webgl is buggy, So I am using canvas -->
-	<haxedef name="canvas" if="html5"/>
+	<!--<haxedef name="canvas" if="html5"/>-->
 	
 	<!--<haxedef name="FLX_NO_GAMEPAD"/>-->
 	
@@ -50,11 +53,13 @@
 	<!--<haxeflag name="--connect 6000"/>-->	
 	<haxeflag name="-dce" value="std"/>
 	
+	
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 	
 	<!--:: GAME DEFINES ::-->
-	<haxedef name="DYN_ASSETS" if="debug flash"/>
-	<haxedef name="SHOOT_HOLD"/>
-	<!--<haxedef name="CLASSIC_LADDER"/>-->
+	
+		<haxedef name="SHOOT_HOLD"/>
+		<!--<haxedef name="CLASSIC_LADDER"/>-->
 
+	
 </project>

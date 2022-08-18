@@ -14,6 +14,9 @@
  
 package states;
 
+import djA.Fsm;
+import djFlixel.gfx.FilterFader;
+import flash.ui.Keyboard;
 import tools.KeyCapture;
 import tools.SprDirector;
 
@@ -23,7 +26,6 @@ import djA.types.SimpleRect;
 import djFlixel.D;
 import djFlixel.core.Dcontrols;
 import djFlixel.core.Dtext.DTextStyle;
-import djFlixel.gfx.BoxFader;
 import djFlixel.gfx.StarfieldSimple;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.other.FlxSequencer;
@@ -64,7 +66,6 @@ class StateTitle extends FlxState
 	
 	// This is new, a group that handles sprites for the gui
 	var dir0:SprDirector;
-	var pFader:BoxFader;
 	var seq:FlxSequencer;
 	
 	var menu:FlxMenu;
@@ -129,10 +130,7 @@ class StateTitle extends FlxState
 		sub_create_menu();
 		
 		// :: Fade the screen from black and call seq.nextv()
-		pFader = new BoxFader();
-		pFader.setColor(Pal_CPCBoy.COL[0]);
-		pFader.fadeOff(seq.nextV, {time:0.3});
-		add(pFader);
+		new FilterFader(false, seq.nextV, {time:0.6});
 		
 		// ::
 		D.snd.playMusic('FK_Title');
@@ -222,39 +220,45 @@ class StateTitle extends FlxState
 	function sub_create_menu()
 	{
 		menu = new FlxMenu(32, 90, FlxG.width);
-		menu.PARAMS.start_button_fire = true;
-		menu.PARAMS.header_enable = false;
-		menu.PARAMS.line_height = 0;
-		menu.PARAMS.page_anim_parallel = true;
-		menu.stL.focus_nudge = 2;
-		menu.stL.vt_in_times = "0.2:0.1";
-		menu.stL.vt_out_times = "0.12:0.06";
-		menu.stL.vt_in_offset = "-20:0";
-		menu.stL.vt_out_offset = "20:0";
-		menu.stI.col_t.focus = Pal_CPCBoy.COL[24];
-		menu.stI.col_t.accent = Pal_CPCBoy.COL[6];
-		menu.stI.col_t.idle = Pal_CPCBoy.COL[27];
-		menu.stI.col_b.idle = Pal_CPCBoy.COL[1];
-		menu.stL.align = "left";
-		menu.stI.text = { s:16, bt:1, so:[2, 2] };
+		menu.PAR.start_button_fire = true;
+		menu.PAR.page_anim_parallel = true;
 		
-		var pg = menu.createPage("main").addM([
-			"New Game|link|g_new",
-			"Resume|link|g_res",
-			"Options|link|@options",	// Goto another page
-			"Help|link|help"
-		]);
+		menu.overlayStyle({
+			focus_nudge:2,
+			vt_IN:"-20:0|0.2:0.1",
+			vt_OUT:"20:0|0.12:0.06",
+			align:"left",
+			item:{
+				text:{
+					s:16, bt:1, so:[2, 2] 
+				},
+				col_t:{
+					focus:Pal_CPCBoy.COL[24],
+					accent:Pal_CPCBoy.COL[6],
+					idle:Pal_CPCBoy.COL[27]
+				},
+				col_b:{
+					idle:Pal_CPCBoy.COL[1]
+				}
+			}
+		});
 		
-		pg.items[0].data.tStyle = {s:8, so:[1, 1], sc:Pal_CPCBoy.COL[31]};	// Alter the font size for the question to fit the screen
-		pg.items[0].data.cfm    = "A save exists, start a new game?:yes:no";
-		
-		menu.createPage("options","options").addM([
-			"Keyboard Redefine|link|keyredef",
-			"Volume|range|id=vol|range=0,100|step=5",
-			//"Soft Pixels|toggle|id=softpix|c=false", // Decided to always have soft pixels
-			"Border|toggle|id=bord|c=false", // Starting state will be re-written later
-			"Back|link|@back"
-		]);
+		menu.createPage("main").add("
+			-| New Game   | link | g_new | ?fs=Save exists, start a new game?:yes:no
+			-| Resume     | link | g_res
+			-| Options    | link | @options
+			-| Help       | link | help
+		");
+			
+		menu.createPage("options", "Options").add("
+			-| Keyboard Redefine  | link  | keyredef
+			-| Volume             | range | vol | 0,100 | step=5
+			-| Border Toggle      | toggle| bord | c=false
+			-| Back               | link  | @back
+		");
+			
+		//pg.items[0].data.tStyle = {s:8, so:[1, 1], sc:Pal_CPCBoy.COL[31]};	// Alter the font size for the question to fit the screen
+		//pg.items[0].data.cfm    = "A save exists, start a new game?:yes:no";
 		
 		menu.onMenuEvent = (a, b)->{
 		if (a == pageCall) {
@@ -266,9 +270,8 @@ class StateTitle extends FlxState
 			if (a == page && b == "options") {	// Options page just came on
 				
 				// Alter the first index of the current
-				menu.item_update(1, (t)->{t.data.c = Std.int(FlxG.sound.volume * 100); });
-				menu.item_update(2, (t)->{t.data.c = Reg.border.visible;});
-				//menu.item_update(2, (t)->{t.data.c = D.SMOOTHING; }); // Old second index
+				menu.item_update(1, (t)->t.set(Std.int(FlxG.sound.volume * 100)));
+				menu.item_update(2, (t)->t.set(Reg.border.visible));
 			}else
 			if (a == page && b == "main") {
 				var S = Reg.SAVE_EXISTS();
@@ -277,10 +280,11 @@ class StateTitle extends FlxState
 					if (S) { // Fullpage Confirmation
 						// <HACK>
 						// t.data.type = 3; errors on <HASHLINK>. why wtf.
-						Reflect.setProperty(t.data, "type", 3);
+						Reflect.setProperty(t.P, "ltype", 3);
 					}else{
-						Reflect.setProperty(t.data, "type", 1);
+						Reflect.setProperty(t.P, "ltype", 1);
 					}
+					
 				});
 			}
 		};
@@ -294,11 +298,11 @@ class StateTitle extends FlxState
 					case "g_new":
 						startGame(true);
 					case "vol":
-						FlxG.sound.volume = b.data.c / 100;
+						FlxG.sound.volume = cast(b.get(),Int) / 100;
 					case "softpix":
-						D.SMOOTHING = b.data.c;
+						D.SMOOTHING = b.get();
 					case "bord":
-						Reg.border.visible = b.data.c;
+						Reg.border.visible = b.get();
 					case "keyredef":
 						menu.close(true);
 						sub_get_keys( ()->menu.open() );
@@ -350,9 +354,9 @@ class StateTitle extends FlxState
 		var st_h1 = {f:'fnt/score.ttf', s:12, c:COL[20], bt:1, bc:COL[1]};
 		var st_p  = {f:'fnt/score.ttf', s:6, c:COL[26]};
 		var st_p2 = {f:'fnt/score.ttf', s:6, c:COL[23]};
-		D.text.formatClear();
-		D.text.formatAdd('<r>', COL[6]);
-		D.text.formatAdd('<g>', COL[21]);
+		D.text.markupClear();
+		D.text.markupAdd('<r>', COL[6]);
+		D.text.markupAdd('<g>', COL[21]);
 		D.text.fix(); // clear 
 		var AL = D.align;
 		AL.pInit(AREA.x, AREA.y, AREA.w, AREA.h);
@@ -436,8 +440,8 @@ class StateTitle extends FlxState
 		var KEYS = [];	// The actual FlxKeycodes that map to ACTIONS[]		
 		var COL = Pal_CPCBoy.COL; // Quick typing
 		
-		D.text.formatClear();
-		D.text.formatAdd('<m>', COL[24], COL[3]);
+		D.text.markupClear();
+		D.text.markupAdd('<m>', COL[24], COL[3]);
 		D.align.pInit(0, 100);
 		D.align.PLACE_ADD = true;
 		
@@ -478,13 +482,15 @@ class StateTitle extends FlxState
 	{
 		menu.unfocus();
 		Reg.SAVE_SETTINGS();
+		
 		if (newGame) {
 			D.save.deleteSlot(1);
-			pFader.fadeColor(()->{
+			new FilterFader(true, ()->{
 				FlxG.switchState(new StateIntro());
-			});	
+			});
+			
 		}else{
-			pFader.fadeColor(()->{
+			new FilterFader(true, ()->{
 				FlxG.switchState(new StatePlay());
 			});				
 		}

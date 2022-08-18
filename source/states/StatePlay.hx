@@ -19,7 +19,7 @@
 package states;
 
 import djFlixel.D;
-import djFlixel.gfx.BoxFader;
+import djFlixel.gfx.FilterFader;
 import djFlixel.other.DelayCall;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -384,21 +384,24 @@ class StatePlay extends FlxState
 				Reg.st.ROOMSPR.enemies_freeze(true);
 			
 			case "die_final": // After being dead, this is sent when no more lives left
-				var bf = new BoxFader();
-				add(bf);
-				new DelayCall(()->{
-					bf.fadeColor(()->{FlxG.switchState(new StateGameover()); });
-				}, 1.5);
+				new DelayCall(1.5, ()->{
+					new FilterFader( ()->{
+						FlxG.switchState(new StateGameover());
+					});
+				});
+				
 			
 			case "friend":
 				pause();
 				D.snd.playV('title');
-				var bf = new BoxFader();
-				add(bf);
-				new DelayCall(()->{
-					bf.fadeColor(()->{FlxG.switchState(new StateEnd()); } , {delayPost:2});
-				}, 2);
-				
+				new DelayCall(2, ()->{
+					new FilterFader( ()->{
+							FlxG.switchState(new StateEnd());
+						}, 
+						{ delayPost:2 }
+					);
+						
+				});
 			default:
 		}
 		
@@ -460,7 +463,6 @@ class StatePlay extends FlxState
 	/** Inventory , an item was selected */
 	function on_inventory_select(id:ITEM_TYPE)
 	{
-		INV.close();
 		if (HUD.equipped_item != id) {
 			HUD.item_pickup(id);
 		}

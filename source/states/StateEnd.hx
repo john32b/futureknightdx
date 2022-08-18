@@ -10,7 +10,7 @@ package states;
 
 import djFlixel.D;
 import djFlixel.core.Dcontrols;
-import djFlixel.gfx.BoxFader;
+import djFlixel.gfx.FilterFader;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.other.FlxSequencer;
 import flixel.FlxG;
@@ -102,11 +102,9 @@ class StateEnd extends FlxState
 					seq.next(8);
 				case 6:
 					t1.text = "";
-					var pf = new BoxFader();
-					add(pf);
-					pf.fadeColor(()->{
+					new FilterFader( ()->{
 						FlxG.switchState(new StateTitle());
-					});
+					}, {time:2});
 				case _:
 			}
 		}, 2)); // start after 2 seconds

@@ -7,7 +7,6 @@ package states;
 
 import djFlixel.D;
 import djFlixel.core.Dcontrols;
-import djFlixel.gfx.BoxFader;
 import djFlixel.gfx.StarfieldSimple;
 import djFlixel.gfx.TextBouncer;
 import djFlixel.gfx.pal.Pal_CPCBoy;

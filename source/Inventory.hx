@@ -200,19 +200,20 @@ class Inventory extends FlxSpriteGroup
 			if (D.ctrl.justPressed(LEFT))  grid.cursor_move( -1,  0); else
 			if (D.ctrl.justPressed(RIGHT)) grid.cursor_move(  1,  0); else
 			if (D.ctrl.justPressed(DOWN))  grid.cursor_move(  0,  1); else
-			if (D.ctrl.justPressed(UP))    grid.cursor_move(  0, -1); else
+			if (D.ctrl.justPressed(UP))    grid.cursor_move(  0, -1);
 
-			if (D.ctrl.justPressed(A)) {
-				if (ITEMS[grid.index] != null) {
-					if (onItemSelect != null) onItemSelect(ITEMS[grid.index]);
-					D.snd.play(SND.ok, 0.5);
-				}
-			}
+			
+			// NEW: NO Button to select an item. An item is autoselected
+			//      when you close the inventory
 		}
 	
 		// Same with both focus groups
 		if (D.ctrl.justPressed(X) || D.ctrl.justPressed(START)) {
-			D.snd.play("inv_close");
+				
+			if (ITEMS[grid.index] != null)
+				if (onItemSelect != null) 
+					onItemSelect(ITEMS[grid.index]);
+					
 			close();
 		}
 		
@@ -255,23 +256,33 @@ class Inventory extends FlxSpriteGroup
 		group_focus(1);
 		if (onOpen != null) onOpen();
 	}//---------------------------------------------------;
+	
 	// --
-	// No sound, Because sometimes I don't need to 
-	// Sound is played at the button handler
-	public function close()
+	public function close(silent:Bool = false)
 	{
 		if (!isOpen || _tween != null) return;
 		isOpen = false;
 		active = false;
 		
-		y = SCREEN_Y;
-		_tween = FlxTween.tween(this, {y:SCREEN_Y_OFF}, TWEEN_TIME, { onComplete:(_)->{
-			// DEV: I need to destroy and null, because it will not immediately be nulled
-			_tween.destroy();
-			_tween = null;
+		if (silent)
+		{
+			y = SCREEN_Y_OFF;
 			visible = false;
 			if (onClose != null) onClose();
-		}});
+			
+		}else{
+			
+			D.snd.play("inv_close");
+			y = SCREEN_Y;
+			_tween = FlxTween.tween(this, {y:SCREEN_Y_OFF}, TWEEN_TIME, { onComplete:(_)->{
+				// DEV: I need to destroy and null, because it will not immediately be nulled
+				_tween.destroy();
+				_tween = null;
+				visible = false;
+				if (onClose != null) onClose();
+			}});
+		}
+		
 	}//---------------------------------------------------;
 	
 	/**

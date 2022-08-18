@@ -7,7 +7,7 @@ import openfl.display.Sprite;
 class Main extends Sprite
 {
 	inline static var FPS = 40;
-	inline static var START_STATE = states.StateTitle;
+	inline static var START_STATE = states.StatePlay;
 	 
 	// --
 	public function new() 
@@ -16,20 +16,13 @@ class Main extends Sprite
 		
 		// :: First thing initialize djFlixel
 		D.init({
-			name:"Future Knight Remake " + Reg.VERSION,
+			name:"Future Knight DX " + Reg.VERSION,
 			savename:"fkdx",
 			smoothing:true,
-			debug_keys:true		// Automatic asset reload on F12
+			init:Reg.init
 		});
 		
-		// :: Do this before creating the game
-		Reg.init_pre();
-		
-		// :: Start the game after loading the dynamic assets (they were defined in Reg.init_pre)
-		D.assets.reload( ()->{
-			addChild(new flixel.FlxGame(320, 240, START_STATE, 2, FPS, FPS, false));
-			Reg.init_post();
-		});
+		addChild(new FlxGame(320, 240, START_STATE, 2, FPS, FPS, true)); // true = SkipSplash
 		
 	}//---------------------------------------------------;
 	

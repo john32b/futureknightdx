@@ -1,31 +1,31 @@
 package states;
 import djFlixel.D;
-import djFlixel.gfx.BoxFader;
+import djFlixel.core.Dcontrols.DButton;
+import djFlixel.gfx.FilterFader;
 import djFlixel.gfx.StarfieldSimple;
 import djFlixel.gfx.pal.Pal_CPCBoy;
-import djFlixel.other.FlxSequencer;
 import djFlixel.other.DelayCall;
+import djFlixel.other.FlxSequencer;
 import djFlixel.ui.FlxAutoText;
-import djfl.util.TiledMap;
 import flixel.FlxG;
-import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.effects.FlxFlicker;
 import flixel.tweens.FlxTween;
 import gamesprites.Player;
-import lime.system.BackgroundWorker;
-using Lambda;
+import djfl.util.TiledMap.TiledObject;
+//using Lambda;
 
 class StateIntro extends FlxState
 {
 	var pl:Player;
 	var map:MapFK;
-	var obj:Map<String,TiledObject>;
+	var obj:Map<String, TiledObject>;
+	var onupd:Void->Void = null;
 	
 	override public function create() 
 	{
 		super.create();
-		var textst1 = {f:'fnt/score.ttf', s:6, c:Pal_CPCBoy.COL[24], bc:Pal_CPCBoy.COL[2], bt:2};
+		var textst1 = {f:null, s:16, c:Pal_CPCBoy.COL[27] };
 		var textst2 = {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[26], a:'center',bc:Pal_CPCBoy.COL[2] };
 		
 		// :: STARS
@@ -42,13 +42,14 @@ class StateIntro extends FlxState
 		
 		// --
 		var t1 = D.text.get('INCOMING DISTRESS SIGNAL', textst1);
+			t1.textField.backgroundColor = Pal_CPCBoy.COL[6];
+			t1.textField.background = true;
 			D.align.screen(t1);
 			add(t1);
 		
 		var t2 = new FlxAutoText(0, 0, 265);
 			t2.sound.char = 'pl_climb';
 			t2.style = textst2;
-			t2.height;
 			D.align.screen(t2);
 			t2.y -= 40; // Flxautotext when screen center, the height is just one line, so compensate
 
@@ -59,17 +60,37 @@ class StateIntro extends FlxState
 					D.snd.playV('exit_unlock');
 				});
 				seq.next(3.5);
+				onupd = ()->{
+					if (D.ctrl.justPressed(DButton._START_A)) {
+						FlxFlicker.stopFlickering(t1);
+						seq.next();
+					}
+				}
 				case 2:
 				remove(t1);
 				add(t2);
 				t2.setText(Reg.INI.get('text', 'intro'));
 				t2.onComplete = seq.nextV;
+				onupd = ()->{
+					if (D.ctrl.justPressed(DButton._START_A)) {
+						t2.stop(true);
+						seq.next();
+					}
+				}
 				case 3:
+				// pause to read the text?
+				onupd = null;
 				seq.next(2);
 				case 4:
 				remove(t2);
 				remove(seq);
 				P_00();
+				onupd = ()->{
+					if (D.ctrl.justPressed(DButton._START_A)) {
+						P_05();	// go to next state now
+						onupd = null;
+					}
+				}
 				case _:
 			}
 		},0));
@@ -118,10 +139,10 @@ class StateIntro extends FlxState
 	{
 		pl.animation.play('wave');
 		FlxTween.tween(pl, {y:obj['p1'].y}, 2, {onComplete:P_03, startDelay:1.4});
-		new DelayCall(()->{
+		new DelayCall(0.8, ()->{
 			map.flash(2);
 			D.snd.play('en_hit_1');
-		} , 0.8);
+		});
 	}//---------------------------------------------------;
 		
 	function P_03(_)
@@ -132,19 +153,24 @@ class StateIntro extends FlxState
 			D.snd.play('teleport2');
 			D.snd.play('en_hit_2');
 		});
-		new DelayCall(P_04, 2);
+		new DelayCall(2, P_04);
 	}//---------------------------------------------------;
 	
 	function P_04()
 	{
-		var b = new BoxFader();
-		add(b);
-		b.fadeColor(P_05, {delayPost:1});
+		new FilterFader(true, P_05, {delayPost:1});
 	}//---------------------------------------------------;
 	
 	function P_05()
 	{
 		FlxG.switchState(new StatePlay());
 	}//---------------------------------------------------;
+	
+	
+	override public function update(elapsed:Float):Void 
+	{
+		super.update(elapsed);
+		if (onupd != null) onupd();
+	}
 
 }//--
