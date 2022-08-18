@@ -13,9 +13,9 @@ import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.gfx.RainbowStripes;
 import djFlixel.ui.FlxAutoText;
 import djFlixel.other.FlxSequencer;
+import djfl.el.TextB;
 import flixel.FlxG;
 import flixel.FlxState;
-import flixel.group.FlxGroup;
 import flixel.system.FlxSound;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -31,36 +31,39 @@ class StateAmstrad extends FlxState
 	{
 		super.create();
 		
-		FlxG.camera.bgColor = Pal_CPCBoy.COL[31];
+		var COL = [ 0xff0a2645, 0xff6be2eb, 0xff0b2139 ];	// Variation blue
+		//var COL = [ 0xff0a2645, 0xfffeae34, 0xff181425 ];	// Variation orange
+		//var COL = [ 0xFF062241, 0xFFd2e7ff, 0xFF24244d ];	// Variation --
 		
-		var l0 = new FlxGroup();
-		add(l0);
-		
-		var rainbow = new RainbowStripes();
-		add(rainbow);
+		FlxG.camera.bgColor = COL[0];
 		
 		var snd_load:FlxSound = null;
+		
 		add(new FlxSequencer((seq)->{
 			switch(seq.step) {
 				case 1:
-				var textBoot = new FlxAutoText(18, 0, 290, 0);
-					textBoot.style = {f:"fnt/amstrad.ttf", s:8, c:Pal_CPCBoy.COL[20]};
+				var textBoot = new FlxAutoText(24	, 0, 290, 0);
+					textBoot.style = {f:"fnt/arcade.ttf", s:10, c:COL[1], bc:COL[2], bt:1};
 					textBoot.alpha = 0.3;
-					textBoot.setCarrier('_', 0.15);
-					textBoot.setText(Reg.INI.get('text', 'amstrad'));
+					textBoot.setCarrier('_', 0.2);
 					textBoot.onComplete = seq.nextV;
-					l0.add(textBoot);
+					textBoot.setText(Reg.INI.get('text', 'amstrad'));
+					add(textBoot);
 				FlxTween.tween(textBoot, { alpha:1, y:32 }, 0.33, { ease:FlxEase.quadOut } );
+				
 			case 2:
-				rainbow.queueModes(["1:0.4", "2:0.6", "3:0.6", "1:0.2"], seq.nextV);
-				rainbow.setOn();
+				var rainbow = new RainbowStripes();
+					rainbow.queueModes(["1:0.4", "2:0.6", "3:0.6", "1:0.2"], seq.nextV);
+					rainbow.setOn();
 				snd_load =  D.snd.play("amstrad_load");
+				add(rainbow);
+				
 			case 3:
 				snd_load.stop();
 				FlxG.switchState(new StateTitle());
 			default:
 			}
-		}, 0.1));
+		}, 0.15));
 	}//---------------------------------------------------;
 
 	override public function update(elapsed:Float):Void 

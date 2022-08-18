@@ -16,6 +16,7 @@ package states;
 
 import djA.Fsm;
 import djFlixel.gfx.FilterFader;
+import djFlixel.ui.MPlug_Audio;
 import flash.ui.Keyboard;
 import tools.KeyCapture;
 import tools.SprDirector;
@@ -222,6 +223,15 @@ class StateTitle extends FlxState
 		menu = new FlxMenu(32, 90, FlxG.width);
 		menu.PAR.start_button_fire = true;
 		menu.PAR.page_anim_parallel = true;
+		add(menu);
+		
+		menu.plug(new MPlug_Audio({
+			pageCall:"cursor_ok",
+			back:"cursor_back",
+			it_fire:"cursor_ok",
+			it_focus:"cursor_tick",
+			it_invalid:"gen_no"
+		}));
 		
 		menu.overlayStyle({
 			focus_nudge:2,
@@ -244,7 +254,7 @@ class StateTitle extends FlxState
 		});
 		
 		menu.createPage("main").add("
-			-| New Game   | link | g_new | ?fs=Save exists, start a new game?:yes:no
+			-| New Game   | link | g_new | ?fs=Save exists.\nstart a new game?:yes:no
 			-| Resume     | link | g_res
 			-| Options    | link | @options
 			-| Help       | link | help
@@ -257,22 +267,15 @@ class StateTitle extends FlxState
 			-| Back               | link  | @back
 		");
 			
-		//pg.items[0].data.tStyle = {s:8, so:[1, 1], sc:Pal_CPCBoy.COL[31]};	// Alter the font size for the question to fit the screen
-		//pg.items[0].data.cfm    = "A save exists, start a new game?:yes:no";
 		
 		menu.onMenuEvent = (a, b)->{
-		if (a == pageCall) {
-				D.snd.playV('cursor_ok');
-			}else
-			if (a == back){
-				D.snd.playV('cursor_back');
-			}else				
 			if (a == page && b == "options") {	// Options page just came on
 				
 				// Alter the first index of the current
 				menu.item_update(1, (t)->t.set(Std.int(FlxG.sound.volume * 100)));
 				menu.item_update(2, (t)->t.set(Reg.border.visible));
 			}else
+			
 			if (a == page && b == "main") {
 				var S = Reg.SAVE_EXISTS();
 				menu.item_update(1, (t)->{ t.disabled = !S; }); // resume
@@ -291,56 +294,43 @@ class StateTitle extends FlxState
 		
 		menu.onItemEvent = (a, b)->{
 			D.ctrl.flush();	// Just in case
-			if (a == fire) {
-				switch(b.ID){
-					case "g_res":
-						startGame(false);
-					case "g_new":
-						startGame(true);
-					case "vol":
-						FlxG.sound.volume = cast(b.get(),Int) / 100;
-					case "softpix":
-						D.SMOOTHING = b.get();
-					case "bord":
-						Reg.border.visible = b.get();
-					case "keyredef":
-						menu.close(true);
-						sub_get_keys( ()->menu.open() );
-					case "help":
-						slides = sub_get_help_slides();
-						menu.close();
-						add(slides);
-						slides.onEvent = (e)->{
-							switch(e){
-								case "close":
-									remove(slides);
-									slides = null;
-									menu.open();
-									D.snd.playV('cursor_back');
-								case "next", "previous":
-									D.snd.playV('cursor_tick');
-								case _:
-							}
-						};
-						FlxG.mouse.reset();	// Just in case
-						slides.goto(0);
-					case _:
-				}
-			}
-			
-			// SOUNDS: 
-			switch(a) {
-				case fire:
-					D.snd.playV('cursor_ok');
-					return;
-				case focus:
-					D.snd.playV('cursor_tick');
-					return;
+			if (a == fire) switch(b.ID) {
+				case "g_res":
+					startGame(false);
+				case "g_new":
+					startGame(true);
+				case "vol":
+					FlxG.sound.volume = cast(b.get(),Int) / 100;
+				case "softpix":
+					D.SMOOTHING = b.get();
+				case "bord":
+					Reg.border.visible = b.get();
+				case "keyredef":
+					menu.close(true);
+					sub_get_keys( ()->menu.open() );
+				case "help":
+					slides = sub_get_help_slides();
+					menu.close();
+					add(slides);
+					slides.onEvent = (e)->{
+						switch(e){
+							case "close":
+								remove(slides);
+								slides = null;
+								menu.open();
+								D.snd.playV('cursor_back');
+							case "next", "previous":
+								D.snd.playV('cursor_tick');
+							case _:
+						}
+					};
+					FlxG.mouse.reset();	// Just in case
+					slides.goto(0);
 				case _:
 			}
 		};
 		
-		add(menu);
+		
 	}//---------------------------------------------------;
 	
 	// :: BUILD and rethrn the help slides
@@ -416,10 +406,10 @@ class StateTitle extends FlxState
 		h.a(AL.pT('SOME ITEMS YOU CAN FIND', {a:'c', oy:8}, {c:COL[21]}));
 		AL.pPad(12);
 		h.a(AL.p(Reg.IM.getSprite(0, 0, 'items', 1), {c:1, a:'r',oy:4}));
-		h.a(AL.pT('~<r>BOMB<r>\nkill enemies and restore HP', {c:2}));
+		h.a(AL.pT('~<r>BOMB<r>\nkill enemies and restore HP', {c:2,oy:8}));
 		AL.pClear(false);
 		h.a(AL.p(Reg.IM.getSprite(0, 0, 'items', 6), {c:1, a:'r', oy:4}));
-		h.a(AL.pT('~<r>CONFUSER<r>\nimmobilize enemies for a while', {c:2}));
+		h.a(AL.pT('~<r>CONFUSER<r>\nimmobilize enemies for a while', {c:2,oy:8}));
 		// -- END SLIDES
 		
 		h.finalize();

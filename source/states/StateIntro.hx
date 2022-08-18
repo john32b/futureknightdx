@@ -20,12 +20,12 @@ class StateIntro extends FlxState
 	var pl:Player;
 	var map:MapFK;
 	var obj:Map<String, TiledObject>;
-	var onupd:Void->Void = null;
+	var onbtn:Void->Void = null;
 	
 	override public function create() 
 	{
 		super.create();
-		var textst1 = {f:null, s:16, c:Pal_CPCBoy.COL[27] };
+		var textst1 = {f:'fnt/arcade.ttf', s:10, c:Pal_CPCBoy.COL[27] };
 		var textst2 = {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[26], a:'center',bc:Pal_CPCBoy.COL[2] };
 		
 		// :: STARS
@@ -60,37 +60,32 @@ class StateIntro extends FlxState
 					D.snd.playV('exit_unlock');
 				});
 				seq.next(3.5);
-				onupd = ()->{
-					if (D.ctrl.justPressed(DButton._START_A)) {
-						FlxFlicker.stopFlickering(t1);
-						seq.next();
-					}
+				onbtn = ()->{
+					FlxFlicker.stopFlickering(t1);
+					seq.next();
 				}
 				case 2:
 				remove(t1);
 				add(t2);
 				t2.setText(Reg.INI.get('text', 'intro'));
 				t2.onComplete = seq.nextV;
-				onupd = ()->{
-					if (D.ctrl.justPressed(DButton._START_A)) {
-						t2.stop(true);
-						seq.next();
-					}
+				onbtn = ()->{
+					t2.stop(true);
+					seq.next();
 				}
 				case 3:
 				// pause to read the text?
-				onupd = null;
+				onbtn = seq.nextV;
 				seq.next(2);
 				case 4:
+				onbtn = null;
 				remove(t2);
 				remove(seq);
 				P_00();
-				onupd = ()->{
-					if (D.ctrl.justPressed(DButton._START_A)) {
-						P_05();	// go to next state now
-						onupd = null;
-					}
-				}
+				onbtn = ()->{
+					onbtn = null;
+					P_05();
+				};
 				case _:
 			}
 		},0));
@@ -170,7 +165,9 @@ class StateIntro extends FlxState
 	override public function update(elapsed:Float):Void 
 	{
 		super.update(elapsed);
-		if (onupd != null) onupd();
+		if (D.ctrl.justPressed(DButton._START_A)) {
+			if (onbtn != null) onbtn();
+		}
 	}
 
 }//--

@@ -106,10 +106,15 @@ class Hud extends FlxGroup
 			
 		// -- Some per target positioning tweaks
 		
-		#if hl
+		#if (desktop)
 			text_info.y -= 1;
 		#end
 		
+		#if html5
+			text_info.y -= 9;
+			text_health.y += 1;
+			text_score.y += 4;
+		#end
 		
 		// --
 		el_bullet = Reg.IM.getSprite(107, 29, "huditem", 1);

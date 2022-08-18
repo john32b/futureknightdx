@@ -99,28 +99,27 @@ class Reg
 	{
 		trace(" >>> Reg init() ");
 		
-		
-		#if html5
-			// Font size fix
-			D.text.HTML_FORCE_LEADING.set('fnt/text.ttf', [16, -8]);
-			D.text.HTML_FORCE_LEADING.set('fnt/amstrad.ttf', [8, -8]);
-		#end
-		
-		
 		D.ui.initIcons([8]);
 		D.assets.HOT_LOAD = [PATH_INI];
 		D.assets.onLoad = onAssetLoad;
 		D.assets.loadNow();
 		
-		// -- Game things:
-		IM = new ImageAssets();
-		
 		#if debug
 			new Debug();
 		#end
 		
+		#if html5
+			// Font size fix for autotext mostly
+			D.text.HTML_FORCE_LEADING.set('fnt/text.ttf', [16, -8]);
+			D.text.HTML_FORCE_LEADING.set('fnt/arcade.ttf', [10, -3]);
+		#end
+		
+		// -- Game things:
+		IM = new ImageAssets();
+		
 		// -- Add the border
 		var b = border = new Bitmap(FlxAssets.getBitmapData(Reg.IM.STATIC.overlay_scr), "always", true);
+		//b.smoothing = true;
 		FlxG.game.addChild(b);
 		#if FLX_DEBUG
 		FlxG.game.swapChildren(b, FlxG.game.debugger); // Put the debugger on top of the overlay
@@ -138,15 +137,15 @@ class Reg
 			trace(" -- Settings Restored", _LS);
 		}
 		
-		FlxG.scaleMode = new PixelPerfectScaleMode();	// This makes the HL target graphics nice.
-		FlxG.sound.soundTrayEnabled = false;
-		
 		// -- Restore keys
 		var _LK = D.save.load('keys');
 		if (_LK != null) {
 			D.ctrl.keymap_set(_LK);
 			trace(" -- Keys Restored", _LK);
 		}
+		
+		FlxG.scaleMode = new PixelPerfectScaleMode();	// This makes the HL target graphics nice.
+		FlxG.sound.soundTrayEnabled = false;
 		
 	}//---------------------------------------------------;
 	

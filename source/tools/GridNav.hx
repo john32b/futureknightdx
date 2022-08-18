@@ -105,16 +105,21 @@ class GridNav
 		};
 	}//---------------------------------------------------;
 	
-	
+	/** Relative Cursor Move */
 	public function cursor_move(x:Int, y:Int):Bool
 	{
 		return set_cursor_pos(cursor_pos.x + x, cursor_pos.y + y);
 	}//---------------------------------------------------;
 	
 	
-	// Sets both <cursor_pos> and <index>
-	// Checks FLAG_LOOP
-	// Calls onEscape()
+	/**
+	   Absolute Cursor Move
+	   - Sets both <cursor_pos> and <index>
+	   - Calls onEscape() if it has to
+	   @param	x
+	   @param	y
+	   @return Did it actually move?
+	**/
 	public function set_cursor_pos(x:Int, y:Int):Bool
 	{
 		if (cursor_pos.x == x && cursor_pos.y == y) return false;

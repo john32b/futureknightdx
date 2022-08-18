@@ -12,11 +12,16 @@
 	- Can latch on ladders on air
 	- Can drop off ladders
 	
+	
+  = FlxG.timescale Warning :
+	- Don't change it while player is alive, I am precalculating some variables
+	
 ======================================== */
 
 package gamesprites;
 
 import Reg;
+import gamesprites.Bullet;
 
 import djA.Fsm;
 import djA.types.SimpleCoords;
@@ -146,6 +151,9 @@ class Player extends FlxSprite
 	// 0:Normal, 1:Red, 2:Slime
 	public var bullet_type:Int;
 	
+	// Precalculated current bullet type time / FlxG.timescale
+	var _bullet_fix_time:Int;
+	
 	// This is the Health Number printed at the HUD
 	// This is the one that when reaches ZERO, the player will die
 	var healthSlow:Float;
@@ -215,6 +223,7 @@ class Player extends FlxSprite
 		_htick = 0;
 		
 		bullet_type = 0;
+		_bullet_fix_time = cast Bullet.TYPES[bullet_type].timer / FlxG.timeScale;
 		_interact_time = 0;	// this should not be reset at respawn
 		
 	}//---------------------------------------------------;
@@ -681,7 +690,8 @@ class Player extends FlxSprite
 		if (D.ctrl.justPressed(X))
 		#end
 		{
-			if (FlxG.game.ticks - _shoot_time < Bullet.TYPES[bullet_type].timer) return;
+			//if (FlxG.game.ticks - _shoot_time < Bullet.TYPES[bullet_type].timer / FlxG.timeScale) return;
+			if (FlxG.game.ticks - _shoot_time < _bullet_fix_time) return;
 			
 			var X = (facing == FlxObject.RIGHT?x + width + BULLET_X_PAD:x - BULLET_X_PAD);
 			if (Reg.st.BM.createAt(bullet_type, X, y + halfHeight, facing))
@@ -911,6 +921,7 @@ class Player extends FlxSprite
 					// Cycle between 0,1,2
 					bullet_type++;
 					if (bullet_type > 2) bullet_type = 0;
+					_bullet_fix_time = cast Bullet.TYPES[bullet_type].timer / FlxG.timeScale;
 					Reg.st.HUD.bullet_pickup(bullet_type);
 					D.snd.play(Reg.SND.weapon_get);					
 				}
@@ -1043,7 +1054,7 @@ class Player extends FlxSprite
 		{
 			if (_idle_stage > 0) animation.play('idle'); // rare
 			_idle_stop();
-			if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME) return false;
+			if (FlxG.game.ticks - _interact_time <= INTERACT_MIN_TIME / FlxG.timeScale) return false;
 			_interact_time = FlxG.game.ticks;
 			return true;
 		}

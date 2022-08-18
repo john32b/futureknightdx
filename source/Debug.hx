@@ -53,11 +53,23 @@ class Debug
 		Reg.st.HUD.bullet_pickup(a);
 	}//---------------------------------------------------;
 	
-	public function item_add(i:Int)
+	public function item(i:Int=-1)
 	{
-		var item = ITEM_TYPE.createByIndex(i);
-		trace("Adding item ",item);
-		Reg.st.INV.addItem(item);
+		if (i ==-1)
+		{
+			var items = ITEM_TYPE.createAll();
+		
+			for (c in 0...items.length )
+			{
+				FlxG.log.add( { ind:c, name:items[c] } );
+			}
+			
+		}else{
+			
+			var item = ITEM_TYPE.createByIndex(i);
+			FlxG.log.notice("Adding item " + item);
+			Reg.st.INV.addItem(item);
+		}
 	}//---------------------------------------------------;
 	
 	public function load(lData:String)
