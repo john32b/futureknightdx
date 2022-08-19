@@ -93,27 +93,28 @@ class MapTiles
 	// :: "tiletype" => [start_index, ?range]
 	public static var EDITOR_ENTITY(default, null):Map < EDITOR_TILE, Array<Int> > = [
 		ENEMY => [1, 20],
-		PLAYER => [25, 1],
-		ANIM => [26, 8],	// Animtiles will pushed to <AnimatedTile.hx> and handled from there
+		ANIM => [26, 8],	// Animtiles are pushed to <AnimatedTile.hx> and handled from there
 		ITEM => [34, 15],
 		FRIEND => [24,1]
 	];
 	
 	
 	// These globals are just for quick reference.
+	public static var EDITOR_PLAYER = 25;
 	public static var EDITOR_HAZARD = 29;
 	public static var EDITOR_EXIT   = 26;
 	public static var EDITOR_FINAL  = 15;	// Final Boss
 	
 	/**
-	   From EDITOR_ENTITY.PNG index (the index used in TILED editor)
-	   => to {type , index} type is EDITOR_TILE and INDEX starts with 0
+	   From EDITOR_ENTITY.GID index (the index used in TILED editor)
+	   => to {type , index} | type is EDITOR_TILE and INDEX starts with 0
 	   , reads from 'EDITOR_ENTITY' array
-	   e.g. GID:100 would translate to {GID:1,TYPE:ANIMATED_TILE}
-	   @called by RoomSprites.spawn(), when it needs to create objects for Animated Tile IDs it gets
-	   @param	gid . Raw data, as it is on the Tiled Object GID
+			e.g. GID:26 would translate to {GID:1,TYPE:ANIMATED_TILE}
+			     ^ ANIM tiles start at 26, so this is the first (1) ANIMATED_TILE
+	   - Called by RoomSprites.spawn()
+	   @param	gid Raw Index, Tiled Object GID
 	**/
-	public static function translateEditorEntity(gid:Int):{type:EDITOR_TILE, gid:Int}
+	public static function convert_TiledGID_to_Proper(gid:Int):{type:EDITOR_TILE, gid:Int}
 	{
 		for (k => v in EDITOR_ENTITY)
 		{

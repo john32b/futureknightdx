@@ -21,7 +21,7 @@
 	<haxelib name="djA"/>
 	<haxelib name="djFlixel"/>
 		<!-- djflixel defines -->
-		<haxedef name="HOT_RELOAD"/>
+		<haxedef name="HOT_LOAD"/>
 		<haxedef name="DJFLX_SND" value="snd/" />
 		<haxedef name="DJFLX_MUS" value="mus/" />
 	

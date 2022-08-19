@@ -30,18 +30,18 @@ import openfl.Assets;
 class State_Debug extends FlxState
 {	
 	// -
+	var tim:Float = 0;
 	override public function create():Void 
 	{
 		super.create();
 		bgColor = 0xFF112211;
-		
-		var tx1 = D.text.get('AMSTRAD FONT', 32, 32, {f:'im/amstrad.ttf', s:8});
-		add(tx1);
 	}//---------------------------------------------------;	
 	
 	override public function update(elapsed:Float):Void 
 	{
+		tim += elapsed;
 		super.update(elapsed);
+		trace(tim, elapsed);
 	}//---------------------------------------------------;
 	
 }//-- end --//

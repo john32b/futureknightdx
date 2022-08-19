@@ -7,7 +7,7 @@ import openfl.display.Sprite;
 class Main extends Sprite
 {
 	inline static var FPS = 40;
-	inline static var START_STATE = states.StatePlay;
+	inline static var START_STATE = states.StateAmstrad;
 	 
 	// --
 	public function new() 
@@ -18,7 +18,7 @@ class Main extends Sprite
 		D.init({
 			name:"Future Knight DX " + Reg.VERSION,
 			savename:"fkdx",
-			smoothing:true,
+			smoothing:false,
 			init:Reg.init
 		});
 		

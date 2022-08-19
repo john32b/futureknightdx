@@ -5,7 +5,9 @@
   - Display health, lives, weapon, items, score
   - ! Important to create this after <Reg.st.map> is available
       Because it is automatically positioned below the main game map camera
- 
+  
+  - Creates own camera, all members draw to that camera only
+  
 ================================= **/
 
 package;

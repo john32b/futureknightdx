@@ -13,20 +13,15 @@ import states.SubStatePause;
 
 
 /**
- * Various Parameters
- * - Everything is public
+ * Various Global Vars/Functiona
  */
 class Reg 
 {
+	
 	public static inline var VERSION = "1.4";
 	
 	// :: External parameters
 	static inline var PATH_INI  = "assets/fkdx.ini";
-	
-	// How long to wait on each screen on the banners
-	public static inline var BANNER_DELAY:Float = 12;
-	
-	//====================================================;
 	
 	// :: Image Asset Manager
 	public static var IM:ImageAssets;
@@ -90,6 +85,8 @@ class Reg
 	// This is for quick access to game elements
 	public static var st:StatePlay;
 	
+	// Decorative Amstrad CPC screen border
+	// This is an openfl object, not flixel
 	public static var border:Bitmap;
 	
 	//====================================================;
@@ -147,6 +144,7 @@ class Reg
 		FlxG.scaleMode = new PixelPerfectScaleMode();	// This makes the HL target graphics nice.
 		FlxG.sound.soundTrayEnabled = false;
 		
+
 	}//---------------------------------------------------;
 	
 	

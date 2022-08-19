@@ -690,7 +690,6 @@ class Player extends FlxSprite
 		if (D.ctrl.justPressed(X))
 		#end
 		{
-			//if (FlxG.game.ticks - _shoot_time < Bullet.TYPES[bullet_type].timer / FlxG.timeScale) return;
 			if (FlxG.game.ticks - _shoot_time < _bullet_fix_time) return;
 			
 			var X = (facing == FlxObject.RIGHT?x + width + BULLET_X_PAD:x - BULLET_X_PAD);

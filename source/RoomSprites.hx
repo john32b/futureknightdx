@@ -8,9 +8,6 @@ ROOM SPRITES MANAGER
  - Items
  - Animated Tiles
  
- - Pause/delete the ones that go off screen
- - Create and place the new entities for each screen
- 
  ------------------------------- */
 
  
@@ -72,7 +69,9 @@ class RoomSprites extends FlxGroup
 	**/
 	public function spawn(en:TiledObject)
 	{
-		var data = MapTiles.translateEditorEntity(en.gid);
+		// DEV: en.gid is real Tiled Editor GID
+		// going to be converted to {type, gid}
+		var data = MapTiles.convert_TiledGID_to_Proper(en.gid);
 	
 		if (data == null)
 		{
@@ -134,7 +133,7 @@ class RoomSprites extends FlxGroup
 	}//---------------------------------------------------;
 	
 	/**
-	   Freeze all enemies.
+	   Freeze/Unfreeze all enemies 
 	   @param	freeze True to Freeze. False to Unfreeze
 	**/
 	public function enemies_freeze(freeze:Bool)
@@ -149,6 +148,7 @@ class RoomSprites extends FlxGroup
 	
 	/**
 	   Get all AnimatedTiles of a Type
+	   > Used to check if a particular thing is on screen, like FRIEND, or LASERS
 	   @param	type see AnimTileType.hx
 	   @return Array that can by empty
 	**/

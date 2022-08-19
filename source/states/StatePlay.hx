@@ -115,31 +115,36 @@ class StatePlay extends FlxState
 			_isNew = true;
 		}
 		
-		// : Override the starting map when debugging
+		// : Override the starting map to whatever the INI file says
 		#if debug
 			var L = Reg.INI.get('DEBUG', 'startLevel');
 			if (L != null) MAP_TO_LOAD = L;
-			
-			// This is when pressing [f12] to reload the current map I am in again.
-			if (D.DEBUG_RELOADED) {
-				MAP_TO_LOAD = Debug.LAST_MAP_LOADED;
-			}
 		#end
 		
-		// : Last thing, load the level, this till trigger the on_map_event()
+		// : This will load the map and will trigger everything else 
+		//   with events, check on_map_event()
 		map.loadMap(MAP_TO_LOAD);
-		map.camera.flash(0xFF000000, 0.5);
-		D.snd.play("teleport2", 0.5);
 		
 		// : This should appear at the first level, (when no save exists)
 		if (_isNew)
 		{
 			HUD.set_text("Teleportation successful. Find Amelia.", true, 7);
-			map.flash(3);
 			FlxFlicker.flicker(player, 0.5, 0.04, true);
+			D.snd.play("teleport2", 0.5);
+			map.flash(3);
+		}else{
+			
+			new FilterFader(false, {time:0.5, delayPost:0});
 		}
 		
 		D.snd.stopMusic(); /// TODO < : MUSIC!
+		
+		// I think it is a bit too fast, adjust it a bit
+		// Restore it when exiting this state
+		FlxG.timeScale = 0.9;
+		FlxG.signals.preStateSwitch.addOnce(() -> {
+			FlxG.timeScale = 1;
+		});
 	}//---------------------------------------------------;
 		
 		

@@ -61,7 +61,7 @@ class Inventory extends FlxSpriteGroup
 	
 	public var isOpen(default, null):Bool;
 	
-	// :: CALLBACKS ::
+	// :: CALLBACKS :: MUST BE SET!!
 	public var onItemSelect:ITEM_TYPE->Void;
 	public var onClose:Void->Void;
 	public var onOpen:Void->Void;
@@ -216,9 +216,7 @@ class Inventory extends FlxSpriteGroup
 		// Same with both focus groups
 		if (D.ctrl.justPressed(_START_A)) {
 				
-			if (ITEMS[grid.index] != null)
-				if (onItemSelect != null) 
-					onItemSelect(ITEMS[grid.index]);
+			if (ITEMS[grid.index] != null) onItemSelect(ITEMS[grid.index]);
 			close();
 		}
 		
@@ -262,7 +260,7 @@ class Inventory extends FlxSpriteGroup
 		
 		D.snd.play("inv_open");
 		group_focus(1);
-		if (onOpen != null) onOpen();
+		onOpen();
 	}//---------------------------------------------------;
 	
 	// --
@@ -276,7 +274,7 @@ class Inventory extends FlxSpriteGroup
 		{
 			y = SCREEN_Y_OFF;
 			visible = false;
-			if (onClose != null) onClose();
+			onClose();
 			
 		}else{
 			
@@ -287,7 +285,7 @@ class Inventory extends FlxSpriteGroup
 				_tween.destroy();
 				_tween = null;
 				visible = false;
-				if (onClose != null) onClose();
+				onClose();
 			}});
 		}
 		

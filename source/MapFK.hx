@@ -23,6 +23,23 @@
 	1: Shadows
 	2: FG Tiles / Collision
 	
+	
+	TILED MAPS
+	==========
+	- Every Map should have Properties
+		COLOR: Color Combo without the PREFIX. e.g. "green", "green2"
+		COLOR_FG: Color Combo without the PREFIX. e.g. "red", "red2"
+		NAME: Name of the map, appears in inventory
+		TYPE: 0:Space, 1:Forest, 2:Castle
+		
+		* Note : ColorCombos defined in <ImageAssets.hx> , CC_MAP
+		
+	- Layers:
+		- Background
+		- Platforms
+		- Append
+		- Entities (Objects)
+	
 **/
 
 
@@ -34,6 +51,7 @@ import djA.DataT;
 import djFlixel.other.StepTimer;
 import flash.filters.ColorMatrixFilter;
 import gamesprites.Item;
+import openfl.Assets;
 
 import gamesprites.Item.ITEM_TYPE;
 import gamesprites.AnimatedTile;
@@ -74,9 +92,9 @@ class MapFK extends TilemapGeneric
 	public static inline var MAP_FOREST = 1;
 	public static inline var MAP_CASTLE = 2;
 	
-	static inline var MAP_ASSET_PATH = "map/";
-	static inline var MAP_REAL_PATH  = "assets/maps/";	// used in DYN_ASSETS
-	static inline var MAP_EXT = ".tmx";
+	static inline var PATH_ASSETS = "map/";
+	static inline var PATH_REAL  = "assets/maps/";	// used in HOT_LOAD
+	static inline var PATH_EXT = ".tmx";
 	
 	// The layer names as declared in TILED 
 	static inline var LAYER_BG 			= 'Background';
@@ -115,6 +133,7 @@ class MapFK extends TilemapGeneric
 	
 	// Pixel Coordinates of the player
 	// Can be null if the current map does not have a start point
+	// Will be set with either EXIT spawn point or PLAYER spawn point
 	public var PLAYER_SPAWN(default, null):SimpleCoords;
 	
 	var tweenCamera:VarTween;
@@ -123,9 +142,10 @@ class MapFK extends TilemapGeneric
 	public var MAP_NAME(default, null) = "";		// Game map name . e.g. "Control Room", This is read from the tmx file
 	public var MAP_FILE(default, null) = "";		// The short name of the loaded map. e.g. "level_01"
 	
+	static var MAP_LAST_LOADED_ID:String = null;
 	var MAP_LOADED_ID = "";	// Combo of MAP:EXIT of the current map loaded.
 	var MAP_TYPE = 0;		// 0:Space, 1:Forest, 2:Castle. Used in controlling graphic and tile properties
-	var MAP_COLOR = "";		// Color id, check "ImageAssets.D_COL_NAME"
+	var MAP_COLOR = "";		// Color id, check "ImageAssets.CC_MAP"
 	var MAP_COLOR_FG = "";	// Ladder + FG Tiles colors
 	
 	// Pointer? of all the exit TileObjects in this map
@@ -153,7 +173,11 @@ class MapFK extends TilemapGeneric
 	**/
 	public function new(P:Player) 
 	{
-		super(3);	// Two layers, BG and Platforms
+		// 3 layers
+		// Layer 0 : Background
+		// Layer 1 : Shadows
+		// Layer 2 : Foreground Tiles
+		super(3);
 		
 		player = P;
 		
@@ -185,83 +209,73 @@ class MapFK extends TilemapGeneric
 	 */
 	public function loadMap(DATA:String)
 	{
-		// e.g. "level_02:B"
-		// d[0] = Map short name | d[1] = Exit name
+		trace("> Loading Map", DATA);
+		
+		#if debug
+			// This is on [F12] reload
+			// Regardless of map being told to load. Instead load the same map
+			if (D.DEBUG_RELOADED) 
+				DATA = MapFK.MAP_LAST_LOADED_ID;
+			// > HOTLOAD maps removed -- need to rewrite it --
+		#end
+		
+		// Level Name , Exit Name | d[0]="level02" d[1]="B"
 		var d  = DATA.split(':');
 		
 		MAP_FILE = d[0];
 		MAP_LOADED_ID = DATA;
+		MapFK.MAP_LAST_LOADED_ID = MAP_LOADED_ID;
 	
-		// From map short name to full asset path
 		// e.g. "level_02" -> "maps/level_02.tmx";
-		var assetPath = MAP_ASSET_PATH + MAP_FILE + MAP_EXT;
+		load(PATH_ASSETS + MAP_FILE + PATH_EXT);
 		
-		#if (debug && DYN_ASSETS)
+		// - Put player at the EXIT point defined in DATA
+		if (d[1] != null) {
+			var exit = EXITS.get(d[1]);
+			PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
+		}
 		
-			Debug.LAST_MAP_LOADED = MAP_LOADED_ID;
-			D.assets.getTextFile(MAP_REAL_PATH + MAP_FILE + MAP_EXT, (mapData)->{
-				load(mapData, true);
-						// DEV:
-						// Hacky way to make global killed objects work on dynamic assets
-						// This is copy-pasted from <TileMapGeneric.hx>
-						@:privateAccess T.assetLoaded = assetPath;
-						for (i in _killed_global) {
-							if (i.indexOf(T.assetLoaded) == 0){
-								var d = i.split(":");
-								_killed.push(Std.parseInt(d[1]));
-							}
-						}
-				
-					// :: This code is the same as the one below -----------
-					if (d[1] != null)  {
-						var exit = EXITS.get(d[1]);
-						if (exit == null) throw 'Exit Name : ${d[1]} does not exist in Map ${MAP_FILE}';
-						PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
-					}else {
-						if (PLAYER_SPAWN == null) throw 'Forgot to specify a player spawn point';
-					}
-					if (APPLIED_APPENDS.indexOf(MAP_FILE) >= 0) appendMap();
-					onEvent(MapEvent.loadMap);
-					// -----------------------------------------------------
-			});
+		// Check if map has unlocked section and apply it
+		if (APPLIED_APPENDS.indexOf(MAP_FILE) >= 0) appendMap();
 		
-		#else
-			
-			// Release: Load map from static assets
-			load(assetPath);
-			
-			if (d[1] != null) {
-				var exit = EXITS.get(d[1]);
-				PLAYER_SPAWN = new SimpleCoords(cast exit.x, cast exit.y);
-			}
-			// Check if map has unlocked section and apply it
-			if (APPLIED_APPENDS.indexOf(MAP_FILE) >= 0) appendMap();
-			
-			// Notify main that the map is ready
-			onEvent(MapEvent.loadMap);
+		// Notify main that the map is ready
+		onEvent(MapEvent.loadMap);
 		
-		#end
 	}//---------------------------------------------------;
 
 	
 	/**
 	  - Loads map, creates tile layers, and reads/processes map data
 	  - Don't call this from main, use loadLevel(),
-		! NOTE !
-		- Does not call `onEvent(MapEvent.loadMap)` need to call it later
 	 */
 	@:noCompletion
 	override public function load(S:String, asData:Bool = false)
 	{
 		// It was scrolling -- not supposed to -- but check anyway
-		if (tweenCamera != null) {tweenCamera.cancel(); tweenCamera = null; }	
+		if (tweenCamera != null) {tweenCamera.cancel(); tweenCamera = null; }
 		
-		super.load(S, asData);
+		#if (debug && HOT_LOAD)
+			if (D.DEBUG_RELOADED)
+			{
+				var data:String = "";
+				// DEV:
+				// In static targets, the file is being loaded in SYNC
+				// So the callback will be executed before everything else
+				S = PATH_REAL + S.substr(PATH_ASSETS.length);
+				D.assets.getTextFile(S, (d)->data = d);
+				super.load(data, true);
+			}else
+			{
+				super.load(S);
+			}
+		#else
+			super.load(S);
+		#end
 		
 		MAP_TYPE = T.properties.TYPE;
 		MAP_NAME = T.properties.NAME;
-		MAP_COLOR = 'bg_' + DataT.existsOr(T.properties.COLOR, 'yellow');
-		MAP_COLOR_FG = 'bg_' + DataT.existsOr(T.properties.COLOR_FG, 'blue');
+		MAP_COLOR = 'cc_' + DataT.existsOr(T.properties.COLOR, 'yellow');
+		MAP_COLOR_FG = 'cc_' + DataT.existsOr(T.properties.COLOR_FG, 'blue');
 		
 		_scanProcessTiles();	// <- Read FG tiles
 		 
@@ -287,7 +301,6 @@ class MapFK extends TilemapGeneric
 		layers[2].loadMapFromArray(T.getLayer(LAYER_PLATFORM), T.mapW, T.mapH,
 			Reg.IM.getMapTiles(MAP_TYPE, "fg", MAP_COLOR_FG),
 			T.tileW, T.tileH, null, 1, MapTiles.FG_START_DRAW[MAP_TYPE], 1);
-			
 			
 		_setTileProperties();	// <- Declare tile collision properties
 		
@@ -367,7 +380,7 @@ class MapFK extends TilemapGeneric
 	   Scroll camera to RELATIVE ROOM COORDINATES
 	   (1,0) will move 1 to the right. (0,-1) will move one above
 	**/
-	public function camera_move_rel(x:Int = 0, y:Int = 0):Bool
+	function camera_move_rel(x:Int = 0, y:Int = 0):Bool
 	{
 		if (roomcurrent_set(roomCurrent.x + x, roomCurrent.y + y))
 		{
@@ -418,7 +431,6 @@ class MapFK extends TilemapGeneric
 	// -- Called after loading the map and before creating the map
 	// + Process HAZARD tiles and make them entities
 	// + Process/Create Shadow tiles based
-	@:dce
 	function _scanProcessTiles()
 	{
 		sh_data = [];
@@ -503,7 +515,7 @@ class MapFK extends TilemapGeneric
 	
 	
 	
-	// -- Scan the room for entities and process them
+	// -- Scan the Entire Map for entities and process them
 	// Mainly for <player spawn>
 	function _scanProcessEntities()
 	{
@@ -512,7 +524,7 @@ class MapFK extends TilemapGeneric
 		
 		for (i in T.getObjLayer(LAYER_ENTITIES))
 		{
-			if (i.gid == MapTiles.EDITOR_ENTITY[PLAYER][0]) // the player GID
+			if (i.gid == MapTiles.EDITOR_PLAYER) // the player GID
 			{
 				PLAYER_SPAWN = new SimpleCoords(cast i.x, cast i.y);
 			}else
@@ -677,15 +689,6 @@ class MapFK extends TilemapGeneric
 		return (id >= AR[0] && id < AR[0] + AR[1]);
 	}//---------------------------------------------------;
 	
-	/**
-	   Get a tile id by Pixel Coordinates */
-	public function getTileP(X:Float, Y:Float):Int
-	{
-		return layers[COLLISION_LAYER].getTile(Std.int(X / T.tileW), Std.int(Y / T.tileH));
-	}//---------------------------------------------------;
-	
-	
-	
 	
 	
 	//====================================================;
@@ -800,7 +803,7 @@ class MapFK extends TilemapGeneric
 		e.kill();
 		D.snd.playV(Reg.SND.item_keyhole);
 		
-		// :: Special Occation
+		// :: Special Occasion
 		//    Check if it is the final keyhole of the final level
 		if (e.O.type == "final")
 		{

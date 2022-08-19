@@ -40,6 +40,8 @@ class StateEnd extends FlxState
 		map.onEvent = (e)-> { if (e == loadMap) P01(); };
 		map.loadMap('end');
 		
+		new FilterFader(false, {time:0.5});
+		
 		// --
 		D.save.deleteSlot(1);
 		trace("Save Slot (1) Deleted");

@@ -78,15 +78,8 @@ class ParticleManager extends FlxGroup
 	public static function factory():FlxSprite
 	{
 		var s = new FlxSprite();
-		//Reg.IM.loadGraphic(s, 'particles');
-		//s.animation.add("0", [0, 1, 2, 3], 8, false);
-		//s.animation.add("1", [4, 5, 6, 4, 5, 6], 10, false);
-		
 		s.solid = false;
 		s.acceleration.y = Reg.P.gravity / 5;
-		
-		// NOTE: IN the 2015 version I had gravity set to (GLOBAL_GRAVITY/2)
-		//		 by 5 feels better
 		return s;
 	}//---------------------------------------------------;
 	

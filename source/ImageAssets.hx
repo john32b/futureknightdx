@@ -37,6 +37,7 @@ class ImageAssets
 		minimap:"im/minimap.png"
 	};
 	
+	// col: Whether or not a bitmap is templated to be colorized
 	static var GFX:Map<String,{im:String,tw:Int,th:Int,col:Bool}> = [
 		"player" => { im:"im/ts_player.png", tw:28, th:26, col:true},
 		"enemy_sm" =>  {im:"im/ts_enemy_sm.png", tw:24, th:24, col:true},
@@ -57,18 +58,20 @@ class ImageAssets
 	];
 	
 	
-	// Template Colors
+	// Color Combo Template Colors
 	// 3 colors on the template graphics
-	var T_COL:Array<Int> = [
+	// When loading a templated bitmap, these colors are to be replaced
+	var CC_TEMPL:Array<Int> = [
 		Pal_CPCBoy.COL[28],
 		Pal_CPCBoy.COL[29],
-		//Pal_CPCBoy.COL[30],
 		Pal_CPCBoy.COL[31]
 	];
 	
 	
 	// Color Names to Color Combinations
-	var D_COL_NAME:Map<String,Array<Int>> = [
+	// Colors are Pal_CPCBoy Indexes
+	// At object init, all indexes are going to be replaced with Real Color Values.
+	var CC_MAP:Map<String,Array<Int>> = [
 	
 		// SPRITE COLORS:
 		"red" => [15, 6, 3],
@@ -82,32 +85,30 @@ class ImageAssets
 		"pink" => [27, 17, 6],
 		"gray" => [27, 13, 31],
 		
-		// MAP COLORS: (2 is dark)
-		"bg_yellow" => [25, 24, 15],
-		"bg_orange" => [24, 15, 6],
-		"bg_brown" => [25, 12, 3],
-		"bg_green" => [25, 18, 9],
-		"bg_purple" => [27, 17, 7],
-		"bg_purple2" => [17, 5, 4], // dark
-		"bg_blue" => [23, 20, 10],
-		"bg_blue2" => [23, 10, 1],
-		"bg_red" => [16, 6, 3],
-		"bg_red2" => [6, 3, 1], // dark
-		"bg_gray" => [27, 13, 31],
-		"bg_green2" => [21, 9, 31], // or 31 instead of 3
+		// MAP COLORS: (2 is dark) -- Color Combo
+		"cc_yellow" => [25, 24, 15],
+		"cc_orange" => [24, 15, 6],
+		"cc_brown" => [25, 12, 3],
+		"cc_green" => [25, 18, 9],
+		"cc_purple" => [27, 17, 7],
+		"cc_purple2" => [17, 5, 4], // dark
+		"cc_blue" => [23, 20, 10],
+		"cc_blue2" => [23, 10, 1],
+		"cc_red" => [16, 6, 3],
+		"cc_red2" => [6, 3, 1], // dark
+		"cc_gray" => [27, 13, 31],
+		"cc_green2" => [21, 9, 31], // or 31 instead of 3
 		
-		
-		"bg_forest1" => [24, 9, 12],
-		"bg_forest2" => [16, 3, 31]
+		"cc_forest1" => [24, 9, 12],
+		"cc_forest2" => [16, 3, 31]
 	];
 	
 	
 	// This is for the enemy class to get a random color
+	// a copy of `CC_MAP` keys
 	var COLORS_SPRITE = [
 		"red", "green", "blue", "yellow", "pink", "red2", "green2", "blue2", "yellow2", "gray"
 	];
-	
-			
 	
 	// Caches all the generated bitmaps
 	var cache:Map<String,BitmapData>;
@@ -117,16 +118,16 @@ class ImageAssets
 	{
 		cache = [];
 		
-		// : Translate the D_COL_NAME values from palette indexes to real colors
-		for (k => v in D_COL_NAME)
+		// : Translate the CC_MAP values from palette indexes to real colors
+		for (k => v in CC_MAP)
 		{
-			D_COL_NAME.set(k, [Pal_CPCBoy.COL[v[0]], Pal_CPCBoy.COL[v[1]], Pal_CPCBoy.COL[v[2]]]);
+			CC_MAP.set(k, [Pal_CPCBoy.COL[v[0]], Pal_CPCBoy.COL[v[1]], Pal_CPCBoy.COL[v[2]]]);
 		}
 		
 		// I want to cache ENEMIES and PARTICLES with some of the colors
-		for (k => v in D_COL_NAME)
+		for (k => v in CC_MAP)
 		{
-			if (k.indexOf("bg_") == 0) continue;
+			if (k.indexOf("cc_") == 0) continue;
 			getbitmap(GFX['enemy_sm'].im, k, true);
 			getbitmap(GFX['particles'].im, k, true);
 		}
@@ -144,7 +145,7 @@ class ImageAssets
 	   Load a graphic to a sprite from the predefined ones
 	   @param	sprite 
 	   @param	name Name in "GFX" map
-	   @param	O Color options TODO
+	   @param	C Color Combo String | CC_MAP key
 	**/
 	public function loadGraphic(sprite:FlxSprite, name:String, ?C:String)
 	{
@@ -158,9 +159,9 @@ class ImageAssets
 		}
 	}//---------------------------------------------------;
 	
-	// --
-	// Quickly get a sprite with a tileset loaded at current frame
-	public function getSprite(X:Float = 0, Y:Float = 0, name:String, frame:Int = 1)
+	/** Quickly get a sprite with a tileset loaded at current frame
+	 */
+	public function getSprite(X:Float = 0, Y:Float = 0, name:String, frame:Int = 1):FlxSprite
 	{
 		var S = new FlxSprite(X, Y);
 		loadGraphic(S, name);
@@ -172,27 +173,26 @@ class ImageAssets
 	   Get Map Asset from (type) (fg/bg). E.g. "im/tiles_fg_1.png"
 	   @param	type 0:Space, 1:Forest, 2:Castle
 	   @param	layer bg , fg
-	   @param	O Colors
-	   @return
+	   @param	C Colors
+	   @return Colorized Map Tiles BitmapData
 	**/
 	public function getMapTiles(type:Int, layer:String, ?C:String):BitmapData
 	{
 		var asset = 'im/tiles_${layer}_${type}.png';
-		// Colorize and return
 		return getbitmap(asset, C);
 	}//---------------------------------------------------;
 	
 	
 	/**
 	   Get Bitmap and colorize if the image supports it
-	   @param assetName
-	   @param C 0 for no colorization
+	   @param assetName e.g "im/tiles_fg.png"
+	   @param C CC_MAP key | e.g. "cc_green"
 	   @param useCache If true, will search cache, if not found will create and put to cache
 	**/
 	function getbitmap(assetName:String, ?C:String, ?useCache:Bool = false)
 	{
 		#if debug
-		if (C != null && !D_COL_NAME.exists(C)){
+		if (C != null && !CC_MAP.exists(C)){
 			trace("Error: Wrong color or empty", C);
 			C = 'red';
 		}
@@ -206,7 +206,7 @@ class ImageAssets
 			
 			if (source == null) {
 				source = Assets.getBitmapData(assetName).clone();
-				if (C != null) D.bmu.replaceColors(source, T_COL, D_COL_NAME[C]);
+				if (C != null) D.bmu.replaceColors(source, CC_TEMPL, CC_MAP[C]);
 				cache.set(assetName + "_" + C, source);
 			}
 			return source.clone();
@@ -214,7 +214,7 @@ class ImageAssets
 		}else
 		{
 			source = Assets.getBitmapData(assetName).clone();
-			if (C != null) D.bmu.replaceColors(source, T_COL, D_COL_NAME[C]);
+			if (C != null) D.bmu.replaceColors(source, CC_TEMPL, CC_MAP[C]);
 			return source;
 		}
 		

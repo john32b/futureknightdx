@@ -35,9 +35,10 @@ class TilemapGeneric extends FlxGroup
 	public var T(default, null):TiledMap;
 	
 	/** Width in pixels */
-	public var width(default, null):Int;	// Pixel Width
+	public var width(default, null):Int;
+	
 	/** Height in pixels */
-	public var height(default, null):Int; 	// Pixel Height
+	public var height(default, null):Int;
 	
 	/** All the FlxTilemaps */
 	public var layers:Array<FlxTilemap>;
@@ -80,7 +81,8 @@ class TilemapGeneric extends FlxGroup
 
 
 	/**
-	   - Camera is set to top-left, camera bounds are set
+	   - Camera is set to top-left 
+	   - Camera bounds are set
 	   - World Boundaries are set
 	   @param s <Asset Path> or <XML Data as Text>.
 	   @param asData, if you pass XML DATA set this to True
@@ -170,6 +172,12 @@ class TilemapGeneric extends FlxGroup
 		return list;
 	}//---------------------------------------------------;
 	
+
+	/** Get a Tile id by Pixel Coordinates */
+	public function getTileP(X:Float, Y:Float):Int
+	{
+		return layers[COLLISION_LAYER].getTile(Std.int(X / T.tileW), Std.int(Y / T.tileH));
+	}//---------------------------------------------------;
 	
 	/** Convert world pixel coords to tile coords */
 	public function getTileCoordsFromP(x:Float, y:Float):{x:Int, y:Int}
