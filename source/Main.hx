@@ -1,6 +1,7 @@
 package;
 
 import djFlixel.D;
+import djFlixel.other.GF_Blur;
 import flixel.FlxGame;
 import openfl.display.Sprite;
 
@@ -18,12 +19,10 @@ class Main extends Sprite
 		D.init({
 			name:"Future Knight DX " + Reg.VERSION,
 			savename:"fkdx",
-			smoothing:false,
 			init:Reg.init
 		});
 		
 		addChild(new FlxGame(320, 240, START_STATE, 2, FPS, FPS, true)); // true = SkipSplash
-		
 	}//---------------------------------------------------;
 	
 }//--end class--

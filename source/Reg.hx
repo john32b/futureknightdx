@@ -89,6 +89,9 @@ class Reg
 	// This is an openfl object, not flixel
 	public static var border:Bitmap;
 	
+	// Basic Smoothing Helper >> toreplace
+	// public static var BLUR:GF_Blur;
+	
 	//====================================================;
 	
 	// Gets called once After FLXGame and before first State
@@ -100,6 +103,8 @@ class Reg
 		D.assets.HOT_LOAD = [PATH_INI];
 		D.assets.onLoad = onAssetLoad;
 		D.assets.loadNow();
+		
+		//BLUR = new GF_Blur(0.5, 1.7, 2);
 		
 		#if debug
 			new Debug();
@@ -128,7 +133,7 @@ class Reg
 		D.save.setSlot(0);
 		var _LS = D.save.load('settings');
 		if (_LS != null) {
-			//D.SMOOTHING = _LS.aa;
+			//D.SMOOTHING = _LS.aa; >>
 			border.visible = _LS.bord;
 			D.snd.setVolume("master", _LS.vol);
 			trace(" -- Settings Restored", _LS);
@@ -144,7 +149,6 @@ class Reg
 		FlxG.scaleMode = new PixelPerfectScaleMode();	// This makes the HL target graphics nice.
 		FlxG.sound.soundTrayEnabled = false;
 		
-
 	}//---------------------------------------------------;
 	
 	
@@ -152,7 +156,6 @@ class Reg
 	// Then the state will be reset automatically
 	static function onAssetLoad()
 	{
-		trace(" -- Reg : Handle Dynamic Asset Reload.");
 		INI = new ConfigFileB(D.assets.files.get(PATH_INI));
 		D.snd.addSoundInfos(INI.getObj('sounds_vol'));
 	}//---------------------------------------------------;
@@ -163,36 +166,14 @@ class Reg
 		border.width = FlxG.scaleMode.gameSize.x;
 		border.height = FlxG.scaleMode.gameSize.y;
 	}//---------------------------------------------------;
-	
-	/** Adds the "AMSTRAD CPC" border to the current state
-	**/
-	@:deprecated("I can't get it to work, after the recent update. Use a global overlay")
-	public static function add_border()
-	{
-		var st = FlxG.state;
-		var bord = new FlxSprite(0, 0, IM.STATIC.overlay_scr);
-		bord.scrollFactor.set(0, 0);
-		bord.active = false;
-		bord.camera = new flixel.FlxCamera();
-		FlxG.cameras.add(bord.camera, false);
-		st.add(bord);
-		trace(">> Added border");
-	}//---------------------------------------------------;
-	
+		
 	public static function openPauseMenu()
 	{
 		st.openSubState(new SubStatePause());
 	}//---------------------------------------------------;
 	
-	// -- TODO
-	public static function checkProtection():Bool
-	{
-		return true;
-		// !Reg.api.isURLAllowed()
-	}//---------------------------------------------------;
-	
-	
 	// --
+	// DEV: Settings restored in REG.init();
 	public static function SAVE_SETTINGS()
 	{
 		D.save.setSlot(0);

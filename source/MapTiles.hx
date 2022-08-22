@@ -63,7 +63,7 @@ class MapTiles
 		
 		// TYPE (1) : FOREST
 		[   
-			SOFT => [4, 8],
+			SOFT => [4, 9],
 			LADDER => [15, 6],
 			LADDER_TOP => [13, 2],
 			HAZARD_TILE => [3, 1],
@@ -95,7 +95,8 @@ class MapTiles
 		ENEMY => [1, 20],
 		ANIM => [26, 8],	// Animtiles are pushed to <AnimatedTile.hx> and handled from there
 		ITEM => [34, 15],
-		FRIEND => [24,1]
+		FRIEND => [24,1],
+		PLAYER => [25,1]
 	];
 	
 	

@@ -75,7 +75,7 @@ class RoomSprites extends FlxGroup
 	
 		if (data == null)
 		{
-			trace("Error: No Entity Data for ", en);
+			trace("ERROR: No Entity Data for ", en);
 			trace("CHECK YOUR MAP IN THE EDITOR FOR EMPTY ENTITIES");
 			return;
 		}

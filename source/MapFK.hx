@@ -75,7 +75,6 @@ import flixel.tweens.misc.VarTween;
 
 import haxe.EnumTools;
 
-
 enum MapEvent 
 {
 	scrollStart;
@@ -184,10 +183,6 @@ class MapFK extends TilemapGeneric
 		// - New camera for the map, also this is now the default camera for everything
 		camera = new FlxCamera(DRAW_START_X * 2, DRAW_START_Y * 2, ROOM_WIDTH, ROOM_HEIGHT);
 		
-		#if (flash || canvas)
-		camera.antialiasing = D.SMOOTHING;
-		#end
-		
 		roomTotal = new SimpleCoords();
 		roomCurrent = new SimpleCoords();
 		roomCornerTile = new SimpleCoords();
@@ -255,6 +250,7 @@ class MapFK extends TilemapGeneric
 		if (tweenCamera != null) {tweenCamera.cancel(); tweenCamera = null; }
 		
 		#if (debug && HOT_LOAD)
+			// ONLY WORKS FOR STATIC TARGETS 
 			if (D.DEBUG_RELOADED)
 			{
 				var data:String = "";
@@ -312,10 +308,10 @@ class MapFK extends TilemapGeneric
 		
 		// -- INFO and DEV CHECKS
 		#if debug
-			trace(' === Loaded Map : "$MAP_LOADED_ID"');
-			trace(' . TYPE: $MAP_TYPE, NAME: $MAP_NAME');
-			trace(' . MAP : Rooms Total ' , roomTotal);
-			trace(' . MAP COLORS', MAP_COLOR, MAP_COLOR_FG);
+			trace('=== Loaded Map : "$MAP_LOADED_ID"');
+			trace(' TYPE: $MAP_TYPE, NAME: $MAP_NAME');
+			trace(' MAP : Rooms Total ' , roomTotal);
+			trace(' MAP COLORS', MAP_COLOR, MAP_COLOR_FG);
 			//T.debug_info();
 			trace('--------------------------------------');
 		#end

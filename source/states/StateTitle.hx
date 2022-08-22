@@ -302,7 +302,7 @@ class StateTitle extends FlxState
 				case "vol":
 					FlxG.sound.volume = cast(b.get(),Int) / 100;
 				case "softpix":
-					D.SMOOTHING = b.get();
+					//Reg.BLUR.enabled = b.get();
 				case "bord":
 					Reg.border.visible = b.get();
 				case "keyredef":

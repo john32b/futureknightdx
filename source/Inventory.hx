@@ -39,7 +39,9 @@ class Inventory extends FlxSpriteGroup
 	
 	var SND = {
 		tick:"cursor_tick",
-		ok:"cursor_ok"
+		ok:"cursor_ok",
+		open:"inv_open",
+		close:"inv_close"
 	}
 	
 	var box_items:Array<Item> = [];
@@ -121,7 +123,7 @@ class Inventory extends FlxSpriteGroup
 		grid.onEscape = (d)->{
 			if (d == FlxObject.UP){
 				group_focus(0);
-				D.snd.play(SND.tick, 0.5);
+				D.snd.playV(SND.tick);
 			}
 		};
 		
@@ -193,12 +195,12 @@ class Inventory extends FlxSpriteGroup
 		{
 			if (D.ctrl.justPressed(A)){
 				Reg.openPauseMenu();
-				D.snd.play(SND.ok, 0.5);
+				D.snd.playV(SND.ok);
 				return;
 			}
 			else if (D.ctrl.justPressed(DOWN)){
 				group_focus(1);
-				D.snd.play(SND.tick,0.5);
+				D.snd.playV(SND.tick);
 			}
 		}else
 		{
@@ -258,7 +260,7 @@ class Inventory extends FlxSpriteGroup
 			active = true;
 		}});
 		
-		D.snd.play("inv_open");
+		D.snd.play(SND.open);
 		group_focus(1);
 		onOpen();
 	}//---------------------------------------------------;
@@ -278,7 +280,7 @@ class Inventory extends FlxSpriteGroup
 			
 		}else{
 			
-			D.snd.play("inv_close");
+			D.snd.play(SND.close);
 			y = SCREEN_Y;
 			_tween = FlxTween.tween(this, {y:SCREEN_Y_OFF}, TWEEN_TIME, { onComplete:(_)->{
 				// DEV: I need to destroy and null, because it will not immediately be nulled
@@ -386,7 +388,7 @@ class Inventory extends FlxSpriteGroup
 		var p = grid.get_current_pos();
 		cursor.setPosition(x + GRID_X + p.x - 1, y + GRID_Y + p.y - 1);
 		_refresh_text();
-		D.snd.play(SND.tick, 0.5);
+		D.snd.playV(SND.tick);
 	}//---------------------------------------------------;
 	
 	function _refresh_text()

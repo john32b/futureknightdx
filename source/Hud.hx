@@ -89,9 +89,7 @@ class Hud extends FlxGroup
 			bg.frameWidth  + 1,									// IN GAME PIXELS
 			bg.frameHeight + 1									// IN GAME PIXELS
 		);
-		#if (flash || canvas)
-		camera.antialiasing = D.SMOOTHING;
-		#end
+		
 		FlxG.cameras.add(camera, false);	// false means not a default camera. Only this group will draw on this camera
 		
 		// > after creating the camera
@@ -137,7 +135,7 @@ class Hud extends FlxGroup
 		//-- Put this at the top of the list
 		fx_static = new FlxSprite(103, 25);
 		Reg.IM.loadGraphic(fx_static, "static");
-		fx_static.animation.add("main", [0, 1, 2, 3, 4, 0, 1, 5, 6, 7, 5, 4, 3, 2], 10, false);
+		fx_static.animation.add("main", [0, 1, 2, 3, 4, 0, 1, 5, 6, 7, 5, 4, 3, 2], 11	, false);
 		fx_static.visible = false;
 		add(fx_static);
 	}//---------------------------------------------------;

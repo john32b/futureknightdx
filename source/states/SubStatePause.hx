@@ -107,7 +107,7 @@ class SubStatePause extends FlxSubState
 				if (a == fire) switch(b.ID)
 				{
 					case "softpix": 
-						D.SMOOTHING = b.get();
+						//Reg.BLUR.enabled = b.get();
 					case "bord":
 						Reg.border.visible = b.get();		
 					case "vol":

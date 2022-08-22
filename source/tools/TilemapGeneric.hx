@@ -94,7 +94,7 @@ class TilemapGeneric extends FlxGroup
 		if (asData){
 			T.loadData(s);
 		}else{
-			T.load(s);
+			T.loadAsset(s);
 		}
 		
 		_killed = [];

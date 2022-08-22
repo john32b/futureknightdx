@@ -30,7 +30,7 @@ class ImageAssets
 {
 	// Static images:
 	public var STATIC = {
-		overlay_scr:"im/monitor_overlay.png",
+		overlay_scr:"im/monitor_overlay1.png",
 		hud_inventory:"im/hud_inventory.png",
 		hud_bottom:"im/hud_bg.png",
 		tiles_shadow:"im/tiles_sh.png",
