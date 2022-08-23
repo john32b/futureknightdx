@@ -8,7 +8,6 @@
 	- Reads room entities and pushes them to user for creation
 	- Follows Player (from player global) and scrolls rooms
 	- Offers some tile checks functions to be used from Sprites
-	
 	- Handles EXITS, since exit tiles are part of the MAP afterall
 	
 	DEBUG:
@@ -79,7 +78,7 @@ enum MapEvent
 {
 	scrollStart;
 	scrollEnd;
-	roomEntities(v:Array<TiledObject>);	// Pushes ALL tiledObject the room has, even player
+	newRoom(v:Array<TiledObject>);	// Pushes ALL tiledObject the room has, even player
 	loadMap;
 }//---------------------------------------------------;
 
@@ -111,7 +110,9 @@ class MapFK extends TilemapGeneric
 	static inline var DRAW_START_X:Int = 32;  	// Pixels from screen left to draw map
 	static inline var DRAW_START_Y:Int = 26;  	// Pixels from screen top to draw map
 	
+	/** Room Width in Pixels */
 	public var ROOM_WIDTH  = TILE_SIZE * ROOM_TILE_WIDTH; 
+	/** Room Height in Pixels */
 	public var ROOM_HEIGHT = TILE_SIZE * ROOM_TILE_HEIGHT; 
 	
 	// :: CAMERA
@@ -144,8 +145,13 @@ class MapFK extends TilemapGeneric
 	// Current map loaded string e.g. "level_03:B"
 	static var MAP_LAST_LOADED_ID:String = null;
 	
+	// Does the current ROOM has holes in background
+	public var FLAG_HAS_STARS(default, null):Bool = false;
+	
+	// 0:Space, 1:Forest, 2:Castle. Used in controlling graphic and tile properties
+	public var MAP_TYPE(default, null):Int = 0;
+	
 	var MAP_LOADED_ID = "";	// Combo of MAP:EXIT of the current map loaded.
-	var MAP_TYPE = 0;		// 0:Space, 1:Forest, 2:Castle. Used in controlling graphic and tile properties
 	var MAP_COLOR = "";		// Color id, check "ImageAssets.CC_MAP"
 	var MAP_COLOR_FG = "";	// Ladder + FG Tiles colors
 	
@@ -214,10 +220,12 @@ class MapFK extends TilemapGeneric
 		#if debug
 			// This is on [F12] reload
 			// Regardless of map being told to load. Instead load the same map
-			if (D.DEBUG_RELOADED) 
+			if (D.DEBUG_RELOADED) {
 				DATA = MapFK.MAP_LAST_LOADED_ID;
-			// > HOTLOAD maps removed -- need to rewrite it --
+				trace("HOT LOAD MAP >> ", DATA);
+			}
 		#end
+		
 		
 		// Level Name , Exit Name | d[0]="level02" d[1]="B"
 		var d  = DATA.split(':');
@@ -254,7 +262,7 @@ class MapFK extends TilemapGeneric
 		// It was scrolling -- not supposed to -- but check anyway
 		if (tweenCamera != null) {tweenCamera.cancel(); tweenCamera = null; }
 		
-		#if (debug && HOT_LOAD)
+		#if (debug && HOT_LOAD && !flash)
 			// ONLY WORKS FOR STATIC TARGETS 
 			if (D.DEBUG_RELOADED)
 			{
@@ -323,12 +331,22 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 	
 	
-	// -- Called when a room changes and pushes data to user
-	function roomCurrent_pushData()
+	// -- Called when a room changes (scroll/teleport)
+	//    Scans for room data (entities,holes) and pushes out to user
+	function currentRoom_process()
 	{
-		// Get ALL tiles from this area
+		// Check to see if wall has holes
+		var holes = 0;
+		for (xx in roomCornerTile.x...roomCornerTile.x + ROOM_TILE_WIDTH)
+		for (yy in roomCornerTile.y...roomCornerTile.y + ROOM_TILE_HEIGHT)
+			if (layers[0].getTile(xx, yy) == 0) {
+				holes++;
+			}
+		
+		FLAG_HAS_STARS = holes > 0;
+		
 		// -automatic- does not get entities in the KILLED Array
-		var batch = get_objectTilesAt (
+		var ents = get_objectTilesAt (
 			LAYER_ENTITIES, 
 			roomCurrent.x  * ROOM_WIDTH, 
 			roomCurrent.y  * ROOM_HEIGHT, 
@@ -336,8 +354,7 @@ class MapFK extends TilemapGeneric
 			ROOM_HEIGHT
 			);
 			
-			
-		onEvent(MapEvent.roomEntities(batch));	// Pushes out to user the new entities of the new room
+		onEvent(MapEvent.newRoom(ents));
 	}//---------------------------------------------------;
 	
 	/**
@@ -375,7 +392,7 @@ class MapFK extends TilemapGeneric
 		if (roomcurrent_set(x, y))
 		{
 			camera.scroll.set( roomCurrent.x * ROOM_WIDTH, roomCurrent.y * ROOM_HEIGHT);
-			roomCurrent_pushData();
+			currentRoom_process();
 		}
 	}//---------------------------------------------------;
 	
@@ -393,7 +410,7 @@ class MapFK extends TilemapGeneric
 			}
 				
 			onEvent(MapEvent.scrollStart);
-			roomCurrent_pushData();
+			currentRoom_process();
 			tweenCamera = FlxTween.tween(camera.scroll, {
 				x:roomCurrent.x * ROOM_WIDTH,
 				y:roomCurrent.y * ROOM_HEIGHT,

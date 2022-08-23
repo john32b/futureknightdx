@@ -20,6 +20,7 @@ package states;
 
 import djFlixel.D;
 import djFlixel.gfx.FilterFader;
+import djFlixel.gfx.StarfieldSimple;
 import djFlixel.other.DelayCall;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -32,6 +33,7 @@ import gamesprites.*;
 import gamesprites.Enemy_AI.AI_Final_Boss;
 import gamesprites.Item.ITEM_TYPE;
 import haxe.EnumTools;
+import djFlixel.gfx.pal.Pal_CPCBoy;
 
 import djFlixel.ui.FlxMenu;
 
@@ -46,6 +48,8 @@ class StatePlay extends FlxState
 	public var HUD:Hud;
 	public var key_ind:KeyIndicator;	// A special sprite that goes on top of some sprites, when players sits on front of them
 	public var minimap:MiniMap;
+	
+	var stars:StarfieldSimple = null;
 	
 	//====================================================;
 	
@@ -78,7 +82,15 @@ class StatePlay extends FlxState
 			
 		minimap = new MiniMap();
 
+		stars = new StarfieldSimple(map.ROOM_WIDTH, map.ROOM_HEIGHT);
+		stars.WIDE_PIXEL = true;
+		stars.STAR_SPEED = 1.2;
+		stars.visible = stars.active = false;
+		
+		FlxG.watch.add(stars, "visible", "Stars Active");
+		
 		// :: Layer Ordering
+		add(stars);
 		add(map); 
 		add(ROOMSPR);
 		add(player);
@@ -466,7 +478,7 @@ class StatePlay extends FlxState
 	/**
 	   Handles MAP EVENTS as they occur
 	   - loadMap : Map has just loaded. Tilemap Created, Entities and Tiles Processed
-	   - roomEntities(EntityDataArray) : These entities exist in the current room. I need to create sprites based off this data
+	   - newRoom(EntityDataArray) : A new room is to be shown. Data Array is list of enties in that room
 	   - scrollStart : This is called before the new room entities are pushed
 	   - scrollEnd : New room has scrolled into the view
 	**/
@@ -474,31 +486,53 @@ class StatePlay extends FlxState
 	{
 		switch(ev) 
 		{
-			case loadMap: 
+			case loadMap:
 				ROOMSPR.reset();	// Will clear all sprites and reset any timers
 				BM.reset();
 				PM.reset();
 				key_ind.kill();
+				stars.active = stars.visible = false;
 				
-				if (map.PLAYER_SPAWN != null) 
-				{
+				if (map.PLAYER_SPAWN != null) {
 					var sp = map.PLAYER_SPAWN;
 					player.spawn(sp.x, sp.y);	// Do this first thing, then the enemies, since some enemies rely on player pos
 					map.camera_teleport_to_room_containing(sp.x, sp.y);	// This will trigger enemy creation
-				}else{
+				}else {
 					throw "No player spawn point";
 				}
 				
 				INV.set_level_name(map.MAP_NAME);
 				
-			// Called right after a `scrollStart` starts. Gives the entities that are to be created
-			case roomEntities(b):
-				
-				for (en in b)  
+				// Change style of stars
+				switch (map.MAP_TYPE)
 				{
-					ROOMSPR.spawn(en);
+					case 1: // forest
+					stars.STAR_SPEED = 0.2;
+					stars.STAR_ANGLE = 20;
+					stars.COLORS = [ Pal_CPCBoy.COL[0], 0xff3a4466, 0xff181425, 0xff54bf47 ]; // Cheating, not CPCBOY colors
+					case 2: // castle
+					stars.COLORS = [ Pal_CPCBoy.COL[0], Pal_CPCBoy.COL[2], Pal_CPCBoy.COL[1], Pal_CPCBoy.COL[3] ];
+					stars.STAR_SPEED = 0.75;
+					stars.STAR_ANGLE = -100;
+					case _: // spaceship
+					stars.COLORS = [ Pal_CPCBoy.COL[0], Pal_CPCBoy.COL[7], Pal_CPCBoy.COL[20], Pal_CPCBoy.COL[24] ];
+					stars.STAR_SPEED = 1.2;
+					stars.STAR_ANGLE = -180;
 				}
 				
+				
+			// Called right after a `scrollStart` starts. Gives the entities that are to be created
+			// ents can be [], so this is called on EVERY ROOM
+			case newRoom(ents):
+				
+				if (map.FLAG_HAS_STARS) {
+					stars.active = stars.visible = true;
+				}
+				
+				for (en in ents) {
+					ROOMSPR.spawn(en);
+				}
+			
 			// Sent only when changing rooms by going at the edges
 			case scrollStart:
 				PM.kill();
@@ -507,6 +541,11 @@ class StatePlay extends FlxState
 				ROOMSPR.stashSave(); // < All sprites put to a stash, they are to be removed when the room stops scrolling later
 				
 			case scrollEnd:
+				
+				if (!map.FLAG_HAS_STARS) {
+					stars.active = stars.visible = false;
+				}
+				
 				key_ind.kill();
 				ROOMSPR.stashKill(); // < Kill all the sprites that were stashed earlier
 				ROOMSPR.active = player.active = true;
