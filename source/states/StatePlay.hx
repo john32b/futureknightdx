@@ -44,8 +44,6 @@ class StatePlay extends FlxState
 	public var INV:Inventory;
 	public var HUD:Hud;
 	public var key_ind:KeyIndicator;	// A special sprite that goes on top of some sprites, when players sits on front of them
-	
-	
 	public var minimap:MiniMap;
 	
 	//====================================================;
@@ -60,9 +58,9 @@ class StatePlay extends FlxState
 		
 		bgColor = Reg.BG_COLOR;
 		Reg.st = this;
+		Reg.sendGameEvent = on_game_event;
 	
 		player = new Player();
-		player.pushEvent = on_player_events;
 		
 		map = new MapFK(player);
 		map.onEvent = on_map_event;
@@ -170,6 +168,7 @@ class StatePlay extends FlxState
 		PM.active = true;
 		BM.active = true;
 	}//---------------------------------------------------;
+	
 	// --
 	override public function update(elapsed:Float):Void 
 	{
@@ -180,8 +179,7 @@ class StatePlay extends FlxState
 		// Player->Map collisions , in player.update()
 		// Bullet->Map collisions , in BulletManager.update()
 		
-		// DEV: If this was not, collisions would happen even when paused
-		//		e.g. player getting hurt over and over by an enemy, if they overlap and paused.
+		// DEV: Do not check when the game is paused
 		if (!ROOMSPR.active) return;
 		
 		// Player->(Enemies,Items,AnimTiles)
@@ -194,8 +192,6 @@ class StatePlay extends FlxState
 		FlxG.overlap(ROOMSPR.gr_enemy, BM, _overlap_enemy_bullet);
 
 	}//---------------------------------------------------;
-	
-	
 	
 	// <COLLISION> Bullet to Enemy
 	function _overlap_enemy_bullet(e:Enemy, b:Bullet)
@@ -213,6 +209,7 @@ class StatePlay extends FlxState
 		BM.killBullet(b);
 		a.hurt(b.T.damage);
 	}//---------------------------------------------------;
+
 	// <COLLISION> Player to (ENEMY, ITEM, ANIM)
 	function _overlap_player_roomgroup(a:Player, b:MapSprite)
 	{
@@ -267,9 +264,8 @@ class StatePlay extends FlxState
 	}//---------------------------------------------------;
 	
 	
-	
-	// -- @called by player, activates current equipped item if any
-	public function use_current_item()
+	// -- Activates current equipped item if any
+	function use_current_item()
 	{		
 		var item:ITEM_TYPE = Reg.st.HUD.equipped_item;
 		if (item == null) return;
@@ -310,15 +306,15 @@ class StatePlay extends FlxState
 			HUD.score_add(Reg.SCORE.item_confuser);
 			
 			// NEW: if it is the boss, do nothing but also tell
-			if (ROOMSPR.getFinalBoss() != null) {
+			if (ROOMSPR.has_final_boss) {
 				HUD.set_text2("It does not affect it.");
 				return;
 			}
 			
+			// DEV: For enemies that are softKilled, when they respawn, they will respect the freeze timer [OK]
 			ROOMSPR.enemies_freeze(true);
 			ROOMSPR.counter  = Reg.P.confuse_time;
 			
-			// DEV: For enemies that are softKilled, when they respawn, they will respect the freeze timer
 			
 		case GLOVE:
 			HUD.set_text2("With this you are able to pick up hot objects");
@@ -335,17 +331,17 @@ class StatePlay extends FlxState
 			HUD.set_text2("Does not do anything.");
 			
 		case DESTRUCT_SPELL:
-			var en = ROOMSPR.getFinalBoss();
-			if (en == null) {
+			if (!ROOMSPR.has_final_boss) {
 				HUD.set_text2("Can't use this here");
 				return;
 			}
-			// Boss exists: I need its AI object
-			// Sound handled in there
+			// Boss exists: I need the AI object
+			var en = ROOMSPR.getFinalBoss();
 			if (cast(en.ai, AI_Final_Boss).spell_used()) {
 					INV.removeItemWithID(item);
 					HUD.item_pickup();
 					HUD.score_add(Reg.SCORE.item_destruct);	
+					// Sound handled in the sprite
 			}	
 			
 		case RELEASE_SPELL:
@@ -357,30 +353,16 @@ class StatePlay extends FlxState
 		
 	}//---------------------------------------------------;
 	
-	/**
-	   AutoCalled whenever a room changes
-	   - Special checks, like is this the final boss room? etc
-	   @param	R Room Coordinates, 'x,y'
-	**/
-	function handle_room(R:String)
-	{
-		if (map.MAP_NAME == "Henchodroids lair")
-		{
-			if (R == "4,1") {
-				// Only add walls, if there is a boss there
-				if (ROOMSPR.getFinalBoss() != null) {
-					HUD.set_text2("It's the Henchodroid! You must defeat it.");
-					map.appendMap(false);
-				}
-			}
-		}
-	}//---------------------------------------------------;
 	
-	// -- @called from player, handles special events
-	function on_player_events(name:String)
+	// -- Handles special events
+	function on_game_event(name:String)
 	{
 		switch (name)
 		{
+			case "useitem":
+				// called by player
+				use_current_item();
+					
 			case "revive": // Called after reviving from dead
 				Reg.st.ROOMSPR.enemies_freeze(false);
 				
@@ -395,7 +377,7 @@ class StatePlay extends FlxState
 					});
 				});
 				
-			
+			// Final room, touched your friend
 			case "friend":
 				pause();
 				D.snd.playV('title');
@@ -407,6 +389,16 @@ class StatePlay extends FlxState
 					);
 						
 				});
+				
+			case "final_spawn":
+				HUD.set_text2("It's the Henchodroid! You must defeat it.");
+				map.appendMap(false);
+				
+			case "final_die":
+				map.appendRemove();
+				map.flash(3);
+				HUD.score_add(Reg.SCORE.final_boss);
+				
 			default:
 		}
 		
@@ -441,17 +433,15 @@ class StatePlay extends FlxState
 				
 				INV.set_level_name(map.MAP_NAME);
 				
+			// Called right after a `scrollStart` starts. Gives the entities that are to be created
 			case roomEntities(b):
 				
 				for (en in b)  
 				{
 					ROOMSPR.spawn(en);
-					// DEV: When the new sprites spawn, they are inactive, (ROOMSPR is inactive)
 				}
 				
-				// Extra, handle special rooms:
-				handle_room(map.roomCurrent.toCSV());
-				
+			// Sent only when changing rooms by going at the edges
 			case scrollStart:
 				PM.kill();
 				BM.kill();

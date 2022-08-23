@@ -242,10 +242,8 @@ class AI_Final_Boss extends Enemy_AI
 				e.visible = false;
 				e.explode();
 				e.kill();
-				Reg.st.map.flash(3);
-				Reg.st.HUD.score_add(Reg.SCORE.final_boss);
-				Reg.st.map.appendRemove();	// Remove the side walls
 				Reg.st.map.killObject(e.O, true);	// Kill forever
+				Reg.sendGameEvent("final_die");
 			}
 		}
 	}//---------------------------------------------------;

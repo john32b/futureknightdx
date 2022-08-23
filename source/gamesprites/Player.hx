@@ -158,9 +158,6 @@ class Player extends FlxSprite
 	// This is the one that when reaches ZERO, the player will die
 	var healthSlow:Float;
 	
-	// Link to a function managing some player events [die,die_final,revive,friend]
-	public var pushEvent:String->Void;
-	
 	// -----------------------------------------------------------------------;
 	public function new() 
 	{
@@ -239,7 +236,7 @@ class Player extends FlxSprite
 			
 			if (lives == 0)
 			{
-				pushEvent('die_final');
+				Reg.sendGameEvent('die_final');
 				active = false;
 			}else
 			{
@@ -454,7 +451,7 @@ class Player extends FlxSprite
 		if (D.ctrl.justPressed(Y))
 		{
 			// :: Item use
-			Reg.st.use_current_item();
+			Reg.sendGameEvent('useitem');
 		}
 	}//---------------------------------------------------;
 	
@@ -595,7 +592,7 @@ class Player extends FlxSprite
 		}else if (D.ctrl.justPressed(Y))
 		{
 			// :: Item use
-			Reg.st.use_current_item();
+			Reg.sendGameEvent('useitem');
 		}else
 		{	
 			// Not UP or DOWN, OR JUMP
@@ -676,7 +673,7 @@ class Player extends FlxSprite
 		animation.play("die");
 		D.snd.play(snd.die);
 		fsm.goto(DEAD);
-		pushEvent('die');
+		Reg.sendGameEvent('die');
 	}//---------------------------------------------------;
 	
 	/**
@@ -731,7 +728,7 @@ class Player extends FlxSprite
 		fullHealth();
 		_htick = 0;
 		if (lives < START_LIVES) FlxFlicker.flicker(this, I_TIME_REVIVE, Reg.P.flicker_rate);
-		pushEvent('revive');
+		Reg.sendGameEvent('revive');
 	}//---------------------------------------------------;
 	
 	
@@ -934,7 +931,7 @@ class Player extends FlxSprite
 				}
 				
 			case FRIEND:
-				pushEvent('friend');
+				Reg.sendGameEvent('friend');
 				
 			case _:
 		}

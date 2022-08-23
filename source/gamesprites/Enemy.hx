@@ -150,6 +150,7 @@ class Enemy extends MapSprite
 			case "move_y": ai = new AI_Move_Y(this); 
 			case "bounce": ai = new AI_Bounce(this);
 			case "final":  // Final Boss
+				Reg.sendGameEvent("final_spawn");
 				startHealth = PAR.health_phase1;
 				spawnTime = -1;	// Boss can never respawn, And will be killed for good when is dead
 				ai = new AI_Final_Boss(this);

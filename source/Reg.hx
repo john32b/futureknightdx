@@ -89,6 +89,9 @@ class Reg
 	// This is an openfl object, not flixel
 	public static var border:Bitmap;
 	
+	// Called from anywhere to send small messages to the Play State
+	public static var sendGameEvent:String->Void;
+	
 	// Basic Smoothing Helper >> toreplace
 	// public static var BLUR:GF_Blur;
 	

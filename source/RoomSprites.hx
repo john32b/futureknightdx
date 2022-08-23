@@ -28,6 +28,7 @@ import gamesprites.Item;
 import gamesprites.MapSprite;
 
 
+
 class RoomSprites extends FlxGroup
 {
 	// Easy access :
@@ -45,6 +46,9 @@ class RoomSprites extends FlxGroup
 	// -- Direct Access set to >0 to start counting down to 0, when it reaches 0 it will unfreeze enemies
 	public var counter:Float = 0;
 		
+	
+	public var has_final_boss(get, never):Bool;
+	
 	//====================================================;
 	
 	public function new() 
@@ -189,5 +193,14 @@ class RoomSprites extends FlxGroup
 		}
 		return null;
 	}//---------------------------------------------------;
+	
+	
+	// Getter
+	function get_has_final_boss():Bool
+	{
+		var b = getFinalBoss();
+		return b != null;
+	}//---------------------------------------------------;
+
 	
 }// --

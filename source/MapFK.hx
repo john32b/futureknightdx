@@ -130,18 +130,20 @@ class MapFK extends TilemapGeneric
 	// #USER SET, MUST BE SET
 	public var onEvent:MapEvent->Void;
 	
-	// Pixel Coordinates of the player
-	// Can be null if the current map does not have a start point
-	// Will be set with either EXIT spawn point or PLAYER spawn point
+	/** 
+	  Pixel Coordinates of player Spawn Point. Always set after loading a map. 
+	  Gets value from either an EXIT spawn point or PLAYER spawn point **/
 	public var PLAYER_SPAWN(default, null):SimpleCoords;
 	
-	var tweenCamera:VarTween;
+	// Game map name . e.g. "Control Room", This is read from the tmx file
+	public var MAP_NAME(default, null) = "";
 	
-	// Set this to load the appropriate BG+FG Tiles
-	public var MAP_NAME(default, null) = "";		// Game map name . e.g. "Control Room", This is read from the tmx file
-	public var MAP_FILE(default, null) = "";		// The short name of the loaded map. e.g. "level_01"
+	// The short name of the loaded map. e.g. "level_01"
+	public var MAP_FILE(default, null) = "";	
 	
+	// Current map loaded string e.g. "level_03:B"
 	static var MAP_LAST_LOADED_ID:String = null;
+	
 	var MAP_LOADED_ID = "";	// Combo of MAP:EXIT of the current map loaded.
 	var MAP_TYPE = 0;		// 0:Space, 1:Forest, 2:Castle. Used in controlling graphic and tile properties
 	var MAP_COLOR = "";		// Color id, check "ImageAssets.CC_MAP"
@@ -164,6 +166,9 @@ class MapFK extends TilemapGeneric
 	
 	// Pointer to the player. Needed for 
 	var player:Player;
+	
+	// Hold the camera tween so I can cancel it
+	var tweenCamera:VarTween;
 	
 	//====================================================;
 	
@@ -319,7 +324,7 @@ class MapFK extends TilemapGeneric
 	
 	
 	// -- Called when a room changes and pushes data to user
-	function roomcurrent_pushEntities()
+	function roomCurrent_pushData()
 	{
 		// Get ALL tiles from this area
 		// -automatic- does not get entities in the KILLED Array
@@ -331,10 +336,12 @@ class MapFK extends TilemapGeneric
 			ROOM_HEIGHT
 			);
 			
+			
 		onEvent(MapEvent.roomEntities(batch));	// Pushes out to user the new entities of the new room
 	}//---------------------------------------------------;
 	
 	/**
+	   - HELPER! If you want to change rooms call a camera_go function
 	   - Set roomCurrent var
 	   @param	x Room Coords, 0 index
 	   @param	y Room Coords, 0 index
@@ -353,6 +360,7 @@ class MapFK extends TilemapGeneric
 	
 	/**
 	   Move camera to the room position containing a (X,Y) coords
+	   - called to set the camera to player spawn position
 	**/
 	public function camera_teleport_to_room_containing(x:Float, y:Float)
 	{
@@ -367,7 +375,7 @@ class MapFK extends TilemapGeneric
 		if (roomcurrent_set(x, y))
 		{
 			camera.scroll.set( roomCurrent.x * ROOM_WIDTH, roomCurrent.y * ROOM_HEIGHT);
-			roomcurrent_pushEntities();
+			roomCurrent_pushData();
 		}
 	}//---------------------------------------------------;
 	
@@ -385,7 +393,7 @@ class MapFK extends TilemapGeneric
 			}
 				
 			onEvent(MapEvent.scrollStart);
-			roomcurrent_pushEntities();
+			roomCurrent_pushData();
 			tweenCamera = FlxTween.tween(camera.scroll, {
 				x:roomCurrent.x * ROOM_WIDTH,
 				y:roomCurrent.y * ROOM_HEIGHT,
@@ -801,7 +809,7 @@ class MapFK extends TilemapGeneric
 		
 		// :: Special Occasion
 		//    Check if it is the final keyhole of the final level
-		if (e.O.type == "final")
+		if (e.O.type == "final")	// "final" is set on Tiled editor
 		{
 			// Kill lasers
 			for (laser in Reg.st.ROOMSPR.getAnimTiles(LASER))

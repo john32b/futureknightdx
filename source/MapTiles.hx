@@ -92,11 +92,11 @@ class MapTiles
 	// These apply for all MAP_TYPES
 	// :: "tiletype" => [start_index, ?range]
 	public static var EDITOR_ENTITY(default, null):Map < EDITOR_TILE, Array<Int> > = [
-		ENEMY => [1, 20],
-		ANIM => [26, 8],	// Animtiles are pushed to <AnimatedTile.hx> and handled from there
-		ITEM => [34, 15],
+		ENEMY => [1, 20],	// Includes bosses and long enemies
 		FRIEND => [24,1],
-		PLAYER => [25,1]
+		PLAYER => [25,1],
+		ANIM => [26, 8],	// Animtiles are pushed to <AnimatedTile.hx> and handled from there
+		ITEM => [34, 15]
 	];
 	
 	
