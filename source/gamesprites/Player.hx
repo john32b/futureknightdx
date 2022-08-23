@@ -879,7 +879,7 @@ class Player extends FlxSprite
 	   == Overlap Check Handler with Animated Tiles ==
 	   :: Auto-Called from main, whenever Player Overlaps with an Animated Tile
 	**/
-	public function event_anim_tile(A:Player, B:AnimatedTile)
+	public function event_anim_tile(B:AnimatedTile)
 	{
 		// Because this can trigger while the inventory is open
 		if (!active) return;
@@ -907,7 +907,7 @@ class Player extends FlxSprite
 				Reg.st.key_ind.setAt(B);
 				if (_interact_anim_request()) 
 				{
-					Reg.st.map.keyhole_activate(B);
+					Reg.sendGameEvent("keyhole", B);
 				}
 			
 			case WEAPON(i):
@@ -927,7 +927,7 @@ class Player extends FlxSprite
 				if (_interact_anim_request()) 
 				{
 					// > This will check if exit is locked etc, also will unlock and go to the new map.
-					Reg.st.map.exit_activate(B);
+					Reg.sendGameEvent("exit", B);
 				}
 				
 			case FRIEND:
@@ -1064,7 +1064,7 @@ class Player extends FlxSprite
 		_idle = _idle_stage = 0;
 	}//---------------------------------------------------;
 	
-	
+	// GET string or GENERATE string
 	public function SAVE(?str:String):String
 	{
 		if (str == null) {

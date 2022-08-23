@@ -35,35 +35,7 @@ class AnimatedTile extends MapSprite
 		animation.add('_KEYHOLE_1', [28, 29], 6);
 		animation.add('_LASER', [30, 31], 20);
 		animation.add('_FR1', [32, 33], 10);
-		animation.add('_FR2', [33, 34], 8);
-	}//---------------------------------------------------;
-	
-	// HACK:
-	// Use the animated tile class to present the friend sprite
-	// This is the easiest, because animTiles are already managed
-	// @called when spawning from RoomSprites.spawn
-	public function setFriend(o:TiledObject)
-	{
-		super.spawn(o, 0);
-		setSize(14, 23);
-		offset.set(8, 9);
-		flipX = true;
-		type = AnimTileType.FRIEND;
-		spawn_origin_set(1);
-		spawn_origin_move();
-		
-		// Ok this is rare but check if lasers are on when spawning:
-		if(Reg.st.ROOMSPR.getAnimTiles(LASER).length>0)
-			animation.play("_FR1", true);
-		else
-			animation.play("_FR2", true);
-		
-	}//---------------------------------------------------;
-	
-	
-	public function friendAnim2()
-	{
-		animation.play("_FR2", true);
+		animation.add('_FR2', [33, 34], 8);	// Note this is going to be set by "MapFK" when deactivating lasers
 	}//---------------------------------------------------;
 	
 	
@@ -112,17 +84,29 @@ class AnimatedTile extends MapSprite
 				offset.set(12, 0);
 				spawn_origin_set(0);
 				
+			
+			// DEV: The Value 100 was hacked in by RoomSprites.
+			//      Why? There was no space in the animtile range
+			case 100: // FRIEND
+				offset.set(8, 9);
+				setSize(14, 23);
+				flipX = true;
+				type = AnimTileType.FRIEND;
+				spawn_origin_set(1);
+				
+				// Ok this is rare but check if lasers are on when spawning:
+				if (Reg.st.ROOMSPR.getAnimTiles(LASER).length > 0)
+					anim = "_FR1" 
+				else 
+					anim = "_FR2";
+				
 			case _:
 				anim = "_DECO_" + gid;
 				type = AnimTileType.DECO;
 				spawn_origin_set(0);
+				
+				
 		};
-		
-		// NOTE: You can check enums like this :
-		//if(type.match(WEAPON(_)))
-		//{
-		//  trace("is a weapon");
-		//}
 		
 		animation.play(anim, true);
 		spawn_origin_move();

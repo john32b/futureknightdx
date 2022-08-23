@@ -612,6 +612,7 @@ class MapFK extends TilemapGeneric
 	
 	/**
 	   Check if a sprite went off-view of the current room
+	   : used for bullets
 	**/
 	public function isOffRoom(s:FlxSprite):Bool
 	{
@@ -625,7 +626,8 @@ class MapFK extends TilemapGeneric
 	
 	
 	
-	/** Return Y for floor, -1 if not found */
+	/** Return Y Tile of first floor found starting from tile(x,y), 
+	 *  Returns -1 if not found */
 	public function getFloor(x:Int, y:Int):Int
 	{
 		// Max Search = (8) tiles down
@@ -780,58 +782,7 @@ class MapFK extends TilemapGeneric
 	}//---------------------------------------------------;
 	
 	
-	// - Called from player, pressing up on any keyhole
-	// - Check and process
-	public function keyhole_activate(e:AnimatedTile)
-	{
-		trace("> Activating KEYHOLE ");
-		
-		var item = EnumTools.createByName(ITEM_TYPE, e.O.name);
-		#if debug
-		if (item == null) throw "Forgot to set keyhole requirement, or name wrong";
-		#end
-	
-		if (Reg.st.HUD.equipped_item != item)
-		{
-			D.snd.play(Reg.SND.error);
-			Reg.st.HUD.set_text2("You can use the " + Item.ITEM_DATA[item].name + " here");
-			return;
-		}
-		
-		flash(15);
-		
-		// - Remove the item and kill the tile :
-		Reg.st.INV.removeItemWithID(item);
-		Reg.st.HUD.item_pickup(null);
-		killObject(e.O, true);
-		e.kill();
-		D.snd.playV(Reg.SND.item_keyhole);
-		
-		// :: Special Occasion
-		//    Check if it is the final keyhole of the final level
-		if (e.O.type == "final")	// "final" is set on Tiled editor
-		{
-			// Kill lasers
-			for (laser in Reg.st.ROOMSPR.getAnimTiles(LASER))
-			{
-				laser.kill();
-				Reg.st.map.killObject(laser.O, true);
-				trace("Removed Lasers, stored globally");
-			}
-			
-			// Change friend animation
-			var fr = Reg.st.ROOMSPR.getAnimTiles(FRIEND);
-				fr[0].friendAnim2();
-			
-		}else{
-			// Normal Keyhole -- Append the "APPEND" layer 
-			Reg.st.map.appendMap(true);	
-		}
-	}//---------------------------------------------------;
-	
-	
-		
-	
+
 	/**
 	   Append the "APPEND" layer to the current map
 	   @param save Push it to Global State
@@ -919,9 +870,9 @@ class MapFK extends TilemapGeneric
 	{
 		if (IN != null)
 		{
-			GLOBAL_EXITS_UNLOCKED = IN.unlocked;
-			_killed_global = IN.killed;
-			APPLIED_APPENDS = IN.appends;
+			GLOBAL_EXITS_UNLOCKED = IN.unlocked.copy();
+			_killed_global = IN.killed.copy();
+			APPLIED_APPENDS = IN.appends.copy();
 			
 		}else{	
 			return {

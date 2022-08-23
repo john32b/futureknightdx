@@ -90,7 +90,7 @@ class Reg
 	public static var border:Bitmap;
 	
 	// Called from anywhere to send small messages to the Play State
-	public static var sendGameEvent:String->Void;
+	public static var sendGameEvent:String->?gamesprites.AnimatedTile->Void;
 	
 	// Basic Smoothing Helper >> toreplace
 	// public static var BLUR:GF_Blur;

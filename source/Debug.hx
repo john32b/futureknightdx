@@ -89,7 +89,8 @@ class Debug
 	
 	public function saveDel()
 	{
-		D.save.deleteSave();
+		D.save.deleteSlot(0);
+		D.save.deleteSlot(1);
 	}
 	
 	public function map_append()

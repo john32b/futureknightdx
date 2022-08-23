@@ -29,7 +29,7 @@ enum FG_TILE_TYPE {
 }
 
 
-// - Mostly used in <RoomSprites> , which Class instance to create at each tile type
+// - Mostly used in <RoomSprites> , which Class instance to create for each Tile Family Type
 enum EDITOR_TILE {
 	PLAYER;
 	ENEMY;

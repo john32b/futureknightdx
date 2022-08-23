@@ -95,10 +95,9 @@ class RoomSprites extends FlxGroup
 				s = gr_enemy.recycle(Enemy);
 			case EDITOR_TILE.FRIEND:
 				s = gr_anim.recycle(AnimatedTile);
-				cast(s, AnimatedTile).setFriend(en);
-				return;
+				// Normally the gid would be (1), but that is taken, so I am hacking a unique value
+				data.gid = 100;
 			case _: 
-				
 				//trace('Error ${data.type} cannot be spawned from <RoomSprites>');
 				return;
 		}

@@ -31,6 +31,7 @@ import flixel.util.FlxColor;
 import gamesprites.*;
 import gamesprites.Enemy_AI.AI_Final_Boss;
 import gamesprites.Item.ITEM_TYPE;
+import haxe.EnumTools;
 
 import djFlixel.ui.FlxMenu;
 
@@ -104,7 +105,7 @@ class StatePlay extends FlxState
 			HUD.reset();
 			HUD.SAVE(S.hud);
 			MAP_TO_LOAD = S.map.levelid;
-			map.SAVE(S.map);
+			map.SAVE(S.map); // map is going to copy it.
 			
 		}else{
 			trace("SAVE - Does not exist, starting new");
@@ -257,9 +258,60 @@ class StatePlay extends FlxState
 					
 			case AnimatedTile:
 				// Let the player sprite handle this
-				player.event_anim_tile(player, cast b);
+				player.event_anim_tile(cast b);
 				
 			case _:
+		}
+	}//---------------------------------------------------;
+	
+	
+	// - Called from player, pressing up on any keyhole
+	// - Check and process
+	function keyhole_activate(e:AnimatedTile)
+	{
+		trace("> Activating KEYHOLE ");
+		
+		var item = EnumTools.createByName(ITEM_TYPE, e.O.name);
+		#if debug
+			if (item == null) throw "Forgot to set keyhole requirement, or name wrong";
+		#end
+	
+		if (HUD.equipped_item != item)
+		{
+			D.snd.play(Reg.SND.error);
+			HUD.set_text2("You can use the " + Item.ITEM_DATA[item].name + " here");
+			return;
+		}
+		
+		map.flash(15);
+		
+		// - Remove the item and kill the tile :
+		INV.removeItemWithID(item);
+		HUD.item_pickup(null);
+		map.killObject(e.O, true);
+		e.kill();
+		D.snd.playV(Reg.SND.item_keyhole);
+		
+		// :: Special Occasion
+		//    Check if it is the final keyhole of the final level
+		if (e.O.type == "final")	// "final" is set on Tiled editor
+		{
+			// Kill lasers
+			for (laser in ROOMSPR.getAnimTiles(LASER))
+			{
+				laser.kill();
+				map.killObject(laser.O, true);
+				trace("Removed Lasers - globally");
+			}
+			
+			// Change friend animation
+			var fr = ROOMSPR.getAnimTiles(FRIEND);
+				fr[0].animation.play("_FR2", true);
+			
+		}else{
+			// Not the final level keyhold
+			// Normal function: Append the current "APPEND" layer on the map
+			map.appendMap(true);	
 		}
 	}//---------------------------------------------------;
 	
@@ -355,12 +407,18 @@ class StatePlay extends FlxState
 	
 	
 	// -- Handles special events
-	function on_game_event(name:String)
+	function on_game_event(name:String,?animTile:AnimatedTile)
 	{
 		switch (name)
 		{
-			case "useitem":
-				// called by player
+			
+			case "exit":	// Player interacted with Exit
+				map.exit_activate(animTile);
+				
+			case "keyhole": // Player interacted with Keyhole
+				keyhole_activate(animTile);
+			
+			case "useitem": // Called by player when use button is pressed
 				use_current_item();
 					
 			case "revive": // Called after reviving from dead
@@ -377,8 +435,8 @@ class StatePlay extends FlxState
 					});
 				});
 				
-			// Final room, touched your friend
-			case "friend":
+			
+			case "friend": // Final room, touched your friend
 				pause();
 				D.snd.playV('title');
 				new DelayCall(2, ()->{
