@@ -18,15 +18,12 @@
 	<haxelib name="flixel"/>
 
 	<haxelib name="djFL"/>
-	<haxelib name="djA"/>
+	<haxelib name="djA"/>	
 	<haxelib name="djFlixel"/>
 		<!-- djflixel defines -->
 		<haxedef name="HOT_LOAD"/>
 		<haxedef name="DJFLX_SND" value="snd/" />
 		<haxedef name="DJFLX_MUS" value="mus/" />
-	
-	
-	<!--<include path="C:/home/code/HT/djFlixel/source/" />	-->
 	
 	<source path="source" />
 	
@@ -35,7 +32,10 @@
 		
 		<assets path="assets/font" include="*.ttf|*.otf|" type="font" rename="fnt" embed="true"/>
 		<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
-		<assets path="assets/maps" type="text" exclude="_debug.tmx" include="*.tmx" rename="map"/>
+		
+		
+		<assets path="assets/maps" type="text" include="_debug.tmx" rename="map" if="debug"/>
+		<assets path="assets/maps" type="text" exclude="_debug.tmx " include="*.tmx" rename="map"/>
 		
 		<assets path="assets/music" type="music" rename="mus" include="*.mp3" if="flash"/>
 		<assets path="assets/music" type="music" rename="mus" include="*.ogg" unless="flash"/>
@@ -44,15 +44,7 @@
 		<assets path="assets/sound_ogg" type="sound" include="*.ogg" rename="snd" unless="flash"/>
 	
 		
-	<!--Because I am doing bitmap manipulation HTML5 Webgl is buggy, So I am using canvas -->
-	<!--<haxedef name="canvas" if="html5"/>-->
-	
-	<!--<haxedef name="FLX_NO_GAMEPAD"/>-->
-	
-	<!-- NOTE I am putting connect to the HAXEDEVELOP project settings -->	
-	<!--<haxeflag name="--connect 6000"/>-->	
 	<haxeflag name="-dce" value="std"/>
-	
 	
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 	

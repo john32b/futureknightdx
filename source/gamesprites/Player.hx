@@ -360,6 +360,7 @@ class Player extends FlxSprite
 		// NOTE : Collide Check NEEDS to be before anything else here for it to work
 		// DEV  : This will trigger all tile-callbacks, including TRIGGER_SLIDE
 		FlxG.collide(this, Reg.st.map.layerCol());
+		FlxG.collide(this, Reg.st.ceiling);
 		
 		if (_hack_break) { // (exit if some collide/overlap functions occur)
 			_hack_break = false;

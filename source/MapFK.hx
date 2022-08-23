@@ -45,34 +45,29 @@
 package;
 
 import MapTiles.FG_TILE_TYPE;
-import MapTiles.EDITOR_TILE;
 import djA.DataT;
-import djFlixel.other.StepTimer;
-import flash.filters.ColorMatrixFilter;
-import gamesprites.Item;
-import openfl.Assets;
-
-import gamesprites.Item.ITEM_TYPE;
-import gamesprites.AnimatedTile;
-import gamesprites.Player;
-
-import tools.TilemapGeneric;
-
 import djA.types.SimpleCoords;
-import djfl.util.TiledMap.TiledObject;
 import djFlixel.D;
 import djFlixel.core.Dcontrols.DButton;
-
-import flixel.FlxSprite;
+import djFlixel.other.StepTimer;
+import djfl.util.TiledMap.TiledObject;
+import openfl.filters.ColorMatrixFilter;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
-import flixel.tile.FlxTilemap;
+import flixel.FlxSprite;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.tweens.misc.VarTween;
-
+import gamesprites.AnimatedTile;
+import gamesprites.Item;
+import gamesprites.Item.ITEM_TYPE;
+import gamesprites.Player;
 import haxe.EnumTools;
+import tools.TilemapGeneric;
+import MapTiles.EDITOR_TILE;
+
+
 
 enum MapEvent 
 {
@@ -205,6 +200,7 @@ class MapFK extends TilemapGeneric
 		
 		GLOBAL_EXITS_UNLOCKED = [];
 		APPLIED_APPENDS = [];
+		
 	}//---------------------------------------------------;
 
 	

@@ -21,21 +21,17 @@ package states;
 import djFlixel.D;
 import djFlixel.gfx.FilterFader;
 import djFlixel.gfx.StarfieldSimple;
+import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.other.DelayCall;
-import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.effects.FlxFlicker;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxColor;
 import gamesprites.*;
 import gamesprites.Enemy_AI.AI_Final_Boss;
 import gamesprites.Item.ITEM_TYPE;
 import haxe.EnumTools;
-import djFlixel.gfx.pal.Pal_CPCBoy;
 
-import djFlixel.ui.FlxMenu;
 
 class StatePlay extends FlxState
 {
@@ -51,6 +47,8 @@ class StatePlay extends FlxState
 	
 	var stars:StarfieldSimple = null;
 	
+	// Special object that goes to the top of every level to block player from going out of bounds
+	public var ceiling:FlxSprite;
 	//====================================================;
 	
 	/**
@@ -70,6 +68,14 @@ class StatePlay extends FlxState
 		map = new MapFK(player);
 		map.onEvent = on_map_event;
 		FlxG.cameras.reset(map.camera);	// << Make the map camera default for everything from now on
+		
+		ceiling = new FlxSprite(0, 0);
+		ceiling.makeGraphic(2, 1, 0x00000000);
+		// DEV: I can't put it offscreen, the collision will not work.
+		// It is going to be resized later, on every map load
+		ceiling.immovable = true;
+		ceiling.moves = false;
+		ceiling.active = false;
 			
 		ROOMSPR = new RoomSprites();
 		key_ind = new KeyIndicator(); 
@@ -87,10 +93,9 @@ class StatePlay extends FlxState
 		stars.STAR_SPEED = 1.2;
 		stars.visible = stars.active = false;
 		
-		FlxG.watch.add(stars, "visible", "Stars Active");
-		
 		// :: Layer Ordering
 		add(stars);
+		add(ceiling);
 		add(map); 
 		add(ROOMSPR);
 		add(player);
@@ -149,6 +154,9 @@ class StatePlay extends FlxState
 		}
 		
 		D.snd.stopMusic(); /// TODO < : MUSIC!
+		
+
+		
 		
 		// I think it is a bit too fast, adjust it a bit
 		// Restore it when exiting this state
@@ -520,6 +528,7 @@ class StatePlay extends FlxState
 					stars.STAR_ANGLE = -180;
 				}
 				
+				ceiling.setSize(map.ROOM_WIDTH * map.roomTotal.x, 1);
 				
 			// Called right after a `scrollStart` starts. Gives the entities that are to be created
 			// ents can be [], so this is called on EVERY ROOM
