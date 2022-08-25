@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
-
-	<!--<section if="windows">-->
-		<!--<error value="Not supported yet!" />-->
-	<!--</section>-->
 	
 	<echo value="Building FKDX"/>
 	
@@ -22,6 +18,7 @@
 	<haxelib name="djFL"/>
 	<haxelib name="djA"/>	
 	<haxelib name="djFlixel"/>
+	
 		<!-- djflixel defines -->
 		<haxedef name="HOT_LOAD"/>
 		<haxedef name="DJFLX_SND" value="snd/" />
@@ -29,22 +26,31 @@
 	
 	<source path="source" />
 	
-	<library name="default" type="pak" if="hl" unless="debug"/>
+	<!--Uncomment this to use MP3 in HTML5-->
+	<!-- OR you can compile with :: lime build html5 -DMP3 -->
+	<!--<define name="MP3" if="html5"/>-->
+	
+	<library name="default" type="pak" if="desktop" preload="true"/>
+	
 		<assets path="assets" include="*.ini|*.json"/>
 		
-		<assets path="assets/font" include="*.ttf|*.otf|" type="font" rename="fnt" embed="true"/>
+		<assets path="assets/font" type="font" include="*.ttf|*.otf|" rename="fnt" embed="true"/>
 		<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
-		
 		
 		<assets path="assets/maps" type="text" include="_debug.tmx" rename="map" if="debug"/>
 		<assets path="assets/maps" type="text" exclude="_debug.tmx " include="*.tmx" rename="map"/>
+				
+		<section if="MP3">
+			<echo value=" .using MP3 sounds"/>
+			<assets path="assets/music" type="music" rename="mus" include="*.mp3"/>
+			<assets path="assets/sound_mp3" type="sound" rename="snd" include="*.mp3"/>
+		</section>
 		
-		<assets path="assets/music" type="music" rename="mus" include="*.mp3" if="flash"/>
-		<assets path="assets/music" type="music" rename="mus" include="*.ogg" unless="flash"/>
-		
-		<assets path="assets/sound_mp3" type="sound" include="*.mp3" rename="snd" if="flash"/>
-		<assets path="assets/sound_ogg" type="sound" include="*.ogg" rename="snd" unless="flash"/>
-	
+		<section unless="MP3">
+			<echo value=" .using OGG sounds"/>
+			<assets path="assets/music" type="music" rename="mus" include="*.ogg"/>
+			<assets path="assets/sound_ogg" type="sound" rename="snd" include="*.ogg"/>
+		</section>
 		
 	<haxeflag name="-dce" value="std"/>
 	

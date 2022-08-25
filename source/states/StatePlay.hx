@@ -47,6 +47,7 @@ class StatePlay extends FlxState
 	
 	// Special object that goes to the top of every level to block player from going out of bounds
 	public var ceiling:FlxSprite;
+	
 	//====================================================;
 	
 	/**
@@ -468,7 +469,7 @@ class StatePlay extends FlxState
 			case "final_spawn":
 				HUD.set_text2("It's the Henchodroid! You must defeat it.");
 				map.appendMap(false);
-				D.snd.playMusic(Reg.musicData[3].a, Reg.musicData[3].loop);
+				Reg.playMusicIndex(3);
 				
 			case "final_die":
 				map.appendRemove();
@@ -532,7 +533,7 @@ class StatePlay extends FlxState
 				ceiling.setSize(map.ROOM_WIDTH * map.roomTotal.x, 1);
 				
 				// If it is the same music asset, it will ignore this and keep playing
-				D.snd.playMusic(Reg.musicData[map.MAP_TYPE].a, Reg.musicData[map.MAP_TYPE].loop);
+				Reg.playMusicIndex(map.MAP_TYPE);
 				
 				
 			// Called right after a `scrollStart` starts. Gives the entities that are to be created

@@ -2,6 +2,8 @@ package;
 
 import djA.cfg.ConfigFileB;
 import djFlixel.D;
+import djFlixel.ui.FlxMenu;
+import djFlixel.ui.menu.MItemData;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -78,13 +80,18 @@ class Reg
 	};
 
 	// Music per stage type + loop milliseconds
+	// Indexes 0,1,2 ARE FIXED, They share IDs with MAP_TYPES
 	public static var musicData = [
 		{a:"01", loop:15572},	// type:0 - space
 		{a:"02", loop:23000}, 	// type:1 - forest
 		{a:"03", loop:10661},	// type:2 - castle
-		{a:"04", loop:11245}	// bonus: boss music
+		{a:"04", loop:11245},	// boss music
+		{a:"FK_Title", loop:0}	// Main Title Music
 	];
 	
+	// Keeps what sound is supposed to be playing right now
+	// Useful for when Muting/Unmuting the sounds. It will play this one
+	static var musicIndex:Int = -1;
 	
 	// All states default BG color,
 	public static var BG_COLOR:Int = 0xFF000000;
@@ -226,6 +233,61 @@ class Reg
 		D.save.setSlot(1);
 		return D.save.load('game');
 	}//---------------------------------------------------;
+	
+	
+	/**
+	   Plays a track from the {musicData} Table, applies Looping infos
+	   @param	i
+	**/
+	public static function playMusicIndex(i:Int)
+	{
+		musicIndex = i;
+		if (musicIndex >-1)
+		D.snd.playMusic(musicData[i].a, musicData[i].loop);
+	}//---------------------------------------------------;
+	
+	
+	/**
+	   DOUBLE FUNCTION - SETS initial Values and READS from ItemData
+	   Handle some common options of the FlxMenu
+	   Shared between the Main Title Menu and the Gameplay Menu
+	   The Ordering matters , because I am doing it by index
+	   @param	m the Menu
+	   @param	m If set, then this is in SET MODE. Else READ MODE
+	   @return
+	**/
+	public static function menu_handle_common(m:FlxMenu, ?b:MItemData)
+	{
+		if (b == null) // SET DATA, when the Page Opens
+		{
+			m.item_update(0, (t)->t.set(Std.int(FlxG.sound.volume * 100)));
+			m.item_update(1, (t)->t.set(D.snd.MUSIC_ENABLED));
+			m.item_update(2, (t)->t.set(Reg.border.visible));
+			//menu.item_update(3, (t)->t.set(Reg.border.visible)); // SHADER, TODO
+		}else{
+			
+			// READ and apply DATA from the item
+			switch (b.ID)
+			{
+				case "c_bord":
+					Reg.border.visible = b.get();
+						
+				case "c_shad":
+					trace("TODO");
+						
+				case "c_vol":
+					FlxG.sound.volume = cast(b.get(), Int) / 100;
+					
+				case "c_mus":
+					D.snd.MUSIC_ENABLED = b.get();
+					playMusicIndex(musicIndex);
+					
+				default:
+			}
+			
+		}
+	
+	}
 	
 	
 }//--

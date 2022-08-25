@@ -125,9 +125,11 @@ class StateTitle extends FlxState
 		// :: Fade the screen from black and call seq.nextv()
 		new FilterFader(false, seq.nextV, {time:0.6});
 		
-		// ::
-		D.snd.playMusic('FK_Title');
+		// DEV: This will only play music if D.snd.MUSIC_ENABLED is true
+		Reg.playMusicIndex(4);
+
 	}//---------------------------------------------------;	
+	
 	
 	// --
 	override public function update(elapsed:Float):Void 
@@ -212,7 +214,7 @@ class StateTitle extends FlxState
 	// -- Creates and Adds the menu
 	function sub_create_menu()
 	{
-		menu = new FlxMenu(32, 90, FlxG.width);
+		menu = new FlxMenu(32, 90, FlxG.width, 4);
 		menu.PAR.start_button_fire = true;
 		menu.PAR.page_anim_parallel = true;
 		add(menu);
@@ -252,20 +254,22 @@ class StateTitle extends FlxState
 			-| Help       | link | help
 		");
 			
+		// DEV: The ordering of the first three(3) MATTERS.
+		//      I will be reading them by index later on {Reg.menu_handle_common}
 		menu.createPage("options", "Options").add("
+			-| Volume           | range | c_vol | 0,100 | step=5
+			-| Music			| toggle| c_mus
+			-| Border Toggle    | toggle| c_bord
+			-| TV Shader      	| toggle| c_shad
 			-| Keyboard Redefine  | link  | keyredef
-			-| Volume             | range | vol | 0,100 | step=5
-			-| Border Toggle      | toggle| bord | c=false
 			-| Back               | link  | @back
 		");
-			
+		
+		//menu.pages["options"].PAR.slots = 4;	// 
 		
 		menu.onMenuEvent = (a, b)->{
-			if (a == page && b == "options") {	// Options page just came on
-				
-				// Alter the first index of the current
-				menu.item_update(1, (t)->t.set(Std.int(FlxG.sound.volume * 100)));
-				menu.item_update(2, (t)->t.set(Reg.border.visible));
+			if (a == page && b == "options") {
+				Reg.menu_handle_common(menu);
 			}else
 			
 			if (a == page && b == "main") {
@@ -285,21 +289,19 @@ class StateTitle extends FlxState
 		};
 		
 		menu.onItemEvent = (a, b)->{
-			D.ctrl.flush();	// Just in case
-			if (a == fire) switch(b.ID) {
+			
+			if (a == fire) switch (b.ID) {
+				// - main
 				case "g_res":
 					startGame(false);
 				case "g_new":
 					startGame(true);
-				case "vol":
-					FlxG.sound.volume = cast(b.get(),Int) / 100;
-				case "softpix":
-					//Reg.BLUR.enabled = b.get();
-				case "bord":
-					Reg.border.visible = b.get();
+				
+				// - options
 				case "keyredef":
 					menu.close(true);
 					sub_get_keys( ()->menu.open() );
+					
 				case "help":
 					slides = sub_get_help_slides();
 					menu.close();
@@ -318,7 +320,9 @@ class StateTitle extends FlxState
 					};
 					FlxG.mouse.reset();	// Just in case
 					slides.goto(0);
-				case _:
+					
+				default:
+					Reg.menu_handle_common(menu, b);
 			}
 		};
 		

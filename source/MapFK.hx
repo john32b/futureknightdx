@@ -365,19 +365,17 @@ class MapFK extends TilemapGeneric
 				
 				// DEV: Currently I am implementing this here, since there are only two events
 				
-				trace("> Audio Event ", a.type);
-				
 				if (a.type == "fadeout")
 				{
 					D.snd.musicFadeOff();
+					Reg.playMusicIndex( -1);	// no music to go back to when unmuting
 					break;
 				}
 				
 				if (a.type.indexOf("start") == 0)
 				{
 					// "start:03" --> play sound with id "03"
-					var id = a.type.split(":")[1];
-					D.snd.playMusic(id);
+					Reg.playMusicIndex(Std.parseInt(a.type.split(":")[1]));
 				}
 				
 				// Process the audio here ;

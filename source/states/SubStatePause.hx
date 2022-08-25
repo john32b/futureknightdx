@@ -4,6 +4,7 @@ import djFlixel.gfx.BoxScroller;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.ui.FlxMenu;
 import djFlixel.ui.MPlug_Header;
+import djFlixel.ui.MPlug_Audio;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
@@ -42,10 +43,10 @@ class SubStatePause extends FlxSubState
 		add(bs1);
 		add(bs2);
 		
-		
 		// ::
 		var menu = new FlxMenu(64, 48, -1, 6);
-		
+			add(menu);
+
 			menu.overlayStyle({
 				align:"center",
 				item:{
@@ -67,32 +68,33 @@ class SubStatePause extends FlxSubState
 				offsetY: -4,
 				text:{f:'fnt/score.ttf', s:6, c:COL[23], bt:2, bc:COL[1], a:"center"}
 			}));
-			
-			
+						
+			menu.plug(new MPlug_Audio({
+				pageCall:"cursor_ok",
+				back:"cursor_back",
+				it_fire:"cursor_ok",
+				it_focus:"cursor_tick",
+				it_invalid:"gen_no",
+				close:"cursor_back"
+			}));
+		
 			menu.createPage("main", "PAUSED").add("
 				-| resume  | link | resume
 				-| options | link | @options
 				-| quit    | link | quit | ?fs=Quit to main menu?:yes:no
 			");
 			
-			
 			menu.createPage("options", "OPTIONS").add("
-				-| Volume         | range | vol | 0,100 | step=5
-				-| Border Toggle  | toggle| bord | c=false
-				-| Back           | link  | @back
+				-| Volume           | range | c_vol | 0,100 | step=5
+				-| Music			| toggle| c_mus
+				-| Border Toggle    | toggle| c_bord
+				-| TV Shader      	| toggle| c_shad
+				-| Back         	| link  | @back
 			");
-			//"-| Soft Pixels  |toggle |  softpix | c=false ",
 			
 			menu.onMenuEvent = (a, b)->{
-				if (a == pageCall) {
-					D.snd.playV('cursor_ok');
-				}else
-				if (a == back){
-					D.snd.playV('cursor_back');
-				}else
 				if (a == page && b == "options") {
-					menu.item_update(0, (t)->t.set(Std.int(FlxG.sound.volume * 100)));
-					menu.item_update(1, (t)->t.set(Reg.border.visible));
+					Reg.menu_handle_common(menu);
 				}
 				else if (a == start) {
 					close();
@@ -106,36 +108,16 @@ class SubStatePause extends FlxSubState
 
 				if (a == fire) switch(b.ID)
 				{
-					case "softpix": 
-						//Reg.BLUR.enabled = b.get();
-					case "bord":
-						Reg.border.visible = b.get();		
-					case "vol":
-						FlxG.sound.volume = cast(b.get(),Int) / 100;
 					case "resume":
 						close();
-						return;
 					case "quit":
 						Reg.SAVE_SETTINGS();
 						FlxG.switchState(new StateTitle());
-						return;
-					case _:
+					default:
+						Reg.menu_handle_common(menu, b);
 				}
-				
-				// SOUNDS: 
-				switch(a) {
-					case fire:
-						D.snd.playV('cursor_ok');
-						return;
-					case focus:
-						D.snd.playV('cursor_tick');
-						return;
-					case _:
-				}
-				
 			};
 			
-			add(menu);
 			menu.goto('main');
 
 	}//---------------------------------------------------;
@@ -153,7 +135,6 @@ class SubStatePause extends FlxSubState
 	{
 		Reg.SAVE_SETTINGS();
 		D.ctrl.flush();
-		D.snd.playV('cursor_back');
 		super.close();
 	}//---------------------------------------------------;
 	
