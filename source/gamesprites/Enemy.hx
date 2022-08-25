@@ -49,7 +49,7 @@ class Enemy extends MapSprite
 		health_turret : 600,
 		
 		health_phase1 : 600,	// Final Boss 
-		health_phase2 : 800,	// Final Boss
+		health_phase2 : 860,	// Final Boss
 		
 		spawntime: 		3.5,
 		spawntime_big:  6,

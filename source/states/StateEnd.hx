@@ -30,8 +30,9 @@ class StateEnd extends FlxState
 	override public function create():Void 
 	{
 		super.create();
-		trace(":: End State");
-		D.snd.stopMusic();
+		
+		//>> MUSIC should carry over from the previous state
+		
 		// --
 		pl = new Player();
 		map = new MapFK(pl);

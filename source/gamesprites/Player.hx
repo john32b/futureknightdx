@@ -84,7 +84,7 @@ class Player extends FlxSprite
 	inline static var IDLE_STEP_TIME = 7;			// Seconds to go to the next idle stage (there are 3 idle stages)
 	inline static var FALL_DAMAGE_HEIGHT = 32 * 5;	// If it falls from 5x(bigtiles) do fall damage
 	inline static var FALL_DAMAGE_TIME = 3;			// Stun for 3 seconds
-	inline static var DEAD_TIME = 4;				// Stay in the dead animation for 4 seconds
+	inline static var DEAD_TIME = 3.5;				// Stay in the dead animation for this much seconds
 	 
 	// Precalculated to avoid divisions in realtime
 	public var halfWidth:Int;
@@ -149,7 +149,7 @@ class Player extends FlxSprite
 	// Current bullet type the player can shoot
 	// INDEX in Bullet.TYPES[]
 	// 0:Normal, 1:Red, 2:Slime
-	public var bullet_type:Int;
+	public var bullet_type(default, set):Int;
 	
 	// Precalculated current bullet type time / FlxG.timescale
 	var _bullet_fix_time:Int;
@@ -219,8 +219,7 @@ class Player extends FlxSprite
 		healthSlow = health;
 		_htick = 0;
 		
-		bullet_type = 0;
-		_bullet_fix_time = cast Bullet.TYPES[bullet_type].timer / FlxG.timeScale;
+		bullet_type = 0;	// setter sets _bullet_fix_time
 		_interact_time = 0;	// this should not be reset at respawn
 		
 	}//---------------------------------------------------;
@@ -916,9 +915,7 @@ class Player extends FlxSprite
 				if (_interact_anim_request()) 
 				{
 					// Cycle between 0,1,2
-					bullet_type++;
-					if (bullet_type > 2) bullet_type = 0;
-					_bullet_fix_time = cast Bullet.TYPES[bullet_type].timer / FlxG.timeScale;
+					bullet_type++; // setter
 					Reg.st.HUD.bullet_pickup(bullet_type);
 					D.snd.play(Reg.SND.weapon_get);					
 				}
@@ -1068,6 +1065,7 @@ class Player extends FlxSprite
 	// GET string or GENERATE string
 	public function SAVE(?str:String):String
 	{
+		trace("PLAYER SAVE", str);
 		if (str == null) {
 			var data = '$health,$healthSlow,$lives,$bullet_type';
 			return data;
@@ -1079,6 +1077,16 @@ class Player extends FlxSprite
 			bullet_type = Std.parseInt(o[3]);
 		}	
 		return null;
+	}//---------------------------------------------------;
+	
+	
+	
+	function set_bullet_type(val:Int):Int
+	{
+		bullet_type = val;
+		if (bullet_type > 2) bullet_type = 0;
+		_bullet_fix_time = cast Bullet.TYPES[bullet_type].timer / FlxG.timeScale;
+		return bullet_type;
 	}//---------------------------------------------------;
 	
 }// --

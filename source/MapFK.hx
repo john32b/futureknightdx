@@ -50,6 +50,7 @@ import djA.types.SimpleCoords;
 import djFlixel.D;
 import djFlixel.core.Dcontrols.DButton;
 import djFlixel.other.StepTimer;
+import djfl.tool.Geom;
 import djfl.util.TiledMap.TiledObject;
 import openfl.filters.ColorMatrixFilter;
 import flixel.FlxCamera;
@@ -137,14 +138,14 @@ class MapFK extends TilemapGeneric
 	// The short name of the loaded map. e.g. "level_01"
 	public var MAP_FILE(default, null) = "";	
 	
-	// Current map loaded string e.g. "level_03:B"
-	static var MAP_LAST_LOADED_ID:String = null;
-	
 	// Does the current ROOM has holes in background
 	public var FLAG_HAS_STARS(default, null):Bool = false;
 	
 	// 0:Space, 1:Forest, 2:Castle. Used in controlling graphic and tile properties
-	public var MAP_TYPE(default, null):Int = 0;
+	public var MAP_TYPE(default, null):Int = -1;	// -1 not yet set
+
+	// Current map loaded string e.g. "level_03:B"
+	static var MAP_LAST_LOADED_ID:String = null;
 	
 	var MAP_LOADED_ID = "";	// Combo of MAP:EXIT of the current map loaded.
 	var MAP_COLOR = "";		// Color id, check "ImageAssets.CC_MAP"
@@ -170,6 +171,9 @@ class MapFK extends TilemapGeneric
 	
 	// Hold the camera tween so I can cancel it
 	var tweenCamera:VarTween;
+	
+	// All the audio event objects found in a room
+	var audioEvents:Array<TiledObject>;
 	
 	//====================================================;
 	
@@ -350,6 +354,36 @@ class MapFK extends TilemapGeneric
 			ROOM_HEIGHT
 			);
 			
+			
+		//- Check for audio events
+		for (a in audioEvents)
+		{
+			if (Geom.rectHasPoint(
+					roomCurrent.x * ROOM_WIDTH , 
+					roomCurrent.y * ROOM_HEIGHT, 
+					ROOM_WIDTH, ROOM_HEIGHT, a.x, a.y)) {
+				
+				// DEV: Currently I am implementing this here, since there are only two events
+				
+				trace("> Audio Event ", a.type);
+				
+				if (a.type == "fadeout")
+				{
+					D.snd.musicFadeOff();
+					break;
+				}
+				
+				if (a.type.indexOf("start") == 0)
+				{
+					// "start:03" --> play sound with id "03"
+					var id = a.type.split(":")[1];
+					D.snd.playMusic(id);
+				}
+				
+				// Process the audio here ;
+				break;	// Only one audio event per room. It should be one.
+			}
+		}
 		onEvent(MapEvent.newRoom(ents));
 	}//---------------------------------------------------;
 	
@@ -538,6 +572,7 @@ class MapFK extends TilemapGeneric
 	{
 		PLAYER_SPAWN = null;
 		EXITS = [];
+		audioEvents = [];
 		
 		for (i in T.getObjLayer(LAYER_ENTITIES))
 		{
@@ -549,6 +584,11 @@ class MapFK extends TilemapGeneric
 			if (i.gid == MapTiles.EDITOR_EXIT)
 			{
 				EXITS.set(i.name, i);
+			}else
+			
+			if (i.name == "audio")
+			{
+				audioEvents.push(i);
 			}
 		}
 	}//---------------------------------------------------;

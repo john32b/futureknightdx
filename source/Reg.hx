@@ -39,6 +39,7 @@ class Reg
 		i_time			: 0.6,	// Player invisibility times after being hit
 		max_damage 		: 60,	// Maximum amount of damage per hit, to enemy or player. 
 								// This is because entities take damage equal to the health of the other entity when collided
+								// e.g. when player collides with BOSS, both will get hurt by this much3
 		bomb_damage		: 250	// Mostly damage to the final boss. other enemies are insta kill forever
 	};
 
@@ -76,6 +77,15 @@ class Reg
 		final_boss:1500,
 	};
 
+	// Music per stage type + loop milliseconds
+	public static var musicData = [
+		{a:"01", loop:15572},	// type:0 - space
+		{a:"02", loop:23000}, 	// type:1 - forest
+		{a:"03", loop:10661},	// type:2 - castle
+		{a:"04", loop:11245}	// bonus: boss music
+	];
+	
+	
 	// All states default BG color,
 	public static var BG_COLOR:Int = 0xFF000000;
 	

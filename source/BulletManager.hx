@@ -63,7 +63,7 @@ class BulletManager extends FlxGroup
 	{
 		if (TYPE <= 2) // Player bullet, check
 		{
-			if (count_player >= Bullet.TYPES[Reg.st.player.bullet_type].maxscreen)
+			if (count_player >= Bullet.TYPES[TYPE].maxscreen)
 			{
 				return false;
 			}

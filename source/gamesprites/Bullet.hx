@@ -31,7 +31,6 @@ typedef BulletType = {
 @:allow(BulletManager)
 class Bullet extends FlxSprite
 {
-	
 	public inline static var OWNER_PLAYER = 1;
 	public inline static var OWNER_ENEMY = 2;
 	
@@ -43,18 +42,17 @@ class Bullet extends FlxSprite
 		wall:"bl_hit"
 	};
 	
-	
-	// All the game bullets:
+	// All the game bullet data. ENEMY + PLAYER
 	public static var TYPES:Array<BulletType> = [
-		{ anim:"p_1", speed:150, distance:0, 	maxscreen:2, damage:10, timer:250 }, // dps = 40 per 1
-		{ anim:"p_2", speed:200, distance:82, 	maxscreen:4, damage:6,  timer:135 }, // dps = 44 per 1 ( but it is shorter )
-		{ anim:"p_3", speed:240, distance:0, 	maxscreen:2, damage:18, timer:450 }, // dps = 40 per 1
+		{ anim:"p_1", speed:150, distance:0, 	maxscreen:2, damage:10, timer:250 }, // dps = 40/sec
+		{ anim:"p_2", speed:200, distance:82, 	maxscreen:4, damage:6,  timer:135 }, // dps = 44/sec
+		{ anim:"p_3", speed:240, distance:0, 	maxscreen:2, damage:19, timer:450 }, // dps = 42.2/sec
 		{ anim:"e_1", speed:110, distance:0, 	maxscreen:2, damage:10, timer:0   }, // Turret
 		{ anim:"e_2", speed:80,  distance:0, 	maxscreen:4, damage:12, timer:0   }, // Long legs enemy
 		{ anim:"e_2", speed:70,  distance:0, 	maxscreen:3, damage:13, timer:0   }  // Final boss
 	];
 		
-	inline static var halfWidth = 2;	// Precalculated half-width/height
+	inline static var halfWidth = 2;
 	inline static var halfHeight = 2;
 	
 	// ------------------------
@@ -90,6 +88,8 @@ class Bullet extends FlxSprite
 	
 	/**
 	  - Set a bullet parameters
+	  @param TYPE, Bullet type, check {TYPES} in this class
+	  @param FACE, FlxDirection
 	**/
 	public function init(TYPE:Int, X:Float, Y:Float, FACE:Int)
 	{

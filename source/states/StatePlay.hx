@@ -3,15 +3,13 @@
 	===============================
 
 	
-	
 	NOTES ON CAMERAS::
 	--------------------
 	
-	- First create the background and put the border, at THE BOTTOM
-	- Then the MAP gets created and it will create its own camera
+	- The MAP gets created and it will create its own camera
 	- I am making the MAP camera as the default camera for all sprites to be drawn on (flxcamera.defaultcameras)
 	- Then the HUD uses its own camera, and all of the HUD objects are specified to use the HUD camera
-	- The inventory and pause menu open inside the map camera
+	- The inventory and pause menu use the MAP camera
 
 ========================================= **/
 
@@ -153,10 +151,9 @@ class StatePlay extends FlxState
 			new FilterFader(false, {time:0.5, delayPost:0});
 		}
 		
-		D.snd.stopMusic(); /// TODO < : MUSIC!
+		// --
 		
 
-		
 		
 		// I think it is a bit too fast, adjust it a bit
 		// Restore it when exiting this state
@@ -471,11 +468,13 @@ class StatePlay extends FlxState
 			case "final_spawn":
 				HUD.set_text2("It's the Henchodroid! You must defeat it.");
 				map.appendMap(false);
+				D.snd.playMusic(Reg.musicData[3].a, Reg.musicData[3].loop);
 				
 			case "final_die":
 				map.appendRemove();
 				map.flash(3);
 				HUD.score_add(Reg.SCORE.final_boss);
+				D.snd.musicFadeOff();
 				
 			default:
 		}
@@ -528,7 +527,13 @@ class StatePlay extends FlxState
 					stars.STAR_ANGLE = -180;
 				}
 				
+				// --
+				
 				ceiling.setSize(map.ROOM_WIDTH * map.roomTotal.x, 1);
+				
+				// If it is the same music asset, it will ignore this and keep playing
+				D.snd.playMusic(Reg.musicData[map.MAP_TYPE].a, Reg.musicData[map.MAP_TYPE].loop);
+				
 				
 			// Called right after a `scrollStart` starts. Gives the entities that are to be created
 			// ents can be [], so this is called on EVERY ROOM

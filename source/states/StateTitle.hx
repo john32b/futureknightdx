@@ -1,14 +1,6 @@
 /**
- * Future Knight Main Menu
- * ----------------------
- * - Display title, background FX
- * - Main Menu
- * - Help Pages
- * - Fire off DEMOPLAY
- * - Connect to onlineAPI?
- * - Controller Indication POPUP
- * - Cheat Code
- * 
+ * Future Knight DX Main Menu
+ *
  * =============================================== */
 
  
