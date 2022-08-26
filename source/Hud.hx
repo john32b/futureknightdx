@@ -49,9 +49,10 @@ class Hud extends FlxGroup
 	var _lives:Int = 0;		// Current Lives icons
 	
 	var text_info:FlxText;
-	var text_health:FlxText;
 	var text_score:FlxText;
 	var fx_static:FlxSprite;
+	
+	var digits_health:Array<FlxSprite>;	// 3 sprites
 	
 	var el_lives:Array<FlxSprite>;
 	var el_bullet:FlxSprite;
@@ -94,34 +95,47 @@ class Hud extends FlxGroup
 		
 		// > after creating the camera
 		add(bg);
+		
+
 			
 		// --
 		text_info = D.text.get("", 16, 6, {f:"fnt/text.ttf", s:16, c:Pal_CPCBoy.COL[27]});
 			add(text_info);
-		text_health = D.text.get("", 202, 32, {f:"fnt/digital.otf", s:18, c:Pal_CPCBoy.COL[27]} );
-			add(text_health);
+			
 		text_score = D.text.get("", 30, 30, {f:"fnt/score.ttf", s:6, c:Pal_CPCBoy.COL[22]});
 			add(text_score);
 			
 			
 		// -- Some per target positioning tweaks
-		
 		#if (desktop)
 			text_info.y -= 1;
 		#end
 		
 		#if html5
 			text_info.y -= 9;
-			text_health.y += 1;
 			text_score.y += 4;
 		#end
 		
-		// --
+		// -- Bullets, Item
 		el_bullet = Reg.IM.getSprite(107, 29, "huditem", 1);
 			add(el_bullet);
 			
 		el_item = Reg.IM.getSprite(145, 29, "huditem", 7);
 			add(el_item);
+			
+			
+		// -- Health digital text
+		digits_health = [
+			Reg.IM.getSprite(204			, 35, "digital", 0),
+			Reg.IM.getSprite(204 + 12		, 35, "digital", 1),
+			Reg.IM.getSprite(204 + 12 + 12	, 35, "digital", 2)
+		];
+		// color > c:Pal_CPCBoy.COL[27]
+		
+		for (i in digits_health) {
+			i.color = 0xFF4433FF;
+			add(i);
+		}
 			
 		//-- Lives
 		el_lives = [];
@@ -135,7 +149,7 @@ class Hud extends FlxGroup
 		//-- Put this at the top of the list
 		fx_static = new FlxSprite(103, 25);
 		Reg.IM.loadGraphic(fx_static, "static");
-		fx_static.animation.add("main", [0, 1, 2, 3, 4, 0, 1, 5, 6, 7, 5, 4, 3, 2], 11	, false);
+		fx_static.animation.add("main", [0, 1, 2, 3, 4, 0, 1, 5, 6, 7, 5, 4, 3, 2], 12	, false);
 		fx_static.visible = false;
 		add(fx_static);
 	}//---------------------------------------------------;
@@ -202,18 +216,26 @@ class Hud extends FlxGroup
 	{
 		if (val < _health)
 		{
-			if (val < 100 && _health>=100) text_health.color = Pal_CPCBoy.COL[6];
+			if (val < 100 && _health >= 100) {
+				for (t in digits_health) 
+					t.color = Pal_CPCBoy.COL[6];
+			}
+			// ^ this is to only set color once
 		}else
 		{
 			// health going up
 			if (val >= 100)
 			{
-				text_health.color = Pal_CPCBoy.COL[27];
+				for (t in digits_health) t.color = Pal_CPCBoy.COL[27];
 			}
 		}
 		
 		_health = Std.int(val);
-		text_health.text = StringTools.lpad(Std.string(_health), "0", 3);
+		
+		digits_health[0].animation.frameIndex = Math.floor(_health / 100);
+		digits_health[1].animation.frameIndex = Math.floor((_health % 100) / 10);
+		digits_health[2].animation.frameIndex = (_health % 100) % 10;
+		
 	}//---------------------------------------------------;
 	
 	// Values (0-3)
@@ -313,3 +335,6 @@ class Hud extends FlxGroup
 	}//---------------------------------------------------;
 		
 }// --
+
+
+

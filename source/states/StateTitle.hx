@@ -2,26 +2,24 @@
  * Future Knight DX Main Menu
  *
  * =============================================== */
-
  
 package states;
 
-import djA.Fsm;
-import djFlixel.gfx.FilterFader;
-import djFlixel.ui.MPlug_Audio;
-import flash.ui.Keyboard;
 import tools.KeyCapture;
 import tools.SprDirector;
 
+import djA.Fsm;
 import djA.DataT;
 import djA.types.SimpleRect;
 
 import djFlixel.D;
 import djFlixel.core.Dcontrols;
 import djFlixel.core.Dtext.DTextStyle;
+import djFlixel.gfx.FilterFader;
 import djFlixel.gfx.StarfieldSimple;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.other.FlxSequencer;
+import djFlixel.ui.MPlug_Audio;
 import djFlixel.ui.FlxMenu;
 import djFlixel.ui.FlxSlides;
 import djFlixel.ui.VList;
@@ -257,12 +255,12 @@ class StateTitle extends FlxState
 		// DEV: The ordering of the first three(3) MATTERS.
 		//      I will be reading them by index later on {Reg.menu_handle_common}
 		menu.createPage("options", "Options").add("
-			-| Volume           | range | c_vol | 0,100 | step=5
-			-| Music			| toggle| c_mus
-			-| Border Toggle    | toggle| c_bord
-			-| TV Shader      	| toggle| c_shad
-			-| Keyboard Redefine  | link  | keyredef
-			-| Back               | link  | @back
+			-| Volume     | range | c_vol | 0,100 | step=5
+			-| Music	  | toggle| c_mus
+			-| Border     | toggle| c_bord
+			-| TV Shader  | toggle| c_shad
+			-| Keyboard Redefine | link  | keyredef
+			-| Back              | link  | @back
 		");
 		
 		//menu.pages["options"].PAR.slots = 4;	// 

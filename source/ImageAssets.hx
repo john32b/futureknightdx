@@ -52,6 +52,7 @@ class ImageAssets
 		"particles" => {im:"im/ts_particles.png", tw:22, th:24, col:true},
 		"static" => {im:"im/hud_static.png", tw:64, th:24, col:false},
 		"huditem" => {im:"im/hud_items.png", tw:17, th:17, col:false},
+		"digital" => {im:"im/digital.png", tw:11, th:17, col:false},
 		"keys" => {im:"im/ts_keys.png", tw:16, th:16, col:false},
 		"friend" => {im:"im/ts_friend.png", tw:26, th:28, col:true},
 		"teleporter" => {im:"im/ts_teleport.png", tw:52, th:42, col:false}

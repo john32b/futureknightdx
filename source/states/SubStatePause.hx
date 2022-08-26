@@ -85,11 +85,11 @@ class SubStatePause extends FlxSubState
 			");
 			
 			menu.createPage("options", "OPTIONS").add("
-				-| Volume           | range | c_vol | 0,100 | step=5
-				-| Music			| toggle| c_mus
-				-| Border Toggle    | toggle| c_bord
-				-| TV Shader      	| toggle| c_shad
-				-| Back         	| link  | @back
+				-| Volume    | range | c_vol | 0,100 | step=5
+				-| Music	 | toggle| c_mus
+				-| Border 	 | toggle| c_bord
+				-| TV Shader | toggle| c_shad
+				-| Back      | link  | @back
 			");
 			
 			menu.onMenuEvent = (a, b)->{

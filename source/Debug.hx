@@ -11,6 +11,7 @@ package;
 import djFlixel.D;
 import flixel.FlxG;
 import gamesprites.Item.ITEM_TYPE;
+import haxe.zip.Uncompress;
 import states.StatePlay;
 
 
@@ -31,6 +32,7 @@ class Debug
 			D.save.deleteSave();
 			trace("INI File Trigger > Save Deleted");
 		}
+		
 	}//---------------------------------------------------;
 
 	public function pl_kill()
