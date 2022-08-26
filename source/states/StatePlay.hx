@@ -73,9 +73,9 @@ class StatePlay extends FlxState
 		// DEV: I can't put it offscreen, the collision will not work.
 		// It is going to be resized later, on every map load
 		ceiling.immovable = true;
-		ceiling.moves = false;
 		ceiling.active = false;
 			
+		minimap = new MiniMap();
 		ROOMSPR = new RoomSprites();
 		key_ind = new KeyIndicator(); 
 		PM = new ParticleManager();
@@ -84,8 +84,6 @@ class StatePlay extends FlxState
 			INV.onClose = resume;
 			INV.onOpen = pause;
 			INV.onItemSelect = on_inventory_select;
-			
-		minimap = new MiniMap();
 
 		stars = new StarfieldSimple(map.ROOM_WIDTH, map.ROOM_HEIGHT);
 		stars.WIDE_PIXEL = true;
@@ -154,9 +152,7 @@ class StatePlay extends FlxState
 		
 		// --
 		
-
-		
-		// I think it is a bit too fast, adjust it a bit
+		// I think the game at 1x is a bit too fast, I am slowing it a bit
 		// Restore it when exiting this state
 		FlxG.timeScale = 0.9;
 		FlxG.signals.preStateSwitch.addOnce(() -> {

@@ -32,7 +32,8 @@ class SubStatePause extends FlxSubState
 		// :: Top/Bottom Test Scrollers
 		var t1 = D.text.get('FUTURE KNIGHT DX - FUTURE KNIGHT DX - FUTURE KNIGHT DX - ', {f:'fnt/score.ttf', s:6});
 		var sourcePixels = t1.pixels.clone();
-			// Because text.pixels, does not get color data, I am coloring manually
+			// DEV: Because test.pixels does not get the color data set in {FlxSprite.color=0xff....}
+			// 		I coloring the bitmap manually
 			D.bmu.replaceColor(sourcePixels, 0xFFFFFFFF, COL[31]);
 		var bs1 = new BoxScroller(sourcePixels, 0, POS_Y0, 280);
 		var bs2 = new BoxScroller(sourcePixels, 0, POS_Y1, 280);

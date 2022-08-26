@@ -794,7 +794,14 @@ class MapFK extends TilemapGeneric
 					{
 						D.snd.play(Reg.SND.error);
 						Reg.st.HUD.set_text2("Requires `" + itemName + "` to unlock");
-						return;
+						#if debug
+							// Activating an exit while pressing space
+							// Will unlock it
+							if (!FlxG.keys.pressed.SPACE)
+								return;
+						#else
+							return;
+						#end
 					}
 					
 					trace(" Unlocked ..");

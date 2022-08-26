@@ -28,17 +28,13 @@ class StateIntro extends FlxState
 		var textst1 = {f:'fnt/arcade.ttf', s:10, c:Pal_CPCBoy.COL[27] };
 		var textst2 = {f:'fnt/text.ttf', s:16, c:Pal_CPCBoy.COL[26], a:'center',bc:Pal_CPCBoy.COL[2] };
 		
-		// :: STARS
-		var stars = new StarfieldSimple(FlxG.width, FlxG.height, [	
-			Pal_CPCBoy.COL[0],
-			Pal_CPCBoy.COL[31],
-			Pal_CPCBoy.COL[30],
-			Pal_CPCBoy.COL[29]
-		]);
-		stars.WIDE_PIXEL = true;
-		stars.STAR_SPEED = 0.4;
-		stars.STAR_ANGLE = 90;
-		add(stars);
+		// Static fx
+		var fx = new djFlixel.gfx.StaticNoise(0, 0, cast FlxG.width / 2, FlxG.height );
+		fx.color_custom([0xff000000, 0xff101010]);
+		fx.centerOrigin();
+		fx.scale.x = 2;
+		fx.x = 80;
+		add(fx);
 		
 		// --
 		var t1 = D.text.get('INCOMING DISTRESS SIGNAL', textst1);
@@ -99,6 +95,7 @@ class StateIntro extends FlxState
 		// --
 		map = new MapFK(pl);
 		FlxG.cameras.reset(map.camera);	// << Make the default camera
+		camera.y += 58;
 		
 		add(map);
 		map.onEvent = (e)-> { if (e == loadMap) P_01(); };

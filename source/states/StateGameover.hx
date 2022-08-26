@@ -7,7 +7,7 @@ package states;
 
 import djFlixel.D;
 import djFlixel.core.Dcontrols;
-import djFlixel.gfx.StarfieldSimple;
+import djFlixel.gfx.TextBouncer;
 import djFlixel.gfx.TextBouncer;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import flixel.FlxG;
@@ -25,22 +25,16 @@ class StateGameover extends FlxState
 	{
 		super.create();
 		
-		trace(":: Gameover State");
-		
 		D.snd.stopMusic();
 		D.snd.playV('gameover');
 		
-		// -- Stars
-		var stars = new StarfieldSimple(FlxG.width, FlxG.height, [	
-			Pal_CPCBoy.COL[0],
-			Pal_CPCBoy.COL[3],
-			Pal_CPCBoy.COL[7],
-			Pal_CPCBoy.COL[6]
-		]);
-		stars.WIDE_PIXEL = true;
-		stars.STAR_SPEED = 1.9;
-		add(stars);
-		
+		// Static fx
+		var fx = new djFlixel.gfx.StaticNoise(0, 0, cast FlxG.width / 2, FlxG.height );
+		fx.color_custom([0xff000000, 0xff101010]);
+		fx.centerOrigin();
+		fx.scale.x = 2;
+		fx.x = 80;
+		add(fx);
 		
 		// --
 		var pl = new FlxSprite();
@@ -59,7 +53,6 @@ class StateGameover extends FlxState
 		// --
 		D.save.deleteSlot(1);
 		trace("Save Slot (1) Deleted");
-		
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float):Void 

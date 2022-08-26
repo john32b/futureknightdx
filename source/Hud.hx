@@ -52,7 +52,7 @@ class Hud extends FlxGroup
 	var text_score:FlxText;
 	var fx_static:FlxSprite;
 	
-	var digits_health:Array<FlxSprite>;	// 3 sprites
+	var digits_health:Array<FlxSprite>;	// 3 sprites to print the health text
 	
 	var el_lives:Array<FlxSprite>;
 	var el_bullet:FlxSprite;
@@ -79,9 +79,8 @@ class Hud extends FlxGroup
 	{
 		super();
 		
-		// --
 		var bg = new FlxSprite(Reg.IM.STATIC.hud_bottom);
-
+		
 		// -- Camera. Puts it right below the Game Map
 		var C = Reg.st.map.camera;
 		camera = new FlxCamera(
@@ -93,21 +92,18 @@ class Hud extends FlxGroup
 		
 		FlxG.cameras.add(camera, false);	// false means not a default camera. Only this group will draw on this camera
 		
-		// > after creating the camera
+		// > after creating the camera begin adding spritess
 		add(bg);
-		
-
 			
-		// --
+		// -- Texts
 		text_info = D.text.get("", 16, 6, {f:"fnt/text.ttf", s:16, c:Pal_CPCBoy.COL[27]});
 			add(text_info);
 			
 		text_score = D.text.get("", 30, 30, {f:"fnt/score.ttf", s:6, c:Pal_CPCBoy.COL[22]});
 			add(text_score);
 			
-			
 		// -- Some per target positioning tweaks
-		#if (desktop)
+		#if desktop
 			text_info.y -= 1;
 		#end
 		
@@ -152,14 +148,14 @@ class Hud extends FlxGroup
 		fx_static.animation.add("main", [0, 1, 2, 3, 4, 0, 1, 5, 6, 7, 5, 4, 3, 2], 12	, false);
 		fx_static.visible = false;
 		add(fx_static);
+		fx_static.active = true;
 	}//---------------------------------------------------;
 	
 	override public function add(O:FlxBasic):FlxBasic 
 	{
 		if (Std.isOfType(O, FlxSprite)){
 			var a = cast(O, FlxSprite);
-			a.moves = false;
-			a.solid = false;
+			a.active = false;	// don't waste cycles
 		}
 		return super.add(O);
 	}//---------------------------------------------------;

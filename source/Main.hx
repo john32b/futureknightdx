@@ -1,7 +1,5 @@
 package;
 
-import djFlixel.D;
-import djFlixel.other.GF_Blur;
 import flixel.FlxGame;
 import openfl.display.Sprite;
 
@@ -16,7 +14,7 @@ class Main extends Sprite
 		super();
 		
 		// :: First thing initialize djFlixel
-		D.init({
+		djFlixel.D.init({
 			name:"Future Knight DX " + Reg.VERSION,
 			savename:"fkdx",
 			init:Reg.init

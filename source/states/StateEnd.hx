@@ -9,14 +9,13 @@
 package states;
 
 import djFlixel.D;
-import djFlixel.core.Dcontrols;
 import djFlixel.gfx.FilterFader;
 import djFlixel.gfx.pal.Pal_CPCBoy;
-import djFlixel.other.FlxSequencer;
+import djFlixel.other.DelayCall;
+import djFlixel.ui.FlxAutoText;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.effects.FlxFlicker;
 import flixel.tweens.FlxTween;
 import gamesprites.Player;
 
@@ -35,10 +34,14 @@ class StateEnd extends FlxState
 		
 		// --
 		pl = new Player();
+		
+		// -- A very map setup, just to load and display a level
 		map = new MapFK(pl);
 		FlxG.cameras.reset(map.camera);
+		map.camera.y += 58;
 		add(map);
-		map.onEvent = (e)-> { if (e == loadMap) P01(); };
+		
+		map.onEvent = (e)-> { if (e == loadMap) DO(); };
 		map.loadMap('end');
 		
 		new FilterFader(false, {time:0.5});
@@ -48,12 +51,13 @@ class StateEnd extends FlxState
 		trace("Save Slot (1) Deleted");
 	}//---------------------------------------------------;
 	
-	function P01()
+	// - Map loaded
+	function DO()
 	{
 		// Position datas
 		var obj = map.T.getObjMap('Entities');
 		
-		// -- Just like <introstate> hack the player sprite
+		// -- Just like <StateIntro.hx> hack the player sprite
 		pl.setPosition(obj['player'].x, obj['player'].y);
 		pl.animation.play('walk');
 		@:privateAccess pl.fsm.switchTo(null);	// force no state
@@ -67,8 +71,9 @@ class StateEnd extends FlxState
 		fr.animation.play('main');
 		add(fr);
 		
+		// --
 		var mapEndX = map.ROOM_WIDTH * map.roomTotal.x;
-		FlxTween.tween(map.camera.scroll, {x:mapEndX - map.ROOM_WIDTH}, obj['player'].prop.time2);
+		FlxTween.tween(map.camera.scroll, {x:mapEndX - map.ROOM_WIDTH}, obj['camera'].prop.time);
 		FlxTween.tween(pl, {x:mapEndX}, obj['player'].prop.time);
 		FlxTween.tween(fr, {x:mapEndX}, obj['friend'].prop.time);
 		
@@ -80,37 +85,21 @@ class StateEnd extends FlxState
 		var t1 = D.align.pT('', {ta:"c"}, st_p);
 		var t2 = D.align.pT('', {ta:"c"}, st_p2);
 		
-		add(new FlxSequencer((seq)->{
-			switch(seq.step){
-				case 1:
-					add(t1); add(t2);
-					t1.text = "original game";
-					t2.text = "Gremlin Graphics, 1986";
-					seq.next(5);
-				case 2:
-					FlxFlicker.flicker(t1, 1);
-					FlxFlicker.flicker(t2, 1);
-					seq.next(1);
-				case 3:
-					t1.text = "DX Version";
-					t2.text = "John32B 2021";
-					seq.next(5);
-				case 4:
-					FlxFlicker.flicker(t1, 1);
-					FlxFlicker.flicker(t2, 1);
-					seq.next(1);	
-				case 5:
-					t1.text = "-- THE END --";
-					t2.text = "";
-					seq.next(8);
-				case 6:
-					t1.text = "";
-					new FilterFader( ()->{
-						FlxG.switchState(new StateTitle());
-					}, {time:2});
-				case _:
-			}
-		}, 2)); // start after 2 seconds
+		
+		// -- Credits on screen
+		
+		var T = new FlxAutoText(0, 0, map.ROOM_WIDTH, 2);
+		T.style = {f:'fnt/arcade.ttf', s:10, c:Pal_CPCBoy.COL[26], bc:Pal_CPCBoy.COL[1], bt:2, bs:1, a:"center"};
+		D.align.screen(T);
+		T.y -= 8;
+		T.scrollFactor.set(0.0);
+		T.setText(Reg.INI.get('text', 'endtext'));
+		add(T);
+		
+		// --
+		new DelayCall(obj['camera'].prop.time - 3, ()->{
+			new FilterFader( ()-> FlxG.switchState(new StateTitle()), {time:1.6});
+		});
 		
 	}//---------------------------------------------------;
 }// --
