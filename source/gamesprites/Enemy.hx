@@ -28,6 +28,8 @@ package gamesprites;
 import djFlixel.D;
 import djfl.util.TiledMap.TiledObject;
 import flixel.FlxSprite;
+import flixel.effects.FlxFlicker;
+import flixel.system.FlxSound;
 import gamesprites.Enemy_AI;
 
 
@@ -51,7 +53,8 @@ class Enemy extends MapSprite
 		health_phase1 : 640,	// Final Boss 
 		health_phase2 : 860,	// Final Boss
 		
-		spawntime: 		3.4,
+		spawnAnnounce:  0.7,
+		spawntime: 		2.7,	// Final spawn time = spawnTime + spawnAnnounce . so 3.4
 		spawntime_big:  6,		// Big bosses and Bouncy Big Enemy
 		
 		speed : 48,
@@ -74,7 +77,7 @@ class Enemy extends MapSprite
 	// Every enemy has an AI driver
 	public var ai(default, null):Enemy_AI;
 	
-	var _spawnTimer:Float;	// SpawnTime counter. 
+	var _spawnTimer:Float;	// SpawnTime. Counting up to {spawnTime} when reached will spawn
 	var spawnTime:Float;	// Time to wait for regenerating. If <0 will never respawn
 	var speed:Float;		// The actual speed of the enemy
 	var startHealth:Float;
@@ -107,7 +110,9 @@ class Enemy extends MapSprite
 			
 		}else {
 			
-			if (spawnTime < 0) return;	// This enemy does not ever respawn
+			// spawntime -1, enemy does not respawn
+			// if immovable then it is soft-spawning (flickering)
+			if (spawnTime < 0 || immovable) return;
 			
 			if ( (_spawnTimer += elapsed) >= spawnTime) {
 				// Avoid spawning and then running into player while he dead.
@@ -182,19 +187,42 @@ class Enemy extends MapSprite
 				ai = new Enemy_AI(this); // Immobile
 		}
 		
-		respawn();
+		respawn(true);
 	}//---------------------------------------------------;
 	
-	// --
+	
+	// -- Respawn SOFT
+	// - Make enemy visible, and flicker for a bit, then respawn
+	function respawn(now:Bool = false)
+	{
+		immovable = true;
+		ai.respawn();	// The AI will actually place it
+		
+		if (now)
+			respawn2();
+		else
+		{
+			D.snd.playV('spawn');
+				
+			FlxFlicker.flicker(this, PAR.spawnAnnounce, 0.06, true, true, (_)->{
+				respawn2();
+		
+
+			});
+		}
+	}//---------------------------------------------------;
+	
+	
+	// -- Actual respawn
 	// -- Called on first spawn as well
-	function respawn() 
+	function respawn2() 
 	{
 		setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);	// Reset color in case it was altered
 		_hurtTimer = 0;
 		health = startHealth;
+		immovable = false;	// I am using this as a FLAG for when it is soft-spawning
 		visible = alive = moves = solid = true;
 		animation.play('main', true);
-		ai.respawn();	// The AI will actually place it
 		
 		// DEV: Try because I need to create Enemies in StateTitle where REG.st does not exist
 		// Check if confuser is active
@@ -238,8 +266,9 @@ class Enemy extends MapSprite
 			Reg.st.HUD.score_add(Reg.SCORE.enemy_kill);
 		}
 		
+		// DEV : _spawnTimer will only count up when (solid=true)
 		_spawnTimer = 0;
-		// DEV: Could I just do active=false?
+		
 		alive = solid = visible = moves = false;
 		
 		ai.softkill(); 	// < responsible for triggering the explode function

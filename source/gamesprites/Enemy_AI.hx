@@ -658,6 +658,7 @@ class AI_Bounce extends Enemy_AI
 				Reg.st.map.getCol(tx + 1, ty) > 0) 
 				//e.y + e.height > Reg.st.map.roomCornerPixel.y + Reg.st.map.ROOM_HEIGHT)
 			{
+				D.snd.playV('bounce');
 				e.velocity.y = - BOUNCE_SPEED;
 				e.last.y = e.y = (ty * 8) - e.height; // Lock y to the floor, because it went through it
 				t = GFX_BOUNCE_RESTORE_TIME; // set timer
@@ -751,6 +752,7 @@ class AI_Move_X extends Enemy_AI
 	override public function respawn() 
 	{
 		// Override and do nothing
+		// continue from where it was when respawning
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 
