@@ -40,25 +40,25 @@ class Enemy extends MapSprite
 	static inline var HURT_I_TIME = 0.1;	// Invinvibility time after being hurt
 	
 	static public var PAR = {
-		health 		 : 20,	// (2 bullets, 4 bullets, 2 bullets)
-		health_chase : 30,	// (3 bullets, 5 bullets, 2 bullets)
+		health 		 : 20,	// (2 bullets, 4 bullets, 2 bullets) 
+		health_chase : 28,	// (3 bullets, 5 bullets, 2 bullets)
 		health_big  : 200,
 		health_long : 120,
 		health_tall	: 240,
 		health_worm : 180,
 		health_turret : 600,
 		
-		health_phase1 : 600,	// Final Boss 
+		health_phase1 : 640,	// Final Boss 
 		health_phase2 : 860,	// Final Boss
 		
-		spawntime: 		3.5,
-		spawntime_big:  6,
+		spawntime: 		3.4,
+		spawntime_big:  6,		// Big bosses and Bouncy Big Enemy
 		
-		speed : 50,
-		speed_big : 30,
-		speed_long : 35,
+		speed : 48,
+		speed_big : 28,
+		speed_long : 32,
 		speed_turret  : 2.3,	// seconds between shots
-		speed_bigtall : 1.5,	// seconds between shots
+		speed_bigtall : 1.3,		// seconds between shots
 	};
 	
 	static public var SND = {
@@ -144,11 +144,15 @@ class Enemy extends MapSprite
 		halfHeight = Std.int(height / 2);
 		
 		// :: Set Enemy AI, and parameters depending on `type`
+		// :: Note. Set SPEED before creating the AI object
 		switch(o.type)
 		{
-			case "move_x": ai = new AI_Move_X(this);
-			case "move_y": ai = new AI_Move_Y(this); 
-			case "bounce": ai = new AI_Bounce(this);
+			case "move_x": 
+				ai = new AI_Move_X(this);
+			case "move_y": 
+				ai = new AI_Move_Y(this); 
+			case "bounce": 
+				ai = new AI_Bounce(this);
 			case "final":  // Final Boss
 				Reg.sendGameEvent("final_spawn");
 				startHealth = PAR.health_phase1;
@@ -169,6 +173,7 @@ class Enemy extends MapSprite
 			case "big_bounce": 
 				startHealth = PAR.health_long;
 				speed = PAR.speed_long;
+				spawnTime = PAR.spawntime_big;
 				ai = new AI_BigBounce(this);
 			case "turret" : 
 				startHealth = Enemy.PAR.health_turret;
@@ -177,16 +182,11 @@ class Enemy extends MapSprite
 				ai = new Enemy_AI(this); // Immobile
 		}
 		
-		// :: Lastly check for overrides from TILED
-		if (o.prop != null && o.prop.speed != null)
-		{
-			speed = speed * o.prop.speed;
-		}
-		
 		respawn();
 	}//---------------------------------------------------;
 	
 	// --
+	// -- Called on first spawn as well
 	function respawn() 
 	{
 		setColorTransform(1, 1, 1, 1, 0, 0, 0, 0);	// Reset color in case it was altered

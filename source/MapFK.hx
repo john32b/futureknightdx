@@ -928,15 +928,15 @@ class MapFK extends TilemapGeneric
 	{
 		if (IN != null)
 		{
-			GLOBAL_EXITS_UNLOCKED = IN.unlocked.copy();
-			_killed_global = IN.killed.copy();
-			APPLIED_APPENDS = IN.appends.copy();
+			GLOBAL_EXITS_UNLOCKED = IN.unlocked.split('*');
+			_killed_global = IN.killed.split('*');
+			APPLIED_APPENDS = IN.appends.split('*');
 			
 		}else{	
 			return {
-				unlocked: GLOBAL_EXITS_UNLOCKED.copy(),
-				killed: _killed_global.copy(),
-				appends: APPLIED_APPENDS.copy(),
+				unlocked: GLOBAL_EXITS_UNLOCKED.join('*'),
+				killed: _killed_global.join('*'),
+				appends: APPLIED_APPENDS.join('*'),
 				levelid: MAP_LOADED_ID // read manually, in statePlay
 			};
 		}

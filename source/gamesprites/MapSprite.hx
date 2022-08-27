@@ -77,8 +77,10 @@ class MapSprite extends FlxSprite
 	**/
 	function spawn_origin_set(type:Int):Int
 	{
+		// DEV: Remember O.x.y are the MIDDLE of the sprite
+		
 		// The top left tile of the 32tile in 8pixel tile dimensions
-		SPAWN_TILE = new SimpleCoords(Std.int(O.x / 32) * 4 , Std.int(O.y / 32) * 4);
+		SPAWN_TILE = new SimpleCoords(Std.int(O.x / 32) * 4, Std.int(O.y / 32) * 4);
 		
 		SPAWN_POS = new SimpleCoords(
 						Std.int((SPAWN_TILE.x * 8) + ((32 - width) / 2)),
@@ -86,7 +88,7 @@ class MapSprite extends FlxSprite
 			
 		if (type == 1)
 		{
-			var floory = Reg.st.map.getFloor(SPAWN_TILE.x, SPAWN_TILE.y + 1);
+			var floory = Reg.st.map.getFloor(SPAWN_TILE.x + 2, SPAWN_TILE.y + 1);
 			if (floory >= 0) {
 				SPAWN_POS.y = (floory * 8) - Std.int(height);
 				return floory;

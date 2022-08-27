@@ -15,17 +15,20 @@
 		move_y
 			distance:Int			; Move by this much tiles, goes through walls
 			same_x:Bool				; Spawn to player X pixel
-			-no param				; Move until hits wall or room end
+			-no param-				; Move until hits wall or room end
 			
 		bounce						; Bounces and follows player
 		
 		chase						; chase the player and bump into him
 		
 		turret						;
+			speed					; time between shoots
 
 		big_chase					; 
-		
+			distance:Int			; Proximity with Player in PIXELS
+			
 		big_bounce					;
+			distance:Int			; Number of blocks
 		
 	
 **/
@@ -58,13 +61,20 @@ class Enemy_AI
 	var e:Enemy;
 	var startVel:SimpleVector;
 	
+	// ! Set the SPEED Before creating 
 	public function new(E:Enemy) 
 	{
 		e = E;
 		startVel = new SimpleVector(0, 0);
+		
+		if (e.O.prop != null && e.O.prop.speed != null)
+		{
+			e.speed = e.speed * e.O.prop.speed;
+		}
+		
 	}//---------------------------------------------------;	
 	// --
-	// - This is called everytime it is respawned
+	// - This is called everytime it is spawned
 	public function respawn()
 	{
 		e.velocity.set(startVel.x, startVel.y);
@@ -466,8 +476,8 @@ class AI_Turret extends Enemy_AI
 {
 	// Time to Shoot
 	var _timer:Float = 0;
-	var _bullet = 3;	// 3 is phasing, 4 is non phasing
-	var _waitTime:Float;
+	var _bullet = 3;		// 3 is phasing, 4 is non phasing
+	var _waitTime:Float;	// bullet wait time
 	
 	/**
 	   @param	e Enemy
@@ -483,6 +493,10 @@ class AI_Turret extends Enemy_AI
 			_bullet = 4;
 			_waitTime = Enemy.PAR.speed_bigtall;
 		}
+
+		if (e.O.prop != null && e.O.prop.speed != null)
+			_waitTime = e.O.prop.speed;
+		
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 
@@ -512,7 +526,7 @@ class AI_Turret extends Enemy_AI
 **/
 class AI_BigChase extends Enemy_AI
 {
-	static inline var CHASE_DISTANCE = 4 * 32;
+	var DISTANCE:Int;
 	
 	// Version 1 (CPC)
 	//  - Chase on the x axis if close enough
@@ -520,10 +534,19 @@ class AI_BigChase extends Enemy_AI
 	// Version 2 (C64)
 	//  - Enemy moves around and makes your life difficult, also shoots
 	
+	public function new(E:Enemy) 
+	{
+		super(E);
+		var P = DataT.copyFields(e.O.prop, {
+			distance : 256 // Default distance . Max Room
+		});
+		DISTANCE = P.distance;
+	}//---------------------------------------------------;	
+	
 	override public function update(elapsed:Float) 
 	{
 		// Move only if close to player:
-		if (Math.abs(e.x - Reg.st.player.x) <= CHASE_DISTANCE)
+		if (Math.abs(e.x - Reg.st.player.x) <= DISTANCE)
 			chase_x();
 	}//---------------------------------------------------;
 	
@@ -602,7 +625,7 @@ class AI_Bounce extends Enemy_AI
 	// Count
 	static inline var GFX_BOUNCE_RESTORE_TIME = 0.16;
 	
-	static inline var BOUNCE_SPEED = 180;
+	static inline var BOUNCE_SPEED = 166;
 	
 	var frames:Array<Int>;
 	var t:Float = 0;

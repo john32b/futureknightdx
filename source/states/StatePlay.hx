@@ -339,17 +339,13 @@ class StatePlay extends FlxState
 		switch (item) {
 			
 		case MAP:
-			if (!minimap.open())
-			{
-				// The minimap is not available for this region
+			if (!minimap.open()) {
 				HUD.set_text2("No use, this map is for the spaceship.");
 			}
 			
 		case BOMB1, BOMB2, BOMB3:
 			// :: Kill enemies forever and also enemies that are waiting to be spawned
-			// :: Give health
 			map.flash(10);
-			player.fullHealth();
 			
 			for (i in ROOMSPR.gr_enemy) {
 				if (i.exists) {
@@ -364,7 +360,7 @@ class StatePlay extends FlxState
 			HUD.item_pickup();
 			HUD.score_add(Reg.SCORE.item_bomb);
 			
-		case CONFUSER_UNIT:
+		case CONFUSER_UNIT , FLASH_BANG_SPELL:
 			map.flash(4);
 			D.snd.playV(Reg.SND.item_confuser);
 			INV.removeItemWithID(item);
@@ -379,22 +375,16 @@ class StatePlay extends FlxState
 			
 			// DEV: For enemies that are softKilled, when they respawn, they will respect the freeze timer [OK]
 			ROOMSPR.enemies_freeze(true);
-			ROOMSPR.counter  = Reg.P.confuse_time;
-			
-			
-		case GLOVE:
-			HUD.set_text2("With this you are able to pick up hot objects");
+			ROOMSPR.counter  = Reg.P.confuse_time * (item == FLASH_BANG_SPELL?1.4:1);
 				
-		case FLASH_BANG_SPELL:
-			map.flash(4);
+		case SCEPTER:
+			// NEW: restore Health
+			HUD.set_text2("Health Restored");
+			player.fullHealth();
+			D.snd.playV('title', 0.7);
 			INV.removeItemWithID(item);
 			HUD.item_pickup();
-			HUD.score_add(Reg.SCORE.item_flashbang);
-			D.snd.playV(Reg.SND.item_flash);
-			HUD.set_text2("It doesn't affect the aliens.");
-			
-		case SCEPTER:
-			HUD.set_text2("Does not do anything.");
+			HUD.score_add(Reg.SCORE.item_scepter);
 			
 		case DESTRUCT_SPELL:
 			if (!ROOMSPR.has_final_boss) {
@@ -410,8 +400,9 @@ class StatePlay extends FlxState
 					// Sound handled in the sprite
 			}	
 			
-		case RELEASE_SPELL:
-			HUD.set_text2("Can't use this here");
+						
+		case GLOVE:
+			HUD.set_text2("With this you are able to pick up hot objects");
 			
 		case _:
 			HUD.set_text2("Can`t use this here");

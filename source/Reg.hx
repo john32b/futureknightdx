@@ -38,7 +38,7 @@ class Reg
 		from_hazard		: 30,	// [CPC] is 30
 		fall_damage		: 90,
 		from_ceil		: 1,	// [CPC] is 1
-		i_time			: 0.6,	// Player invisibility times after being hit
+		i_time			: 0.5,	// Player invisibility times after being hit
 		max_damage 		: 60,	// Maximum amount of damage per hit, to enemy or player. 
 								// This is because entities take damage equal to the health of the other entity when collided
 								// e.g. when player collides with BOSS, both will get hurt by this much3
@@ -71,9 +71,10 @@ class Reg
 	public static var SCORE = {
 		enemy_hit:7,
 		item_bomb:150,
-		item_confuser:120,
+		item_confuser:100,
 		item_flashbang:200,
 		item_destruct:100,
+		item_scepter:200,
 		big_enemy_kill:90,
 		enemy_kill:15,
 		final_boss:1500,

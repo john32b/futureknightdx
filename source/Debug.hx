@@ -11,13 +11,12 @@ package;
 import djFlixel.D;
 import flixel.FlxG;
 import gamesprites.Item.ITEM_TYPE;
-import haxe.zip.Uncompress;
 import states.StatePlay;
 
+#if debug
 
 class Debug 
 {
-	
 	// Written by MAPFK. Used for when reloading maps
 	static public var LAST_MAP_LOADED:String = "";
 	
@@ -47,6 +46,14 @@ class Debug
 		Reg.st.player.hurt(999);
 		FlxG.log.notice('Player Hurt 999');
 	}//---------------------------------------------------;
+	
+	public function pl_health(v:Int)
+	{
+		Reg.st.player.health = v;
+		@:privateAccess Reg.st.player.healthSlow = v;
+		Reg.st.HUD.set_health(v);
+	}//---------------------------------------------------;
+	
 	
 	@:access(gamesprites.Player)
 	public function pl_weapon(a:Int)
@@ -112,3 +119,6 @@ class Debug
 	}//---------------------------------------------------;
 	
 }// --
+
+
+#end

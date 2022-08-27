@@ -30,7 +30,7 @@
 	<!-- OR you can compile with :: lime build html5 -DMP3 -->
 	<!--<define name="MP3" if="html5"/>-->
 	
-	<library name="default" type="pak" if="desktop" preload="true"/>
+	<library name="default" type="pak" if="desktop" preload="true" unless="debug"/>
 	
 		<assets path="assets" include="*.ini|*.json"/>
 		
