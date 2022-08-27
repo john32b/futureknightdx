@@ -5,6 +5,7 @@
  
 package states;
 
+import gamesprites.Enemy;
 import tools.KeyCapture;
 import tools.SprDirector;
 
@@ -394,16 +395,26 @@ class StateTitle extends FlxState
 		h.a(AL.pT('to unlock an exit, you need to \nhave the required item equipped', {ta:'c'}));
 		h.a(AL.p(spr[3], {a:'c'}));
 		h.a(AL.pT('~Progress is <g>saved<g> automatically.', {ta:'c', oy: -2}));
+		
 		// :: Slide :: Some Items
 		h.newSlide();
-		AL.pCol('40|200,16');
-		h.a(AL.pT('SOME ITEMS YOU CAN FIND', {a:'c', oy:8}, {c:COL[21]}));
-		AL.pPad(12);
-		h.a(AL.p(Reg.IM.getSprite(0, 0, 'items', 1), {c:1, a:'r',oy:4}));
-		h.a(AL.pT('~<r>BOMB<r>\nkill enemies and restore HP', {c:2,oy:8}));
-		AL.pClear(false);
-		h.a(AL.p(Reg.IM.getSprite(0, 0, 'items', 6), {c:1, a:'r', oy:4}));
-		h.a(AL.pT('~<r>CONFUSER<r>\nimmobilize enemies for a while', {c:2,oy:8}));
+		AL.pCol('46|200,8');
+		
+		var en1 = new Enemy();
+			en1.spawn({x:0, y:0, id:0, type:"none",name:"red"}, 4);		
+		var en2 = new Enemy();         
+			en2.spawn({x:0, y:0, id:0, type:"none",name:"green"}, 2);		
+		var en3 = new Enemy();         
+			en3.spawn({x:0, y:0, id:0, type:"none", name:"blue"}, 6);
+		
+		AL.pPad(16);
+		h.a( AL.p(en1, {c:1, a:'r',oy:8}));
+		h.a( AL.p(en2, {c:1, a:'r',oy:8}));
+		h.a( AL.p(en3, {c:1, a:'r',oy:8}));
+		h.a( AL.pT('Enemies damage you by', {c:2, oy:8}, {c:COL[26]}));
+		h.a( AL.pT('the amount of their health,', {c:2, oy:8}, {c:COL[26]}));
+		h.a( AL.pT('so weakened enemies', {c:2, oy:8}, {c:COL[26]}));
+		h.a( AL.pT('damage you less.', {c:2, oy:8}, {c:COL[26]}));
 		// -- END SLIDES
 		
 		h.finalize();

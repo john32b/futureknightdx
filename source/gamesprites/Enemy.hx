@@ -196,10 +196,13 @@ class Enemy extends MapSprite
 		animation.play('main', true);
 		ai.respawn();	// The AI will actually place it
 		
+		// DEV: Try because I need to create Enemies in StateTitle where REG.st does not exist
 		// Check if confuser is active
-		if (Reg.st.ROOMSPR.counter > 0) {
+		try
+		if (Reg.st.ROOMSPR.counter > 0) { 
 			moves = false;
 		}
+		catch(_){}
 		
 		// DEV: I could send the enemy_respawn signal to another handler?
 		//      but for now it is just a confuser so I am checking here
