@@ -60,8 +60,8 @@ class Enemy extends MapSprite
 		speed : 48,
 		speed_big : 28,
 		speed_long : 32,
-		speed_turret  : 2.3,	// seconds between shots
-		speed_bigtall : 1.3,		// seconds between shots
+		speed_turret  : 2.2,	// seconds between shots
+		speed_bigtall : 1.24,	// seconds between shots
 	};
 	
 	static public var SND = {
@@ -196,7 +196,7 @@ class Enemy extends MapSprite
 	function respawn(now:Bool = false)
 	{
 		immovable = true;
-		ai.respawn();	// The AI will actually place it
+		spawn_origin_move();
 		
 		if (now)
 			respawn2();
@@ -206,8 +206,6 @@ class Enemy extends MapSprite
 				
 			FlxFlicker.flicker(this, PAR.spawnAnnounce, 0.06, true, true, (_)->{
 				respawn2();
-		
-
 			});
 		}
 	}//---------------------------------------------------;
@@ -223,6 +221,8 @@ class Enemy extends MapSprite
 		immovable = false;	// I am using this as a FLAG for when it is soft-spawning
 		visible = alive = moves = solid = true;
 		animation.play('main', true);
+		
+		ai.respawn(); // < After animation.play
 		
 		// DEV: Try because I need to create Enemies in StateTitle where REG.st does not exist
 		// Check if confuser is active

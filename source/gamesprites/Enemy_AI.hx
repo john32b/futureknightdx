@@ -79,7 +79,6 @@ class Enemy_AI
 	{
 		e.velocity.set(startVel.x, startVel.y);
 		e.facing = e.velocity.x >= 0?FlxObject.RIGHT:FlxObject.LEFT;
-		e.spawn_origin_move();
 	}//---------------------------------------------------;
 	// --
 	public function update(elapsed:Float)
@@ -515,7 +514,7 @@ class AI_Turret extends Enemy_AI
 	{
 		super.respawn();
 		// Randomize the start time, so turrets will not fire at the same time
-		_timer = Math.random() * _waitTime * 0.8;
+		_timer = Math.random() * _waitTime * 0.66;
 	}//---------------------------------------------------;
 	
 }// --
@@ -666,7 +665,7 @@ class AI_Bounce extends Enemy_AI
 			}
 		}else{
 			
-			// Check for ceiling. (Rare but can cauase bugs)
+			// Check for ceiling. (Rare but can cause bugs)
 			if (e.y < Reg.st.map.roomCornerPixel.y){
 				e.velocity.y = 0;
 			}

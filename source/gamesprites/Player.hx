@@ -111,7 +111,7 @@ class Player extends FlxSprite
 	var fsm:Fsm;
 	
 	// -- Helpers
-	var _walkLastFrame = 0;			// The last walk frame index
+	var _walkLastFrame = 0;			// (readonly) Shortcut for the last walk frame index
 	var _verticalJump:Bool;			// Slower left-right movement on the air if vertical jump
 	var _specialTileY:Int;			// Either TOP LADDER TILE, or SLIDE FREE TILE, or FALL DAMAGE START Y
 	var _hack_break:Bool;			// Useful to keep track whether I need to exit an update function sometimes
@@ -446,6 +446,7 @@ class Player extends FlxSprite
 		// :: Check for ladder mount
 		if (_pressingUp)
 		{
+			if (!FlxFlicker.isFlickering(this))
 			if (ladder_checkUp()) return;
 		}else 
 		if (D.ctrl.justPressed(Y))
@@ -719,6 +720,13 @@ class Player extends FlxSprite
 		}
 		
 		FlxFlicker.flicker(this, Reg.P_DAM.i_time, Reg.P.flicker_rate);
+		
+		if (fsm.currentStateName == ONLADDER)
+		{
+			// DEV: can I wait a bit until player can catch again?
+			physics_start();
+			fsm.goto(ONAIR);
+		}
 	}//---------------------------------------------------;
 	
 	// -- Revives when dead
