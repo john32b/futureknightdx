@@ -196,14 +196,13 @@ class Enemy extends MapSprite
 	function respawn(now:Bool = false)
 	{
 		immovable = true;
-		spawn_origin_move();
+		ai.respawn();
 		
 		if (now)
 			respawn2();
 		else
 		{
 			D.snd.playV('spawn');
-				
 			FlxFlicker.flicker(this, PAR.spawnAnnounce, 0.06, true, true, (_)->{
 				respawn2();
 			});
@@ -220,9 +219,10 @@ class Enemy extends MapSprite
 		health = startHealth;
 		immovable = false;	// I am using this as a FLAG for when it is soft-spawning
 		visible = alive = moves = solid = true;
-		animation.play('main', true);
 		
-		ai.respawn(); // < After animation.play
+		// Some AI control the animation
+		if (!Std.isOfType(ai, AI_Bounce))
+			animation.play('main', true);
 		
 		// DEV: Try because I need to create Enemies in StateTitle where REG.st does not exist
 		// Check if confuser is active

@@ -79,6 +79,7 @@ class Enemy_AI
 	{
 		e.velocity.set(startVel.x, startVel.y);
 		e.facing = e.velocity.x >= 0?FlxObject.RIGHT:FlxObject.LEFT;
+		e.spawn_origin_move();
 	}//---------------------------------------------------;
 	// --
 	public function update(elapsed:Float)
@@ -576,6 +577,7 @@ class AI_BigBounce extends AI_Move_X
 	
 	override public function respawn():Void 
 	{
+		super.respawn();
 		Y = e.y; // This is set on the parent
 	}//---------------------------------------------------;
 	
@@ -755,7 +757,7 @@ class AI_Move_X extends Enemy_AI
 	override public function respawn() 
 	{
 		// Override and do nothing
-		// continue from where it was when respawning
+		// For repeated calls (when respawning) continue from where it was
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 
@@ -838,8 +840,8 @@ class AI_Move_Y extends Enemy_AI
 		if (sameX) {
 			D.align.XAxis(e, Reg.st.player);
 			// When the player comes from a side, don't spawn too close to the edge
-			if (e.x - e.offset.x < Reg.st.map.roomCornerPixel.x) e.x += 10; else
-			if (e.x + e.width + e.offset.x >= Reg.st.map.roomCornerPixel.x + Reg.st.map.ROOM_WIDTH) e.x -= 10;
+			if (e.x - e.offset.x < Reg.st.map.roomCornerPixel.x) e.x += 14; else
+			if (e.x + e.width + e.offset.x >= Reg.st.map.roomCornerPixel.x + Reg.st.map.ROOM_WIDTH) e.x -= 14;
 			
 			if (Reg.st.player.y < Reg.st.map.roomCornerPixel.y + (Reg.st.map.ROOM_HEIGHT / 2) - Reg.st.player.halfHeight){
 				e.y = v1;
