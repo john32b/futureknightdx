@@ -509,7 +509,7 @@ class StatePlay extends FlxState
 					stars.COLORS = [ Pal_CPCBoy.COL[0], Pal_CPCBoy.COL[2], Pal_CPCBoy.COL[1], Pal_CPCBoy.COL[3] ];
 					stars.STAR_SPEED = 0.75;
 					stars.STAR_ANGLE = -100;
-					case _: // spaceship
+					case _: // spaceship -- currently not used in the game --
 					stars.COLORS = [ Pal_CPCBoy.COL[0], Pal_CPCBoy.COL[7], Pal_CPCBoy.COL[20], Pal_CPCBoy.COL[24] ];
 					stars.STAR_SPEED = 1.2;
 					stars.STAR_ANGLE = -180;

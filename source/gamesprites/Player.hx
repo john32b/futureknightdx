@@ -2,16 +2,6 @@
    FUTURE KNIGHT PLAYER CLASS
    -========================-
   - Tries to emulate the original game (1986) but with some improvements
-  
-  = NOTES:
-	- Invincible when flickering
-  
-  = Changes from the CPC version
-	- Moves a bit faster
-	- Can move while on air
-	- Can latch on ladders on air
-	- Can drop off ladders
-	
 	
   = FlxG.timescale Warning :
 	- Don't change it while player is alive, I am precalculating some variables
@@ -35,7 +25,6 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.system.FlxSound;
 import flixel.tile.FlxTile;
-
 
 
 enum PlayerState
@@ -127,8 +116,6 @@ class Player extends FlxSprite
 	var _shoot_time:Int;			// Time since last shot, IN TICKS, NOT MS
 	
 	var _interact_time:Int;			// Short pause between interacting with ANIMTILE elements. IN TICKS, NOT MS
-	
-	var _color:String;				// Keep the current color combo e.g. "blue"
 	
 	// - Sounds
 	var snd =  {
@@ -471,6 +458,7 @@ class Player extends FlxSprite
 	
 	function state_onfloor_exit()
 	{
+		offset.y = BOUND_OFF_Y; // Just in case, e.g. player dropping from a jagged forest tile
 		isWalking = false;
 		animation.callback = null;
 	}//---------------------------------------------------;
@@ -492,6 +480,19 @@ class Player extends FlxSprite
 		if (_hack_break) { // (exit if some collide/overlap functions occur)
 			_hack_break = false;
 			return;	
+		}
+		
+		// NEW: Check for jagged floor on the forest map and position accordingly
+		// DEV:  To save CPU, I am checking only when walking and only once (twice) per 8 pixels
+		// 		(Std.int(x) % 8 == 0) would not check every tile?? SO checking <2 works now
+		if (Reg.st.map.MAP_TYPE == 1 && isWalking && Std.int(x) % 8 < 2)
+		{
+			var tile = Reg.st.map.getTileP(x + 2, y + height + 3);
+			if (tile > 6 && tile < 9) { // 6,9 are tile indexes for bridge
+				offset.y = BOUND_OFF_Y - (9 - tile);
+			}else{
+				offset.y = BOUND_OFF_Y;
+			}			
 		}
 		
 		// :: UPDATE

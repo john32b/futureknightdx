@@ -271,7 +271,7 @@ class MapFK extends TilemapGeneric
 				// In static targets, the file is being loaded in SYNC
 				// So the callback will be executed before everything else
 				S = PATH_REAL + S.substr(PATH_ASSETS.length);
-				D.assets.getTextFile(S, (d)->data = d);
+				D.assets.getTextFile(S, (d)->data = d); // <- this callback will execute instantly
 				super.load(data, true);
 			}else
 			{

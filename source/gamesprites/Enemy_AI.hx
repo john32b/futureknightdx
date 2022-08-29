@@ -570,9 +570,13 @@ class AI_BigBounce extends AI_Move_X
 		super(E);
 		var delta = Std.int(v1 - v0);
 		var blocks = (E.O.prop.distance / 4);	// big blocks it is travelling
-		Y = E.y; // This is set on the parent
 		// One pi is one cycle, so slice it
 		distpi = (Math.PI * blocks) / delta;
+	}//---------------------------------------------------;
+	
+	override public function respawn():Void 
+	{
+		Y = e.y; // This is set on the parent
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 
@@ -745,7 +749,7 @@ class AI_Move_X extends Enemy_AI
 			v1 = (B.v1 * 8) - e.width;
 		}
 		
-		super.respawn();
+		super.respawn(); // Just to set the velocity, since this doesn't have a respawn
 	}//---------------------------------------------------;
 	
 	override public function respawn() 
