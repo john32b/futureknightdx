@@ -1,6 +1,6 @@
 package;
 
-import djA.cfg.ConfigFileB;
+import djA.parser.ConfigFileB;
 import djFlixel.D;
 import djFlixel.ui.FlxMenu;
 import djFlixel.ui.menu.MItemData;

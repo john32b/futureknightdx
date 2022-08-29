@@ -379,12 +379,12 @@ class StatePlay extends FlxState
 				
 		case SCEPTER:
 			// NEW: restore Health
-			HUD.set_text2("Health Restored");
 			player.fullHealth();
 			D.snd.playV('title', 0.7);
 			INV.removeItemWithID(item);
 			HUD.item_pickup();
 			HUD.score_add(Reg.SCORE.item_scepter);
+			HUD.set_text2("Health Restored");
 			
 		case DESTRUCT_SPELL:
 			if (!ROOMSPR.has_final_boss) {

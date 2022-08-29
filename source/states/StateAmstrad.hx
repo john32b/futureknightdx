@@ -13,7 +13,6 @@ import djFlixel.gfx.pal.Pal_CPCBoy;
 import djFlixel.gfx.RainbowStripes;
 import djFlixel.ui.FlxAutoText;
 import djFlixel.other.FlxSequencer;
-import djfl.el.TextB;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.system.FlxSound;

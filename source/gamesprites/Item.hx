@@ -19,7 +19,7 @@
 package gamesprites;
 
 import djFlixel.D;
-import djfl.util.TiledMap.TiledObject;
+import djA.parser.TiledMap;
 import flixel.FlxSprite;
 import flixel.effects.FlxFlicker;
 import haxe.EnumTools;

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<echo value="Building FKDX"/>
+	<echo value="Building Future Knight DX.."/>
 	
-	<!-- APPLICATION SETTINGS -->
 	<app title="FutureKnightDX" version="1.4" package="" company="John32B" />
+	
 	<!--<app preloader="NoPreloader" unless="FLASHONLINE"/>-->
 	<!--<app preloader="flixel.system.FlxBasePreloader"/>-->
 	<!--<app preloader="flixel.system.FlxPreloader" />	-->
@@ -13,22 +13,22 @@
 	
 	<window width="640" height="480" fps="40" background="#000000" hardware="true" vsync="true" />
 	
-	<haxelib name="flixel"/>
-
-	<haxelib name="djFL"/>
-	<haxelib name="djA"/>	
-	<haxelib name="djFlixel"/>
 	
-		<!-- djflixel defines -->
+	<haxeflag name="-dce" value="std"/>
+	
+	<haxelib name="flixel"/>
+	<haxelib name="djFlixel"/> 	<!-- flixel helpers and tools -->
+	<haxelib name="djA"/>	 	<!-- general purpose tools, like Math/String tools, Tiled map parser -->
+	
+		<!-- djFlixel specific defines -->
 		<haxedef name="HOT_LOAD"/>
 		<haxedef name="DJFLX_SND" value="snd/" />
 		<haxedef name="DJFLX_MUS" value="mus/" />
 	
 	<source path="source" />
 	
-	<!--Uncomment this to use MP3 in HTML5-->
-	<!-- OR you can compile with :: lime build html5 -DMP3 -->
-	<!--<define name="MP3" if="html5"/>-->
+	<!--Uncomment this to use MP3 in HTML5 -- or  you can compile with :: lime build html5 -DMP3-->
+		<!--<define name="MP3" if="html5"/>-->
 	
 	<library name="default" type="pak" if="desktop" preload="true" unless="debug"/>
 	
@@ -52,14 +52,17 @@
 			<assets path="assets/sound_ogg" type="sound" rename="snd" include="*.ogg" embed="true"/>
 		</section>
 		
-	<haxeflag name="-dce" value="std"/>
 	
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
+	<icon path="icon_48.png"/>
 	
-	<!--:: GAME DEFINES ::-->
+	<!--:: GAME DEFINES ::------------------------------------------>
 	
+		<!--IMPROVEMENT - You can hold the shoot button. -->
 		<haxedef name="SHOOT_HOLD"/>
+		
+		<!--You can only mount a ladder from the ground, like the original game-->
 		<!--<haxedef name="CLASSIC_LADDER"/>-->
 
-	
+		
 </project>

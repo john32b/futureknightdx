@@ -1,6 +1,6 @@
 package gamesprites;
 
-import djfl.util.TiledMap.TiledObject;
+import djA.parser.TiledMap.TiledObject;
 import flixel.FlxSprite;
 
 

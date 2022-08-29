@@ -26,7 +26,7 @@ Future Knight Enemy
 package gamesprites;
 
 import djFlixel.D;
-import djfl.util.TiledMap.TiledObject;
+import djA.parser.TiledMap.TiledObject;
 import flixel.FlxSprite;
 import flixel.effects.FlxFlicker;
 import flixel.system.FlxSound;

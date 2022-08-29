@@ -13,7 +13,7 @@
 
 package gamesprites;
 import djA.types.SimpleCoords;
-import djfl.util.TiledMap.TiledObject;
+import djA.parser.TiledMap.TiledObject;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 

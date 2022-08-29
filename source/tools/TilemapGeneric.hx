@@ -20,8 +20,8 @@
 
 package tools ;
 
-import djfl.tool.Geom;
-import djfl.util.TiledMap;
+import djA.Geom;
+import djA.parser.TiledMap;
 
 import flixel.FlxCamera;
 import flixel.FlxG;

@@ -12,7 +12,7 @@ import flixel.FlxState;
 import flixel.effects.FlxFlicker;
 import flixel.tweens.FlxTween;
 import gamesprites.Player;
-import djfl.util.TiledMap.TiledObject;
+import djA.parser.TiledMap.TiledObject;
 //using Lambda;
 
 class StateIntro extends FlxState
