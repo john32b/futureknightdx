@@ -2,6 +2,7 @@ package;
 
 import djA.parser.ConfigFileB;
 import djFlixel.D;
+import djFlixel.other.DelayCall;
 import djFlixel.ui.FlxMenu;
 import djFlixel.ui.menu.MItemData;
 import flixel.FlxCamera;
@@ -12,6 +13,7 @@ import flixel.system.scaleModes.PixelPerfectScaleMode;
 import openfl.display.Bitmap;
 import states.StatePlay;
 import states.SubStatePause;
+import tools.CRTShader;
 
 
 /**
@@ -113,6 +115,14 @@ class Reg
 	// Basic Smoothing Helper >> toreplace
 	// public static var BLUR:GF_Blur;
 	
+	static var SHADER:CRTShader;
+	
+	// Filter type with setter
+	// 0:None
+	// 1:Blur
+	// 2:CRT
+	public static var FILTER_TYPE(default, set):Int = 0;
+	
 	//====================================================;
 	
 	// Gets called once After FLXGame and before first State
@@ -123,9 +133,9 @@ class Reg
 		D.ui.initIcons([8]);
 		D.assets.HOT_LOAD = [PATH_INI];
 		D.assets.onLoad = onAssetLoad;
-		D.assets.loadNow();
+		D.assets.loadNow();	// < Basically triggers onAssetLoad(); to parse the config files
 		
-		//BLUR = new GF_Blur(0.5, 1.7, 2);
+		SHADER = new CRTShader();
 		
 		#if debug
 			new Debug();
@@ -142,33 +152,18 @@ class Reg
 		
 		// -- Add the border
 		var b = border = new Bitmap(FlxAssets.getBitmapData(Reg.IM.STATIC.overlay_scr), "always", true);
-		//b.smoothing = true;
-		FlxG.game.addChild(b);
-		#if FLX_DEBUG
-		FlxG.game.swapChildren(b, FlxG.game.debugger); // Put the debugger on top of the overlay
-		#end
-		FlxG.signals.gameResized.add(onResize);
-		onResize(0, 0);
-		
-		// -- Restore Settings
-		D.save.setSlot(0);
-		var _LS = D.save.load('settings');
-		if (_LS != null) {
-			//D.SMOOTHING = _LS.aa; >>
-			border.visible = _LS.bord;
-			D.snd.setVolume("master", _LS.vol);
-			trace(" -- Settings Restored", _LS);
-		}
-		
-		// -- Restore keys
-		var _LK = D.save.load('keys');
-		if (_LK != null) {
-			D.ctrl.keymap_set(_LK);
-			trace(" -- Keys Restored", _LK);
-		}
+		b.smoothing = true;
+		FlxG.stage.addChild(b);
 		
 		FlxG.scaleMode = new PixelPerfectScaleMode();	// This makes the HL target graphics nice.
 		FlxG.sound.soundTrayEnabled = false;
+		
+		SAVE_SETTINGS(false);	// restore & apply
+		SAVE_KEYS();			// restore & apply keys
+		
+		// DEV: Do this after setting scalemode.
+		// - It is going to be called once now and one more time after this (?)
+		FlxG.signals.gameResized.add(onResize);
 		
 	}//---------------------------------------------------;
 	
@@ -184,8 +179,34 @@ class Reg
 		
 	static function onResize(w:Int,h:Int)
 	{
+		trace(": Game Resized", w, h);
+		
+		border.x = FlxG.game.x;
+		border.y = FlxG.game.y;
 		border.width = FlxG.scaleMode.gameSize.x;
 		border.height = FlxG.scaleMode.gameSize.y;
+		
+		SHADER.setWinSize(w, h);
+		
+		// Force a new filter set, if any
+		// I need to do this, openfl doesn't like resized textures and it screws the uv
+		if (FILTER_TYPE > 0)
+		{
+			var futureF = FILTER_TYPE;
+			FILTER_TYPE = 0; // force a reset
+			
+			// DEV:
+			// For some reason I can't unset-set a filter on the same frame, or even the next one
+			// Using a timed delay works.
+			// This is a hacky way to do a delay, I can't just do a DelayCall because
+			// the first time this is called, there is no state active (right after flxGame is created)
+			FlxG.signals.preUpdate.addOnce(()->{
+				new DelayCall(0.06, ()->{
+					FILTER_TYPE = futureF;
+				});
+			});
+		}
+		
 	}//---------------------------------------------------;
 		
 	public static function openPauseMenu()
@@ -193,18 +214,56 @@ class Reg
 		st.openSubState(new SubStatePause());
 	}//---------------------------------------------------;
 	
-	// --
-	// DEV: Settings restored in REG.init();
-	public static function SAVE_SETTINGS()
+	// - If not save, then restore 
+	public static function SAVE_SETTINGS(save:Bool = true)
 	{
 		D.save.setSlot(0);
-		D.save.save('settings', {
-			bord:  border.visible,
-			vol: FlxG.sound.volume
-		});
-		D.save.flush();
-		trace("-- Settings Saved", D.save.load('settings'));
+		
+		if (save)
+		{
+			D.save.save('settings', {
+				vol: FlxG.sound.volume,
+				bord:  border.visible,
+				filter: FILTER_TYPE
+			});
+			D.save.flush();
+			trace("-- Settings Saved", D.save.load('settings'));
+			
+		}else
+		{
+			var SET = D.save.load('settings');
+			if (SET == null) return;
+			FILTER_TYPE = SET.filter;
+			border.visible = SET.bord;
+			D.snd.setVolume("master", SET.vol);
+			trace(" -- Settings Restored", SET);
+		}
 	}//---------------------------------------------------;
+	
+	
+	// - Save or Restore Keyboard Redifined keys
+	//   the {keys} object is the one that feeds to D.ctrl.keymap_set(..)
+	// - If keys==null, it restores & applies
+	public static function SAVE_KEYS(keys:Array<Int> = null)
+	{
+		D.save.setSlot(0);
+		
+		if (keys == null)
+		{
+			// -- Restore keys
+			var K = D.save.load('keys');
+			if (K == null) return;
+			D.ctrl.keymap_set(K);
+			trace(" -- Keys Restored", K);
+		}else{
+			D.save.save('keys', keys);
+			D.save.flush();
+			trace("- Keys Saved", keys);
+		}
+	}//---------------------------------------------------;
+	
+	
+	
 	
 	// --
 	public static function SAVE_GAME()
@@ -264,7 +323,7 @@ class Reg
 			m.item_update(0, (t)->t.set(Std.int(FlxG.sound.volume * 100)));
 			m.item_update(1, (t)->t.set(D.snd.MUSIC_ENABLED));
 			m.item_update(2, (t)->t.set(Reg.border.visible));
-			//menu.item_update(3, (t)->t.set(Reg.border.visible)); // SHADER, TODO
+			m.item_update(3, (t)->t.set(Reg.FILTER_TYPE));
 		}else{
 			
 			// READ and apply DATA from the item
@@ -274,8 +333,7 @@ class Reg
 					Reg.border.visible = b.get();
 						
 				case "c_shad":
-					trace("TODO");
-						
+					Reg.FILTER_TYPE = cast b.P.c;
 				case "c_vol":
 					FlxG.sound.volume = cast(b.get(), Int) / 100;
 					
@@ -285,11 +343,55 @@ class Reg
 					
 				default:
 			}
-			
 		}
+	}//---------------------------------------------------;
 	
-	}
 	
+	static function set_FILTER_TYPE(val:Int):Int
+	{
+		#if flash
+			// Do nothing.
+			return FILTER_TYPE = val;
+		#end
+		
+		if (val == 0)
+		{
+			FlxG.game.setFilters([]);
+		}else
+		{
+			if (FILTER_TYPE == 0) {				
+				FlxG.game.setFilters([new openfl.filters.ShaderFilter(SHADER)]);
+			}
+
+			if (val == 1)
+			{
+				// :: SMOOTH/BLUR
+				#if html5
+				// HTML is already a bit blurry, since it is 640x480 resized up
+				SHADER.STRENGTH = [0.12, 0.12];
+				SHADER.CHROMAB = 0.66;
+				#else
+				SHADER.STRENGTH = [0.8, 0.6];
+				SHADER.CHROMAB = 0.125;
+				#end
+				SHADER.SCANLINES = false;
+			}else
+			{
+				// :: CRT
+				#if html5
+				SHADER.STRENGTH = [0.5, 0.2];
+				SHADER.CHROMAB = 0.75;
+				#else
+				SHADER.STRENGTH = [0.9, 0.25];
+				SHADER.CHROMAB = 0.8;
+				#end
+				SHADER.SCANLINES = true;
+			}
+		}
+		
+		FILTER_TYPE = val;
+		return FILTER_TYPE;	
+	}//---------------------------------------------------;
 	
 }//--
 

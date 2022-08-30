@@ -6,6 +6,7 @@
 package states;
 
 import gamesprites.Enemy;
+import tools.CRTShader;
 import tools.KeyCapture;
 import tools.SprDirector;
 
@@ -259,10 +260,11 @@ class StateTitle extends FlxState
 			-| Volume     | range | c_vol | 0,100 | step=5
 			-| Music	  | toggle| c_mus
 			-| Border     | toggle| c_bord
-			-| TV Shader  | toggle| c_shad
+			-| Shader  	  | list  | c_shad | Off,A,B
 			-| Keyboard Redefine | link  | keyredef
 			-| Back              | link  | @back
 		");
+		
 		
 		//menu.pages["options"].PAR.slots = 4;	// 
 		
@@ -461,11 +463,7 @@ class StateTitle extends FlxState
 			if (a == "complete") {
 				remove(txt1); remove(txt2);
 				D.ctrl.keymap_set(k.KEYMAP);
-				D.save.setSlot(0);
-				D.save.save('keys', k.KEYMAP);
-				D.save.flush();
-				trace("- SAVED key configuration", k.KEYMAP);
-				
+				Reg.SAVE_KEYS(k.KEYMAP);
 				if(onComplete!=null) onComplete();
 			}
 		};

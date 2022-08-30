@@ -5,14 +5,9 @@
 	
 	<app title="FutureKnightDX" version="1.4" package="" company="John32B" />
 	
-	<!--<app preloader="NoPreloader" unless="FLASHONLINE"/>-->
-	<!--<app preloader="flixel.system.FlxBasePreloader"/>-->
-	<!--<app preloader="flixel.system.FlxPreloader" />	-->
-	
 	<app main="Main" file="FutureKnightDX" path="bin\" />
 	
 	<window width="640" height="480" fps="40" background="#000000" hardware="true" vsync="true" />
-	
 	
 	<haxeflag name="-dce" value="std"/>
 	
@@ -21,7 +16,7 @@
 	<haxelib name="djA"/>	 	<!-- general purpose tools, like Math/String tools, Tiled map parser -->
 	
 		<!-- djFlixel specific defines -->
-		<haxedef name="HOT_LOAD"/>
+		<haxedef name="HOT_LOAD" if="debug desktop"/>
 		<haxedef name="DJFLX_SND" value="snd/" />
 		<haxedef name="DJFLX_MUS" value="mus/" />
 	

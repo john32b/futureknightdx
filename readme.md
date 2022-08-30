@@ -94,8 +94,10 @@ I can't get into how a valid map for the game works right now, but it is not tha
 ## More Info 
 
 ### Assets ripped from the Amstrad CPC version, No license
-I ripped some sounds, sprites and background art from the original game to use in this remake. Gremlin Software, the creators/publishers of the original game, according to [Wikipedia](https://en.wikipedia.org/wiki/Gremlin_Interactive) are now defunct; and it seems that the company **Urbanscan** now owns Gremlin's older games. Personally I don't think they would care if one of their old games had a free to play clone remake and had its assets available on GitHub? Also Future Knight wasn't one of their heavy hitters.
 
+I ripped some sounds, sprites and background art from the original game to use in this remake. **I DO NOT OWN THE RIGHTS TO THOSE ASSETS**
+
+Gremlin Software, the creators/publishers of the original game, according to [Wikipedia](https://en.wikipedia.org/wiki/Gremlin_Interactive) are now defunct; and it seems that the company **Urbanscan** now owns Gremlin's older games. Personally I don't think they would care if one of their old games had a free to play clone remake and had its assets available on GitHub? Also Future Knight wasn't one of their heavy hitters.
 
 ### Other Assets used: 
 - Font: `Arcadepix` Font, by Reekee of Dimenzioned, 100% free
@@ -112,11 +114,11 @@ I ripped some sounds, sprites and background art from the original game to use i
 
 ## Finally
 
-Future Knight DX version, programmed by myself, John32B. You are free to use the code for whatever reason **but not the image and audio assets!**
+Future Knight DX version, programmed by me, John32B. You are free to use the code for whatever reason **but not the image and audio assets!**
 
 **Things that could be done in a later iteration:**
 - New Graphics. The current style follows the Amstrad CPC double wide pixels. But this an easily be replaced with new art that is not double-pixel wide and has more colors or even has more animation frames.
 - An entire new adventure. Let's be honest the original game map design, is nothing to write home about. The game could have more intricate level design, with a more thoughtful enemy placement and item use locations. Perhaps add a new level style and new enemy behaviors?
-- If I am to get in trouble for sharing the original game assets, I'll just remove them I guess
+- Will I ever If get in trouble for sharing the original game assets? I'll just remove them from github.
 
 That's it. Thank you for reading this giant wall of text, you are awesome 😸

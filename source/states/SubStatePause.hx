@@ -89,7 +89,7 @@ class SubStatePause extends FlxSubState
 				-| Volume    | range | c_vol | 0,100 | step=5
 				-| Music	 | toggle| c_mus
 				-| Border 	 | toggle| c_bord
-				-| TV Shader | toggle| c_shad
+				-| Shader  	  | list  | c_shad | Off,A,B
 				-| Back      | link  | @back
 			");
 			
