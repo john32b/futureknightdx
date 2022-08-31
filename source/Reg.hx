@@ -11,6 +11,7 @@ import flixel.FlxSprite;
 import flixel.system.FlxAssets;
 import flixel.system.scaleModes.PixelPerfectScaleMode;
 import openfl.display.Bitmap;
+import openfl.display.Sprite;
 import states.StatePlay;
 import states.SubStatePause;
 import tools.CRTShader;
@@ -92,6 +93,14 @@ class Reg
 		{a:"FK_Title", loop:0}	// Main Title Music
 	];
 	
+
+	// Decorative Amstrad CPC screen border
+	// This is an openfl object, not flixel
+	static var border:Bitmap;	
+	
+	// -
+	static var SHADER:CRTShader;
+	
 	// Keeps what sound is supposed to be playing right now
 	// Useful for when Muting/Unmuting the sounds. It will play this one
 	static var musicIndex:Int = -1;
@@ -105,22 +114,10 @@ class Reg
 	// This is for quick access to game elements
 	public static var st:StatePlay;
 	
-	// Decorative Amstrad CPC screen border
-	// This is an openfl object, not flixel
-	public static var border:Bitmap;
-	
 	// Called from anywhere to send small messages to the Play State
 	public static var sendGameEvent:String->?gamesprites.AnimatedTile->Void;
 	
-	// Basic Smoothing Helper >> toreplace
-	// public static var BLUR:GF_Blur;
-	
-	static var SHADER:CRTShader;
-	
-	// Filter type with setter
-	// 0:None
-	// 1:Blur
-	// 2:CRT
+	// Filter type for the SHADER with setter ( 0:None | 1:Blur | 2:CRT )
 	public static var FILTER_TYPE(default, set):Int = 0;
 	
 	//====================================================;
@@ -150,21 +147,32 @@ class Reg
 		// -- Game things:
 		IM = new ImageAssets();
 		
-		// -- Add the border
-		var b = border = new Bitmap(FlxAssets.getBitmapData(Reg.IM.STATIC.overlay_scr), "always", true);
-		b.smoothing = true;
-		FlxG.stage.addChild(b);
-		
 		FlxG.scaleMode = new PixelPerfectScaleMode();	// This makes the HL target graphics nice.
 		FlxG.sound.soundTrayEnabled = false;
-		
-		SAVE_SETTINGS(false);	// restore & apply
-		SAVE_KEYS();			// restore & apply keys
 		
 		// DEV: Do this after setting scalemode.
 		// - It is going to be called once now and one more time after this (?)
 		FlxG.signals.gameResized.add(onResize);
 		
+		SAVE_SETTINGS(false);	// restore & apply
+		SAVE_KEYS();			// restore & apply keys
+	}//---------------------------------------------------;
+	
+	
+	// -- Add a border on top of everything
+	//   WARNING: HL is buggy and will apply filters to the border as well??! Why??
+	//			  HTML5 and CPP have no issues 
+	public static function setBorder(state:Bool)
+	{
+		if (border == null) {
+			border = new Bitmap(FlxAssets.getBitmapData(Reg.IM.STATIC.overlay_scr));
+			border.smoothing = true;
+		}
+		if (state){
+			FlxG.stage.addChild(border);
+		}else{
+			FlxG.stage.removeChild(border);
+		}
 	}//---------------------------------------------------;
 	
 	
@@ -186,7 +194,9 @@ class Reg
 		border.width = FlxG.scaleMode.gameSize.x;
 		border.height = FlxG.scaleMode.gameSize.y;
 		
+		#if !flash
 		SHADER.setWinSize(w, h);
+		#end
 		
 		// Force a new filter set, if any
 		// I need to do this, openfl doesn't like resized textures and it screws the uv
@@ -223,7 +233,7 @@ class Reg
 		{
 			D.save.save('settings', {
 				vol: FlxG.sound.volume,
-				bord:  border.visible,
+				bord: FlxG.stage.contains(border),
 				filter: FILTER_TYPE
 			});
 			D.save.flush();
@@ -234,7 +244,7 @@ class Reg
 			var SET = D.save.load('settings');
 			if (SET == null) return;
 			FILTER_TYPE = SET.filter;
-			border.visible = SET.bord;
+			setBorder(SET.bord);
 			D.snd.setVolume("master", SET.vol);
 			trace(" -- Settings Restored", SET);
 		}
@@ -322,7 +332,7 @@ class Reg
 		{
 			m.item_update(0, (t)->t.set(Std.int(FlxG.sound.volume * 100)));
 			m.item_update(1, (t)->t.set(D.snd.MUSIC_ENABLED));
-			m.item_update(2, (t)->t.set(Reg.border.visible));
+			m.item_update(2, (t)->t.set(FlxG.stage.contains(border)));
 			m.item_update(3, (t)->t.set(Reg.FILTER_TYPE));
 		}else{
 			
@@ -330,10 +340,11 @@ class Reg
 			switch (b.ID)
 			{
 				case "c_bord":
-					Reg.border.visible = b.get();
+					setBorder(b.get());
 						
 				case "c_shad":
 					Reg.FILTER_TYPE = cast b.P.c;
+					
 				case "c_vol":
 					FlxG.sound.volume = cast(b.get(), Int) / 100;
 					
@@ -359,7 +370,7 @@ class Reg
 			FlxG.game.setFilters([]);
 		}else
 		{
-			if (FILTER_TYPE == 0) {				
+			if (FILTER_TYPE == 0) {
 				FlxG.game.setFilters([new openfl.filters.ShaderFilter(SHADER)]);
 			}
 

@@ -120,6 +120,10 @@ void main()
     {
         super();
 		
+		#if flash
+		return;
+		#end
+		
 		if (GAME_WIDTH == 0) GAME_WIDTH = cast FlxG.width * FlxG.initialZoom;
 		if (GAME_HEIGHT == 0) GAME_HEIGHT = cast FlxG.height * FlxG.initialZoom;
 		

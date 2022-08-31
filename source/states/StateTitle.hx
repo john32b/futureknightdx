@@ -27,7 +27,6 @@ import djFlixel.ui.FlxSlides;
 import djFlixel.ui.VList;
 
 import flixel.util.FlxTimer;
-import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -375,7 +374,7 @@ class StateTitle extends FlxState
 		// DEV: There is a volume bar in the options, don't overcrowd the slides, -- remove --
 		// h.a(AL.pT('volume up / down', {c:1, ta:"r"}));
 		// h.a(AL.pT('[-] [+]', {c:2}));
-		h.a(AL.pT('you can redifine in options', {ta:'c', oy:6}, st_p2));
+		h.a(AL.pT('you can redefine in options', {ta:'c', oy:6}, st_p2));
 		
 		// :: Slide :: General infos
 		h.newSlide();

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<echo value="Building Future Knight DX.."/>
+	<echo value="-- Building Future Knight DX --"/>
+	<echo value=" ! Border is buggy when shaders enabled" if="hl"/>
+	
 	
 	<app title="FutureKnightDX" version="1.4" package="" company="John32B" />
 	
@@ -19,7 +21,7 @@
 		<haxedef name="HOT_LOAD" if="debug desktop"/>
 		<haxedef name="DJFLX_SND" value="snd/" />
 		<haxedef name="DJFLX_MUS" value="mus/" />
-	
+		
 	<source path="source" />
 	
 	<!--Uncomment this to use MP3 in HTML5 -- or  you can compile with :: lime build html5 -DMP3-->
@@ -36,13 +38,13 @@
 		<assets path="assets/maps" type="text" exclude="_debug.tmx " include="*.tmx" rename="map" embed="true"/>
 				
 		<section if="MP3">
-			<echo value=" .using MP3 sounds"/>
+			<echo value=" . using MP3 sounds"/>
 			<assets path="assets/music" type="music" rename="mus" include="*.mp3"/>
 			<assets path="assets/sound_mp3" type="sound" rename="snd" include="*.mp3" embed="true"/>
 		</section>
 		
 		<section unless="MP3">
-			<echo value=" .using OGG sounds"/>
+			<echo value=" . using OGG sounds"/>
 			<assets path="assets/music" type="music" rename="mus" include="*.ogg"/>
 			<assets path="assets/sound_ogg" type="sound" rename="snd" include="*.ogg" embed="true"/>
 		</section>

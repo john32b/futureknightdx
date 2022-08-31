@@ -126,10 +126,8 @@ class Hud extends FlxGroup
 			Reg.IM.getSprite(204 + 12		, 35, "digital", 1),
 			Reg.IM.getSprite(204 + 12 + 12	, 35, "digital", 2)
 		];
-		// color > c:Pal_CPCBoy.COL[27]
 		
 		for (i in digits_health) {
-			i.color = 0xFF4433FF;
 			add(i);
 		}
 			
@@ -165,6 +163,7 @@ class Hud extends FlxGroup
 	**/
 	public function reset()
 	{
+		_health = 100;	// so that it colorizes the health correctly
 		set_health(Reg.st.player.health);
 		set_lives(Reg.st.player.lives);
 		set_bullet(Reg.st.player.bullet_type);
@@ -214,7 +213,7 @@ class Hud extends FlxGroup
 		{
 			if (val < 100 && _health >= 100) {
 				for (t in digits_health) 
-					t.color = Pal_CPCBoy.COL[6];
+					t.color = Pal_CPCBoy.COL[6]; // red color
 			}
 			// ^ this is to only set color once
 		}else
