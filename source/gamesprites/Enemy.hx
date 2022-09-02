@@ -55,6 +55,7 @@ class Enemy extends MapSprite
 		
 		spawnAnnounce:  0.7,
 		spawntime: 		2.7,	// Final spawn time = spawnTime + spawnAnnounce . so 3.4
+		spawntime_bcr: 	1.5,	// Bouncer Enemy
 		spawntime_big:  6,		// Big bosses and Bouncy Big Enemy
 		
 		speed : 48,
@@ -178,7 +179,7 @@ class Enemy extends MapSprite
 			case "big_bounce": 
 				startHealth = PAR.health_long;
 				speed = PAR.speed_long;
-				spawnTime = PAR.spawntime_big;
+				spawnTime = PAR.spawntime_bcr;	// Testing this out
 				ai = new AI_BigBounce(this);
 			case "turret" : 
 				startHealth = Enemy.PAR.health_turret;

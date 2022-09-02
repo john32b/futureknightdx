@@ -71,7 +71,7 @@ void main()
 	// Scanlines
 	if (SCAN) {
 		float yratio = (gl_FragCoord.y / WIN_SIZE.y);
-		colF = colF * mix(0.8, 1.0, sin(PI * GAME_SIZE.y * yratio));
+		colF = colF * mix(0.85, 1.05, sin(PI * GAME_SIZE.y * yratio));
 	}
 	
 	gl_FragColor = colF;

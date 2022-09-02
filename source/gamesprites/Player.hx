@@ -761,6 +761,9 @@ class Player extends FlxSprite
 		// :: Position ::
 		_snapToFloor(X, Y);
 		
+		// In case the offset was changed from a forest tile and player went through an exit
+		offset.set(BOUND_OFF_X, BOUND_OFF_Y);
+		
 		// Reset physics with a stop/start to initialize vars
 		physics_stop();
 		physics_start();

@@ -149,13 +149,16 @@ class Reg
 		
 		FlxG.scaleMode = new PixelPerfectScaleMode();	// This makes the HL target graphics nice.
 		FlxG.sound.soundTrayEnabled = false;
+
+		SAVE_SETTINGS(false);	// restore & apply
+		SAVE_KEYS();			// restore & apply keys
 		
 		// DEV: Do this after setting scalemode.
 		// - It is going to be called once now and one more time after this (?)
 		FlxG.signals.gameResized.add(onResize);
 		
-		SAVE_SETTINGS(false);	// restore & apply
-		SAVE_KEYS();			// restore & apply keys
+		// --
+		FlxG.autoPause = false;
 	}//---------------------------------------------------;
 	
 	
@@ -165,13 +168,15 @@ class Reg
 	public static function setBorder(state:Bool)
 	{
 		if (border == null) {
-			border = new Bitmap(FlxAssets.getBitmapData(Reg.IM.STATIC.overlay_scr));
+			border = new Bitmap(FlxAssets.getBitmapData(IM.STATIC.overlay_scr));
 			border.smoothing = true;
 		}
 		if (state){
-			FlxG.stage.addChild(border);
+			if(!FlxG.stage.contains(border))
+				FlxG.stage.addChild(border);
 		}else{
-			FlxG.stage.removeChild(border);
+			if(FlxG.stage.contains(border))
+				FlxG.stage.removeChild(border);
 		}
 	}//---------------------------------------------------;
 	
@@ -241,12 +246,18 @@ class Reg
 			
 		}else
 		{
-			var SET = D.save.load('settings');
-			if (SET == null) return;
+			var SET:Dynamic = D.save.load('settings');
+
+			// Defaults for first run
+			if (SET == null) SET = {
+					filter:2,
+					bord:true,
+					vol:0.85
+				};
 			FILTER_TYPE = SET.filter;
 			setBorder(SET.bord);
 			D.snd.setVolume("master", SET.vol);
-			trace(" -- Settings Restored", SET);
+			trace(" -- Settings Applied", SET);
 		}
 	}//---------------------------------------------------;
 	
@@ -280,7 +291,7 @@ class Reg
 	{
 		D.save.setSlot(1);
 		var OBJ = {
-			ver:Reg.VERSION,
+			ver:VERSION,
 			pl:st.player.SAVE(),
 			inv:st.INV.SAVE(),
 			hud:st.HUD.SAVE(),
@@ -313,7 +324,9 @@ class Reg
 	{
 		musicIndex = i;
 		if (musicIndex >-1)
-		D.snd.playMusic(musicData[i].a, musicData[i].loop);
+		
+		// Make the music tracks a bit louder in html5, it has muffled audio
+		D.snd.playMusic(musicData[i].a, musicData[i].loop, false #if html5 , 1.4 #end );
 	}//---------------------------------------------------;
 	
 	
@@ -333,7 +346,7 @@ class Reg
 			m.item_update(0, (t)->t.set(Std.int(FlxG.sound.volume * 100)));
 			m.item_update(1, (t)->t.set(D.snd.MUSIC_ENABLED));
 			m.item_update(2, (t)->t.set(FlxG.stage.contains(border)));
-			m.item_update(3, (t)->t.set(Reg.FILTER_TYPE));
+			m.item_update(3, (t)->t.set(FILTER_TYPE));
 		}else{
 			
 			// READ and apply DATA from the item
@@ -343,7 +356,7 @@ class Reg
 					setBorder(b.get());
 						
 				case "c_shad":
-					Reg.FILTER_TYPE = cast b.P.c;
+					FILTER_TYPE = cast b.P.c;
 					
 				case "c_vol":
 					FlxG.sound.volume = cast(b.get(), Int) / 100;

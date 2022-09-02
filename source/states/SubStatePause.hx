@@ -24,6 +24,7 @@ class SubStatePause extends FlxSubState
 		// When I close this at the end, it appears for 1 frame then closes, so close it now
 		Reg.st.INV.close(true);
 		
+		// DEV: For convenience uses the same camera as the game to get the viewport
 		camera = Reg.st.camera;
 		
 		var COL = Pal_CPCBoy.COL;

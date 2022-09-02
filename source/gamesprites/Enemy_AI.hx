@@ -387,7 +387,9 @@ class AI_Final_Boss extends Enemy_AI
 					e.x += 3;
 			}
 			
-			if (r1 == 100) { // If player didn't use potion just do it over
+			// r1 is how many JITTER_TIME (0.14) cycles
+			// 50*0.14 = 7 seconds
+			if (r1 == 50) { // If player didn't use potion just do it over
 				fsm.goto(PHASE2);
 			}
 		}
@@ -562,7 +564,7 @@ class AI_BigBounce extends AI_Move_X
 {
 	static inline var BOUNCE_HEIGHT = 32; // pixels
 	
-	var Y:Float; // Start PI
+	var Y:Float;
 	var distpi:Float;
 	var L:Float;
 	
@@ -575,10 +577,12 @@ class AI_BigBounce extends AI_Move_X
 		distpi = (Math.PI * blocks) / delta;
 	}//---------------------------------------------------;
 	
+	@:access(gamesprites.Enemy)
 	override public function respawn():Void 
 	{
-		super.respawn();
-		Y = e.y; // This is set on the parent
+		// calling super.respawn() does nothing. do it manually:
+		e.spawn_origin_move();
+		Y = e.y;
 	}//---------------------------------------------------;
 	
 	override public function update(elapsed:Float) 

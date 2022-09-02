@@ -3,15 +3,21 @@
 	
 	<echo value="-- Building Future Knight DX --"/>
 	<echo value=" ! Border is buggy when shaders enabled" if="hl"/>
-	
+	<echo value=" ! Remember to manually update favicon.png" if="html5"/>
 	
 	<app title="FutureKnightDX" version="1.4" package="" company="John32B" />
 	
+	<!-- Note: You can pass OUT=path to compile to a different folder -DOUT=a:\temp\fk -->
 	<app main="Main" file="FutureKnightDX" path="bin\" />
 	
+	<!-- Custom preloader, showing the Computer Border, for itch.io -->
+	<app preloader="Preloader" if="html5"/>
+
 	<window width="640" height="480" fps="40" background="#000000" hardware="true" vsync="true" />
 	
-	<haxeflag name="-dce" value="std"/>
+	<!-- HTML5, .js file with Dead Code Elimination : standard=4.5MB | full=2.6MB -->
+	<!--<haxeflag name="-dce" value="std"/>-->
+	<haxeflag name="-dce" value="full"/>
 	
 	<haxelib name="flixel"/>
 	<haxelib name="djFlixel"/> 	<!-- flixel helpers and tools -->
@@ -27,31 +33,36 @@
 	<!--Uncomment this to use MP3 in HTML5 -- or  you can compile with :: lime build html5 -DMP3-->
 		<!--<define name="MP3" if="html5"/>-->
 	
-	<library name="default" type="pak" if="desktop" preload="true" unless="debug"/>
+	<!-- Html5 can only pack images and map data, it doesn't matter if I add `embed=true`, does nothing -->
+	<!-- Also in html5, if assets are packed Itch.io cannot load it. So only desktop packed assets for now -->
+	<library name="default" type="gzip" if="desktop" preload="true" unless="debug"/>
 	
 		<assets path="assets" include="*.ini|*.json"/>
 		
 		<assets path="assets/font" type="font" include="*.ttf|*.otf|" rename="fnt"/>
-		<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im" embed="true"/>
+		<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
 		
 		<assets path="assets/maps" type="text" include="_debug.tmx" rename="map" if="debug"/>
-		<assets path="assets/maps" type="text" exclude="_debug.tmx " include="*.tmx" rename="map" embed="true"/>
+		<assets path="assets/maps" type="text" exclude="_debug.tmx " include="*.tmx" rename="map"/>
 				
 		<section if="MP3">
 			<echo value=" . using MP3 sounds"/>
 			<assets path="assets/music" type="music" rename="mus" include="*.mp3"/>
-			<assets path="assets/sound_mp3" type="sound" rename="snd" include="*.mp3" embed="true"/>
+			<assets path="assets/sound_mp3" type="sound" rename="snd" include="*.mp3"/>
 		</section>
 		
 		<section unless="MP3">
 			<echo value=" . using OGG sounds"/>
 			<assets path="assets/music" type="music" rename="mus" include="*.ogg"/>
-			<assets path="assets/sound_ogg" type="sound" rename="snd" include="*.ogg" embed="true"/>
+			<assets path="assets/sound_ogg" type="sound" rename="snd" include="*.ogg"/>
 		</section>
 		
 	
-	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
-	<icon path="icon_48.png"/>
+	<!-- The Lime XML Format help page told me to do it this way? -->
+	<icon path="icons/icon_16.png" size="16"/>
+	<icon path="icons/icon_32.png" size="32"/>
+	<icon path="icons/icon_48.png" size="48"/>
+	<icon path="icons/icon_128.png" size="128"/>
 	
 	<!--:: GAME DEFINES ::------------------------------------------>
 	

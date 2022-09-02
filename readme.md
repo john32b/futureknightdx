@@ -67,6 +67,8 @@ The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions 
 
 ---
 
+<!--
+CANNOT BUILD WITHOUT ASSETS --
 ## Building
 
 To build **Future Knight DX** you will need
@@ -101,16 +103,25 @@ Build this like any other Flixel Program, e.g. to build for HTML:
 I can't get into how level maps work and how to make new ones right now, but it is not that complicated, I swear! 
 
 ---
-
+-->
 ## More Info 
+
+
+<!-- 
+INITIALLY I WAS GOING TO RELEASE WITH ASSETS INCLUDED
 
 ### Assets ripped from the Amstrad CPC version, No license
 
 I ripped some sounds, sprites and background art from the original game to use in this remake. **I DO NOT OWN THE RIGHTS TO THOSE ASSETS**
 
 Gremlin Software, the creators/publishers of the original game, according to [Wikipedia](https://en.wikipedia.org/wiki/Gremlin_Interactive) are now defunct; and it seems that the company **Urbanscan** now owns Gremlin's older games. Personally I don't think they would care if one of their old games had a free to play clone remake and had its assets available on GitHub? Also Future Knight wasn't one of their heavy hitters. Will I ever If get in trouble for sharing the original game assets? I'll just remove them from github.
+-->
 
-### Other Assets used: 
+### Assets?
+
+ After I published the game, it came to my attention that the original game IS NOT abandonware any more and it is getting a Steam release! Yes in September 2022, the game will be released on Steam under a new publisher. So unfortunately I cannot share any of the assets that I ripped/upgraded from the original game... ☹
+
+### Other Assets used:
 - Font: `Arcadepix` Font, by Reekee of Dimenzioned, 100% free
 - Font: `8-bit Pusab` Font, by Seba Perez, 100% free
 - Font: `Pixeltype` Font, by TheJman0205, 100% free
@@ -125,7 +136,7 @@ Gremlin Software, the creators/publishers of the original game, according to [Wi
 
 ## Finally
 
-Future Knight DX version, programmed by me, John32B. You are free to use the code for whatever reason **but not the image and audio assets!**
+Future Knight DX version, programmed by me, John32B. The code in this repo is free to use under the ISC license.
 
 **Things that could be done in a later iteration:**
 - New Graphics. The current style follows the Amstrad CPC double wide pixels. But this an easily be replaced with new art that is not double-pixel wide and has more colors or even has more animation frames.

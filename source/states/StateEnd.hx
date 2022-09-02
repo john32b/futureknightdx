@@ -18,7 +18,7 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.tweens.FlxTween;
 import gamesprites.Player;
-
+import djFlixel.gfx.StarfieldSimple;
 
 class StateEnd extends FlxState
 {
@@ -39,8 +39,16 @@ class StateEnd extends FlxState
 		map = new MapFK(pl);
 		FlxG.cameras.reset(map.camera);
 		map.camera.y += 58;
-		add(map);
 		
+		// -- stars
+		var stars = new StarfieldSimple(map.ROOM_WIDTH, map.ROOM_HEIGHT);
+		stars.WIDE_PIXEL = true;
+		stars.STAR_SPEED = 0.2;
+		stars.STAR_ANGLE = 40;
+		stars.COLORS = [ Pal_CPCBoy.COL[0], 0xff3a4466, 0xff181425, 0xffb55088 ];
+		add(stars);
+		
+		add(map);
 		map.onEvent = (e)-> { if (e == loadMap) DO(); };
 		map.loadMap('end');
 		
@@ -73,9 +81,9 @@ class StateEnd extends FlxState
 		
 		// --
 		var mapEndX = map.ROOM_WIDTH * map.roomTotal.x;
-		FlxTween.tween(map.camera.scroll, {x:mapEndX - map.ROOM_WIDTH}, obj['camera'].prop.time);
-		FlxTween.tween(pl, {x:mapEndX}, obj['player'].prop.time);
-		FlxTween.tween(fr, {x:mapEndX}, obj['friend'].prop.time);
+		FlxTween.tween(map.camera.scroll, {x:mapEndX - map.ROOM_WIDTH}, cast(obj['camera'].prop.time, Float));
+		FlxTween.tween(pl, {x:mapEndX}, cast(obj['player'].prop.time, Float));
+		FlxTween.tween(fr, {x:mapEndX}, cast(obj['friend'].prop.time, Float));
 		
 		
 		// -- Display Some Texts
