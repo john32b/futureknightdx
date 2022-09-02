@@ -120,6 +120,9 @@ class Reg
 	// Filter type for the SHADER with setter ( 0:None | 1:Blur | 2:CRT )
 	public static var FILTER_TYPE(default, set):Int = 0;
 	
+	// In any time during the lifetime did it show the controller connected toast?
+	public static var CONTROLLER_TOAST:Bool = false;
+	
 	//====================================================;
 	
 	// Gets called once After FLXGame and before first State
@@ -147,7 +150,8 @@ class Reg
 		// -- Game things:
 		IM = new ImageAssets();
 		
-		FlxG.scaleMode = new PixelPerfectScaleMode();	// This makes the HL target graphics nice.
+		//The shader will regenerate after a resize, so it's not that bad now
+		//FlxG.scaleMode = new PixelPerfectScaleMode();
 		FlxG.sound.soundTrayEnabled = false;
 
 		SAVE_SETTINGS(false);	// restore & apply

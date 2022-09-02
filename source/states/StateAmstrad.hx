@@ -69,6 +69,7 @@ class StateAmstrad extends FlxState
 	{
 		super.update(elapsed);
 		_time += elapsed;
+		D.ctrl.gamepad_poll();
 		if (D.ctrl.justPressed(_START_A) && _time > _NEXT_MIN_TIME) {
 			FlxG.switchState(new StateTitle());
 		}

@@ -5,6 +5,7 @@
  
 package states;
 
+import flixel.tweens.FlxTween;
 import gamesprites.Enemy;
 import tools.CRTShader;
 import tools.KeyCapture;
@@ -188,8 +189,40 @@ class StateTitle extends FlxState
 			dir0.on('footer', sub_get_footer_grp()).p(0, 20).a(0.3).tween({y:0, alpha:1}, 0.2);
 			dir0.on('dx').tween({alpha:1, y:65}, 0.3, { ease:FlxEase.quadOut, type:4 } );
 			menu.goto('main');
+			seq.next(0.5);	
+		case 7:
+			// -- Done animating the menu.
+			if (D.ctrl.gamepad != null)
+				_showControllerToast();
+				
+			updateFunction = ()->{
+				// This checks for controller and initializes it once it connects
+				// Returns true ONCE when a controller connects
+				if ( D.ctrl.gamepad_poll()) _showControllerToast();
+				#if debug
+				if (FlxG.keys.justPressed.F1) _showControllerToast();
+				#end
+			}
+			
 		default:
 		}
+	}//---------------------------------------------------;
+	
+	
+	function _showControllerToast()
+	{
+		#if !debug
+		if (Reg.CONTROLLER_TOAST) return;
+			Reg.CONTROLLER_TOAST = true;
+		#end
+		
+		var s1 = new FlxSprite(265, 170, 'im/controller_thumb.png');
+			s1.alpha = 0;
+		FlxTween.tween(s1, {y:186, alpha:1}, 0.8, {ease:FlxEase.bounceOut})
+			.then(FlxTween.tween(s1, {alpha:0}, 0.5, {startDelay:0.5,onComplete:(_)->{
+				remove(s1);
+			}}));
+		add(s1);
 	}//---------------------------------------------------;
 		
 	
