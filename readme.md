@@ -2,7 +2,7 @@
 
 ​**Future Knight DX** is a fan remake of the 1986 game "*Future Knight*" by Gremlin Graphics Software. It is based on the Amstrad CPC version, it tries to stay faithful to the original, keeping the same level design, enemies and gameplay beats; while only updating things that make sense and that enhance the experience. The graphics are slightly updated, and the same for the sounds. This is why the **DX** in the title. I took the idea from some of the Game Boy Color games that were re-releases with small updates to the originals like *Tetris DX and R-Type DX*. 
 
-​This repo is the source code of the game along with all the assets that are needed to compile. Made with [HaxeFlixel](https://haxeflixel.com/), and [Haxe](https://haxe.org). The code is commented throughout (*mostly*) and I think it can provide a decent example on how to approach some game related things, like enemy AI, player physics, spawning and handling entities on a map, etc. Plus another practical example on using my library [djFlixel](https://github.com/john32b/djFlixel) (*which mostly provides a Menu Object*) 
+​This repo is the source code of the game ~along with all the assets that are needed to compile~. Made with [HaxeFlixel](https://haxeflixel.com/), and [Haxe](https://haxe.org). The code is commented throughout (*mostly*) and I think it can provide a decent example on how to approach some game related things, like enemy AI, player physics, spawning and handling entities on a map, etc. Plus another practical example on using my library [djFlixel](https://github.com/john32b/djFlixel) (*which mostly provides a Menu Object*) 
 
 <a href="https://john0032.itch.io/future-knight-dx"><img style="display:block;margin:1em auto;height:400px;" src="_readme/demoplay_anim.webp"/></a>
 
