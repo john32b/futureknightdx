@@ -75,6 +75,8 @@ class StateTitle extends FlxState
 	{
 		super.create();
 		
+		Reg.st = null;
+		
 		bgColor = Reg.BG_COLOR;
 		
 		// -- Data init

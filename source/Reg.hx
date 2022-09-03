@@ -23,7 +23,7 @@ import tools.CRTShader;
 class Reg 
 {
 	
-	public static inline var VERSION = "1.4";
+	public static inline var VERSION = "1.4.1";
 	
 	// :: External parameters
 	static inline var PATH_INI  = "assets/fkdx.ini";

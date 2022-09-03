@@ -225,13 +225,11 @@ class Enemy extends MapSprite
 		if (!Std.isOfType(ai, AI_Bounce))
 			animation.play('main', true);
 		
-		// DEV: Try because I need to create Enemies in StateTitle where REG.st does not exist
+		// DEV: Checks for null because I need to create Enemies in StateTitle where REG.st
 		// Check if confuser is active
-		try
-		if (Reg.st.ROOMSPR.counter > 0) { 
+		if (Reg.st != null && Reg.st.ROOMSPR.counter > 0) {
 			moves = false;
 		}
-		catch(_){}
 		
 		// DEV: I could send the enemy_respawn signal to another handler?
 		//      but for now it is just a confuser so I am checking here

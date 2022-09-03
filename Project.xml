@@ -18,6 +18,7 @@
 	<!-- HTML5, .js file with Dead Code Elimination : standard=4.5MB | full=2.6MB -->
 	<!--<haxeflag name="-dce" value="std"/>-->
 	<haxeflag name="-dce" value="full"/>
+	<haxeflag name="--no-traces" unless="debug"/> 
 	
 	<haxelib name="flixel"/>
 	<haxelib name="djFlixel"/> 	<!-- flixel helpers and tools -->
@@ -71,6 +72,5 @@
 		
 		<!--You can only mount a ladder from the ground, like the original game-->
 		<!--<haxedef name="CLASSIC_LADDER"/>-->
-
 		
 </project>
