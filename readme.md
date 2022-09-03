@@ -67,22 +67,19 @@ The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions 
 
 ---
 
-<!--
-CANNOT BUILD WITHOUT ASSETS --
+
 ## Building
+
+> ⚠️ NOTE: YOU CAN'T BUILD THIS WITHOUT THE ASSETS ⚠️
 
 To build **Future Knight DX** you will need
 
 - Haxe 4.2.5 -- https://haxe.org/
 - HaxeFlixel 4.11.0 -- https://github.com/HaxeFlixel/flixel
-  - `haxelib install flixel`
 - djFlixel v0.5 -- https://github.com/john32b/djFlixel
-  - `haxelib git djFlixel https://github.com/john32b/djFlixel`
 - djA v0.2 -- https://github.com/john32b/djA
-  - `haxelib git djA https://github.com/john32b/djA`
 
-
-> READ THIS :
+> Also another note:
 >
 > Recently, the OpenFL and Lime libraries updated (*those are Flixel dependencies*), but they introduce some minor visual quirks, like the HTML5 font rendering being jagged. 
 > 
@@ -103,7 +100,7 @@ Build this like any other Flixel Program, e.g. to build for HTML:
 I can't get into how level maps work and how to make new ones right now, but it is not that complicated, I swear! 
 
 ---
--->
+
 ## More Info 
 
 
