@@ -248,7 +248,7 @@ class StateTitle extends FlxState
 	// -- Creates and Adds the menu
 	function sub_create_menu()
 	{
-		menu = new FlxMenu(32, 90, FlxG.width, 4);
+		menu = new FlxMenu(32, 90, -1, 4);
 		menu.PAR.start_button_fire = true;
 		menu.PAR.page_anim_parallel = true;
 		add(menu);
@@ -262,7 +262,12 @@ class StateTitle extends FlxState
 		}));
 		
 		menu.overlayStyle({
-			focus_nudge:2,
+			cursor: {
+				tween:{x0: -8, x1: 4, ease:"quadOut"}
+			},
+			focus_anim:{
+				x:2, inTime:0.14
+			},
 			vt_IN:"-20:0|0.2:0.1",
 			vt_OUT:"20:0|0.12:0.06",
 			align:"left",

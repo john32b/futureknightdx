@@ -50,6 +50,9 @@ class SubStatePause extends FlxSubState
 			add(menu);
 
 			menu.overlayStyle({
+				cursor:{
+					tween:{x0: -16, x1:0, ease:"quadOut", time:0.14}
+				},
 				align:"center",
 				item:{
 					text:{
@@ -107,7 +110,6 @@ class SubStatePause extends FlxSubState
 			}//---------------------------------------------------;
 			
 			menu.onItemEvent = (a, b)->{
-
 				if (a == fire) switch(b.ID)
 				{
 					case "resume":
