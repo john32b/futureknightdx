@@ -2,7 +2,7 @@
 
 ​**Future Knight DX** is a fan remake of the 1986 game "*Future Knight*" by Gremlin Graphics Software. It is based on the Amstrad CPC version, it tries to stay faithful to the original, keeping the same level design, enemies and gameplay beats; while only updating things that make sense and that enhance the experience. The graphics are slightly updated, and the same for the sounds. This is why the **DX** in the title. I took the idea from some of the Game Boy Color games that were re-releases with small updates to the originals like *Tetris DX and R-Type DX*. 
 
-​This repo is the source code of the game ~along with all the assets that are needed to compile~. Made with [HaxeFlixel](https://haxeflixel.com/), and [Haxe](https://haxe.org). The code is commented throughout (*mostly*) and I think it can provide a decent example on how to approach some game related things, like enemy AI, player physics, spawning and handling entities on a map, etc. Plus another practical example on using my library [djFlixel](https://github.com/john32b/djFlixel) (*which mostly provides a Menu Object*) 
+​This repo is the source code of the game along with all the assets that are needed to compile. Made with [HaxeFlixel](https://haxeflixel.com/), and [Haxe](https://haxe.org). The code is commented throughout (*mostly*) and I think it can provide a decent example on how to approach some game related things, like enemy AI, player physics, spawning and handling entities on a map, etc. Plus another practical example on using my library [djFlixel](https://github.com/john32b/djFlixel) (*which mostly provides a Menu Object*) 
 
 <a href="https://john0032.itch.io/future-knight-dx"><img style="display:block;margin:1em auto;height:400px;" src="_readme/demoplay_anim.webp"/></a>
 
@@ -70,8 +70,6 @@ The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions 
 
 ## Building
 
-> ⚠️ NOTE: YOU CAN'T BUILD THIS WITHOUT THE ASSETS ⚠️
-
 To build **Future Knight DX** you will need
 
 - Haxe 4.2.5 -- https://haxe.org/
@@ -81,9 +79,9 @@ To build **Future Knight DX** you will need
 
 > Also another note:
 >
-> Recently, the OpenFL and Lime libraries updated (*those are Flixel dependencies*), but they introduce some minor visual quirks, like the HTML5 font rendering being jagged. 
+> Shortly after making this (2022) the OpenFL and Lime libraries updated (*those are Flixel dependencies*), but they introduce some minor visual quirks, like the HTML5 font rendering being jagged. Future versions might fix those issues.
 > 
-> Prefer these older versions :: 
+> The game was developed on these versions.
 > - openfl 9.1.0 - `haxelib install openfl 9.1.0`
 > - lime 7.9.0 - `haxelib install lime 7.9.0`
 
@@ -103,7 +101,6 @@ I can't get into how level maps work and how to make new ones right now, but it 
 
 ## More Info 
 
-
 <!-- 
 INITIALLY I WAS GOING TO RELEASE WITH ASSETS INCLUDED
 
@@ -112,13 +109,18 @@ INITIALLY I WAS GOING TO RELEASE WITH ASSETS INCLUDED
 I ripped some sounds, sprites and background art from the original game to use in this remake. **I DO NOT OWN THE RIGHTS TO THOSE ASSETS**
 
 Gremlin Software, the creators/publishers of the original game, according to [Wikipedia](https://en.wikipedia.org/wiki/Gremlin_Interactive) are now defunct; and it seems that the company **Urbanscan** now owns Gremlin's older games. Personally I don't think they would care if one of their old games had a free to play clone remake and had its assets available on GitHub? Also Future Knight wasn't one of their heavy hitters. Will I ever If get in trouble for sharing the original game assets? I'll just remove them from github.
--->
 
 ### Assets?
 
  After I published the game, it came to my attention that the original game IS NOT abandonware any more and it is getting a Steam release! Yes in September 2022, the game will be released on Steam under a new publisher. So unfortunately I cannot share any of the assets that I ripped/upgraded from the original game... ☹
 
-### Other Assets used:
+> (2023-12) I just put the assets back, it has been a year+, I got no cease and desist email.
+-->
+
+
+### Assets used:
+- Ripped original assets from the CPC version of the game, created by Gremlin Software
+- New background/foreground tiles created by myself, john32B
 - Font: `Arcadepix` Font, by Reekee of Dimenzioned, 100% free
 - Font: `8-bit Pusab` Font, by Seba Perez, 100% free
 - Font: `Pixeltype` Font, by TheJman0205, 100% free

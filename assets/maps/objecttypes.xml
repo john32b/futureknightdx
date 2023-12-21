@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objecttypes>
+ <objecttype name="big_bounce" color="#aaff00">
+  <property name="distance" type="int" default="0"/>
+ </objecttype>
+ <objecttype name="big_chase" color="#a0a0a4">
+  <property name="speed" type="float" default="0"/>
+ </objecttype>
+ <objecttype name="big_tall" color="#ffff7f">
+  <property name="speed" type="float" default="0"/>
+ </objecttype>
+ <objecttype name="bounce" color="#a0a0a4">
+  <property name="speed" type="float" default="0"/>
+ </objecttype>
+ <objecttype name="chase" color="#a0a0a4">
+  <property name="speed" type="float" default="0"/>
+ </objecttype>
+ <objecttype name="exit" color="#a0a0a4">
+  <property name="goto" type="string"/>
+  <property name="req" type="string"/>
+ </objecttype>
+ <objecttype name="move_x" color="#ffaa00">
+  <property name="distance" type="int" default="0"/>
+  <property name="platform_bound" type="bool" default="false"/>
+  <property name="speed" type="float" default="0"/>
+ </objecttype>
+ <objecttype name="move_y" color="#a0a0a4">
+  <property name="distance" type="int" default="0"/>
+  <property name="same_x" type="bool" default="false"/>
+  <property name="speed" type="float" default="0"/>
+ </objecttype>
+ <objecttype name="turret" color="#a0a0a4">
+  <property name="speed" type="float" default="0"/>
+ </objecttype>
+</objecttypes>
