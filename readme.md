@@ -72,9 +72,9 @@ The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions 
 
 To build **Future Knight DX** you will need
 
-- Haxe 4.2.5 -- https://haxe.org/
-- HaxeFlixel 4.11.0 -- https://github.com/HaxeFlixel/flixel
-- djFlixel v0.5 -- https://github.com/john32b/djFlixel
+- Haxe 4.3.3 -- https://haxe.org/
+- HaxeFlixel 5.5.0 -- https://github.com/HaxeFlixel/flixel
+- djFlixel v0.5.5 -- https://github.com/john32b/djFlixel
 - djA v0.2 -- https://github.com/john32b/djA
 
 > Also another note:
@@ -82,8 +82,8 @@ To build **Future Knight DX** you will need
 > Shortly after making this (2022) the OpenFL and Lime libraries updated (*those are Flixel dependencies*), but they introduce some minor visual quirks, like the HTML5 font rendering being jagged. Future versions might fix those issues.
 > 
 > The game was developed on these versions.
-> - openfl 9.1.0 - `haxelib install openfl 9.1.0`
-> - lime 7.9.0 - `haxelib install lime 7.9.0`
+> - openfl 9.3.2 - `haxelib install openfl 9.3.2`
+> - lime 8.1.1 - `haxelib install lime 8.1.1`
 
 
 Supports building to `windows`, `hashlink`, `html5`, `flash`  

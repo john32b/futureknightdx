@@ -83,8 +83,7 @@ class StateTitle extends FlxState
 		updateFunction = null;
 		
 		// --
-		seq = new FlxSequencer();
-		seq.onStep = sequence_title_start;
+		seq = new FlxSequencer(sequence_title_start);
 		add(seq);
 
 		// :: STARS
@@ -162,8 +161,9 @@ class StateTitle extends FlxState
 
 	// --
 	// -- Show the titleArt, then the Title
-	function sequence_title_start(step:Int)
-	{
+	function sequence_title_start(sequencer:FlxSequencer):Void
+	{	
+		var step:Int = sequencer.step;
 		switch(step) {	
 		case 1:	//--	show the title
 			dir0.on(P.im_title_art).v(1).a(0).tween({alpha:1}, 0.2);

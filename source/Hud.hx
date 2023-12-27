@@ -41,6 +41,7 @@ class Hud extends FlxGroup
 	static inline var HUD_SCREEN_X 		= 25; 	// (320-270)/2 (screenwidth-graphicwidth) / 2 
 	static inline var TEXT_BLINK_TIME 	= 0.4;
 	static inline var LIVES_BLINK_TIME 	= 1;
+
 	
 	// -----
 	var _health:Int = 0;	// Current displayed health (not actual player health)
@@ -84,8 +85,8 @@ class Hud extends FlxGroup
 		// -- Camera. Puts it right below the Game Map
 		var C = Reg.st.map.camera;
 		camera = new FlxCamera(
-			Std.int(HUD_SCREEN_X * FlxG.initialZoom),			// IN SCREEN PIXELS
-			Std.int((C.height * FlxG.initialZoom) + C.y), 		// IN SCREEN PIXELS
+			Std.int(HUD_SCREEN_X),			// IN SCREEN PIXELS
+			Std.int((C.height) + C.y), 		// IN SCREEN PIXELS
 			bg.frameWidth  + 1,									// IN GAME PIXELS
 			bg.frameHeight + 1									// IN GAME PIXELS
 		);

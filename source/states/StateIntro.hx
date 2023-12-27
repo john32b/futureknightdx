@@ -95,7 +95,7 @@ class StateIntro extends FlxState
 		// --
 		map = new MapFK(pl);
 		FlxG.cameras.reset(map.camera);	// << Make the default camera
-		camera.y += 58;
+		camera.y += 29;
 		
 		add(map);
 		map.onEvent = (e)-> { if (e == loadMap) P_01(); };

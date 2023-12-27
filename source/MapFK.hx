@@ -103,8 +103,8 @@ class MapFK extends TilemapGeneric
 	inline static var ROOM_TILE_WIDTH:Int  = 8 * 4;	// How many tiles make up a room view
 	inline static var ROOM_TILE_HEIGHT:Int = 4 * 4;	// How many tiles make up a room view
 	
-	static inline var DRAW_START_X:Int = 32;  	// Pixels from screen left to draw map
-	static inline var DRAW_START_Y:Int = 26;  	// Pixels from screen top to draw map
+	static inline var DRAW_START_X:Int = 16;  	// Pixels from screen left to draw map
+	static inline var DRAW_START_Y:Int = 13;  	// Pixels from screen top to draw map
 	
 	/** Room Width in Pixels */
 	public var ROOM_WIDTH  = TILE_SIZE * ROOM_TILE_WIDTH; 
