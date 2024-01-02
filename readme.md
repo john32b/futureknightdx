@@ -1,12 +1,13 @@
 # Future Knight DX (2022)
 
-​**Future Knight DX** is a fan remake of the 1986 game "*Future Knight*" by Gremlin Graphics Software. It is based on the Amstrad CPC version, it tries to stay faithful to the original, keeping the same level design, enemies and gameplay beats; while only updating things that make sense and that enhance the experience. The graphics are slightly updated, and the same for the sounds. This is why the **DX** in the title. I took the idea from some of the Game Boy Color games that were re-releases with small updates to the originals like *Tetris DX and R-Type DX*. 
+​**Future Knight DX** is a fan remake of the 1986 game "*Future Knight*" by Gremlin Graphics Software. It is based on the Amstrad CPC version, it tries to stay faithful to the original, keeping the same level design, enemies and gameplay beats; while only updating things that make sense and that enhance the experience. The graphics are slightly updated, and the same for the sounds. This is why the **DX** in the title. I took the idea from some of the Game Boy Color games that were re-releases with small updates to the originals like *Tetris DX and R-Type DX*.
 
-​This repo is the source code of the game along with all the assets that are needed to compile. Made with [HaxeFlixel](https://haxeflixel.com/), and [Haxe](https://haxe.org). The code is commented throughout (*mostly*) and I think it can provide a decent example on how to approach some game related things, like enemy AI, player physics, spawning and handling entities on a map, etc. Plus another practical example on using my library [djFlixel](https://github.com/john32b/djFlixel) (*which mostly provides a Menu Object*) 
+​This repo is the source code of the game along with all the assets that are needed to compile. Made with [HaxeFlixel](https://haxeflixel.com/), and [Haxe](https://haxe.org). The code is commented throughout (*mostly*) and I think it can provide a decent example on how to approach some game related things, like enemy AI, player physics, spawning and handling entities on a map, etc. Plus another practical example on using my library [djFlixel](https://github.com/john32b/djFlixel) (*which mostly provides a Menu Object*)
 
 <a href="https://john0032.itch.io/future-knight-dx"><img style="display:block;margin:1em auto;height:400px;" src="_readme/demoplay_anim.webp"/></a>
 
-**Visit the GAME PAGE here** :  https://john0032.itch.io/future-knight-dx
+**Visit the GAME PAGE here** :  <https://john0032.itch.io/future-knight-dx>
+
 - play online HTML5 (desktop)
 - download for Windows
 - download for Linux *coming soon*
@@ -17,7 +18,7 @@
 
 Future Knight was released in 1986 for the 8bit computers *Amstrad CPC, ZX Spectrum, Commodore 64 and MSX*. It is a flip screen action adventure platformer where you need find your way through the levels while collect items and killing/avoid enemies. The final goal of the game, according to the ZX Spectrum box is to *"Rescue your beloved maiden from the clutches of Spegbott the Terrible"* -- meaning your girlfriend crashed her ship on an alien planet and got abducted by an evil aliens or something. Yes the story is cliché bad. But it is not the main focus.
 
-The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions shared the same gameplay mechanics and level design, they only had different graphics. The Commodore64 version shared the same graphics as the Amstrad CPC, but it had different gameplay mechanics and level design than the others. 
+The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions shared the same gameplay mechanics and level design, they only had different graphics. The Commodore64 version shared the same graphics as the Amstrad CPC, but it had different gameplay mechanics and level design than the others.
 
 ## Motivation
 
@@ -27,7 +28,7 @@ The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions 
 
 ---
 
-## DX Version over Original 
+## DX Version over Original
 
 ### Major Changes
 
@@ -38,9 +39,7 @@ The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions 
 - **Changed the sprite** of Princess Amelia to something more modern. It is now a character wearing a spacesuit, like you do. In the original version she was just wearing a dress.
 - **Changed the ending scene**. It used to be that you meet the princess, remove your helmet and kiss. None of that now, the ending scene is the two of you running away as the credits roll.
 
-
 ### Gameplay Changes
-
 
 - The overall game speed is increased. You move more quickly now and the enemies too. It was way too slow on the Amstrad CPC
 - You will now jump higher the longer you press the button and you can slightly adjust your direction in mid-air.
@@ -56,7 +55,6 @@ The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions 
 - Using Bombs will now kill the enemies on the screen forever, meaning they will not re-spawn even after leaving and re-entering the room.
 - Bombs no longer restore your health. It used to be that using a bomb you would get your full health back. But now you are more nimble and you don't have to backtrack that much, it would make the game too forgiving/easy.
 
-
 ### Audio / Visual
 
 - It is based on the Amstrad CPC version, meaning sprites and some audios are ripped from there. Yes everything is double wide pixels, except the HUD and Menus. Just like the original.
@@ -67,24 +65,23 @@ The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions 
 
 ---
 
-
 ## Building
 
 To build **Future Knight DX** you will need
 
-- Haxe 4.3.3 -- https://haxe.org/
-- HaxeFlixel 5.5.0 -- https://github.com/HaxeFlixel/flixel
-- djFlixel v0.5.5 -- https://github.com/john32b/djFlixel
-- djA v0.2 -- https://github.com/john32b/djA
+- Haxe 4.3.3 -- <https://haxe.org/>
+- HaxeFlixel 5.5.0 -- <https://github.com/HaxeFlixel/flixel>
+- djFlixel v0.5.8 -- <https://github.com/john32b/djFlixel>
+- djA v0.2 -- <https://github.com/john32b/djA>
 
 > Also another note:
 >
 > Shortly after making this (2022) the OpenFL and Lime libraries updated (*those are Flixel dependencies*), but they introduce some minor visual quirks, like the HTML5 font rendering being jagged. Future versions might fix those issues.
-> 
+>
 > The game was developed on these versions.
+>
 > - openfl 9.3.2 - `haxelib install openfl 9.3.2`
 > - lime 8.1.1 - `haxelib install lime 8.1.1`
-
 
 Supports building to `windows`, `hashlink`, `html5`, `flash`  
 Currently Linux and Mac are **untested**
@@ -94,12 +91,12 @@ Build this like any other Flixel Program, e.g. to build for HTML:
  or  
 `lime build html5`
 
-**The level maps** are made in **TILED** editor (https://www.mapeditor.org)  
-I can't get into how level maps work and how to make new ones right now, but it is not that complicated, I swear! 
+**The level maps** are made in **TILED** editor (<https://www.mapeditor.org>)  
+I can't get into how level maps work and how to make new ones right now, but it is not that complicated, I swear!
 
 ---
 
-## More Info 
+## More Info
 
 <!-- 
 INITIALLY I WAS GOING TO RELEASE WITH ASSETS INCLUDED
@@ -117,8 +114,8 @@ Gremlin Software, the creators/publishers of the original game, according to [Wi
 > (2023-12) I just put the assets back, it has been a year+, I got no cease and desist email.
 -->
 
-
 ### Assets used:
+
 - Ripped original assets from the CPC version of the game, created by Gremlin Software
 - New background/foreground tiles created by myself, john32B
 - Font: `Arcadepix` Font, by Reekee of Dimenzioned, 100% free
@@ -138,8 +135,8 @@ Gremlin Software, the creators/publishers of the original game, according to [Wi
 Future Knight DX version, programmed by me, John32B. The code in this repo is free to use under the ISC license.
 
 **Things that could be done in a later iteration:**
-- New Graphics. The current style follows the Amstrad CPC double wide pixels. But this an easily be replaced with new art that is not double-pixel wide and has more colors or even has more animation frames.
-- An entire new adventure. Let's be honest the original game map design, is nothing to write home about. The game could have more intricate level design, with a more thoughtful enemy placement and item use locations. Perhaps add a new level style and new enemy behaviors? It will not replace the classic version, just on the main menu a "Part 2" can be selected or something like that. 
 
+- New Graphics. The current style follows the Amstrad CPC double wide pixels. But this an easily be replaced with new art that is not double-pixel wide and has more colors or even has more animation frames.
+- An entire new adventure. Let's be honest the original game map design, is nothing to write home about. The game could have more intricate level design, with a more thoughtful enemy placement and item use locations. Perhaps add a new level style and new enemy behaviors? It will not replace the classic version, just on the main menu a "Part 2" can be selected or something like that.
 
 That's it. Thank you for reading this giant wall of text, you are awesome 😸
