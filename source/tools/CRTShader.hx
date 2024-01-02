@@ -124,8 +124,8 @@ void main()
 		return;
 		#end
 		
-		if (GAME_WIDTH == 0) GAME_WIDTH = cast FlxG.width;
-		if (GAME_HEIGHT == 0) GAME_HEIGHT = cast FlxG.height;
+		if (GAME_WIDTH == 0) GAME_WIDTH = cast FlxG.width * 2;
+		if (GAME_HEIGHT == 0) GAME_HEIGHT = cast FlxG.height * 2;
 		
 		data.GAME_SIZE.value = [GAME_WIDTH, GAME_HEIGHT];
 		
