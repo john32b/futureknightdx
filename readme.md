@@ -10,7 +10,7 @@
 
 - play online HTML5 (desktop)
 - download for Windows
-- download for Linux *coming soon*
+- download for Linux
 
 ---
 
@@ -71,17 +71,10 @@ To build **Future Knight DX** you will need
 
 - Haxe 4.3.3 -- <https://haxe.org/>
 - HaxeFlixel 5.5.0 -- <https://github.com/HaxeFlixel/flixel>
-- djFlixel v0.5.8 -- <https://github.com/john32b/djFlixel>
+- djFlixel v0.5.9 -- <https://github.com/john32b/djFlixel>
 - djA v0.2 -- <https://github.com/john32b/djA>
-
-> Also another note:
->
-> Shortly after making this (2022) the OpenFL and Lime libraries updated (*those are Flixel dependencies*), but they introduce some minor visual quirks, like the HTML5 font rendering being jagged. Future versions might fix those issues.
->
-> The game was developed on these versions.
->
-> - openfl 9.3.2 - `haxelib install openfl 9.3.2`
-> - lime 8.1.1 - `haxelib install lime 8.1.1`
+- openfl 9.3.2 - `haxelib install openfl 9.3.2`
+- lime 8.1.1 - `haxelib install lime 8.1.1`
 
 Supports building to `windows`, `hashlink`, `html5`, `flash`  
 Currently Linux and Mac are **untested**
@@ -98,13 +91,7 @@ I can't get into how level maps work and how to make new ones right now, but it 
 
 ## More Info
 
-<!-- 
-INITIALLY I WAS GOING TO RELEASE WITH ASSETS INCLUDED
-
-### Assets ripped from the Amstrad CPC version, No license
-
-I ripped some sounds, sprites and background art from the original game to use in this remake. **I DO NOT OWN THE RIGHTS TO THOSE ASSETS**
-
+<!-- EASTER EGG -
 Gremlin Software, the creators/publishers of the original game, according to [Wikipedia](https://en.wikipedia.org/wiki/Gremlin_Interactive) are now defunct; and it seems that the company **Urbanscan** now owns Gremlin's older games. Personally I don't think they would care if one of their old games had a free to play clone remake and had its assets available on GitHub? Also Future Knight wasn't one of their heavy hitters. Will I ever If get in trouble for sharing the original game assets? I'll just remove them from github.
 
 ### Assets?

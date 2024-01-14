@@ -103,16 +103,6 @@ class Hud extends FlxGroup
 		text_score = D.text.get("", 30, 30, {f:"fnt/score.ttf", s:6, c:Pal_CPCBoy.COL[22]});
 			add(text_score);
 			
-		// -- Some per target positioning tweaks
-		#if desktop
-			text_info.y -= 1;
-		#end
-		
-		#if html5
-			text_info.y -= 9;
-			text_score.y += 4;
-		#end
-		
 		// -- Bullets, Item
 		el_bullet = Reg.IM.getSprite(107, 29, "huditem", 1);
 			add(el_bullet);

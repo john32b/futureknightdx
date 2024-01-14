@@ -89,8 +89,7 @@ class Inventory extends FlxSpriteGroup
 		// -- Menu Button
 		options = D.text.get('menu', 158, 5,  {c:Pal_CPCBoy.COL[31]});
 		options_bg = new FlxSprite(options.x + 1, options.y + 1);
-			var opt_fix = #if html5 -8; #else 0; #end
-		options_bg.makeGraphic(cast options.width - 2, cast options.height - 2 + opt_fix, GRID_CURSOR_COLOR);
+		options_bg.makeGraphic(cast options.width - 2, cast options.height - 2, GRID_CURSOR_COLOR);
 		add(options_bg);
 		add(options);
 		
@@ -103,14 +102,7 @@ class Inventory extends FlxSpriteGroup
 		text.fieldWidth = 100;
 		text.alignment = "center";
 		add(text);
-		
-		#if html5
-			options.y -= 9;
-			text_level.y -= 9;
-			text.y -= 9;
-		#end
-		
-		
+				
 		// --
 		cursor = new FlxSprite();
 		cursor.makeGraphic(GRID_BOX_SIZE+2, GRID_BOX_SIZE+2, GRID_CURSOR_COLOR);

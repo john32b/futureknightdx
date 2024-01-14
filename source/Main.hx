@@ -20,7 +20,7 @@ class Main extends Sprite
 			init:Reg.init
 		});
 		
-		addChild(new FlxGame(320, 240, START_STATE, FPS, FPS, true)); // true = SkipSplash
+		addChild(new FlxGame(320, 240, START_STATE, FPS, FPS, true));
 	}//---------------------------------------------------;
 	
 }//--end class--

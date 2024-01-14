@@ -141,12 +141,6 @@ class Reg
 			new Debug();
 		#end
 		
-		#if html5
-			// Font size fix for autotext mostly
-			D.text.HTML_FORCE_LEADING.set('fnt/text.ttf', [16, -8]);
-			D.text.HTML_FORCE_LEADING.set('fnt/arcade.ttf', [10, -3]);
-		#end
-		
 		// -- Game things:
 		IM = new ImageAssets();
 		

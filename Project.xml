@@ -2,45 +2,35 @@
 <project>
 	
 	<echo value="-- Building Future Knight DX --"/>
-	<echo value=" ! Border is buggy when shaders enabled" if="hl"/>
 	<echo value=" ! Remember to manually update favicon.png" if="html5"/>
 	
-	<app title="FutureKnightDX" version="1.4" package="" company="John32B" />
+	<app title="FutureKnightDX" version="1.4" company="John32B" />
 	
-	<!-- Note: You can pass OUT=path to compile to a different folder -DOUT=a:\temp\fk -->
-	<app main="Main" file="FutureKnightDX" path="bin\" />
+	<!-- Note: You can pass OUT=path to compile to a different folder -DOUT=/tmp/fkbin -->
+	<app main="Main" file="FutureKnightDX" path="bin" />
 	
 	<!-- Custom preloader, showing the Computer Border, for itch.io -->
 	<app preloader="Preloader" if="html5"/>
 
 	<window width="640" height="480" fps="40" background="#000000" hardware="true" vsync="true" />
 	
-	<!-- HTML5, .js file with Dead Code Elimination : standard=4.5MB | full=2.6MB -->
-	<!--<haxeflag name="-dce" value="std"/>-->
 	<haxeflag name="-dce" value="full"/>
-	<haxeflag name="--no-traces" unless="debug"/> 
+	<haxedef name="no-traces" unless="debug"/> 
 	
 	<haxelib name="flixel"/>
-	<haxelib name="djFlixel"/> 	<!-- flixel helpers and tools -->
-	<haxelib name="djA"/>	 	<!-- general purpose tools, like Math/String tools, Tiled map parser -->
-	
-		<!-- djFlixel specific defines -->
-		<haxedef name="HOT_LOAD" if="debug desktop"/>
-		<haxedef name="DJFLX_SND" value="snd/" />
-		<haxedef name="DJFLX_MUS" value="mus/" />
+	<haxelib name="djFlixel"/>
+	<haxelib name="djA"/>
 		
 	<source path="source" />
-	
-	<!--Uncomment this to use MP3 in HTML5 -- or  you can compile with :: lime build html5 -DMP3-->
-		<!--<define name="MP3" if="html5"/>-->
-	
-	<!-- Html5 can only pack images and map data, it doesn't matter if I add `embed=true`, does nothing -->
-	<!-- Also in html5, if assets are packed Itch.io cannot load it. So only desktop packed assets for now -->
+
+	<!-- NOTE on library
+		Html5 can only pack images and map data, it doesn't matter if I add `embed=true`, does nothing
+		Also in html5, if assets are packed Itch.io cannot load it. So only desktop packed assets for now 
+	-->
 	<library name="default" type="gzip" if="desktop" preload="true" unless="debug"/>
 	
 		<assets path="assets" include="*.ini|*.json"/>
-		
-		<assets path="assets/font" type="font" include="*.ttf|*.otf|" rename="fnt"/>
+		<assets path="assets/font" type="font" include="*.ttf|*.otf" rename="fnt"/>
 		<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
 		
 		<assets path="assets/maps" type="text" include="_debug.tmx" rename="map" if="debug"/>
@@ -58,16 +48,21 @@
 			<assets path="assets/sound_ogg" type="sound" rename="snd" include="*.ogg"/>
 		</section>
 		
-	
+
 	<!-- The Lime XML Format help page told me to do it this way? -->
 	<icon path="icons/icon_16.png" size="16"/>
 	<icon path="icons/icon_32.png" size="32"/>
 	<icon path="icons/icon_48.png" size="48"/>
 	<icon path="icons/icon_128.png" size="128"/>
 	
-	<!--:: GAME DEFINES ::------------------------------------------>
+	<!-- DJFLIXEL defines-->
+		<haxedef name="HOT_LOAD" if="debug desktop"/>
+		<haxedef name="DJFLX_SND" value="snd/" />
+		<haxedef name="DJFLX_MUS" value="mus/" />
 	
-		<!--IMPROVEMENT - You can hold the shoot button. -->
+	<!-- GAME defines -->
+	
+		<!--You can hold the shoot button. -->
 		<haxedef name="SHOOT_HOLD"/>
 		
 		<!--You can only mount a ladder from the ground, like the original game-->
