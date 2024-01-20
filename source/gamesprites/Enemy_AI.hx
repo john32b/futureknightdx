@@ -39,14 +39,14 @@ import djA.DataT;
 import djA.Fsm;
 import djA.types.SimpleRect;
 import djA.types.SimpleVector;
-import flixel.tweens.FlxEase;
 
 import djFlixel.D;
 
+import flixel.FlxG;
+import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.tweens.misc.VarTween;
-import flixel.FlxG;
-import flixel.FlxObject;
+import flixel.util.FlxDirectionFlags;
 import flixel.animation.FlxAnimation;
 import flixel.math.FlxAngle;
 
@@ -78,7 +78,7 @@ class Enemy_AI
 	public function respawn()
 	{
 		e.velocity.set(startVel.x, startVel.y);
-		e.facing = e.velocity.x >= 0?FlxObject.RIGHT:FlxObject.LEFT;
+		e.facing = e.velocity.x >= 0?FlxDirectionFlags.RIGHT:FlxDirectionFlags.LEFT;
 		e.spawn_origin_move();
 	}//---------------------------------------------------;
 	// --
@@ -97,10 +97,10 @@ class Enemy_AI
 	// --
 	function turnAround()
 	{
-		if (e.facing == FlxObject.LEFT) {
-			e.facing = FlxObject.RIGHT;
+		if (e.facing == FlxDirectionFlags.LEFT) {
+			e.facing = FlxDirectionFlags.RIGHT;
 		} else {
-			e.facing = FlxObject.LEFT;
+			e.facing = FlxDirectionFlags.LEFT;
 		}
 	}//---------------------------------------------------;
 	
@@ -109,11 +109,11 @@ class Enemy_AI
 	{
 		if (e.x + e.halfWidth < Reg.st.player.x + Reg.st.player.halfWidth - CHASE_CORRECTION) {
 			e.velocity.x = e.speed;
-			e.facing = FlxObject.RIGHT;
+			e.facing = FlxDirectionFlags.RIGHT;
 		}else
 		if (e.x + e.halfWidth > Reg.st.player.x + Reg.st.player.halfWidth + CHASE_CORRECTION ) {
 			e.velocity.x = -e.speed;
-			e.facing = FlxObject.LEFT;
+			e.facing = FlxDirectionFlags.LEFT;
 		}
 		else
 			e.velocity.x = 0;
@@ -611,9 +611,9 @@ class AI_Chase extends Enemy_AI
 		//e.velocity.x = Reg.P.en_speed * Math.cos(r1);
 		//e.velocity.y = Reg.P.en_speed * Math.sin(r1);
 		//if (e.velocity.x > 0)
-			//e.facing  = FlxObject.RIGHT;
+			//e.facing  = FlxDirectionFlags.RIGHT;
 		//else
-			//e.facing = FlxObject.LEFT;
+			//e.facing = FlxDirectionFlags.LEFT;
 	}//---------------------------------------------------;
 	
 }// --
@@ -730,9 +730,9 @@ class AI_Move_X extends Enemy_AI
 		if (O.platform_bound) {
 			var floorY = e.spawn_origin_set(1);
 			// Check where platform ends:
-			var B = Reg.st.map.get2RayCast(e.SPAWN_TILE.x, floorY, true, FlxObject.NONE);
+			var B = Reg.st.map.get2RayCast(e.SPAWN_TILE.x, floorY, true, FlxDirectionFlags.NONE);
 			// Check for walls:
-			var C = Reg.st.map.get2RayCast(e.SPAWN_TILE.x, floorY - 1, true, FlxObject.ANY);
+			var C = Reg.st.map.get2RayCast(e.SPAWN_TILE.x, floorY - 1, true, FlxDirectionFlags.ANY);
 			v0 = Math.max(B.v0, C.v0) * 8;
 			v1 = (Math.min(B.v1, C.v1) * 8) - e.width;
 			
@@ -750,7 +750,7 @@ class AI_Move_X extends Enemy_AI
 			/// Don't check for borders, trust the editor values
 		}else{
 			// Move until end of room or collides
-			var B = Reg.st.map.get2RayCast(e.SPAWN_TILE.x , e.SPAWN_TILE.y + 1, true, FlxObject.ANY);
+			var B = Reg.st.map.get2RayCast(e.SPAWN_TILE.x , e.SPAWN_TILE.y + 1, true, FlxDirectionFlags.ANY);
 			v0 = B.v0 * 8;
 			v1 = (B.v1 * 8) - e.width;
 		}
@@ -854,7 +854,7 @@ class AI_Move_Y extends Enemy_AI
 				e.y = v0;
 				e.velocity.y = -startVel.y;
 			}
-			e.facing = e.velocity.y > 0?FlxObject.RIGHT:FlxObject.LEFT;
+			e.facing = e.velocity.y > 0?FlxDirectionFlags.RIGHT:FlxDirectionFlags.LEFT;
 			return;
 		}
 		

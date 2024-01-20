@@ -31,7 +31,7 @@
 
 package tools;
 import djA.types.SimpleCoords;
-import flixel.FlxObject;
+import flixel.util.FlxDirectionFlags;
 
 
 class GridNav 
@@ -60,7 +60,7 @@ class GridNav
 	// WARNING. When the grid is created, it does not fire this.
 	public var onCursorChange:Int->Void;
 	
-	// Called when the cursor is pushed out the border (FlxObject)
+	// Called when the cursor is pushed out the border (FlxDirectionFlags)
 	// Used whtn Flag_loop is false
 	public var onEscape:Int->Void;
 	
@@ -125,19 +125,19 @@ class GridNav
 		if (cursor_pos.x == x && cursor_pos.y == y) return false;
 		if (x < 0) {
 			if (FLAG_LOOP) x = size.x - 1; else
-			if (onEscape != null) { onEscape(FlxObject.LEFT); return false; }
+			if (onEscape != null) { onEscape(FlxDirectionFlags.LEFT); return false; }
 		}else
 		if (x > size.x - 1){
 			if (FLAG_LOOP) x = 0; else
-			if (onEscape != null) { onEscape(FlxObject.RIGHT); return false; }
+			if (onEscape != null) { onEscape(FlxDirectionFlags.RIGHT); return false; }
 		}else
 		if (y < 0) {
 			if (FLAG_LOOP) y = size.y - 1; else
-			if (onEscape != null) { onEscape(FlxObject.UP); return false; }
+			if (onEscape != null) { onEscape(FlxDirectionFlags.UP); return false; }
 		}else
 		if (y > size.y - 1) {
 			if (FLAG_LOOP) y = 0; else
-			if (onEscape != null) { onEscape(FlxObject.DOWN); return false; }
+			if (onEscape != null) { onEscape(FlxDirectionFlags.DOWN); return false; }
 		}
 		cursor_pos.set(x, y);
 		index = y * size.x + x;

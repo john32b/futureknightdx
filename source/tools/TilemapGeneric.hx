@@ -67,7 +67,6 @@ class TilemapGeneric extends FlxGroup
 		layers = [];
 		while (numLayers-->0) {
 			var l = new FlxTilemap();
-			l.useScaleHack = false;
 			l.active = false;	// Do not call update?
 			layers.push(l);
 			add(l);

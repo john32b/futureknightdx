@@ -21,6 +21,7 @@ import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.group.FlxGroup;
 import flixel.tile.FlxTile;
+import flixel.util.FlxDirectionFlags;
 import gamesprites.Bullet;
 
  
@@ -112,7 +113,7 @@ class BulletManager extends FlxGroup
 	function _collideMap(A:FlxTile, B:Bullet):Bool
 	{
 		if (B._phasing || !B.alive) return false;
-		if (A.allowCollisions == FlxObject.ANY) {
+		if (A.allowCollisions == FlxDirectionFlags.ANY) {
 			killBullet(B, true);
 			D.snd.play(Bullet.SND.wall, 0.8);
 			return true;

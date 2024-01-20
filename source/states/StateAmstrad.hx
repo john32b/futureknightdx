@@ -15,7 +15,7 @@ import djFlixel.ui.FlxAutoText;
 import djFlixel.other.FlxSequencer;
 import flixel.FlxG;
 import flixel.FlxState;
-import flixel.system.FlxSound;
+import flixel.sound.FlxSound;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 

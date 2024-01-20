@@ -12,8 +12,8 @@ package gamesprites;
 
 import djFlixel.D;
 import flixel.FlxG;
-import flixel.FlxObject;
 import flixel.FlxSprite;
+import flixel.util.FlxDirectionFlags;
 import flixel.math.FlxAngle;
 import gamesprites.Player;
 
@@ -81,9 +81,9 @@ class Bullet extends FlxSprite
 		animation.add("e_2", [8, 9], FPS);
 		setSize(4, 4);
 		centerOffsets();
-		setFacingFlip(FlxObject.LEFT, true, false);
-		setFacingFlip(FlxObject.RIGHT, false, false);
-		facing = FlxObject.RIGHT;
+		setFacingFlip(FlxDirectionFlags.LEFT, true, false);
+		setFacingFlip(FlxDirectionFlags.RIGHT, false, false);
+		facing = FlxDirectionFlags.RIGHT;
 	}//---------------------------------------------------;
 	
 	/**
@@ -100,7 +100,7 @@ class Bullet extends FlxSprite
 		velocity.set(0, 0);
 		
 		if (FACE > 0) {
-			if (FACE == FlxObject.LEFT) {
+			if (FACE == FlxDirectionFlags.LEFT) {
 				velocity.x = -T.speed;
 				_travelTarget = Std.int(x - T.distance);
 			}else{
@@ -143,8 +143,8 @@ class Bullet extends FlxSprite
 		// :: Check for distance
 		if (T.distance > 0)
 		{
-			if 	( (facing == FlxObject.RIGHT && x > _travelTarget) ||
-				  (facing == FlxObject.LEFT  && x < _travelTarget) ) 
+			if 	( (facing == FlxDirectionFlags.RIGHT && x > _travelTarget) ||
+				  (facing == FlxDirectionFlags.LEFT  && x < _travelTarget) ) 
 			{
 				manager.killBullet(this);
 				return;

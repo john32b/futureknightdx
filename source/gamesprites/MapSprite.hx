@@ -36,8 +36,8 @@ class MapSprite extends FlxSprite
 	public function new()
 	{
 		super();
-		setFacingFlip(FlxObject.LEFT, true, false);
-		setFacingFlip(FlxObject.RIGHT, false, false);
+		setFacingFlip(LEFT, true, false);
+		setFacingFlip(RIGHT, false, false);
 	}//---------------------------------------------------;
 	
 	// --

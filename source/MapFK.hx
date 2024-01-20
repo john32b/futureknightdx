@@ -60,6 +60,7 @@ import flixel.FlxSprite;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.tweens.misc.VarTween;
+import flixel.util.FlxDirectionFlags;
 import gamesprites.AnimatedTile;
 import gamesprites.Item;
 import gamesprites.Item.ITEM_TYPE;
@@ -602,14 +603,14 @@ class MapFK extends TilemapGeneric
 		// Notes:
 		// . Declaring SOLIDS is not needed, everytile is solid by default
 		// . Animated hazard tiles, not needed, they are converted to Entities
-		m.setTileProperties(C[SOFT][0], FlxObject.CEILING, null, null, C[SOFT][1]);
-		m.setTileProperties(C[LADDER][0], FlxObject.NONE, null, null, C[LADDER][1]);
-		m.setTileProperties(C[LADDER_TOP][0], FlxObject.CEILING, null, null, C[LADDER_TOP][1]);
+		m.setTileProperties(C[SOFT][0], FlxDirectionFlags.CEILING, null, null, C[SOFT][1]);
+		m.setTileProperties(C[LADDER][0], FlxDirectionFlags.NONE, null, null, C[LADDER][1]);
+		m.setTileProperties(C[LADDER_TOP][0], FlxDirectionFlags.CEILING, null, null, C[LADDER_TOP][1]);
 		
 		if (MAP_TYPE == MAP_SPACE)
 		{
-			m.setTileProperties(C[SLIDE_LEFT][0], FlxObject.ANY, _tilecol_slide_left, null, C[SLIDE_LEFT][1]);
-			m.setTileProperties(C[SLIDE_RIGHT][0], FlxObject.ANY, _tilecol_slide_right, null, C[SLIDE_RIGHT][1]);
+			m.setTileProperties(C[SLIDE_LEFT][0], FlxDirectionFlags.ANY, _tilecol_slide_left, null, C[SLIDE_LEFT][1]);
+			m.setTileProperties(C[SLIDE_RIGHT][0], FlxDirectionFlags.ANY, _tilecol_slide_right, null, C[SLIDE_RIGHT][1]);
 		}
 		
 	}//---------------------------------------------------;
@@ -621,14 +622,14 @@ class MapFK extends TilemapGeneric
 	{
 		if (Std.isOfType(b, Player)) {
 			var t = cast (a, flixel.tile.FlxTile);
-			player.event_slide_tile(cast a, FlxObject.LEFT);
+			player.event_slide_tile(cast a, FlxDirectionFlags.LEFT);
 		}
 	}//---------------------------------------------------;
 	function _tilecol_slide_right(a:FlxObject,b:FlxObject)
 	{
 		if (Std.isOfType(b, Player)) {
 			var t = cast (a, flixel.tile.FlxTile);
-			player.event_slide_tile(cast a, FlxObject.RIGHT);
+			player.event_slide_tile(cast a, FlxDirectionFlags.RIGHT);
 		}
 	}//---------------------------------------------------;	
 	
@@ -685,7 +686,7 @@ class MapFK extends TilemapGeneric
 		for (i in 0...8) {
 			var y1 = y + i;
 			var t = layerCol().getTile(x, y1);	// No check is needed?
-			if (t > 0 && (layerCol().getTileCollisions(t) & FlxObject.ANY > 0))
+			if (t > 0 && (layerCol().getTileCollisions(t) & FlxDirectionFlags.ANY > 0))
 			{
 				return y1;
 			}
@@ -993,12 +994,12 @@ class MapFK extends TilemapGeneric
 		var s = new StepTimer((t, f)->{
 			if (f){
 				_isflashing = false;
-				camera.setFilters([]);
+				camera.filters=[];
 				if (callback != null) callback();
 				return;
 			}
 			var f = MAT[t % MAT.length];	
-			camera.setFilters([new ColorMatrixFilter(f)]);
+			camera.filters = [new ColorMatrixFilter(f)];
 		});	
 		s.start(0, TICKS, -0.1);
 		_isflashing = true;

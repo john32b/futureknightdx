@@ -21,9 +21,9 @@ import djFlixel.D;
 
 import flixel.effects.FlxFlicker;
 import flixel.FlxG;
-import flixel.FlxObject;
 import flixel.FlxSprite;
-import flixel.system.FlxSound;
+import flixel.util.FlxDirectionFlags;
+import flixel.sound.FlxSound;
 import flixel.tile.FlxTile;
 
 
@@ -163,8 +163,8 @@ class Player extends FlxSprite
 		
 		Reg.IM.loadGraphic(this, 'player', COLOR_COMBO);
 		
-		setFacingFlip(FlxObject.LEFT, true, false);
-		setFacingFlip(FlxObject.RIGHT, false, false);
+		setFacingFlip(FlxDirectionFlags.LEFT, true, false);
+		setFacingFlip(FlxDirectionFlags.RIGHT, false, false);
 		
 		// Animations
 		animation.add("idle", 	[1], 1, false);
@@ -353,7 +353,7 @@ class Player extends FlxSprite
 			return;
 		}
 		
-		if (justTouched(FlxObject.CEILING))
+		if (justTouched(FlxDirectionFlags.CEILING))
 		{
 			health -= Reg.P_DAM.from_ceil;
 			if (health < 0) health = 0;
@@ -373,7 +373,7 @@ class Player extends FlxSprite
 				animation.play("fall");
 			}
 			
-			if (justTouched(FlxObject.FLOOR))	// landed
+			if (justTouched(FlxDirectionFlags.FLOOR))	// landed
 			{
 				velocity.set(0, 0);
 				D.snd.play(snd.land);
@@ -496,14 +496,14 @@ class Player extends FlxSprite
 		}
 		
 		// :: UPDATE
-		if (!isTouching(FlxObject.FLOOR)) // Has the player walked off a platform?
+		if (!isTouching(FlxDirectionFlags.FLOOR)) // Has the player walked off a platform?
 		{
 			_verticalJump = true;
 			velocity.x = 0;	// drop flat
 			fsm.goto(ONAIR);
 			return;
 			
-		}else if (justTouched(FlxObject.WALL))
+		}else if (justTouched(FlxDirectionFlags.WALL))
 		{
 			_walkBlockDir = facing;	// At this face I just hit a wall in this cycle
 			_walk_stop_cycle();
@@ -532,13 +532,13 @@ class Player extends FlxSprite
 		// :: INPUT : Ordering is important
 		if (_pressingRight)
 		{
-			facing = FlxObject.RIGHT;
+			facing = FlxDirectionFlags.RIGHT;
 			velocity.x = SPEED;
 			_walk_start_req();
 		}
 		else if (_pressingLeft)
 		{
-			facing = FlxObject.LEFT;
+			facing = FlxDirectionFlags.LEFT;
 			velocity.x = -SPEED;
 			_walk_start_req();
 		}
@@ -691,7 +691,7 @@ class Player extends FlxSprite
 		{
 			if (FlxG.game.ticks - _shoot_time < _bullet_fix_time) return;
 			
-			var X = (facing == FlxObject.RIGHT?x + width + BULLET_X_PAD:x - BULLET_X_PAD);
+			var X = (facing == FlxDirectionFlags.RIGHT?x + width + BULLET_X_PAD:x - BULLET_X_PAD);
 			if (Reg.st.BM.createAt(bullet_type, X, y + halfHeight, facing))
 			{
 				// bullet shot OK
@@ -779,9 +779,9 @@ class Player extends FlxSprite
 		isFalling = false;		// Init here does not matter, gets inited before use.
 		
 		if (x > Reg.st.map.roomCornerPixel.x + (Reg.st.map.ROOM_WIDTH / 2)) {
-			facing = FlxObject.LEFT;
+			facing = FlxDirectionFlags.LEFT;
 		}else{
-			facing = FlxObject.RIGHT;
+			facing = FlxDirectionFlags.RIGHT;
 		}
 		
 		fsm.goto(ONFLOOR);
@@ -958,7 +958,7 @@ class Player extends FlxSprite
 	public function event_slide_tile(tile:FlxTile, tileDir:Int)
 	{	
 		if (velocity.y < 0) return;
-		if (!isTouching(FlxObject.DOWN | FlxObject.WALL)) return;
+		if (!isTouching(FlxDirectionFlags.DOWN | FlxDirectionFlags.WALL)) return;
 		
 		// :: Get where the slide ends, Will search for an EMPTY TILE
 		var tx = Std.int(tile.x / 8);
@@ -966,7 +966,7 @@ class Player extends FlxSprite
 	
 		if (y >= (ty * 8) - height + SLIDE_MOUNT_PIXELS_Y_OFF) return;	// tile too high and I come from the sides
 		
-		var xdir:Int = tileDir == FlxObject.RIGHT?1: -1;
+		var xdir:Int = tileDir == FlxDirectionFlags.RIGHT?1: -1;
 		
 		// Snap player to tile
 		x = (tx * 8);

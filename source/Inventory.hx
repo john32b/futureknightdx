@@ -10,13 +10,13 @@ package;
 import djFlixel.D;
 import djFlixel.gfx.pal.Pal_CPCBoy;
 import flixel.FlxG;
-import flixel.FlxObject;
 import flixel.group.FlxSpriteGroup;
 import flixel.FlxSprite;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.tweens.misc.VarTween;
+import flixel.util.FlxDirectionFlags;
 import haxe.EnumTools;
 import tools.GridNav;
 
@@ -113,7 +113,7 @@ class Inventory extends FlxSpriteGroup
 		grid.set_box_size(GRID_BOX_SIZE, GRID_BOX_SIZE, GRID_PAD, GRID_PAD);
 		grid.onCursorChange = handle_cursor_change;
 		grid.onEscape = (d)->{
-			if (d == FlxObject.UP){
+			if (d == FlxDirectionFlags.UP){
 				group_focus(0);
 				D.snd.playV(SND.tick);
 			}
