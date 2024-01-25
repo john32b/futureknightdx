@@ -22,7 +22,8 @@ import flixel.tweens.FlxTween;
 
 class StateAmstrad extends FlxState
 {
-	static inline var _NEXT_MIN_TIME = 1;	// Wait this much until you can press enter to go to next state
+	// Wait this much until you can press enter to go to next state
+	static inline var _NEXT_MIN_TIME = 1;
 	var _time:Float = 0;
 	//----------------------------------------------------;
 	
@@ -44,7 +45,7 @@ class StateAmstrad extends FlxState
 				var textBoot = new FlxAutoText(24	, 0, 290, 0);
 					textBoot.style = {f:"fnt/arcade.ttf", s:10, c:COL[1], bc:COL[2], bt:1};
 					textBoot.alpha = 0.3;
-					textBoot.setCarrier('_', 0.2);
+					textBoot.setCaret('_', 0.2);
 					textBoot.onComplete = seq.nextV;
 					textBoot.setText(Reg.INI.get('text', 'amstrad'));
 					add(textBoot);

@@ -18,12 +18,12 @@ import tools.CRTShader;
 
 
 /**
- * Various Global Vars/Functiona
- */
+ * Static Globals, functions and vars
+*/
 class Reg 
 {
 	
-	public static inline var VERSION = "1.4.1";
+	public static inline var VERSION = djA.Macros.getDefine("APP_VER");
 	
 	// :: External parameters
 	static inline var PATH_INI  = "assets/fkdx.ini";
@@ -44,7 +44,7 @@ class Reg
 		i_time			: 0.5,	// Player invisibility times after being hit
 		max_damage 		: 60,	// Maximum amount of damage per hit, to enemy or player. 
 								// This is because entities take damage equal to the health of the other entity when collided
-								// e.g. when player collides with BOSS, both will get hurt by this much3
+								// e.g. when player collides with BOSS, both will get hurt by this much
 		bomb_damage		: 250	// Mostly damage to the final boss. other enemies are insta kill forever
 	};
 
@@ -128,7 +128,7 @@ class Reg
 	// Gets called once After FLXGame and before first State
 	public static function init()
 	{
-		trace(" >>> Reg init() ");
+		trace('> Reg init. Game version : ${VERSION}');
 		
 		D.ui.initIcons([8]);
 		D.assets.HOT_LOAD = [PATH_INI];
@@ -160,9 +160,9 @@ class Reg
 	}//---------------------------------------------------;
 	
 	
-	// -- Add a border on top of everything
-	//   WARNING: HL is buggy and will apply filters to the border as well??! Why??
-	//			  HTML5 and CPP have no issues 
+	/**	Adds an amstrad cpc - like border on top of everything
+		@param state true:add , false:remove
+	**/
 	public static function setBorder(state:Bool)
 	{
 		if (border == null) {
@@ -315,8 +315,8 @@ class Reg
 	
 	
 	/**
-	   Plays a track from the {musicData} Table, applies Looping infos
-	   @param	i
+	   Plays a track from the `musicData` Table, applies Looping infos
+	   @param	i 0...4
 	**/
 	public static function playMusicIndex(i:Int)
 	{
@@ -374,7 +374,10 @@ class Reg
 		#if flash
 			// Do nothing.
 			return FILTER_TYPE = val;
-		#end
+		#else
+		
+		return FILTER_TYPE = val;
+
 		
 		if (val == 0)
 		{
@@ -413,6 +416,8 @@ class Reg
 		
 		FILTER_TYPE = val;
 		return FILTER_TYPE;	
+
+		#end // end if (!flash)
 	}//---------------------------------------------------;
 	
 }//--

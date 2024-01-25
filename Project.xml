@@ -1,71 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
-	
-	<echo value="-- Building Future Knight DX --"/>
-	<echo value=" ! Remember to manually update favicon.png" if="html5"/>
-	
-	<app title="FutureKnightDX" version="1.4" company="John32B" />
-	
-	<!-- Note: You can pass OUT=path to compile to a different folder -DOUT=/tmp/fkbin -->
-	<app main="Main" file="FutureKnightDX" path="bin" />
-	
-	<!-- Custom preloader, showing the Computer Border, for itch.io -->
-	<app preloader="Preloader" if="html5"/>
 
-	<window width="640" height="480" fps="40" background="#000000" hardware="true" vsync="true" />
+	<!-- Note, define can also be read by code, set is only for inner XML -->
+	<define name="APP_VER" value="1.4.2" />
+	<set name="APP_FILE" value="FutureKnightDX"/>
+	<set name="APP_TITLE" value="Future Knight DX"/>
+	<!-- you can override FPS with "-DFPS=60", default 40 -->
+	<define name="FPS" value="40" unless="FPS"/> 
+
+	<!-- GAME defines -->
 	
-	<haxeflag name="-dce" value="full"/>
-	<haxedef name="no-traces" unless="debug"/> 
+		<!--You can hold the shoot button. -->
+		<define name="SHOOT_HOLD"/>
+
+		<!--You can only mount a ladder from the ground, like the original game-->
+		<!--<define name="CLASSIC_LADDER"/>-->
+			
+	<!-- App Setup -->
+	<source path="source" />
+	<app main="Main" path="bin/" />
+	<app file="${APP_FILE}" title="${APP_TITLE}" version="${APP_VER}" company="John32B" />
+	<window width="640" height="480" fps="${APP_FPS}" background="#030302" />
+	<window allow-shaders="true" hardware="true" vsync="true" />
 	
+	<!-- HTML specific-->
+	<section if="html5">
+		<app preloader="Preloader"/>
+		<window fps="0" />
+	</section>
+
+	<!-- djflixel related -->
+	<haxedef name="HOT_LOAD" if="debug flash"/>
+	<haxedef name="DJFLX_SND" value="snd/"/>
+	<haxedef name="DJFLX_MUS" value="mus/"/>
+
+	<!-- Haxe defines -->
+	<haxeflag name="-dce" value="std" unless="final"/>
+	<haxeflag name="-dce" value="full" if="final"/>
+	<haxedef name="no-traces" unless="debug"/>
+		
+	<!-- Import djFlixel after app parameters -->
+	<!-- djflixel 0.5.9 | flixel 5.5 -->
 	<haxelib name="flixel"/>
 	<haxelib name="djFlixel"/>
 	<haxelib name="djA"/>
-		
-	<source path="source" />
 
-	<!-- NOTE on library
-		Html5 can only pack images and map data, it doesn't matter if I add `embed=true`, does nothing
-		Also in html5, if assets are packed Itch.io cannot load it. So only desktop packed assets for now 
-	-->
-	<library name="default" type="gzip" if="desktop" preload="true" unless="debug"/>
+	<!-- ASSETS -->
+	<library name="default" type="gzip" preload="true" if="release hl"/>
+	<assets path="assets" include="*.ini|*.json"/>
+	<assets path="assets/font" type="font" include="*.ttf|*.otf" rename="fnt"/>
+	<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
 	
-		<assets path="assets" include="*.ini|*.json"/>
-		<assets path="assets/font" type="font" include="*.ttf|*.otf" rename="fnt"/>
-		<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
-		
-		<assets path="assets/maps" type="text" include="_debug.tmx" rename="map" if="debug"/>
-		<assets path="assets/maps" type="text" exclude="_debug.tmx " include="*.tmx" rename="map"/>
-				
-		<section if="MP3">
-			<echo value=" . using MP3 sounds"/>
-			<assets path="assets/music" type="music" rename="mus" include="*.mp3"/>
-			<assets path="assets/sound_mp3" type="sound" rename="snd" include="*.mp3"/>
-		</section>
-		
-		<section unless="MP3">
-			<echo value=" . using OGG sounds"/>
-			<assets path="assets/music" type="music" rename="mus" include="*.ogg"/>
-			<assets path="assets/sound_ogg" type="sound" rename="snd" include="*.ogg"/>
-		</section>
-		
+	<assets path="assets/maps" type="text" include="_debug.tmx" rename="map" if="debug"/>
+	<assets path="assets/maps" type="text" exclude="_debug.tmx " include="*.tmx" rename="map"/>
+			
+	<section if="MP3">
+		<assets path="assets/music" type="music" rename="mus" include="*.mp3"/>
+		<assets path="assets/sound_mp3" type="sound" rename="snd" include="*.mp3"/>
+	</section>
+	
+	<section unless="MP3">
+		<assets path="assets/music" type="music" rename="mus" include="*.ogg"/>
+		<assets path="assets/sound_ogg" type="sound" rename="snd" include="*.ogg"/>
+	</section>
 
-	<!-- The Lime XML Format help page told me to do it this way? -->
+	<!-- The Lime XML Format help page told me to do it this way? 
+		 It Does not work
+	-->
 	<icon path="icons/icon_16.png" size="16"/>
 	<icon path="icons/icon_32.png" size="32"/>
 	<icon path="icons/icon_48.png" size="48"/>
 	<icon path="icons/icon_128.png" size="128"/>
-	
-	<!-- DJFLIXEL defines-->
-		<haxedef name="HOT_LOAD" if="debug desktop"/>
-		<haxedef name="DJFLX_SND" value="snd/" />
-		<haxedef name="DJFLX_MUS" value="mus/" />
-	
-	<!-- GAME defines -->
-	
-		<!--You can hold the shoot button. -->
-		<haxedef name="SHOOT_HOLD"/>
-		
-		<!--You can only mount a ladder from the ground, like the original game-->
-		<!--<haxedef name="CLASSIC_LADDER"/>-->
-		
+
+
+	<!-- Logging -->
+
+	<!-- VSCODE does not like tracing or log lines -->
+	<!-- <log info="Building Future Knight DX " />
+	<log info="Version ${APP_VER}" />
+	<log info="Filename ${APP_FILE}" /> -->
+
 </project>

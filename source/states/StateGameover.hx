@@ -1,7 +1,11 @@
 /**
-   - A quick GameOver screen
+	Gameover screen
+	-------
+
+   - A quick GameOver screen, then it goes to StateTitle
    - It WILL delete the savegame.
-**/
+
+ **/
 
 package states;
 

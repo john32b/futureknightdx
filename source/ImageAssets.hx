@@ -36,8 +36,13 @@ class ImageAssets
 		tiles_shadow:"im/tiles_sh.png",
 		minimap:"im/minimap.png"
 	};
-	
-	// col: Whether or not a bitmap is templated to be colorized
+
+	/*
+	 Sprite Assets
+	 asset_id -> { 	im:Actual openfl asset path,
+			tw: tilewidth, th: tileheight
+			col: Color Templated? True will be colorized
+	 } */
 	static var GFX:Map<String,{im:String,tw:Int,th:Int,col:Bool}> = [
 		"player" => { im:"im/ts_player.png", tw:28, th:26, col:true},
 		"enemy_sm" =>  {im:"im/ts_enemy_sm.png", tw:24, th:24, col:true},
@@ -144,9 +149,9 @@ class ImageAssets
 	
 	/**
 	   Load a graphic to a sprite from the predefined ones
-	   @param	sprite 
-	   @param	name Name in "GFX" map
-	   @param	C Color Combo String | CC_MAP key
+	   @param	sprite The sprite to load the graphic to
+	   @param	name Name/id in the `GFX` map
+	   @param	C Color Combo String | CC_MAP key, e.g. `yellow2`
 	**/
 	public function loadGraphic(sprite:FlxSprite, name:String, ?C:String)
 	{
