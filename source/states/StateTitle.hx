@@ -137,7 +137,7 @@ class StateTitle extends FlxState
 	{
 		super.update(elapsed);
 		
-		// :: Change the star angle over time
+		// :: Change the star angle over time *EASTEREGG*
 		//    Easter egg, pressing (LB) , (RB) 
 		if ((starsTimer += elapsed) > 0.1) {
 			starsTimer = 0;
@@ -293,8 +293,8 @@ class StateTitle extends FlxState
 			-| Help       | link | help
 		");
 			
-		// DEV: The ordering of the first three(3) MATTERS.
-		//      I will be reading them by index later on {Reg.menu_handle_common}
+		// DEV: The ordering of the first (4) MATTERS.
+		//		upon entering this page, those items will be
 		menu.createPage("options", "Options").add("
 			-| Volume     | range | c_vol | 0,100 | step=5
 			-| Music	  | toggle| c_mus
@@ -305,31 +305,21 @@ class StateTitle extends FlxState
 		");
 		
 		
-		//menu.pages["options"].PAR.slots = 4;	// 
-		
 		menu.onMenuEvent = (a, b)->{
-			if (a == page && b == "options") {
-				Reg.menu_handle_common(menu);
-			}else
-			
-			if (a == page && b == "main") {
-				var S = Reg.SAVE_EXISTS();
-				menu.item_update(1, (t)->{ t.disabled = !S; }); // resume
-				menu.item_update(0, (t)->{ // new game
-					if (S) { // Fullpage Confirmation
-						// <HACK>
-						// t.data.type = 3; errors on <HASHLINK>. why wtf.
-						Reflect.setProperty(t.P, "ltype", 3);
-					}else{
-						Reflect.setProperty(t.P, "ltype", 1);
-					}
-					
-				});
+			switch([a,b]){
+			case [page,"options"]:
+				Reg.menu_handle_shared(menu);
+			case [page,"main"]:
+				var sx = Reg.SAVE_EXISTS();
+				menu.item_update(null,'g_res', (t)->{ t.disabled = !sx; });
+				menu.item_update(null,'g_new', (t)->{ t.P.ltype = sx?3:1; });
+				// ^DEV: hacking a link to be a full page confirm (3)
+				//		 or a simple link (1)
+			default:
 			}
 		};
 		
 		menu.onItemEvent = (a, b)->{
-			
 			if (a == fire) switch (b.ID) {
 				// - main
 				case "g_res":
@@ -362,14 +352,15 @@ class StateTitle extends FlxState
 					slides.goto(0);
 					
 				default:
-					Reg.menu_handle_common(menu, b);
+					// Handle the rest of option buttons here:
+					Reg.menu_handle_shared(menu, b);
 			}
 		};
 		
 		
 	}//---------------------------------------------------;
 	
-	// :: BUILD and rethrn the help slides
+	// :: BUILD and return the help slides
 	// - Controls
 	// - Item description
 	// - Game infos

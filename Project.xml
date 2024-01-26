@@ -5,22 +5,17 @@
 	<define name="APP_VER" value="1.4.2" />
 	<set name="APP_FILE" value="FutureKnightDX"/>
 	<set name="APP_TITLE" value="Future Knight DX"/>
-	<!-- you can override FPS with "-DFPS=60", default 40 -->
 	<define name="FPS" value="40" unless="FPS"/> 
-
 	<!-- GAME defines -->
-	
-		<!--You can hold the shoot button. -->
-		<define name="SHOOT_HOLD"/>
-
-		<!--You can only mount a ladder from the ground, like the original game-->
+		<!-- Hold button to shoot -->
+		<define name="SHOOT_HOLD"/> 
+		<!--Mount a ladder from the ground only (like the original game) -->
 		<!--<define name="CLASSIC_LADDER"/>-->
-			
+
 	<!-- App Setup -->
-	<source path="source" />
 	<app main="Main" path="bin/" />
 	<app file="${APP_FILE}" title="${APP_TITLE}" version="${APP_VER}" company="John32B" />
-	<window width="640" height="480" fps="${APP_FPS}" background="#030302" />
+	<window width="640" height="480" fps="${FPS}" background="#030302" />
 	<window allow-shaders="true" hardware="true" vsync="true" />
 	
 	<!-- HTML specific-->
@@ -28,6 +23,9 @@
 		<app preloader="Preloader"/>
 		<window fps="0" />
 	</section>
+
+	<!-- NOTE, declare classpath after window/app  -->
+	<classpath path="source/" />
 
 	<!-- djflixel related -->
 	<haxedef name="HOT_LOAD" if="debug flash"/>
@@ -39,7 +37,6 @@
 	<haxeflag name="-dce" value="full" if="final"/>
 	<haxedef name="no-traces" unless="debug"/>
 		
-	<!-- Import djFlixel after app parameters -->
 	<!-- djflixel 0.5.9 | flixel 5.5 -->
 	<haxelib name="flixel"/>
 	<haxelib name="djFlixel"/>
@@ -71,13 +68,5 @@
 	<icon path="icons/icon_32.png" size="32"/>
 	<icon path="icons/icon_48.png" size="48"/>
 	<icon path="icons/icon_128.png" size="128"/>
-
-
-	<!-- Logging -->
-
-	<!-- VSCODE does not like tracing or log lines -->
-	<!-- <log info="Building Future Knight DX " />
-	<log info="Version ${APP_VER}" />
-	<log info="Filename ${APP_FILE}" /> -->
 
 </project>

@@ -3,15 +3,10 @@
 	Editor Tiles Infos
 	- Describe the tile Indexes that come from the TILED MAPS.
 	
-   == TILED EXIT PROPERTIES
-
-		-name , is just an ID
-		-goto, where to go "mapname,ID"
-		req, requirements to unlock, "item:ITEM_ENUM"
-		e.g.
-		- name = A
-		- prop.goto = "level_03:B"
-		- prot.req = "item:EXIT_PASS"
+   == TILED `EXIT` PROPERTIES
+		`name`, just an ID, "A"
+		`goto`, where to go , format `mapname,ID`, "level_03:B"
+		`req`, requirements to unlock, `item:ITEM_ENUM`, "item:SECURO_KEY"
 		
 -------------------------------------------------------- */
 

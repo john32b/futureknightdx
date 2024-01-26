@@ -87,8 +87,8 @@ class Hud extends FlxGroup
 		camera = new FlxCamera(
 			Std.int(HUD_SCREEN_X),			// IN SCREEN PIXELS
 			Std.int((C.height) + C.y), 		// IN SCREEN PIXELS
-			bg.frameWidth  + 1,									// IN GAME PIXELS
-			bg.frameHeight + 1									// IN GAME PIXELS
+			bg.frameWidth  + 1,				// IN GAME PIXELS
+			bg.frameHeight + 1				// IN GAME PIXELS
 		);
 		
 		FlxG.cameras.add(camera, false);	// false means not a default camera. Only this group will draw on this camera

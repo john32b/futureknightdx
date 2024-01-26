@@ -5,13 +5,9 @@ import djFlixel.D;
 import djFlixel.other.DelayCall;
 import djFlixel.ui.FlxMenu;
 import djFlixel.ui.menu.MItemData;
-import flixel.FlxCamera;
 import flixel.FlxG;
-import flixel.FlxSprite;
 import flixel.system.FlxAssets;
-import flixel.system.scaleModes.PixelPerfectScaleMode;
 import openfl.display.Bitmap;
-import openfl.display.Sprite;
 import states.StatePlay;
 import states.SubStatePause;
 import tools.CRTShader;
@@ -22,7 +18,7 @@ import tools.CRTShader;
 */
 class Reg 
 {
-	
+	// Read version from project.xml
 	public static inline var VERSION = djA.Macros.getDefine("APP_VER");
 	
 	// :: External parameters
@@ -135,18 +131,12 @@ class Reg
 		D.assets.onLoad = onAssetLoad;
 		D.assets.loadNow();	// < Basically triggers onAssetLoad(); to parse the config files
 		
-		SHADER = new CRTShader();
-		
 		#if debug
 			new Debug();
 		#end
 		
-		// -- Game things:
 		IM = new ImageAssets();
-		
-		//The shader will regenerate after a resize, so it's not that bad now
-		//FlxG.scaleMode = new PixelPerfectScaleMode();
-		FlxG.sound.soundTrayEnabled = false;
+		SHADER = new CRTShader();
 
 		SAVE_SETTINGS(false);	// restore & apply
 		SAVE_KEYS();			// restore & apply keys
@@ -157,6 +147,7 @@ class Reg
 		
 		// --
 		FlxG.autoPause = false;
+		FlxG.sound.soundTrayEnabled = false;
 	}//---------------------------------------------------;
 	
 	
@@ -227,7 +218,10 @@ class Reg
 		st.openSubState(new SubStatePause());
 	}//---------------------------------------------------;
 	
-	// - If not save, then restore 
+	/**
+		Save/Restore settings
+		@param save if true will save, false to restore
+	**/
 	public static function SAVE_SETTINGS(save:Bool = true)
 	{
 		D.save.setSlot(0);
@@ -235,7 +229,7 @@ class Reg
 		if (save)
 		{
 			D.save.save('settings', {
-				vol: FlxG.sound.volume,
+				vol: Std.int(FlxG.sound.volume * 100),
 				bord: FlxG.stage.contains(border),
 				filter: FILTER_TYPE
 			});
@@ -250,12 +244,12 @@ class Reg
 			if (SET == null) SET = {
 					filter:2,
 					bord:true,
-					vol:0.85
+					vol:85
 				};
 			FILTER_TYPE = SET.filter;
 			setBorder(SET.bord);
-			D.snd.setVolume("master", SET.vol);
-			trace(" -- Settings Applied", SET);
+			D.snd.setVolume("master", SET.vol / 100);
+			trace("-- Settings Applied", SET);
 		}
 	}//---------------------------------------------------;
 	
@@ -273,11 +267,11 @@ class Reg
 			var K = D.save.load('keys');
 			if (K == null) return;
 			D.ctrl.keymap_set(K);
-			trace(" -- Keys Restored", K);
+			trace("-- Keys Restored", K);
 		}else{
 			D.save.save('keys', keys);
 			D.save.flush();
-			trace("- Keys Saved", keys);
+			trace("-- Keys Saved", keys);
 		}
 	}//---------------------------------------------------;
 	
@@ -330,14 +324,14 @@ class Reg
 	
 	/**
 	   DOUBLE FUNCTION - SETS initial Values and READS from ItemData
-	   Handle some common options of the FlxMenu
+	   Handle some shared options of the FlxMenu
 	   Shared between the Main Title Menu and the Gameplay Menu
 	   The Ordering matters , because I am doing it by index
 	   @param	m the Menu
-	   @param	m If set, then this is in SET MODE. Else READ MODE
+	   @param	b If set, then this is in SET MODE. Else READ MODE
 	   @return
 	**/
-	public static function menu_handle_common(m:FlxMenu, ?b:MItemData)
+	public static function menu_handle_shared(m:FlxMenu, ?b:MItemData)
 	{
 		if (b == null) // SET DATA, when the Page Opens
 		{
@@ -347,7 +341,8 @@ class Reg
 			m.item_update(3, (t)->t.set(FILTER_TYPE));
 		}else{
 			
-			// READ and apply DATA from the item
+			// This handles option item calls sent from 
+			// the main menu AND the pause menu
 			switch (b.ID)
 			{
 				case "c_bord":
@@ -357,12 +352,13 @@ class Reg
 					FILTER_TYPE = cast b.P.c;
 					
 				case "c_vol":
-					FlxG.sound.volume = cast(b.get(), Int) / 100;
+					var ss:Float = cast(b.get(), Int) / 100;
+					if(FlxG.sound.muted && ss>0) FlxG.sound.toggleMuted();
+					FlxG.sound.volume = ss;
 					
 				case "c_mus":
 					D.snd.MUSIC_ENABLED = b.get();
 					playMusicIndex(musicIndex);
-					
 				default:
 			}
 		}
@@ -375,10 +371,7 @@ class Reg
 			// Do nothing.
 			return FILTER_TYPE = val;
 		#else
-		
-		return FILTER_TYPE = val;
 
-		
 		if (val == 0)
 		{
 			FlxG.game.setFilters([]);

@@ -23,11 +23,7 @@ class SubStatePause extends FlxSubState
 		
 		// When I close this at the end, it appears for 1 frame then closes, so close it now
 		Reg.st.INV.close(true);
-		
-		// DEV: For convenience uses the same camera as the game to get the viewport
-		camera = Reg.st.camera;
-		
-		var COL = Pal_CPCBoy.COL;
+
 		bgColor = COL[0];
 		
 		// :: Top/Bottom Test Scrollers
@@ -89,44 +85,44 @@ class SubStatePause extends FlxSubState
 				-| quit    | link | quit | ?fs=Quit to main menu?:yes:no
 			");
 			
+			// DEV: The ordering of the first (4) MATTERS.
+			//		upon entering this page, those items will be refreshed
 			menu.createPage("options", "OPTIONS").add("
 				-| Volume    | range | c_vol | 0,100 | step=5
 				-| Music	 | toggle| c_mus
 				-| Border 	 | toggle| c_bord
-				-| Shader  	  | list  | c_shad | Off,A,B
+				-| Shader  	 | list  | c_shad | Off,A,B
 				-| Back      | link  | @back
 			");
 			
-			menu.onMenuEvent = (a, b)->{
-				if (a == page && b == "options") {
-					Reg.menu_handle_common(menu);
-				}
-				else if (a == start) {
+		menu.onMenuEvent = (a, b) -> {
+			switch ([a, b]) {
+				case [page, 'options']: 
+					Reg.menu_handle_shared(menu);
+				case [start, _]:
 					close();
+				case [rootback, _]:
+					menu.mpActive.setSelection(0); // move to the top element
+				default:
 				}
-				else if (a == rootback){
-					menu.mpActive.setSelection(0);	// move to the top element
-				}
-			}//---------------------------------------------------;
-			
-			menu.onItemEvent = (a, b)->{
-				if (a == fire) switch(b.ID)
-				{
-					case "resume":
-						close();
-					case "quit":
-						Reg.SAVE_SETTINGS();
-						FlxG.switchState(new StateTitle());
-					default:
-						Reg.menu_handle_common(menu, b);
+		};
+
+		menu.onItemEvent = (a, b) -> {
+			if (a == fire) switch (b.ID) {
+				case "resume":
+					close();
+				case "quit":
+					Reg.SAVE_SETTINGS();
+					FlxG.switchState(new StateTitle());
+				default:
+					Reg.menu_handle_shared(menu, b);
 				}
 			};
-			
+
 			menu.goto('main');
 
 	}//---------------------------------------------------;
-	
-	
+
 	override public function update(elapsed:Float):Void 
 	{
 		super.update(elapsed);
@@ -141,6 +137,5 @@ class SubStatePause extends FlxSubState
 		D.ctrl.flush();
 		super.close();
 	}//---------------------------------------------------;
-	
-	
+
 }// --
