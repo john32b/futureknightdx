@@ -5,14 +5,10 @@
  
 package states;
 
-import flixel.tweens.FlxTween;
 import gamesprites.Enemy;
-import tools.CRTShader;
 import tools.KeyCapture;
 import tools.SprDirector;
 
-import djA.Fsm;
-import djA.DataT;
 import djA.types.SimpleRect;
 
 import djFlixel.D;
@@ -25,16 +21,15 @@ import djFlixel.other.FlxSequencer;
 import djFlixel.ui.MPlug_Audio;
 import djFlixel.ui.FlxMenu;
 import djFlixel.ui.FlxSlides;
-import djFlixel.ui.VList;
 
-import flixel.util.FlxTimer;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import flixel.util.FlxTimer;
 
 import openfl.display.BitmapData;
 import openfl.Assets;
@@ -68,7 +63,7 @@ class StateTitle extends FlxState
 	var title_tick:FlxTimer;	// Timer for the title flash
 	
 	// I want a dynamic function because in some cases I need to check different things
-	var updateFunction:Void->Void;
+	var updateFunction:Void->Void = null;
 
 	// -
 	override public function create():Void 
@@ -78,9 +73,6 @@ class StateTitle extends FlxState
 		Reg.st = null;
 		
 		bgColor = Reg.BG_COLOR;
-		
-		// -- Data init
-		updateFunction = null;
 		
 		// --
 		seq = new FlxSequencer(sequence_title_start);
@@ -137,8 +129,8 @@ class StateTitle extends FlxState
 	{
 		super.update(elapsed);
 		
-		// :: Change the star angle over time *EASTEREGG*
-		//    Easter egg, pressing (LB) , (RB) 
+		// :: Change the star angle over time 
+		//    *EASTEREGG* pressing (LB) , (RB) 
 		if ((starsTimer += elapsed) > 0.1) {
 			starsTimer = 0;
 			stars.STAR_ANGLE += 0.1;
@@ -214,8 +206,8 @@ class StateTitle extends FlxState
 	function _showControllerToast()
 	{
 		#if !debug
-		if (Reg.CONTROLLER_TOAST) return;
-			Reg.CONTROLLER_TOAST = true;
+		if (Reg.FLAG_CONTROLLER_TOAST) return;
+			Reg.FLAG_CONTROLLER_TOAST = true;
 		#end
 		
 		var s1 = new FlxSprite(265, 170, 'im/controller_thumb.png');

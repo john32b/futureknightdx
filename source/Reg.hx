@@ -12,7 +12,6 @@ import states.StatePlay;
 import states.SubStatePause;
 import tools.CRTShader;
 
-
 /**
  * Static Globals, functions and vars
 */
@@ -105,6 +104,7 @@ class Reg
 	public static var BG_COLOR:Int = 0xFF000000;
 	
 	// This is the first level that a new game will start with
+	// Debug: overriden in `fkdx.ini`
 	public static var START_MAP = 'level_01';
 	
 	// This is for quick access to game elements
@@ -113,11 +113,14 @@ class Reg
 	// Called from anywhere to send small messages to the Play State
 	public static var sendGameEvent:String->?gamesprites.AnimatedTile->Void;
 	
-	// Filter type for the SHADER with setter ( 0:None | 1:Blur | 2:CRT )
-	public static var FILTER_TYPE(default, set):Int = 0;
+	/** Setter - Sets the current shader (0:None | 1:Blur | 2:CRT ) + edges loop **/
+	public static var SHADER_INDEX(default, set):Int = 0;
+
+	/** Setter - enables/disables the CPC Border */
+	public static var BORDER_STATUS(default, set):Bool = false;
 	
-	// In any time during the lifetime did it show the controller connected toast?
-	public static var CONTROLLER_TOAST:Bool = false;
+	/** In any time during the lifetime did it show the controller connected toast? */
+	public static var FLAG_CONTROLLER_TOAST:Bool = false;
 	
 	//====================================================;
 	
@@ -128,8 +131,11 @@ class Reg
 		
 		D.ui.initIcons([8]);
 		D.assets.HOT_LOAD = [PATH_INI];
-		D.assets.onLoad = onAssetLoad;
-		D.assets.loadNow();	// < Basically triggers onAssetLoad(); to parse the config files
+		D.assets.onLoad = ()->{
+			INI = new ConfigFileB(D.assets.files.get(PATH_INI));
+			D.snd.addSoundInfos(INI.getObj('sounds_vol'));
+		};
+		D.assets.loadNow();	// Triggers onLoad()^^ to parse the config files for the first boot
 		
 		#if debug
 			new Debug();
@@ -141,44 +147,23 @@ class Reg
 		SAVE_SETTINGS(false);	// restore & apply
 		SAVE_KEYS();			// restore & apply keys
 		
-		// DEV: Do this after setting scalemode.
-		// - It is going to be called once now and one more time after this (?)
+		// DEV: declare onResize after setting scalemode.
+		// 		it is going to be called once now and one more time after this (?)
 		FlxG.signals.gameResized.add(onResize);
 		
 		// --
 		FlxG.autoPause = false;
 		FlxG.sound.soundTrayEnabled = false;
-	}//---------------------------------------------------;
-	
-	
-	/**	Adds an amstrad cpc - like border on top of everything
-		@param state true:add , false:remove
-	**/
-	public static function setBorder(state:Bool)
-	{
-		if (border == null) {
-			border = new Bitmap(FlxAssets.getBitmapData(IM.STATIC.overlay_scr));
-			border.smoothing = true;
-		}
-		if (state){
-			if(!FlxG.stage.contains(border))
-				FlxG.stage.addChild(border);
-		}else{
-			if(FlxG.stage.contains(border))
-				FlxG.stage.removeChild(border);
-		}
-	}//---------------------------------------------------;
-	
-	
-	// Whenever D.assets gets reloaded, I need to reparse the data into the objects
-	// Then the state will be reset automatically
-	static function onAssetLoad()
-	{
-		INI = new ConfigFileB(D.assets.files.get(PATH_INI));
-		D.snd.addSoundInfos(INI.getObj('sounds_vol'));
-	}//---------------------------------------------------;
 
-		
+		D.ctrl.hotkey_add(F8, _cycle_border);
+		D.ctrl.hotkey_add(F9, _cycle_shader);
+	}//---------------------------------------------------;
+	
+
+
+	
+	// == Flixel Signal
+	// - handle shader/border resize
 	static function onResize(w:Int,h:Int)
 	{
 		trace(": Game Resized", w, h);
@@ -194,10 +179,10 @@ class Reg
 		
 		// Force a new filter set, if any
 		// I need to do this, openfl doesn't like resized textures and it screws the uv
-		if (FILTER_TYPE > 0)
+		if (SHADER_INDEX > 0)
 		{
-			var futureF = FILTER_TYPE;
-			FILTER_TYPE = 0; // force a reset
+			var futureF = SHADER_INDEX;
+			SHADER_INDEX = 0; // force a reset
 			
 			// DEV:
 			// For some reason I can't unset-set a filter on the same frame, or even the next one
@@ -206,13 +191,15 @@ class Reg
 			// the first time this is called, there is no state active (right after flxGame is created)
 			FlxG.signals.preUpdate.addOnce(()->{
 				new DelayCall(0.06, ()->{
-					FILTER_TYPE = futureF;
+					SHADER_INDEX = futureF;
 				});
 			});
 		}
 		
 	}//---------------------------------------------------;
 		
+
+	// - Called from Inventory / player
 	public static function openPauseMenu()
 	{
 		st.openSubState(new SubStatePause());
@@ -231,7 +218,7 @@ class Reg
 			D.save.save('settings', {
 				vol: Std.int(FlxG.sound.volume * 100),
 				bord: FlxG.stage.contains(border),
-				filter: FILTER_TYPE
+				filter: SHADER_INDEX
 			});
 			D.save.flush();
 			trace("-- Settings Saved", D.save.load('settings'));
@@ -246,8 +233,8 @@ class Reg
 					bord:true,
 					vol:85
 				};
-			FILTER_TYPE = SET.filter;
-			setBorder(SET.bord);
+			SHADER_INDEX = SET.filter;
+			BORDER_STATUS = SET.bord;
 			D.snd.setVolume("master", SET.vol / 100);
 			trace("-- Settings Applied", SET);
 		}
@@ -338,7 +325,7 @@ class Reg
 			m.item_update(0, (t)->t.set(Std.int(FlxG.sound.volume * 100)));
 			m.item_update(1, (t)->t.set(D.snd.MUSIC_ENABLED));
 			m.item_update(2, (t)->t.set(FlxG.stage.contains(border)));
-			m.item_update(3, (t)->t.set(FILTER_TYPE));
+			m.item_update(3, (t)->t.set(SHADER_INDEX));
 		}else{
 			
 			// This handles option item calls sent from 
@@ -346,10 +333,10 @@ class Reg
 			switch (b.ID)
 			{
 				case "c_bord":
-					setBorder(b.get());
+					BORDER_STATUS = b.get();
 						
 				case "c_shad":
-					FILTER_TYPE = cast b.P.c;
+					SHADER_INDEX = cast b.P.c;
 					
 				case "c_vol":
 					var ss:Float = cast(b.get(), Int) / 100;
@@ -363,21 +350,38 @@ class Reg
 			}
 		}
 	}//---------------------------------------------------;
+
+
+	// -- called from hotkey
+	static function _cycle_border()
+	{
+		BORDER_STATUS = !BORDER_STATUS;
+	}// -------------------------;
+
+	// -- called from hotkey
+	static function _cycle_shader()
+	{
+		SHADER_INDEX++;	// Should automatically loop
+	}// -------------------------;
 	
-	
-	static function set_FILTER_TYPE(val:Int):Int
+	// - Setter
+	static function set_SHADER_INDEX(val:Int):Int
 	{
 		#if flash
 			// Do nothing.
-			return FILTER_TYPE = val;
+			return SHADER_INDEX = val;
 		#else
+
+		// Loop, for easy cycling
+		if(val<0) val=2; else 
+		if(val>2) val=0;
 
 		if (val == 0)
 		{
 			FlxG.game.setFilters([]);
 		}else
 		{
-			if (FILTER_TYPE == 0) {
+			if (SHADER_INDEX == 0) {
 				FlxG.game.setFilters([new openfl.filters.ShaderFilter(SHADER)]);
 			}
 
@@ -407,12 +411,33 @@ class Reg
 			}
 		}
 		
-		FILTER_TYPE = val;
-		return FILTER_TYPE;	
+		SHADER_INDEX = val;
+		return SHADER_INDEX;	
 
 		#end // end if (!flash)
-	}//---------------------------------------------------;
+	}// -------------------------;
+
+	// - Setter
+	public static function set_BORDER_STATUS(val:Bool):Bool
+	{
+		if (border == null) {
+			border = new Bitmap(FlxAssets.getBitmapData(IM.STATIC.overlay_scr));
+			border.smoothing = true;
+		}
+
+		if(BORDER_STATUS==val) return val;
+
+		if (val){
+			if(!FlxG.stage.contains(border))
+				FlxG.stage.addChild(border);
+		}else{
+			if(FlxG.stage.contains(border))
+				FlxG.stage.removeChild(border);
+		}
+		return (BORDER_STATUS = val);
+	}// -------------------------;
 	
+
 }//--
 
 

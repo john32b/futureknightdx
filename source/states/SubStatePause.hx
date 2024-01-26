@@ -50,6 +50,7 @@ class SubStatePause extends FlxSubState
 					tween:{x0: -16, x1:0, ease:"quadOut", time:0.14}
 				},
 				align:"center",
+				vt_OUT:"0:8|0.1:0",
 				item:{
 					text:{
 						f:'fnt/score.ttf', s:6, bt:1, so:[2, 2]
