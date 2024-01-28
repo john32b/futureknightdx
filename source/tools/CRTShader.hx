@@ -88,9 +88,9 @@ void main()
 	// Chromatic abberation Strength
 	public var CHROMAB(default, set):Float;
 	
-	
 	public function setWinSize(x:Int, y:Int)
 	{
+		#if flash return; #end
 		data.WIN_SIZE.value = [cast(x, Float), cast(y, Float)];
 	}//---------------------------------------------------;
 	
@@ -119,11 +119,7 @@ void main()
     public function new(GAME_WIDTH:Float = 0, GAME_HEIGHT:Float = 0)
     {
         super();
-		
-		#if flash
-		return;
-		#end
-		
+		#if flash return; #end
 		if (GAME_WIDTH == 0) GAME_WIDTH = cast FlxG.width * 2;
 		if (GAME_HEIGHT == 0) GAME_HEIGHT = cast FlxG.height * 2;
 		

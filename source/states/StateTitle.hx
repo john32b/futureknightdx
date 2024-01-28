@@ -16,7 +16,7 @@ import djFlixel.core.Dcontrols;
 import djFlixel.core.Dtext.DTextStyle;
 import djFlixel.gfx.FilterFader;
 import djFlixel.gfx.StarfieldSimple;
-import djFlixel.gfx.pal.Pal_CPCBoy;
+import djFlixel.gfx.pal.Pal_CPCBoy.COL as COL;
 import djFlixel.other.FlxSequencer;
 import djFlixel.ui.MPlug_Audio;
 import djFlixel.ui.FlxMenu;
@@ -42,7 +42,7 @@ class StateTitle extends FlxState
 		im_title : 		"im/title_01.png",
 		im_dx : 		"im/title_02.png",
 		im_gamepad: 	"im/controller_help.png",
-		title_fg 	: Pal_CPCBoy.COL[24],
+		title_fg 	: COL[24],
 		title_tick	: 0.125,
 		title_cols 	: [1, 2, 11, 15, 6, 18, 21, 5, 8, 25],	// CPC Boy palete codes for title to loop
 		art_delay : 4.0	// Wait this much on the graphic,
@@ -80,10 +80,7 @@ class StateTitle extends FlxState
 
 		// :: STARS
 		stars = new StarfieldSimple(FlxG.width, FlxG.height, [	
-			Pal_CPCBoy.COL[0],
-			Pal_CPCBoy.COL[7],
-			Pal_CPCBoy.COL[20],
-			Pal_CPCBoy.COL[24]
+			COL[0], COL[7], COL[20], COL[24]
 		]);
 		stars.WIDE_PIXEL = true;
 		stars.STAR_SPEED = 1.9;
@@ -91,15 +88,15 @@ class StateTitle extends FlxState
 		
 		// :: Setup the animated Title stuff
 		var _tb = Assets.getBitmapData(P.im_title, false);
-			_tb = D.bmu.replaceColor(_tb, Pal_CPCBoy.COL[28], P.title_fg);
+			_tb = D.bmu.replaceColor(_tb, COL[28], P.title_fg);
 		var title_01_spr = new FlxSprite(_tb.clone());
 		var title_02_spr = new FlxSprite(P.im_dx);
 		title_tick = new FlxTimer();
 		title_tick.start(P.title_tick, (t)->{
 			var l = t.elapsedLoops % P.title_cols.length;
-			title_01_spr.pixels = D.bmu.replaceColor(_tb.clone(), Pal_CPCBoy.COL[31], Pal_CPCBoy.COL[P.title_cols[l]]);
+			title_01_spr.pixels = D.bmu.replaceColor(_tb.clone(), COL[31], COL[P.title_cols[l]]);
 			title_01_spr.dirty = true;
-			title_02_spr.color = Pal_CPCBoy.COL[P.title_cols[l]];
+			title_02_spr.color = COL[P.title_cols[l]];
 		}, 0);
 		title_tick.active = false;
 
@@ -223,7 +220,7 @@ class StateTitle extends FlxState
 	/** Create footer objects **/
 	function sub_get_footer_grp():FlxSpriteGroup
 	{
-		var color = Pal_CPCBoy.COL[31];
+		var color = COL[31];
 		// Set a horizontal line and infos below it:
 		var line = new FlxSprite(0, 208);
 			line.makeGraphic(FlxG.width - 50, 1, color);
@@ -268,12 +265,12 @@ class StateTitle extends FlxState
 					s:16, bt:1, so:[2, 2] 
 				},
 				col_t:{
-					focus:Pal_CPCBoy.COL[24],
-					accent:Pal_CPCBoy.COL[6],
-					idle:Pal_CPCBoy.COL[27]
+					focus:COL[24],
+					accent:COL[6],
+					idle:COL[27]
 				},
 				col_b:{
-					idle:Pal_CPCBoy.COL[1]
+					idle:COL[1]
 				}
 			}
 		});
@@ -287,15 +284,24 @@ class StateTitle extends FlxState
 			
 		// DEV: The ordering of the first (4) MATTERS.
 		//		upon entering this page, those items will be
-		menu.createPage("options", "Options").add("
+		//		updated to reflect current status. in <REG.menu_handle_shared>
+		var p = menu.createPage("options", "Options").add("
 			-| Volume     | range | c_vol | 0,100 | step=5
 			-| Music	  | toggle| c_mus
 			-| Border     | toggle| c_bord
 			-| Shader  	  | list  | c_shad | Off,A,B
 			-| Keyboard Redefine | link  | keyredef
 			-| Back              | link  | @back
-		");
-		
+		")
+			.par({slots:6,pos:"rel",y:-18})
+			.stl({loop:true,align:"center"});
+
+		#if desktop
+		p.add('
+			-| Fullscreen    | toggle | c_fs |
+			-| Window Size   | range  | c_win | 1,${D.MAX_WINDOW_ZOOM} |
+		',4);
+		#end
 		
 		menu.onMenuEvent = (a, b)->{
 			switch([a,b]){
@@ -359,14 +365,14 @@ class StateTitle extends FlxState
 	function sub_get_help_slides():FlxSlides
 	{
 		var AREA = new SimpleRect(28, 70, 320 - 28 - 28, 170);
-		var COL = Pal_CPCBoy.COL; // Shortcut
 		var st_h1 = {f:'fnt/score.ttf', s:12, c:COL[20], bt:1, bc:COL[1]};
-		var st_p  = {f:'fnt/score.ttf', s:6, c:COL[26]};
-		var st_p2 = {f:'fnt/score.ttf', s:6, c:COL[23]};
+		var st_p  = {f:'fnt/score.ttf', s:6, c:COL[26]}; 
+		var hl = {c:COL[24]}; // overlay over st_p | highlight yellow
+		D.text.fix(st_p); // Fix this style for all following text generation from djFlixel tools
 		D.text.markupClear();
 		D.text.markupAdd('<r>', COL[6]);
 		D.text.markupAdd('<g>', COL[21]);
-		D.text.fix(); // clear 
+
 		var AL = D.align;
 		AL.pInit(AREA.x, AREA.y, AREA.w, AREA.h);
 		
@@ -382,9 +388,8 @@ class StateTitle extends FlxState
 		h.newSlide();
 		AL.pCol("120|60,16", -1);
 		h.a(AL.pT("Keyboard Controls", {ta:"c"}, st_h1));
-		D.text.fix(st_p);
 		AL.pPad(6);
-			// - Build keys
+			// - Build the key strings from whatever is defined
 			var ACTIONS = ['move', 'shoot / <r>cancel<r>', 'jump / <g>ok<g>', 'use item', 'inventory / pause'];
 			var KEYS = [DButton.UP, DButton.X, DButton.A, DButton.Y, DButton.START];
 			for (i in 0...ACTIONS.length) {
@@ -392,12 +397,9 @@ class StateTitle extends FlxState
 					D.ctrl.getKeymapName(UP) + D.ctrl.getKeymapName(LEFT) + D.ctrl.getKeymapName(DOWN) + D.ctrl.getKeymapName(RIGHT)
 					: D.ctrl.getKeymapName(KEYS[i]);
 				h.a(AL.pT('~' + ACTIONS[i], {c:1, ta:"r"}));
-				h.a(AL.pT('[' + keys.toLowerCase() + ']', {c:2}));
+				h.a(AL.pT('[' + keys.toLowerCase() + ']', {c:2}, hl));
 			}
-		// DEV: There is a volume bar in the options, don't overcrowd the slides, -- remove --
-		// h.a(AL.pT('volume up / down', {c:1, ta:"r"}));
-		// h.a(AL.pT('[-] [+]', {c:2}));
-		h.a(AL.pT('you can redefine in options', {ta:'c', oy:6}, st_p2));
+			h.a(AL.pT('you can redefine in options', {ta:'c', oy:6}, {c:COL[4]}));
 		
 		// :: Slide :: General infos
 		h.newSlide();
@@ -439,6 +441,28 @@ class StateTitle extends FlxState
 		h.a( AL.pT('the amount of their health,', {c:2, oy:8}, {c:COL[26]}));
 		h.a( AL.pT('so weakened enemies', {c:2, oy:8}, {c:COL[26]}));
 		h.a( AL.pT('damage you less.', {c:2, oy:8}, {c:COL[26]}));
+
+			
+		// : Slide - Keys 2
+		h.newSlide();
+		AL.pCol("120|60,16");
+		h.a(AL.pT("Shortcuts", {ta:"c"}, st_h1));
+		AL.pPad(6);
+		h.a(AL.pT('~Toggle Border', {c:1, ta:"r"}));
+		h.a(AL.pT('[F7]', {c:2}, hl));
+		h.a(AL.pT('~Cycle Shader', {c:1, ta:"r"}));
+		h.a(AL.pT('[F8]', {c:2}, hl));
+		#if desktop
+		h.a(AL.pT('~Smaller Window', {c:1, ta:"r"}));
+		h.a(AL.pT('[F9]', {c:2}, hl));
+		h.a(AL.pT('~Bigger Window', {c:1, ta:"r"}));
+		h.a(AL.pT('[F10]', {c:2}, hl));
+		h.a(AL.pT('~Toggle Fullscreen', {c:1, ta:"r"}));
+		h.a(AL.pT('[F11]', {c:2}, hl));
+		#end
+		h.a(AL.pT('Volume mute/down/up', {c:1, ta:"r"}));
+		h.a(AL.pT('[0] [-] [+]', {c:2}, hl));
+		
 		// -- END SLIDES
 		
 		h.finalize();
@@ -457,7 +481,6 @@ class StateTitle extends FlxState
 		// This is the same order as the Dcontrols 360 layout
 		var ACTIONS = ['up', 'right', 'down', 'left', 'ok / jump', '', 'cancel / shoot', 'use item', '', 'pause / inventory'];
 		var KEYS = [];	// The actual FlxKeycodes that map to ACTIONS[]		
-		var COL = Pal_CPCBoy.COL; // Quick typing
 		
 		D.text.markupClear();
 		D.text.markupAdd('<m>', COL[24], COL[3]);

@@ -2,7 +2,7 @@
 <project>
 
 	<!-- Note, define can also be read by code, set is only for inner XML -->
-	<define name="APP_VER" value="1.4.2" />
+	<define name="APP_VER" value="1.5.pre" />
 	<set name="APP_FILE" value="FutureKnightDX"/>
 	<set name="APP_TITLE" value="Future Knight DX"/>
 	<define name="FPS" value="40" unless="FPS"/> 
@@ -29,6 +29,7 @@
 
 	<!-- djflixel related -->
 	<haxedef name="HOT_LOAD" if="debug flash"/>
+	<haxedef name="HOT_LOAD" if="debug hl"/>
 	<haxedef name="DJFLX_SND" value="snd/"/>
 	<haxedef name="DJFLX_MUS" value="mus/"/>
 

@@ -88,13 +88,21 @@ class SubStatePause extends FlxSubState
 			
 			// DEV: The ordering of the first (4) MATTERS.
 			//		upon entering this page, those items will be refreshed
-			menu.createPage("options", "OPTIONS").add("
-				-| Volume    | range | c_vol | 0,100 | step=5
-				-| Music	 | toggle| c_mus
-				-| Border 	 | toggle| c_bord
-				-| Shader  	 | list  | c_shad | Off,A,B
-				-| Back      | link  | @back
-			");
+			// DEV: This is the same menu as the MainMenu one (except the redefine keys)
+			//		I could create some shared code
+			var p = menu.createPage("options", "Options").add("
+				-| Volume     | range | c_vol | 0,100 | step=5
+				-| Music	  | toggle| c_mus
+				-| Border     | toggle| c_bord
+				-| Shader  	  | list  | c_shad | Off,A,B
+				-| Back               | link  | @back
+			").par({pos:"rel",y:-8});
+			#if desktop
+			p.add('
+				-| Fullscreen    | toggle | c_fs |
+				-| Window Size   | range  | c_win | 1,${D.MAX_WINDOW_ZOOM} |
+			',4).par({pos:"rel",y:-16});
+			#end
 			
 		menu.onMenuEvent = (a, b) -> {
 			switch ([a, b]) {

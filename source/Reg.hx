@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxGame;
 import djA.parser.ConfigFileB;
 import djFlixel.D;
 import djFlixel.other.DelayCall;
@@ -11,6 +12,7 @@ import openfl.display.Bitmap;
 import states.StatePlay;
 import states.SubStatePause;
 import tools.CRTShader;
+import openfl.Lib;
 
 /**
  * Static Globals, functions and vars
@@ -118,6 +120,9 @@ class Reg
 
 	/** Setter - enables/disables the CPC Border */
 	public static var BORDER_STATUS(default, set):Bool = false;
+
+	/** Setter - Sets window size, integer scaling.**/
+	public static var WINDOW_SIZE(default, set):Int = 2;	// 2 is the FlxGame zoom, default
 	
 	/** In any time during the lifetime did it show the controller connected toast? */
 	public static var FLAG_CONTROLLER_TOAST:Bool = false;
@@ -128,7 +133,7 @@ class Reg
 	public static function init()
 	{
 		trace('> Reg init. Game version : ${VERSION}');
-		
+
 		D.ui.initIcons([8]);
 		D.assets.HOT_LOAD = [PATH_INI];
 		D.assets.onLoad = ()->{
@@ -142,7 +147,12 @@ class Reg
 		#end
 		
 		IM = new ImageAssets();
+
 		SHADER = new CRTShader();
+		#if !flash
+		FlxG.game.setFilters([new openfl.filters.ShaderFilter(SHADER)]);
+		#end
+		FlxG.game.filtersEnabled = false;
 
 		SAVE_SETTINGS(false);	// restore & apply
 		SAVE_KEYS();			// restore & apply keys
@@ -155,49 +165,42 @@ class Reg
 		FlxG.autoPause = false;
 		FlxG.sound.soundTrayEnabled = false;
 
-		D.ctrl.hotkey_add(F8, _cycle_border);
-		D.ctrl.hotkey_add(F9, _cycle_shader);
+		D.ctrl.hotkey_add(F7, _cycle_border);
+		D.ctrl.hotkey_add(F8, _cycle_shader);
+		D.ctrl.hotkey_add(F9, _cycle_window_size.bind(true));
+		D.ctrl.hotkey_add(F10,_cycle_window_size.bind(false));
+		D.ctrl.hotkey_add(F11,_cycle_fs);
 	}//---------------------------------------------------;
 	
-
-
 	
 	// == Flixel Signal
 	// - handle shader/border resize
 	static function onResize(w:Int,h:Int)
 	{
-		trace(": Game Resized", w, h);
-		
+		// trace(": Game Resized", w, h);
 		border.x = FlxG.game.x;
 		border.y = FlxG.game.y;
 		border.width = FlxG.scaleMode.gameSize.x;
 		border.height = FlxG.scaleMode.gameSize.y;
 		
-		#if !flash
 		SHADER.setWinSize(w, h);
-		#end
-		
-		// Force a new filter set, if any
-		// I need to do this, openfl doesn't like resized textures and it screws the uv
-		if (SHADER_INDEX > 0)
+
+		// == OPENFL QUIRK (BUG?)
+		// The filters need to regenerate
+		// For some reason I can't unset-set a filter on the same frame, or even the next one
+		// Using a timed delay for 2 frames works.
+		FlxG.game.filtersEnabled = false;
+
+		if (SHADER_INDEX > 0) 
 		{
-			var futureF = SHADER_INDEX;
-			SHADER_INDEX = 0; // force a reset
-			
-			// DEV:
-			// For some reason I can't unset-set a filter on the same frame, or even the next one
-			// Using a timed delay works.
-			// This is a hacky way to do a delay, I can't just do a DelayCall because
-			// the first time this is called, there is no state active (right after flxGame is created)
-			FlxG.signals.preUpdate.addOnce(()->{
-				new DelayCall(0.06, ()->{
-					SHADER_INDEX = futureF;
-				});
+			// DEV: The very first call, right after FlxGame creates
+			// elapsed is 0, but this still works fine
+			new DelayCall(FlxG.elapsed * 2, ()->{
+				FlxG.game.filtersEnabled = true;
 			});
 		}
 		
 	}//---------------------------------------------------;
-		
 
 	// - Called from Inventory / player
 	public static function openPauseMenu()
@@ -218,6 +221,8 @@ class Reg
 			D.save.save('settings', {
 				vol: Std.int(FlxG.sound.volume * 100),
 				bord: FlxG.stage.contains(border),
+				fs: FlxG.fullscreen,
+				win: WINDOW_SIZE,
 				filter: SHADER_INDEX
 			});
 			D.save.flush();
@@ -231,11 +236,15 @@ class Reg
 			if (SET == null) SET = {
 					filter:2,
 					bord:true,
+					fs:false,
+					win:2,
 					vol:85
 				};
 			SHADER_INDEX = SET.filter;
 			BORDER_STATUS = SET.bord;
 			D.snd.setVolume("master", SET.vol / 100);
+			FlxG.fullscreen = SET.fs;
+			WINDOW_SIZE = SET.win;
 			trace("-- Settings Applied", SET);
 		}
 	}//---------------------------------------------------;
@@ -326,15 +335,30 @@ class Reg
 			m.item_update(1, (t)->t.set(D.snd.MUSIC_ENABLED));
 			m.item_update(2, (t)->t.set(FlxG.stage.contains(border)));
 			m.item_update(3, (t)->t.set(SHADER_INDEX));
+			#if desktop
+			m.item_update(4, (t)->t.set(FlxG.fullscreen));
+			m.item_update(5, (t)->{
+					t.disabled = FlxG.fullscreen;
+					t.set(WINDOW_SIZE);
+				});
+			#end
 		}else{
 			
 			// This handles option item calls sent from 
 			// the main menu AND the pause menu
 			switch (b.ID)
 			{
+				#if desktop
+				case "c_fs":
+					FlxG.fullscreen = b.get();
+					m.item_update(5, (t)->{
+						t.disabled = FlxG.fullscreen;
+					});
+				case "c_win":
+					WINDOW_SIZE = b.get();
+				#end
 				case "c_bord":
 					BORDER_STATUS = b.get();
-						
 				case "c_shad":
 					SHADER_INDEX = cast b.P.c;
 					
@@ -351,6 +375,11 @@ class Reg
 		}
 	}//---------------------------------------------------;
 
+	// -- called from hotkey
+	static function _cycle_fs()
+	{
+		FlxG.fullscreen = !FlxG.fullscreen;
+	}// -------------------------;
 
 	// -- called from hotkey
 	static function _cycle_border()
@@ -363,30 +392,30 @@ class Reg
 	{
 		SHADER_INDEX++;	// Should automatically loop
 	}// -------------------------;
+
+	// -- called from hotkey
+	static function _cycle_window_size(down:Bool = false)
+	{
+		if(down) WINDOW_SIZE--; else WINDOW_SIZE++;
+	}// -------------------------;
 	
 	// - Setter
 	static function set_SHADER_INDEX(val:Int):Int
 	{
 		#if flash
-			// Do nothing.
-			return SHADER_INDEX = val;
+			return SHADER_INDEX = 0;
 		#else
 
 		// Loop, for easy cycling
 		if(val<0) val=2; else 
 		if(val>2) val=0;
+		if (SHADER_INDEX == val) return val;
 
-		if (val == 0)
-		{
-			FlxG.game.setFilters([]);
-		}else
-		{
-			if (SHADER_INDEX == 0) {
-				FlxG.game.setFilters([new openfl.filters.ShaderFilter(SHADER)]);
-			}
-
-			if (val == 1)
-			{
+		if (val == 0) {
+			FlxG.game.filtersEnabled = false;
+		} else {
+			FlxG.game.filtersEnabled = true;
+			if (val == 1) {
 				// :: SMOOTH/BLUR
 				#if html5
 				// HTML is already a bit blurry, since it is 640x480 resized up
@@ -397,8 +426,7 @@ class Reg
 				SHADER.CHROMAB = 0.125;
 				#end
 				SHADER.SCANLINES = false;
-			}else
-			{
+			} else {
 				// :: CRT
 				#if html5
 				SHADER.STRENGTH = [0.5, 0.2];
@@ -435,6 +463,19 @@ class Reg
 				FlxG.stage.removeChild(border);
 		}
 		return (BORDER_STATUS = val);
+	}// -------------------------;
+
+
+	// - Setter
+	public static function set_WINDOW_SIZE(val:Int):Int
+	{
+		if(val<1) val=1; else if(val>D.MAX_WINDOW_ZOOM) val=D.MAX_WINDOW_ZOOM;
+		if(val==WINDOW_SIZE) return val;
+		if(!FlxG.fullscreen) {
+			D.setWindowed(val);
+			// trace("-- Windowed mode set : " + WINDOW_SIZE);
+		}
+		return WINDOW_SIZE=val;
 	}// -------------------------;
 	
 
