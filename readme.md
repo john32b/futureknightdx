@@ -1,4 +1,11 @@
-# Future Knight DX (2022)
+# Future Knight DX
+
+### New *2024-01* `ver 1.5`, major points:
+
+- Game now runs at 60fps *(previous was 40fps)*
+- You can now continue from a GameOver *(the game is supposed to be a celebration, not a challenge)*
+
+---
 
 ​**Future Knight DX** is a fan remake of the 1986 game "*Future Knight*" by Gremlin Graphics Software. It is based on the Amstrad CPC version, it tries to stay faithful to the original, keeping the same level design, enemies and gameplay beats; while only updating things that make sense and that enhance the experience. The graphics are slightly updated, and the same for the sounds. This is why the **DX** in the title. I took the idea from some of the Game Boy Color games that were re-releases with small updates to the originals like *Tetris DX and R-Type DX*.
 
@@ -6,13 +13,9 @@
 
 <a href="https://john0032.itch.io/future-knight-dx"><img style="display:block;margin:1em auto;height:400px;" src="_readme/demoplay_anim.webp"/></a>
 
-**Visit the GAME PAGE here** :  <https://john0032.itch.io/future-knight-dx>
+**Visit the [game page on itch.io here](https://john0032.itch.io/future-knight-dx)**  
+**Available for** : HTML / Windows / Linux
 
-- play online HTML5 (desktop)
-- download for Windows
-- download for Linux
-
----
 
 ## About the original Game
 
@@ -54,6 +57,7 @@ The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions 
 - New sprite and behavior for the final boss, He will now move around and shoot. You are now locked into the room until you defeat him. He has three phases and you must use the "destruct spell" at a point. It used to be that he was immobile and you could just pass right through him to the other room.
 - Using Bombs will now kill the enemies on the screen forever, meaning they will not re-spawn even after leaving and re-entering the room.
 - Bombs no longer restore your health. It used to be that using a bomb you would get your full health back. But now you are more nimble and you don't have to backtrack that much, it would make the game too forgiving/easy.
+- **since v1.5** - You can now continue from a GameOver *(the game is supposed to be a celebration, not a challenge)*
 
 ### Audio / Visual
 
@@ -76,13 +80,11 @@ To build **Future Knight DX** you will need
 - openfl 9.3.2 - `haxelib install openfl 9.3.2`
 - lime 8.1.1 - `haxelib install lime 8.1.1`
 
-Supports building to `windows`, `hashlink`, `html5`, `flash`  
-Currently Linux and Mac are **untested**
+Supports building to `linux`, `windows`, `hashlink`, `html5`, `flash`  
+Currently Mac, Android, others are **untested**
 
 Build this like any other Flixel Program, e.g. to build for HTML:  
-`haxelib run openfl build Project.xml html5`  
- or  
-`lime build html5`
+`lime build html5 -final`
 
 **The level maps** are made in **TILED** editor (<https://www.mapeditor.org>)  
 I can't get into how level maps work and how to make new ones right now, but it is not that complicated, I swear!

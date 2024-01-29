@@ -1,0 +1,24 @@
+== Future Knight DX - Log
+
+v1.5 (2024-01)
+ - Updated to use latest development tool versions
+ - 60FPS is the default FPS now
+ - Option to continue playing from a gameover screen
+ - When continuing puts the game in a "second chance" mode, different player color, low score mode
+ - Desktop target can integer scale window
+ - F keys shortcuts for changing border/shader/fullscreen/windowsize
+ - Additional Help Page
+ - Small balancing changes, some enemies have less health, enemy bullets do less damage
+ - Bugfix: Time between shots is now properly calculated in relation to timescale
+ - Can now use items from ladders
+ - Reduced game speed by a tiny bit
+
+v1.4 (2022-09)
+ - First version released
+
+v0.1
+ - Project started dev in 2020
+ - Then put on a long hiatus
+ 
+-------------------------------
+

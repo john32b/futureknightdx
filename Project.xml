@@ -4,10 +4,10 @@
 	<!-- Note building with -final applies dce=full by default -->
 
 	<!-- Note, define can also be read by code, set is only for inner XML -->
-	<define name="APP_VER" value="1.5.pre" />
+	<define name="APP_VER" value="1.5" />
 	<set name="APP_FILE" value="FutureKnightDX"/>
 	<set name="APP_TITLE" value="Future Knight DX"/>
-	<define name="FPS" value="40" unless="FPS"/> 
+	<define name="FPS" value="60" unless="FPS"/> 
 	<!-- GAME defines -->
 		<!-- Hold button to shoot -->
 		<define name="SHOOT_HOLD"/> 
