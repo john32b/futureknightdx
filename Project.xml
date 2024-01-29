@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 
+	<!-- Note building with -final applies dce=full by default -->
+
 	<!-- Note, define can also be read by code, set is only for inner XML -->
 	<define name="APP_VER" value="1.5.pre" />
 	<set name="APP_FILE" value="FutureKnightDX"/>
@@ -42,7 +44,7 @@
 	<haxelib name="djA"/>
 
 	<!-- ASSETS -->
-	<library name="default" type="gzip" preload="true" if="release hl"/>
+	<library name="default" type="gzip" preload="true" if="final hl"/>
 	<assets path="assets" include="*.ini|*.json"/>
 	<assets path="assets/font" type="font" include="*.ttf|*.otf" rename="fnt"/>
 	<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>

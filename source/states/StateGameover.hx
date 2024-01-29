@@ -41,7 +41,8 @@ class StateGameover extends FlxState
 		
 		// --
 		var pl = new FlxSprite();
-		Reg.IM.loadGraphic(pl, "player", "blue");
+
+		Reg.IM.loadGraphic(pl, "player", Reg.FLAG_SECOND_CHANCE > 0 ? 'pink' : gamesprites.Player.COLOR_COMBO);
 		pl.animation.frameIndex = 17;
 		D.align.screen(pl);
 		pl.y -= 32;

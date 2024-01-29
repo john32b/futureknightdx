@@ -48,6 +48,7 @@ class Player extends FlxSprite
 	inline static var START_HEALTH = 999;
 	inline static var START_LIVES  = 3;
 	
+	@:allow(states.StateGameover)
 	inline static var COLOR_COMBO = "blue";
 	
 	inline static var I_TIME_REVIVE = 1.4;			// Invincible time after being revived
