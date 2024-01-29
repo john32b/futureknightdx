@@ -2,7 +2,7 @@
 Future Knight Enemy
 ======================================
 - Assets loaded from `AssetColorizer.hx`
-- Movement handles by an AI system check <Enemy_AI.hx>
+- Behavior handled in <Enemy_AI.hx>
  
 == Enemy graphics ID
 	1-8: Normal unique enemies
@@ -13,13 +13,7 @@ Future Knight Enemy
 	16: Big Bounce
 	17-18: Long Legs
 	19-20: Worms
-
 	
-== SOUND_FILES
-	en_die
-	en_spawn	// rewrk this
-	en_start	// when boss start moving? I don't need it?
- 
 **/
  
  
@@ -39,24 +33,24 @@ class Enemy extends MapSprite
 	// :: Some hard coded
 	static inline var ANIM_FPS = 8;
 	static inline var ANIM_FRAMES = 2; 		// Every enemy has 2 frames. In the future I could change it to 3 or 4
-	static inline var HURT_I_TIME = 0.1;	// Invinvibility time after being hurt
+	static inline var HURT_I_TIME = 0.1;	// Invincibility time after being hurt
 	
 	static public var PAR = {
 		health 		 : 20,	// (2 bullets, 4 bullets, 2 bullets) 
 		health_chase : 28,	// (3 bullets, 5 bullets, 2 bullets)
 		health_big  : 200,
-		health_long : 120,
-		health_tall	: 240,
-		health_worm : 180,
+		health_long : 110,
+		health_tall	: 205,
+		health_worm : 110,
 		health_turret : 600,
 		
 		health_phase1 : 640,	// Final Boss 
 		health_phase2 : 860,	// Final Boss
 		
 		spawnAnnounce:  0.7,
-		spawntime: 		2.7,	// Final spawn time = spawnTime + spawnAnnounce . so 3.4
-		spawntime_bcr: 	1.5,	// Bouncer Enemy
-		spawntime_big:  6,		// Big bosses and Bouncy Big Enemy
+		spawntime: 		2.8,	// Final spawn time = spawnTime + spawnAnnounce . so 3.5
+		spawntime_bcr: 	2,		// Bouncer Enemy
+		spawntime_big:  6,		// Big bosses, Bouncy Big Enemy, Turrets
 		
 		speed : 48,
 		speed_big : 28,
@@ -183,6 +177,7 @@ class Enemy extends MapSprite
 				ai = new AI_BigBounce(this);
 			case "turret" : 
 				startHealth = Enemy.PAR.health_turret;
+				spawnTime = PAR.spawntime_big;
 				ai = new AI_Turret(this, 0);
 			case _: 
 				ai = new Enemy_AI(this); // Immobile

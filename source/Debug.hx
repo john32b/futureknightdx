@@ -34,8 +34,9 @@ class Debug
 		
 	}//---------------------------------------------------;
 
-	public function pl_kill()
+	public function pl_kill(full:Bool = true)
 	{
+		if(full) Reg.st.player.lives = 1;
 		Reg.st.player.health = 0;
 		@:privateAccess Reg.st.player.healthSlow = 2;
 		FlxG.log.notice('Player Heath = 0');

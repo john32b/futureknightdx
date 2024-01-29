@@ -161,7 +161,8 @@ class Player extends FlxSprite
 		maxVelocity.y = MAX_FALLSPEED;
 		maxVelocity.x = SPEED;
 		
-		Reg.IM.loadGraphic(this, 'player', COLOR_COMBO);
+		Reg.IM.loadGraphic(this, 'player', 
+			Reg.FLAG_SECOND_CHANCE>0?'pink':COLOR_COMBO);
 		
 		setFacingFlip(FlxDirectionFlags.LEFT, true, false);
 		setFacingFlip(FlxDirectionFlags.RIGHT, false, false);
@@ -329,6 +330,12 @@ class Player extends FlxSprite
 			velocity.y = 0;
 			animation.pause();
 		}
+
+		if (D.ctrl.justPressed(Y)) {
+			// :: Item use
+			Reg.sendGameEvent('useitem');
+		}
+
 	}//---------------------------------------------------;
 
 	
@@ -1077,7 +1084,6 @@ class Player extends FlxSprite
 	// GET string or GENERATE string
 	public function SAVE(?str:String):String
 	{
-		trace("PLAYER SAVE", str);
 		if (str == null) {
 			var data = '$health,$healthSlow,$lives,$bullet_type';
 			return data;

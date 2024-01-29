@@ -47,9 +47,9 @@ class Bullet extends FlxSprite
 		{ anim:"p_1", speed:150, distance:0, 	maxscreen:2, damage:10, timer:250 }, // dps = 40/sec
 		{ anim:"p_2", speed:200, distance:82, 	maxscreen:4, damage:6,  timer:135 }, // dps = 44/sec
 		{ anim:"p_3", speed:240, distance:0, 	maxscreen:2, damage:19, timer:450 }, // dps = 42.2/sec
-		{ anim:"e_1", speed:110, distance:0, 	maxscreen:2, damage:10, timer:0   }, // Turret
-		{ anim:"e_2", speed:80,  distance:0, 	maxscreen:4, damage:12, timer:0   }, // Long legs enemy
-		{ anim:"e_2", speed:70,  distance:0, 	maxscreen:3, damage:13, timer:0   }  // Final boss
+		{ anim:"e_1", speed:110, distance:0, 	maxscreen:2, damage:9, timer:0   }, // Turret
+		{ anim:"e_2", speed:80,  distance:0, 	maxscreen:4, damage:10, timer:0   }, // Long legs enemy
+		{ anim:"e_2", speed:70,  distance:0, 	maxscreen:3, damage:11, timer:0   }  // Final boss
 	];
 		
 	inline static var halfWidth = 2;

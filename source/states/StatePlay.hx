@@ -58,12 +58,24 @@ class StatePlay extends FlxState
 	{
 		super.create();
 		
+		// --
+		// I think the game at 1x is a bit too fast, I am slowing it a bit
+		// Restore it when exiting this state
+		FlxG.timeScale = 0.86;
+		FlxG.signals.preStateSwitch.addOnce(() -> {
+			FlxG.timeScale = 1;
+		});
+		
 		bgColor = Reg.BG_COLOR;
 		Reg.st = this;
 		Reg.sendGameEvent = on_game_event;
-	
+
+		// Call this now, player reads 'FLAG_SECOND_CHANCE'
+		var S = Reg.LOAD_GAME();
+		if(Reg.FLAG_SECOND_CHANCE==0 && S!=null)
+		   Reg.FLAG_SECOND_CHANCE=S.sec;
+
 		player = new Player();
-		
 		map = new MapFK(player);
 		map.onEvent = on_map_event;
 		FlxG.cameras.reset(map.camera);	// << Make the map camera default for everything from now on
@@ -111,15 +123,21 @@ class StatePlay extends FlxState
 		var _isNew = false;	// Is it a new game
 		
 		// -- Load game or new game
-		var S = Reg.LOAD_GAME();
 		if (S != null) {
 			trace("SAVE - Exists OK, loading..", S);
-			player.SAVE(S.pl);
+			if(Reg.FLAG_SECOND_CHANCE==1) {
+				// just resumed from a gameover
+				HUD.reset();
+				HUD.SAVE(S.hud);
+				HUD.set_score(0);
+			}else{
+				player.SAVE(S.pl);
+				HUD.reset();	// hud reset reads player vars
+				HUD.SAVE(S.hud);
+			}
 			INV.SAVE(S.inv);
-			HUD.reset();
-			HUD.SAVE(S.hud);
 			MAP_TO_LOAD = S.map.levelid;
-			map.SAVE(S.map); // map is going to copy it.
+			map.SAVE(S.map); // not a pointer [OK]
 			
 		}else{
 			trace("SAVE - Does not exist, starting new");
@@ -127,7 +145,7 @@ class StatePlay extends FlxState
 			HUD.reset();
 			_isNew = true;
 		}
-		
+
 		// : Override the starting map to whatever the INI file says
 		#if debug
 			var L = Reg.INI.get('DEBUG', 'startLevel');
@@ -151,13 +169,10 @@ class StatePlay extends FlxState
 		}
 		
 		// --
-		
-		// I think the game at 1x is a bit too fast, I am slowing it a bit
-		// Restore it when exiting this state
-		FlxG.timeScale = 0.9;
-		FlxG.signals.preStateSwitch.addOnce(() -> {
-			FlxG.timeScale = 1;
-		});
+		if(Reg.FLAG_SECOND_CHANCE==1){
+			Reg.FLAG_SECOND_CHANCE=2;
+			Reg.SAVE_GAME();
+		}
 	}//---------------------------------------------------;
 		
 		

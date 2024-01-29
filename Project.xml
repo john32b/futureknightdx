@@ -34,8 +34,6 @@
 	<haxedef name="DJFLX_MUS" value="mus/"/>
 
 	<!-- Haxe defines -->
-	<haxeflag name="-dce" value="std" unless="final"/>
-	<haxeflag name="-dce" value="full" if="final"/>
 	<haxedef name="no-traces" unless="debug"/>
 		
 	<!-- djflixel 0.5.9 | flixel 5.5 -->

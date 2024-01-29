@@ -299,10 +299,12 @@ class Hud extends FlxGroup
 	
 	public function score_add(c:Int)
 	{
+		if(Reg.FLAG_SECOND_CHANCE>0) set_score(_score + 1); else
 		set_score(_score + c);
 	}//---------------------------------------------------;
 	
 	
+	/** Saves/Restores SCORE,ITEM **/
 	public function SAVE(?str:String):String
 	{
 		if (str == null) {

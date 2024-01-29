@@ -12,7 +12,6 @@ import openfl.display.Bitmap;
 import states.StatePlay;
 import states.SubStatePause;
 import tools.CRTShader;
-import openfl.Lib;
 
 /**
  * Static Globals, functions and vars
@@ -127,6 +126,8 @@ class Reg
 	/** In any time during the lifetime did it show the controller connected toast? */
 	public static var FLAG_CONTROLLER_TOAST:Bool = false;
 	
+	/** Is this curent game a resume from a gameover (1:to be activated on next state. 2:active)*/
+	public static var FLAG_SECOND_CHANCE:Int = 0;
 	//====================================================;
 	
 	// Gets called once After FLXGame and before first State
@@ -280,6 +281,7 @@ class Reg
 		D.save.setSlot(1);
 		var OBJ = {
 			ver:VERSION,
+			sec:FLAG_SECOND_CHANCE,
 			pl:st.player.SAVE(),
 			inv:st.INV.SAVE(),
 			hud:st.HUD.SAVE(),
@@ -296,11 +298,18 @@ class Reg
 		D.save.setSlot(1);
 		return D.save.exists('game');
 	}//---------------------------------------------------;
-			
+
+	/* Just returns the save data object, doesn't apply anything */
 	public static function LOAD_GAME():Dynamic
 	{
 		D.save.setSlot(1);
-		return D.save.load('game');
+		var s = D.save.load('game');
+		if (s!=null) {
+			// Fix compatibility with older saves
+			if (s.sec == null) s.sec = 0;
+		}
+
+		return s;
 	}//---------------------------------------------------;
 	
 	

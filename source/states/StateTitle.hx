@@ -523,6 +523,7 @@ class StateTitle extends FlxState
 		
 		if (newGame) {
 			D.save.deleteSlot(1);
+			Reg.FLAG_SECOND_CHANCE = 0;
 			new FilterFader(true, ()->{
 				FlxG.switchState(new StateIntro());
 			});
