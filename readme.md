@@ -73,27 +73,36 @@ The game had three distinct versions. The Amstrad CPC and Spectrum/MSX versions 
 
 To build **Future Knight DX** you will need
 
-- Haxe 4.3.3 -- <https://haxe.org/>
-- HaxeFlixel 5.5.0 -- <https://github.com/HaxeFlixel/flixel>
-- djFlixel v0.5.9 -- <https://github.com/john32b/djFlixel>
-- djA v0.2 -- <https://github.com/john32b/djA>
-- openfl 9.3.2 - `haxelib install openfl 9.3.2`
-- lime 8.1.1 - `haxelib install lime 8.1.1`
+- [Haxe](https://haxe.org) `4.3.3`
+- [HaxeFlixel](https://github.com/HaxeFlixel/flixel) `5.5.0`
+- [djFlixel](https://github.com/john32b/djFlixel) `0.5.9`
+- [djA](https://github.com/john32b/djA) `0.2.1`
+
+
+<details>
+<summary style="margin-bottom:12px">More Details <i>(click to expand)</i></summary> 
+
+The libraries `djFlixel` and `djA` are not in haxelib, to install those do:
+
+```bash
+haxelib git djFlixel https://github.com/john32b/djFlixel
+haxelib git djA https://github.com/john32b/djA
+```
 
 Supports building to `linux`, `windows`, `hashlink`, `html5`, `flash`  
 Currently Mac, Android, others are **untested**
 
-Build this like any other Flixel Program, e.g. to build for HTML:  
+Build this like any other HaxeFlixel Program, *e.g. to build for HTML:*  
 `lime build html5 -final`
+
+</details>
+
+## More Info
 
 **The level maps** are made in **TILED** editor (<https://www.mapeditor.org>)  
 I can't get into how level maps work and how to make new ones right now, but it is not that complicated, I swear!
 
----
-
-## More Info
-
-<!-- EASTER EGG -
+<!-- EASTER EGG OLD README.MD ::
 Gremlin Software, the creators/publishers of the original game, according to [Wikipedia](https://en.wikipedia.org/wiki/Gremlin_Interactive) are now defunct; and it seems that the company **Urbanscan** now owns Gremlin's older games. Personally I don't think they would care if one of their old games had a free to play clone remake and had its assets available on GitHub? Also Future Knight wasn't one of their heavy hitters. Will I ever If get in trouble for sharing the original game assets? I'll just remove them from github.
 
 ### Assets?
@@ -106,7 +115,7 @@ Gremlin Software, the creators/publishers of the original game, according to [Wi
 ### Assets used:
 
 - Ripped original assets from the CPC version of the game, created by Gremlin Software
-- New background/foreground tiles created by myself, john32B
+- New background/foreground tiles created by myself, John32B
 - Font: `Arcadepix` Font, by Reekee of Dimenzioned, 100% free
 - Font: `8-bit Pusab` Font, by Seba Perez, 100% free
 - Font: `Pixeltype` Font, by TheJman0205, 100% free
@@ -116,7 +125,6 @@ Gremlin Software, the creators/publishers of the original game, according to [Wi
 - Music: `The Dim Dungeon 2` by drozerix, Public Domain
 - All other sounds and graphics were done by myself
 
----
 <img src="_readme/old_vs_new.webp" style="display:block;margin:1em auto;width:500px;"/>
 
 ## Finally
