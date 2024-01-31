@@ -36,6 +36,7 @@
 	<haxedef name="DJFLX_MUS" value="mus/"/>
 
 	<!-- Haxe defines -->
+	<haxeflag name="-dce" value="full" if="final"/>
 	<haxedef name="no-traces" unless="debug"/>
 		
 	<!-- djflixel 0.5.9 | flixel 5.5 -->
@@ -44,7 +45,7 @@
 	<haxelib name="djA"/>
 
 	<!-- ASSETS -->
-	<library name="default" type="gzip" preload="true" if="final hl"/>
+	<library name="default" type="gzip" preload="true" if="final desktop"/>
 	<assets path="assets" include="*.ini|*.json"/>
 	<assets path="assets/font" type="font" include="*.ttf|*.otf" rename="fnt"/>
 	<assets path="assets/images" type="image" include="*.png|*.jpg" rename="im"/>
