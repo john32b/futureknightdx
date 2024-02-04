@@ -23,6 +23,7 @@
 	<!-- HTML specific-->
 	<section if="html5">
 		<app preloader="Preloader"/>
+		<window width="800" height="600"/>
 		<window fps="0" />
 	</section>
 
@@ -69,6 +70,6 @@
 	<icon path="icons/icon_16.png" size="16"/>
 	<icon path="icons/icon_32.png" size="32"/>
 	<icon path="icons/icon_48.png" size="48"/>
-	<icon path="icons/icon_128.png" size="128"/>
+	<icon path="icons/icon_64.png" size="64"/>
 
 </project>
