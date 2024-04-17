@@ -3,15 +3,17 @@ package;
 import flixel.FlxGame;
 import djA.parser.ConfigFileB;
 import djFlixel.D;
-import djFlixel.other.DelayCall;
 import djFlixel.ui.FlxMenu;
 import djFlixel.ui.menu.MItemData;
 import flixel.FlxG;
 import flixel.system.FlxAssets;
 import openfl.display.Bitmap;
+import openfl.filters.ShaderFilter;
 import states.StatePlay;
 import states.SubStatePause;
-import tools.CRTShader;
+import djFlixel.gfx.shader.CRTShader;
+import djFlixel.gfx.shader.Grain;
+import djFlixel.gfx.shader.Hq2x;
 
 /**
  * Static Globals, functions and vars
@@ -89,13 +91,9 @@ class Reg
 		{a:"FK_Title", loop:0}	// Main Title Music
 	];
 	
-
 	// Decorative Amstrad CPC screen border
 	// This is an openfl object, not flixel
 	static var border:Bitmap;	
-	
-	// -
-	static var SHADER:CRTShader;
 	
 	// Keeps what sound is supposed to be playing right now
 	// Useful for when Muting/Unmuting the sounds. It will play this one
@@ -114,8 +112,11 @@ class Reg
 	// Called from anywhere to send small messages to the Play State
 	public static var sendGameEvent:String->?gamesprites.AnimatedTile->Void;
 	
-	/** Setter - Sets the current shader (0:None | 1:Blur | 2:CRT ) + edges loop **/
+	/** Setter - Sets the current shader (0:None | 1:HQ2X | 2:CRT ) + edges loop **/
 	public static var SHADER_INDEX(default, set):Int = 0;
+
+	/** Callback called after changing shaders, used to properly kill a shader **/
+	private static var shader_kill:Void->Void = null;
 
 	/** Setter - enables/disables the CPC Border */
 	public static var BORDER_STATUS(default, set):Bool = false;
@@ -149,12 +150,6 @@ class Reg
 		
 		IM = new ImageAssets();
 
-		SHADER = new CRTShader();
-		#if !flash
-		FlxG.game.setFilters([new openfl.filters.ShaderFilter(SHADER)]);
-		#end
-		FlxG.game.filtersEnabled = false;
-
 		SAVE_SETTINGS(false);	// restore & apply
 		SAVE_KEYS();			// restore & apply keys
 		
@@ -166,6 +161,7 @@ class Reg
 		FlxG.autoPause = false;
 		FlxG.sound.soundTrayEnabled = false;
 
+		// --
 		D.ctrl.hotkey_add(F7, _cycle_border);
 		D.ctrl.hotkey_add(F8, _cycle_shader);
 		D.ctrl.hotkey_add(F9, _cycle_window_size.bind(true));
@@ -183,24 +179,6 @@ class Reg
 		border.y = FlxG.game.y;
 		border.width = FlxG.scaleMode.gameSize.x;
 		border.height = FlxG.scaleMode.gameSize.y;
-		
-		SHADER.setWinSize(w, h);
-
-		// == OPENFL QUIRK (BUG?)
-		// The filters need to regenerate
-		// For some reason I can't unset-set a filter on the same frame, or even the next one
-		// Using a timed delay for 2 frames works.
-		FlxG.game.filtersEnabled = false;
-
-		if (SHADER_INDEX > 0) 
-		{
-			// DEV: The very first call, right after FlxGame creates
-			// elapsed is 0, but this still works fine
-			new DelayCall(FlxG.elapsed * 2, ()->{
-				FlxG.game.filtersEnabled = true;
-			});
-		}
-		
 	}//---------------------------------------------------;
 
 	// - Called from Inventory / player
@@ -413,45 +391,40 @@ class Reg
 	{
 		#if flash
 			return SHADER_INDEX = 0;
-		#else
+		#end
 
-		// Loop, for easy cycling
+		// Loop
 		if(val<0) val=2; else 
 		if(val>2) val=0;
 		if (SHADER_INDEX == val) return val;
 
-		if (val == 0) {
-			FlxG.game.filtersEnabled = false;
-		} else {
-			FlxG.game.filtersEnabled = true;
-			if (val == 1) {
-				// :: SMOOTH/BLUR
-				#if html5
-				// HTML is already a bit blurry, since it is 640x480 resized up
-				SHADER.STRENGTH = [0.12, 0.12];
-				SHADER.CHROMAB = 0.66;
-				#else
-				SHADER.STRENGTH = [0.8, 0.6];
-				SHADER.CHROMAB = 0.125;
-				#end
-				SHADER.SCANLINES = false;
-			} else {
-				// :: CRT
-				#if html5
-				SHADER.STRENGTH = [0.5, 0.2];
-				SHADER.CHROMAB = 0.75;
-				#else
-				SHADER.STRENGTH = [0.9, 0.25];
-				SHADER.CHROMAB = 0.8;
-				#end
-				SHADER.SCANLINES = true;
-			}
+		if(shader_kill!=null) {
+			shader_kill();
+			shader_kill = null;
 		}
-		
-		SHADER_INDEX = val;
-		return SHADER_INDEX;	
 
-		#end // end if (!flash)
+		// previous-shader-kill()
+		var filters:Array<openfl.filters.BitmapFilter> = [];
+		switch(val)
+		{
+			case 1:
+				filters = [
+					new ShaderFilter(new Hq2x(0.8))
+				];
+			case 2:
+				var crt = new CRTShader(0.5,[0.92,1.02]);
+				shader_kill = crt.removeSignals;
+				filters = [
+					new ShaderFilter(crt),
+					new ShaderFilter(new Grain())
+				];
+			default:
+		}
+
+		FlxG.game.setFilters(filters);
+
+		return SHADER_INDEX=val;
+		
 	}// -------------------------;
 
 	// - Setter

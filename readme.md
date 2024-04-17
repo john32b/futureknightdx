@@ -11,7 +11,7 @@
 
 ​This repo is the source code of the game along with all the assets that are needed to compile. Made with [HaxeFlixel](https://haxeflixel.com/), and [Haxe](https://haxe.org). The code is commented throughout (*mostly*) and I think it can provide a decent example on how to approach some game related things, like enemy AI, player physics, spawning and handling entities on a map, etc. Plus another practical example on using my library [djFlixel](https://github.com/john32b/djFlixel) (*which mostly provides a Menu Object*)
 
-<a href="https://john0032.itch.io/future-knight-dx"><img style="display:block;margin:1em auto;height:400px;" src="_readme/demoplay_anim.webp"/></a>
+<a href="https://john0032.itch.io/future-knight-dx"><img style="display:block;margin:1em auto;height:400px;" src=".readme/demoplay_anim.webp"/></a>
 
 **Visit the [game page on itch.io here](https://john0032.itch.io/future-knight-dx)**  
 **Available for** : HTML / Windows / Linux
@@ -125,7 +125,7 @@ Gremlin Software, the creators/publishers of the original game, according to [Wi
 - Music: `The Dim Dungeon 2` by drozerix, Public Domain
 - All other sounds and graphics were done by myself
 
-<img src="_readme/old_vs_new.webp" style="display:block;margin:1em auto;width:500px;"/>
+<img src=".readme/old_vs_new.webp" style="display:block;margin:1em auto;width:500px;"/>
 
 ## Finally
 

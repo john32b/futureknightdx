@@ -1,5 +1,12 @@
 == Future Knight DX - Log
 
+
+v1.5.1 (2024-04)
+ - CRT Shader moved out of game codebase, it is now in djFlixel
+ - CRT Shader, minor parameter tweaks, also now applies a grain filter
+ - CRT Shader bugfix where it would black out on the Mesa Crocus driver for Linux (gen4 intel graphics)
+ - Replaced `Type A` Blur Shader with a Hq2x shader
+
 v1.5 (2024-01)
  - Updated to use latest development tool versions
  - 60FPS is the default FPS now
